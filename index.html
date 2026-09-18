@@ -1,1 +1,194 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0; url=/crash-week/"><link rel="canonical" href="https://tohesar.com/crash-week/"><title>CRASH//WEEK</title><script>location.replace("/crash-week/");</script></head><body style="margin:0;background:#101214;color:#f5efe6;font-family:system-ui;display:grid;place-items:center;min-height:100vh"><a href="/crash-week/" style="color:inherit">OPEN CRASH//WEEK →</a></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5efe6">
+  <meta name="description" content="CRASH//WEEK — 학생의 일주일을 충돌시험처럼 시뮬레이션하고 일정 과부하를 분석·재설계하는 Student Dynamics Laboratory.">
+  <meta property="og:title" content="CRASH//WEEK — Student Dynamics Laboratory">
+  <meta property="og:description" content="Find what breaks before the week begins.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://teambkit.com/">
+  <title>CRASH//WEEK — Student Dynamics Laboratory</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#lab">Skip to laboratory</a>
+<div class="loader" id="loader" aria-hidden="true">
+  <div><strong id="loaderNum">00</strong><span>CALIBRATING STUDENT DYNAMICS</span></div>
+</div>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+<div class="ambient ambient-a" id="ambientA"></div>
+<div class="ambient ambient-b" id="ambientB"></div>
+<div class="ambient ambient-c"></div>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="./">CRASH<span>//</span>WEEK</a>
+    <div class="nav-right">
+      <span class="nav-meta">STUDENT DYNAMICS LAB · 2026</span>
+      <a class="nav-link" href="#">TOHEŞAR ↗</a>
+      <button class="pill magnetic" type="button" data-scroll="#lab">OPEN LAB</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <div class="hero-copy reveal">
+      <p class="eyebrow">A STUDY IN TIME, PRESSURE AND MOTION · 2026</p>
+      <h1>CRASH<span>//</span><br>WEEK</h1>
+      <div class="hero-lead">
+        <p>일주일을 살아보기 전에 먼저 충돌시킨다. 일정 과부하를 찾고, 원인을 분석하고, 더 안정적인 한 주로 재설계하는 학생용 시뮬레이션 랩.</p>
+        <button class="hero-cta magnetic" type="button" data-scroll="#lab"><i></i> RUN A TEST <b>↘</b></button>
+      </div>
+    </div>
+    <div class="hero-art reveal" aria-hidden="true">
+      <div class="orb"></div>
+      <svg viewBox="0 0 620 260" class="carline" fill="none">
+        <path d="M62 172C121 165 158 141 203 101C229 78 259 70 325 69H406C446 69 472 83 503 119L540 160C551 172 565 179 586 184" stroke="currentColor" stroke-width="2"/>
+        <path d="M54 183C98 190 136 194 181 194H523C557 194 580 190 595 181" stroke="currentColor" stroke-width="2"/>
+        <path d="M205 102L274 101L309 71M275 101H450" stroke="currentColor" stroke-opacity=".45"/>
+        <circle cx="182" cy="186" r="37" stroke="currentColor" stroke-width="2"/><circle cx="182" cy="186" r="21" stroke="currentColor" stroke-opacity=".28"/>
+        <circle cx="505" cy="186" r="37" stroke="currentColor" stroke-width="2"/><circle cx="505" cy="186" r="21" stroke="currentColor" stroke-opacity=".28"/>
+      </svg>
+      <div class="hero-badge"><strong>0→7</strong><span>DAYS UNDER SIMULATION</span></div>
+    </div>
+  </section>
+
+  <section class="manifesto wrap reveal">
+    <h2>A CALENDAR TELLS YOU <em>WHAT.</em><br>THIS TELLS YOU <em>WHAT BREAKS.</em></h2>
+  </section>
+
+  <section class="lab-section wrap" id="lab">
+    <div class="section-head reveal">
+      <div><p class="eyebrow">VIRTUAL IMPACT RIG</p><h2>STUDENT<br>DYNAMICS LAB.</h2></div>
+      <p>일정을 넣고 테스트를 실행하세요. 하루 처리 가능시간을 넘는 지점, 수면 손실 가능성, 가장 위험한 날짜를 찾고 자동 재설계까지 시도합니다.</p>
+    </div>
+
+    <div class="lab reveal">
+      <div class="lab-top">
+        <div class="window-dots"><i></i><i></i><i></i></div>
+        <span>CRASH//WEEK · TELEMETRY CORE</span>
+        <span id="clock">SYS --:--</span>
+      </div>
+
+      <div class="lab-grid">
+        <section class="pane pane-input" aria-label="Test package controls">
+          <article class="card">
+            <div class="card-head">
+              <div><span class="micro-label">01 / INPUT PACKAGE</span><h3>일정 추가</h3></div>
+              <button class="micro-btn" id="demoBtn" type="button">LOAD DEMO</button>
+            </div>
+            <div class="form-grid">
+              <label class="field full"><span>일정 이름</span><input id="name" maxlength="40" placeholder="예: 영어 수행평가 준비"></label>
+              <label class="field"><span>종류</span><select id="type"><option>수행평가</option><option>숙제</option><option>시험공부</option><option>고정일정</option><option>개인일정</option></select></label>
+              <label class="field"><span>마감 / 실행일</span><select id="day"><option value="0">MON · 월</option><option value="1">TUE · 화</option><option value="2">WED · 수</option><option value="3">THU · 목</option><option value="4">FRI · 금</option><option value="5">SAT · 토</option><option value="6">SUN · 일</option></select></label>
+              <label class="field"><span>예상 소요시간</span><input id="minutes" type="number" min="10" max="480" step="10" value="60"></label>
+              <label class="field"><span>중요도</span><select id="priority"><option value="1">P1 · 보통</option><option value="2" selected>P2 · 중요</option><option value="3">P3 · 매우 중요</option></select></label>
+              <div class="toggle-row full"><label for="flexible">마감 전 다른 날로 옮길 수 있음</label><input id="flexible" class="switch" type="checkbox" checked></div>
+            </div>
+            <div class="actions"><button class="btn light" id="addBtn" type="button">+ ADD EVENT</button><button class="btn ghost" id="clearBtn" type="button">CLEAR</button></div>
+          </article>
+
+          <article class="card">
+            <div class="card-head"><div><span class="micro-label">02 / CONSTRAINTS</span><h3>이번 주 한계값</h3></div><small>saved locally</small></div>
+            <div class="form-grid">
+              <label class="field"><span>평일 사용 가능시간 (분)</span><input id="weekdayCap" type="number" min="30" max="600" step="10" value="120"></label>
+              <label class="field"><span>주말 사용 가능시간 (분)</span><input id="weekendCap" type="number" min="30" max="720" step="10" value="180"></label>
+              <label class="field full"><span>최소 수면 목표 (시간)</span><input id="sleep" type="number" min="5" max="10" step=".5" value="7"></label>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-head"><div><span class="micro-label">03 / TEST PACKAGE</span><h3>등록된 일정</h3></div><small id="taskCount">0 EVENTS</small></div>
+            <div id="taskList" class="task-list"></div>
+          </article>
+        </section>
+
+        <section class="pane pane-stage" aria-label="Simulation output">
+          <div class="stage" id="stage">
+            <div class="stage-meta"><span>WEEK 38 / VIRTUAL IMPACT RIG</span><span id="testId">TEST —</span></div>
+            <div class="track"></div>
+            <div class="test-car" id="testCar" aria-hidden="true">
+              <svg viewBox="0 0 90 50"><path fill="#F5EFE7" d="M10 32h5l6-12c2-5 7-8 13-8h18c6 0 10 2 13 8l8 12h4c3 0 6 2 6 5v4H4v-4c0-3 3-5 6-5Z"/><path fill="#A6B2BB" d="M29 16h23c5 0 8 2 10 7H25c1-3 2-5 4-7Z"/><circle cx="25" cy="40" r="6" fill="#202327"/><circle cx="66" cy="40" r="6" fill="#202327"/></svg>
+            </div>
+            <div class="impact-label" id="impactLabel">IMPACT DETECTED</div>
+            <div class="day-dots" id="dayDots"></div>
+            <div class="days"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div>
+          </div>
+
+          <div class="metrics">
+            <div><strong id="stability">—</strong><span>STABILITY</span></div>
+            <div><strong id="collisions">—</strong><span>COLLISIONS</span></div>
+            <div><strong id="peakLoad">—</strong><span>PEAK LOAD</span></div>
+            <div><strong id="reserve">—</strong><span>RESERVE</span></div>
+          </div>
+
+          <div class="graph">
+            <div class="graph-key"><span><i></i>LOAD</span><span><i class="limit"></i>LIMIT</span></div>
+            <svg viewBox="0 0 700 130" preserveAspectRatio="none">
+              <defs><linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffb08c"/><stop offset="1" stop-color="#ffb08c" stop-opacity="0"/></linearGradient></defs>
+              <path id="graphFill" fill="url(#fillGrad)" opacity=".18"></path>
+              <path id="graphPath" d="M0 100L700 100" fill="none" stroke="#ffb08c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+              <line x1="0" x2="700" y1="48" y2="48" stroke="#ff847b" stroke-opacity=".35" stroke-dasharray="8 8"></line>
+            </svg>
+          </div>
+
+          <div class="week-board" id="weekBoard"></div>
+
+          <div class="actions stage-actions">
+            <button class="btn danger magnetic" id="runBtn" type="button">RUN CRASH TEST</button>
+            <button class="btn success" id="reconstructBtn" type="button">AUTO RECONSTRUCT</button>
+            <button class="btn ghost" id="replayBtn" type="button">WEEK REPLAY</button>
+          </div>
+
+          <div class="result" id="result">
+            <span class="micro-label">POST-IMPACT ANALYSIS</span>
+            <h3 id="impactTitle">TEST COMPLETE</h3>
+            <p id="impactText"></p>
+            <div class="actions"><button class="micro-btn" id="analysisBtn" type="button">OPEN IMPACT ANALYSIS</button><button class="micro-btn" id="snapshotBtn" type="button">SAVE TEST SNAPSHOT</button></div>
+            <div class="report" id="report"></div>
+          </div>
+
+          <div class="compare" id="compare">
+            <span class="micro-label">TEST-TO-TEST DELTA</span>
+            <div class="compare-grid"><div id="beforeCol"></div><b>→</b><div id="afterCol"></div></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="bento wrap">
+    <div class="section-head reveal">
+      <div><p class="eyebrow">DESIGN LANGUAGE</p><h2>WHY IT<br>FEELS DIFFERENT.</h2></div>
+      <p>자동차 R&D의 사고방식을 학교 일정에 이식했습니다. 기록보다 예측, 경고보다 원인 분석, 계획보다 재설계가 중심입니다.</p>
+    </div>
+    <div class="bento-grid reveal">
+      <article class="tile tile-dark tile-big"><span class="micro-label">TELEMETRY / LIVE LOAD</span><h3>시간을 계기판처럼 읽는다.</h3><p>작업량, 처리 가능시간, 마감 압력, 수면 손실을 하나의 동역학 데이터로 취급합니다.</p><div class="gauge"><b>72</b></div><strong class="tile-num">01</strong></article>
+      <article class="tile"><span class="micro-label">IMPACT / CAUSE</span><h3>충돌에는 이유가 있다.</h3><p>어느 날 몇 분이 부족하고 무엇이 원인인지 보여줍니다.</p><strong class="tile-num">02</strong></article>
+      <article class="tile"><span class="micro-label">RECONSTRUCT / WHAT IF</span><h3>다시 설계한다.</h3><p>옮길 수 있는 작업을 마감 이전의 빈 슬롯으로 재배치합니다.</p><strong class="tile-num">03</strong></article>
+      <article class="tile"><span class="micro-label">TOHEŞAR / VISUAL</span><h3>Warm sunset × R&D.</h3><p>피치·라벤더의 따뜻한 빛과 자동차 계측실의 어두운 UI를 연결했습니다.</p><strong class="tile-num">04</strong></article>
+      <article class="tile"><span class="micro-label">PRIVACY</span><h3>브라우저 안에서만.</h3><p>로그인 없이 동작하며 일정과 테스트 기록은 이 기기의 LocalStorage에 저장됩니다.</p><strong class="tile-num">05</strong></article>
+    </div>
+  </section>
+</main>
+
+<footer class="footer wrap">
+  <div class="footer-line"></div>
+  <div class="footer-grid"><div><b>CRASH//WEEK</b><span>Student Dynamics Laboratory · School-life simulation study</span></div><div>BUILT FROM DAYS, NOT DEADLINES.<br>An experimental interface in the <a href="/">TOHEŞAR</a> universe.</div></div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-box">
+    <div class="modal-head"><div><span class="micro-label">IMPACT INVESTIGATION REPORT</span><h3 id="modalTitle">TEST ANALYSIS</h3></div><button id="modalClose" class="close" type="button" aria-label="Close">×</button></div>
+    <div class="analysis-list" id="analysisList"></div>
+  </div>
+</div>
+</body>
+</html>
