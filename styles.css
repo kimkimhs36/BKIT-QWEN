@@ -69,3 +69,42 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 @media(max-width:650px){.wrap{width:min(100% - 22px,1200px)}.nav-meta,.nav-link{display:none}.hero{min-height:auto;padding:11vh 0 60px}.hero h1{font-size:clamp(60px,21vw,95px)}.hero-lead{align-items:flex-start}.hero-art{min-height:265px}.hero-badge{right:0}.manifesto{padding-top:40px}.section-head{align-items:flex-start;flex-direction:column}.lab{border-radius:24px}.pane{padding:14px}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.metrics{grid-template-columns:1fr 1fr}.report{grid-template-columns:1fr}.week-board{grid-template-columns:repeat(2,1fr)}.bento-grid{grid-template-columns:1fr;grid-auto-rows:auto}.tile,.tile-big{min-height:220px;grid-column:auto}.compare-grid{grid-template-columns:1fr}.compare-grid>b{text-align:center;transform:rotate(90deg)}}
 @media(pointer:fine){.cursor{display:block}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}.loader{display:none}.ambient{display:none}.test-car,.day-card .fill i{transition:none!important}.test-car.run{animation:none}}
+
+/* Build 03 — interactive vehicle rig + practical controls */
+.live-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(20,20,20,.1);border-radius:999px;font-size:9px;font-weight:800;letter-spacing:.12em;color:#5f5a56;background:rgba(255,255,255,.35)}
+.live-chip i{width:6px;height:6px;border-radius:50%;background:#71c98a;box-shadow:0 0 0 5px rgba(113,201,138,.12)}
+.hero-art{perspective:1200px}
+.vehicle-scene{--rx:-4deg;--ry:7deg;position:relative;width:min(47vw,560px);height:min(34vw,420px);min-height:300px;z-index:2;transform-style:preserve-3d;transform:rotateX(var(--rx)) rotateY(var(--ry));transition:transform .35s var(--ease);will-change:transform}
+.scene-grid{position:absolute;left:-9%;right:-9%;bottom:2%;height:50%;transform:rotateX(68deg) translateZ(-42px);transform-origin:center bottom;background-image:linear-gradient(rgba(20,20,20,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(20,20,20,.12) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(to top,rgba(0,0,0,.95),transparent);border-radius:50%}
+.scan-beam{position:absolute;left:8%;right:8%;top:15%;height:3px;background:linear-gradient(90deg,transparent,#fff4eb 20%,#ffb08c 50%,#fff4eb 80%,transparent);filter:blur(.2px) drop-shadow(0 0 10px rgba(255,176,140,.7));opacity:.78;animation:scanRig 3.6s ease-in-out infinite;transform:translateZ(76px)}
+.vehicle-shadow{position:absolute;left:15%;right:9%;bottom:14%;height:14%;border-radius:50%;background:rgba(21,21,21,.28);filter:blur(18px);transform:translateZ(-14px) rotateX(68deg)}
+.vehicle-shell{position:absolute;inset:5% -6% 1% -7%;display:grid;place-items:center;transform:translateZ(36px);filter:drop-shadow(0 28px 24px rgba(44,28,18,.18));animation:vehicleFloat 5.2s ease-in-out infinite}
+.car-model{width:100%;height:100%;overflow:visible}
+.model-body{stroke:rgba(255,255,255,.72);stroke-width:1.4}
+.model-glass{stroke:rgba(255,255,255,.5);stroke-width:1}
+.model-wire{stroke:#151515;stroke-width:1.5;stroke-opacity:.42}
+.model-wire.rear{stroke-dasharray:5 7;opacity:.45}
+.vehicle-data{position:absolute;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.52);backdrop-filter:blur(10px);border:1px solid rgba(20,20,20,.08);font-size:8px;font-weight:800;letter-spacing:.13em;color:#55504d;transform:translateZ(85px)}
+.data-a{left:2%;top:21%}.data-b{right:0;top:33%}.data-c{right:12%;bottom:8%}
+.hero-systems{position:absolute;left:3%;bottom:5%;z-index:4;display:flex;gap:12px;align-items:center;font-size:8px;font-weight:800;letter-spacing:.11em;color:#6c6661}
+.hero-systems span{display:flex;align-items:center;gap:6px}.hero-systems i{width:5px;height:5px;border-radius:50%;background:#6bc98a}
+.hero-art:hover .vehicle-scene{transition-duration:.12s}
+.preset-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.preset-row button{border:1px solid #2d3339;background:#101316;color:#8e969e;border-radius:999px;padding:7px 10px;font-size:9px;font-weight:800;letter-spacing:.08em;transition:.18s}
+.preset-row button:hover,.preset-row button.active{color:#171717;background:var(--peach);border-color:var(--peach)}
+.task.done{opacity:.48}
+.task.done h4{text-decoration:line-through}
+.task-actions{margin-left:auto}
+.icon-btn.done-btn{font-size:12px;width:27px;height:27px;border:1px solid #2e343a;border-radius:50%;display:grid;place-items:center;padding:0}
+.icon-btn.done-btn.active{background:var(--mint);color:#0d1711;border-color:var(--mint)}
+.icon-btn.edit-btn{font-size:11px;border:1px solid #2e343a;border-radius:999px;padding:5px 8px}
+.snapshot-tray{display:flex;gap:7px;overflow:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none}.snapshot-tray::-webkit-scrollbar{display:none}
+.snapshot-card{flex:0 0 150px;padding:11px 12px;border-radius:13px;background:#0d1012;border:1px solid #292e33}.snapshot-card b{display:block;font-size:22px;letter-spacing:-.05em}.snapshot-card span{display:block;margin-top:3px;color:#727a82;font-size:8px;letter-spacing:.1em}.snapshot-card small{display:block;margin-top:8px;color:#a1a8af;font-size:9px}
+.day-card .date{position:absolute;right:9px;top:9px;color:#555e66;font-size:8px;letter-spacing:.06em}
+.day-card.today{box-shadow:inset 0 0 0 1px rgba(206,193,255,.45)}
+.day-card.today:before{content:"TODAY";position:absolute;right:8px;bottom:9px;color:var(--lav);font-size:7px;letter-spacing:.13em;font-weight:800}
+@keyframes scanRig{0%,100%{transform:translateY(-34px) translateZ(76px);opacity:.18}50%{transform:translateY(205px) translateZ(76px);opacity:.86}}
+@keyframes vehicleFloat{0%,100%{transform:translateZ(36px) translateY(0)}50%{transform:translateZ(36px) translateY(-7px)}}
+@media(max-width:980px){.vehicle-scene{width:min(82vw,560px);height:min(58vw,410px)}}
+@media(max-width:650px){.live-chip{display:none}.vehicle-scene{width:min(94vw,520px);height:280px;min-height:280px}.hero-systems{left:0;bottom:0;gap:8px}.hero-systems span:nth-child(2){display:none}.vehicle-data{display:none}.hero-badge{bottom:8%}}
+@media(prefers-reduced-motion:reduce){.scan-beam,.vehicle-shell{animation:none}.vehicle-scene{transform:none!important}}
