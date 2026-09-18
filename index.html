@@ -30,7 +30,7 @@
     <a class="brand" href="./">CRASH<span>//</span>WEEK</a>
     <div class="nav-right">
       <span class="nav-meta">STUDENT DYNAMICS LAB · 2026</span>
-      <a class="nav-link" href="#">TOHEŞAR ↗</a>
+      <span class="live-chip"><i></i> LIVE BUILD 03</span>
       <button class="pill magnetic" type="button" data-scroll="#lab">OPEN LAB</button>
     </div>
   </div>
@@ -46,16 +46,39 @@
         <button class="hero-cta magnetic" type="button" data-scroll="#lab"><i></i> RUN A TEST <b>↘</b></button>
       </div>
     </div>
-    <div class="hero-art reveal" aria-hidden="true">
+    <div class="hero-art reveal" id="heroArt" aria-hidden="true">
       <div class="orb"></div>
-      <svg viewBox="0 0 620 260" class="carline" fill="none">
-        <path d="M62 172C121 165 158 141 203 101C229 78 259 70 325 69H406C446 69 472 83 503 119L540 160C551 172 565 179 586 184" stroke="currentColor" stroke-width="2"/>
-        <path d="M54 183C98 190 136 194 181 194H523C557 194 580 190 595 181" stroke="currentColor" stroke-width="2"/>
-        <path d="M205 102L274 101L309 71M275 101H450" stroke="currentColor" stroke-opacity=".45"/>
-        <circle cx="182" cy="186" r="37" stroke="currentColor" stroke-width="2"/><circle cx="182" cy="186" r="21" stroke="currentColor" stroke-opacity=".28"/>
-        <circle cx="505" cy="186" r="37" stroke="currentColor" stroke-width="2"/><circle cx="505" cy="186" r="21" stroke="currentColor" stroke-opacity=".28"/>
-      </svg>
+      <div class="vehicle-scene" id="vehicleScene">
+        <div class="scene-grid"></div>
+        <div class="scan-beam"></div>
+        <div class="vehicle-shadow"></div>
+        <div class="vehicle-shell">
+          <svg viewBox="0 0 760 360" class="car-model" fill="none">
+            <defs>
+              <linearGradient id="bodyG" x1="110" y1="70" x2="640" y2="310" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#fff8ee"/><stop offset=".38" stop-color="#ffb08c"/><stop offset=".72" stop-color="#cec1ff"/><stop offset="1" stop-color="#77808a"/>
+              </linearGradient>
+              <linearGradient id="glassG" x1="320" y1="90" x2="500" y2="235" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#eff9ff" stop-opacity=".92"/><stop offset="1" stop-color="#35404c" stop-opacity=".88"/>
+              </linearGradient>
+              <filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <path class="model-wire rear" d="M70 255C131 250 170 230 222 176C263 132 307 111 382 105L506 101C558 100 601 122 628 163L672 225C686 244 704 254 728 260"/>
+            <path class="model-body" d="M54 249C86 236 129 223 175 211L232 157C269 122 310 108 379 104L506 101C555 100 597 120 625 160L666 218C688 223 708 235 720 254L711 279H650C639 235 607 211 568 211C526 211 494 239 486 279H257C249 238 216 211 175 211C133 211 102 239 94 279H56L42 266Z" fill="url(#bodyG)" fill-opacity=".9"/>
+            <path class="model-glass" d="M253 158C286 130 320 119 381 115L495 111C530 111 561 122 584 145L605 171L232 171Z" fill="url(#glassG)"/>
+            <path d="M383 115L381 171M497 111L525 171M232 171L606 171" stroke="#f6efe8" stroke-opacity=".45"/>
+            <path d="M75 245L152 229M666 219L616 215" stroke="#fff6ef" stroke-width="5" stroke-linecap="round" filter="url(#glow)"/>
+            <ellipse cx="176" cy="277" rx="49" ry="50" fill="#15191d"/><ellipse cx="176" cy="277" rx="28" ry="29" fill="#9ca4ad"/><ellipse cx="176" cy="277" rx="12" ry="12" fill="#20262c"/>
+            <ellipse cx="568" cy="277" rx="49" ry="50" fill="#15191d"/><ellipse cx="568" cy="277" rx="28" ry="29" fill="#9ca4ad"/><ellipse cx="568" cy="277" rx="12" ry="12" fill="#20262c"/>
+            <path class="model-wire front" d="M40 267C90 282 117 287 132 288M220 288H523M616 288C650 287 687 280 718 265"/>
+          </svg>
+        </div>
+        <span class="vehicle-data data-a">SIM BODY / C.W-03</span>
+        <span class="vehicle-data data-b">LOAD PATH / ACTIVE</span>
+        <span class="vehicle-data data-c">7-DAY RIG / READY</span>
+      </div>
       <div class="hero-badge"><strong>0→7</strong><span>DAYS UNDER SIMULATION</span></div>
+      <div class="hero-systems"><span><i></i> LOCAL ONLY</span><span>NO ACCOUNT</span><span>REAL-TIME MODEL</span></div>
     </div>
   </section>
 
@@ -91,7 +114,7 @@
               <label class="field"><span>중요도</span><select id="priority"><option value="1">P1 · 보통</option><option value="2" selected>P2 · 중요</option><option value="3">P3 · 매우 중요</option></select></label>
               <div class="toggle-row full"><label for="flexible">마감 전 다른 날로 옮길 수 있음</label><input id="flexible" class="switch" type="checkbox" checked></div>
             </div>
-            <div class="actions"><button class="btn light" id="addBtn" type="button">+ ADD EVENT</button><button class="btn ghost" id="clearBtn" type="button">CLEAR</button></div>
+            <div class="actions"><button class="btn light" id="addBtn" type="button">+ ADD EVENT</button><button class="btn ghost" id="cancelEditBtn" type="button" hidden>CANCEL EDIT</button><button class="btn ghost" id="clearBtn" type="button">CLEAR</button></div>
           </article>
 
           <article class="card">
@@ -100,6 +123,11 @@
               <label class="field"><span>평일 사용 가능시간 (분)</span><input id="weekdayCap" type="number" min="30" max="600" step="10" value="120"></label>
               <label class="field"><span>주말 사용 가능시간 (분)</span><input id="weekendCap" type="number" min="30" max="720" step="10" value="180"></label>
               <label class="field full"><span>최소 수면 목표 (시간)</span><input id="sleep" type="number" min="5" max="10" step=".5" value="7"></label>
+            </div>
+            <div class="preset-row" aria-label="Capacity presets">
+              <button type="button" data-preset="light">LIGHT WEEK</button>
+              <button type="button" data-preset="normal">NORMAL</button>
+              <button type="button" data-preset="exam">EXAM MODE</button>
             </div>
           </article>
 
@@ -150,8 +178,9 @@
             <span class="micro-label">POST-IMPACT ANALYSIS</span>
             <h3 id="impactTitle">TEST COMPLETE</h3>
             <p id="impactText"></p>
-            <div class="actions"><button class="micro-btn" id="analysisBtn" type="button">OPEN IMPACT ANALYSIS</button><button class="micro-btn" id="snapshotBtn" type="button">SAVE TEST SNAPSHOT</button></div>
+            <div class="actions"><button class="micro-btn" id="analysisBtn" type="button">OPEN IMPACT ANALYSIS</button><button class="micro-btn" id="snapshotBtn" type="button">SAVE TEST SNAPSHOT</button><button class="micro-btn" id="copyReportBtn" type="button">COPY REPORT</button></div>
             <div class="report" id="report"></div>
+            <div class="snapshot-tray" id="snapshotTray"></div>
           </div>
 
           <div class="compare" id="compare">
@@ -180,7 +209,7 @@
 
 <footer class="footer wrap">
   <div class="footer-line"></div>
-  <div class="footer-grid"><div><b>CRASH//WEEK</b><span>Student Dynamics Laboratory · School-life simulation study</span></div><div>BUILT FROM DAYS, NOT DEADLINES.<br>An experimental interface in the <a href="/">TOHEŞAR</a> universe.</div></div>
+  <div class="footer-grid"><div><b>CRASH//WEEK</b><span>Student Dynamics Laboratory · School-life simulation study</span></div><div>BUILT FROM DAYS, NOT DEADLINES.<br>Local-first · No account · No server-side schedule storage.</div></div>
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
