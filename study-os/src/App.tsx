@@ -1,3 +1,6 @@
+import { QuickCapture } from './QuickCapture';
+import { FocusHalo } from './FocusHalo';
+import { DayTimeline } from './DayTimeline';
 import { DayOrbit } from './DayOrbit';
 import { useEffect, useRef, useState, type ReactNode, type FormEvent } from 'react';
 import {
@@ -135,7 +138,7 @@ export default function App() {
     [online, setOnline] = useState(navigator.onLine),
     [notice, setNotice] = useState(''),
     [modal, setModal] = useState<
-      null | 'task' | 'schedule' | 'finish' | 'recover' | 'grade' | 'pause' | 'block' | 'import'
+      null | 'capture' | 'task' | 'schedule' | 'finish' | 'recover' | 'grade' | 'pause' | 'block' | 'import'
     >(null);
   const [editTask, setEditTask] = useState<Task | null>(null),
     [editSchedule, setEditSchedule] = useState<Schedule | null>(null),
@@ -150,6 +153,11 @@ export default function App() {
     [formError, setFormError] = useState(''),
     [imported, setImported] = useState<State | null>(null),
     [coach, setCoach] = useState('');
+  useEffect(() => {
+    const shortcut = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setModal('capture'); setFormError(''); } };
+    window.addEventListener('keydown', shortcut);
+    return () => window.removeEventListener('keydown', shortcut);
+  }, []);
   const memory = useRef(s);
   memory.current = s;
   useEffect(() => {
@@ -206,7 +214,7 @@ export default function App() {
   }
   function taskEditor(t: Task | null = null) {
     setEditTask(t);
-    open('task');
+    open(t ? 'task' : 'capture');
   }
   function scheduleEditor(t: Schedule | null = null) {
     setEditSchedule(t);
@@ -610,7 +618,7 @@ export default function App() {
             </button>
           </div>
         </header>
-        <main id="main" tabIndex={-1}>
+        <main id="main" tabIndex={-1} key={tab}>
           <div className="page-head">
             <div>
               <p className="eyebrow">{NAV.find((n) => n.id === tab)?.en} / MAKE TIME MATTER</p>
@@ -702,45 +710,7 @@ export default function App() {
                   {planErrors.length > 0 && (
                     <p className="warning">{planErrors[0]} 계획을 복구하세요.</p>
                   )}
-                  <div className="timeline">
-                    {[
-                      ...fixed
-                        .filter((f) => f.kind !== 'sleep' || f.id === 'sleep-pm')
-                        .map((f) => ({
-                          id: f.id,
-                          start: f.start,
-                          end: f.end,
-                          title: f.title,
-                          meta:
-                            f.kind === 'academy'
-                              ? `준비 ${clock(f.start)} · 수업 ${clock(f.classStart)}`
-                              : '고정 일정',
-                          fixed: true,
-                        })),
-                      ...todayBlocks.map((b) => ({
-                        id: b.id,
-                        start: +new Date(b.start),
-                        end: +new Date(b.end),
-                        title: s.tasks.find((t) => t.id === b.taskId)?.title || '',
-                        meta: '학습 · ' + (b.locked ? '직접 고정' : '승인한 계획'),
-                        fixed: false,
-                      })),
-                    ]
-                      .sort((a, b) => a.start - b.start)
-                      .map((x) => (
-                        <div className={'timeline-item ' + (x.end <= now ? 'past' : '')} key={x.id}>
-                          <div className="timeline-time">
-                            {clock(x.start)}
-                            <small>{clock(x.end)}</small>
-                          </div>
-                          <div className={'timeline-mark ' + (!x.fixed ? 'sage' : '')} />
-                          <div>
-                            <strong>{x.title}</strong>
-                            <p>{x.meta}</p>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
+                  <DayTimeline now={now} onOpen={()=>setTab('school')} events={[...fixed.filter(f=>f.id!=='sleep-am'||f.end>now), ...todayBlocks.map(b=>({id:b.id,start:+new Date(b.start),end:+new Date(b.end),title:s.tasks.find(t=>t.id===b.taskId)?.title||'학습',kind:'study'}))]}/>
                   {!s.schedules.length && !s.plan.length && (
                     <p className="hint">
                       실제 시간표는 아직 등록되지 않았어요. 식사·수면은 설정의 기본 생활 리듬입니다.
@@ -956,23 +926,28 @@ export default function App() {
           {tab === 'study' && (
             <>
               <div className="study-layout">
-                <section className="focus-card">
+                <section className={'focus-card '+(s.active?.segmentStart?'focus-running ':'')+(s.active && seconds >= s.active.target*60?'focus-complete':'')}>
+                  {s.active && <button className="focus-exit text-button" onClick={()=>setTab('today')}><ArrowRight size={15}/> 오늘로 · 타이머 유지</button>}
                   <span className="eyebrow">ONE THING AT A TIME</span>
                   <h2>{s.active ? s.active.action : '딱 한 문제부터.'}</h2>
                   <p>{s.active ? s.active.subject : '개념을 떠올리고, 풀고, 다시 확인하세요.'}</p>
+                  <div className="focus-instrument">
+                  <FocusHalo progress={s.active ? seconds/(s.active.target*60):0} running={!!s.active?.segmentStart}/>
+                  <div className="focus-readout"><span>{s.active ? seconds >= s.active.target*60 ? 'TARGET REACHED' : s.active.segmentStart ? 'IN THE FLOW' : 'PAUSED' : 'READY WHEN YOU ARE'}</span>
                   <div className="timer" aria-label="집중 타이머">
                     {s.active
                       ? `${String(Math.floor(Math.max(0, s.active.target * 60 - seconds) / 60)).padStart(2, '0')}:${String(Math.floor(Math.max(0, s.active.target * 60 - seconds) % 60)).padStart(2, '0')}`
                       : `${String(duration).padStart(2, '0')}:00`}
                   </div>
+                  <small className="focus-counter">{s.active ? `${Math.floor(seconds/60)}분 경과 / ${s.active.target}분 목표` : '오직 하나에 집중하는 시간'}</small></div></div>
                   <p className="muted">
                     {s.active
                       ? seconds >= s.active.target * 60
-                        ? '목표 시간이 지났어요. 실제 완료량을 기록해주세요.'
+                        ? '목표에 도달했습니다. 공부한 양을 기록하세요.'
                         : s.active.segmentStart
-                          ? '집중 진행 중 · 자동 완료하지 않아요'
+                          ? '지금, 하나의 문제에 집중하세요.'
                           : '일시정지 중'
-                      : '5분 시작도 충분한 첫 걸음이에요'}
+                      : '시간을 선택하고, 집중을 시작하세요.'}
                   </p>
                   {!s.active ? (
                     <>
@@ -1489,9 +1464,10 @@ export default function App() {
         <Modal
           title={
             {
+              capture: '무엇부터 해야 할까요?',
               task: editTask ? '과제 수정' : '새 과제',
               schedule: editSchedule ? '일정 수정' : '고정 일정 등록',
-              finish: '실제 공부한 만큼 기록',
+              finish: '집중을 기록으로 남기기',
               recover: '지금부터, 다시 시작',
               grade: '시험 기록',
               pause: '잠시 쉬어가기',
@@ -1506,6 +1482,9 @@ export default function App() {
               {formError}
             </p>
           )}
+          {modal === 'capture' && <QuickCapture onDetailed={() => {setEditTask(null);open('task');}} onSave={task => {
+            if (commit(v=>({...v,tasks:[...v.tasks,task]}))) {setModal(null);setNotice('오늘에 담았습니다. 다음 행동이 준비됐습니다.');return true;}return false;
+          }}/>}
           {modal === 'task' && (
             <form onSubmit={saveTask}>
               <div className="form-grid">
