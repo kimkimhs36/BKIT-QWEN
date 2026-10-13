@@ -138,7 +138,16 @@ export default function App() {
     [online, setOnline] = useState(navigator.onLine),
     [notice, setNotice] = useState(''),
     [modal, setModal] = useState<
-      null | 'capture' | 'task' | 'schedule' | 'finish' | 'recover' | 'grade' | 'pause' | 'block' | 'import'
+      | null
+      | 'capture'
+      | 'task'
+      | 'schedule'
+      | 'finish'
+      | 'recover'
+      | 'grade'
+      | 'pause'
+      | 'block'
+      | 'import'
     >(null);
   const [editTask, setEditTask] = useState<Task | null>(null),
     [editSchedule, setEditSchedule] = useState<Schedule | null>(null),
@@ -154,7 +163,13 @@ export default function App() {
     [imported, setImported] = useState<State | null>(null),
     [coach, setCoach] = useState('');
   useEffect(() => {
-    const shortcut = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setModal('capture'); setFormError(''); } };
+    const shortcut = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setModal('capture');
+        setFormError('');
+      }
+    };
     window.addEventListener('keydown', shortcut);
     return () => window.removeEventListener('keydown', shortcut);
   }, []);
@@ -359,7 +374,8 @@ export default function App() {
       }))
     ) {
       setModal(null);
-      setNotice('실제 학습량을 저장했습니다. 제출 여부는 과제에서 따로 체크하세요.');
+      setTab('progress');
+      setNotice('집중을 기록으로 남겼습니다. 제출 여부는 과제에서 확인하세요.');
     }
   }
   function saveTask(e: FormEvent<HTMLFormElement>) {
@@ -591,11 +607,27 @@ export default function App() {
     </div>
   );
   return (
-    <div className={"app-shell visual-v2 page-" + tab + (tab === "study" && s.active ? " is-focusing" : "")}>
+    <div
+      className={
+        'app-shell visual-v2 page-' + tab + (tab === 'study' && s.active ? ' is-focusing' : '')
+      }
+    >
       <a className="skip" href="#main">
         본문으로 이동
       </a>
-      <a className="v2-brand" href="#" onClick={e => { e.preventDefault(); setTab('today'); }}><span className="brand-glyph">b.</span><strong>BKIT<small>STUDY OS / 02</small></strong></a>
+      <a
+        className="v2-brand"
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          setTab('today');
+        }}
+      >
+        <span className="brand-glyph">b.</span>
+        <strong>
+          BKIT<small>STUDY OS / 02</small>
+        </strong>
+      </a>
       <div className="main-shell">
         <header className="topbar">
           <div>
@@ -679,23 +711,132 @@ export default function App() {
             <>
               <section className="command-stage">
                 <div className="command-left">
-                  <div className="live-label"><span className="status-dot"/> LIVE / {fullDate(now)}<span>SEOUL</span></div>
-                  <div className="live-clock" aria-label={`현재 ${clock(now)}`}><span>{clock(now).split(':')[0]}</span><i>:</i><span>{clock(now).split(':')[1]}</span><small>{String(new Date(now).getSeconds()).padStart(2,'0')}</small></div>
-                  <div className="day-progress"><span style={{width: `${(now-at(today,'00:00'))/864000}%`}}/></div>
+                  <div className="live-label">
+                    <span className="status-dot" /> LIVE / {fullDate(now)}
+                    <span>SEOUL</span>
+                  </div>
+                  <div className="live-clock" aria-label={`현재 ${clock(now)}`}>
+                    <span>{clock(now).split(':')[0]}</span>
+                    <i>:</i>
+                    <span>{clock(now).split(':')[1]}</span>
+                    <small key={Math.floor(now / 1000)} className="clock-second">
+                      {String(new Date(now).getSeconds()).padStart(2, '0')}
+                    </small>
+                  </div>
+                  <div className="day-progress">
+                    <span style={{ width: `${(now - at(today, '00:00')) / 864000}%` }} />
+                  </div>
                   <div className="now-action">
-                    <div className="section-number">01 <span>YOUR NEXT MOVE</span></div>
-                    <h2>{s.active ? s.active.action : current ? current.kind === 'sleep' ? '지금은 수면 시간입니다.' : `${current.title}, 지금 준비하세요.` : actionTask?.title || (awaiting.length ? '끝낸 과제, 제출을 확인하세요.' : '무엇부터 해야 할까요?')}</h2>
-                    <p>{s.active ? `${s.active.subject} · 집중 세션 진행 중` : current ? current.kind === 'sleep' ? `다음 행동은 ${s.settings.wake}에 시작됩니다.` : `보호된 일정 ${clock(current.start)} — ${clock(current.end)}` : actionTask ? `${actionTask.subject} · 남은 학습 약 ${actionTask.remaining}분` : '한 줄로 할 일을 적고, 바로 시작하세요.'}</p>
-                    <div className="command-actions">{s.active ? <button className="primary" onClick={()=>setTab('study')}>집중으로 돌아가기 <ArrowUpRight size={18}/></button> : actionTask ? <button className="primary" disabled={!canStudy} onClick={()=>start(5,actionTask.id)}><Play size={16}/> 5분 공부 시작</button> : awaiting.length ? <button className="primary" onClick={()=>{setFilter('submission');setTab('tasks');}}>제출 확인 <ArrowRight size={18}/></button> : <button className="primary" onClick={()=>taskEditor()}>과제 빠르게 담기 <Plus size={18}/></button>}<button className="text-button" onClick={()=>setTab('study')}>집중 공간 <ArrowUpRight size={16}/></button></div>
+                    <div className="section-number">
+                      01 <span>YOUR NEXT MOVE</span>
+                    </div>
+                    <h2>
+                      {s.active
+                        ? s.active.action
+                        : current
+                          ? current.kind === 'sleep'
+                            ? '지금은 수면 시간입니다.'
+                            : `${current.title}, 지금 준비하세요.`
+                          : actionTask?.title ||
+                            (awaiting.length
+                              ? '끝낸 과제, 제출을 확인하세요.'
+                              : '무엇부터 해야 할까요?')}
+                    </h2>
+                    <p>
+                      {s.active
+                        ? `${s.active.subject} · 집중 세션 진행 중`
+                        : current
+                          ? current.kind === 'sleep'
+                            ? `다음 행동은 ${s.settings.wake}에 시작됩니다.`
+                            : `보호된 일정 ${clock(current.start)} — ${clock(current.end)}`
+                          : actionTask
+                            ? `${actionTask.subject} · 남은 학습 약 ${actionTask.remaining}분`
+                            : '한 줄로 할 일을 적고, 바로 시작하세요.'}
+                    </p>
+                    <div className="command-actions">
+                      {s.active ? (
+                        <button className="primary" onClick={() => setTab('study')}>
+                          집중으로 돌아가기 <ArrowUpRight size={18} />
+                        </button>
+                      ) : actionTask ? (
+                        <button
+                          className="primary"
+                          disabled={!canStudy}
+                          onClick={() => start(5, actionTask.id)}
+                        >
+                          <Play size={16} /> 5분 공부 시작
+                        </button>
+                      ) : awaiting.length ? (
+                        <button
+                          className="primary"
+                          onClick={() => {
+                            setFilter('submission');
+                            setTab('tasks');
+                          }}
+                        >
+                          제출 확인 <ArrowRight size={18} />
+                        </button>
+                      ) : (
+                        <button className="primary" onClick={() => taskEditor()}>
+                          과제 빠르게 담기 <Plus size={18} />
+                        </button>
+                      )}
+                      <button className="text-button" onClick={() => setTab('study')}>
+                        집중 공간 <ArrowUpRight size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <DayOrbit now={now} events={[...fixed, ...todayBlocks.map(b=>({id:b.id,title:s.tasks.find(t=>t.id===b.taskId)?.title || '학습',start:+new Date(b.start),end:+new Date(b.end),kind:'study'}))]}/>
+                <DayOrbit
+                  now={now}
+                  events={[
+                    ...fixed,
+                    ...todayBlocks.map((b) => ({
+                      id: b.id,
+                      title: s.tasks.find((t) => t.id === b.taskId)?.title || '학습',
+                      start: +new Date(b.start),
+                      end: +new Date(b.end),
+                      kind: 'study',
+                    })),
+                  ]}
+                />
               </section>
               <div className="day-strip">
-                <button className="strip-next" onClick={()=>setTab('school')}><span className="section-number">02 <span>UP NEXT</span></span><strong>{next?.title || '다음 일정을 설계하세요'} <ArrowUpRight size={16}/></strong><small>{next ? `${clock(next.start)} 준비 · ${clock(next.depart)} 출발${now < next.start ? ` · ${Math.ceil((next.start-now)/MIN)}분 후` : ' · 진행 중'}` : '시간표에 학교·학원 일정 추가'}</small></button>
-                <div className="strip-stat"><span>FOCUS TODAY</span><strong>{Math.floor(studySeconds(s.sessions,today)/60)}<small>min</small></strong></div>
-                <div className="strip-stat"><span>TO COMPLETE</span><strong>{attention.length.toString().padStart(2,'0')}<small>tasks</small></strong></div>
-                <button className="strip-recover" onClick={recovery} disabled={!pending.length}><RotateCcw size={19}/><span>{late ? `${late}분 지연 · 계획 복구` : '오늘 계획 정리'}<small>RECALIBRATE YOUR DAY</small></span><ArrowUpRight size={17}/></button>
+                <button className="strip-next" onClick={() => setTab('school')}>
+                  <span className="section-number">
+                    02 <span>UP NEXT</span>
+                  </span>
+                  <strong>
+                    {next?.title || '다음 일정을 설계하세요'} <ArrowUpRight size={16} />
+                  </strong>
+                  <small>
+                    {next
+                      ? `${clock(next.start)} 준비 · ${clock(next.depart)} 출발${now < next.start ? ` · ${Math.ceil((next.start - now) / MIN)}분 후` : ' · 진행 중'}`
+                      : '시간표에 학교·학원 일정 추가'}
+                  </small>
+                </button>
+                <div className="strip-stat">
+                  <span>FOCUS TODAY</span>
+                  <strong>
+                    {Math.floor(studySeconds(s.sessions, today) / 60)}
+                    <small>min</small>
+                  </strong>
+                </div>
+                <div className="strip-stat">
+                  <span>TO COMPLETE</span>
+                  <strong>
+                    {attention.length.toString().padStart(2, '0')}
+                    <small>tasks</small>
+                  </strong>
+                </div>
+                <button className="strip-recover" onClick={recovery} disabled={!pending.length}>
+                  <RotateCcw size={19} />
+                  <span>
+                    {late ? `${late}분 지연 · 계획 복구` : '오늘 계획 정리'}
+                    <small>RECALIBRATE YOUR DAY</small>
+                  </span>
+                  <ArrowUpRight size={17} />
+                </button>
               </div>
               <div className="dashboard-bottom">
                 <section className="panel">
@@ -710,7 +851,20 @@ export default function App() {
                   {planErrors.length > 0 && (
                     <p className="warning">{planErrors[0]} 계획을 복구하세요.</p>
                   )}
-                  <DayTimeline now={now} onOpen={()=>setTab('school')} events={[...fixed.filter(f=>f.id!=='sleep-am'||f.end>now), ...todayBlocks.map(b=>({id:b.id,start:+new Date(b.start),end:+new Date(b.end),title:s.tasks.find(t=>t.id===b.taskId)?.title||'학습',kind:'study'}))]}/>
+                  <DayTimeline
+                    now={now}
+                    onOpen={() => setTab('school')}
+                    events={[
+                      ...fixed.filter((f) => f.id !== 'sleep-am' || f.end > now),
+                      ...todayBlocks.map((b) => ({
+                        id: b.id,
+                        start: +new Date(b.start),
+                        end: +new Date(b.end),
+                        title: s.tasks.find((t) => t.id === b.taskId)?.title || '학습',
+                        kind: 'study',
+                      })),
+                    ]}
+                  />
                   {!s.schedules.length && !s.plan.length && (
                     <p className="hint">
                       실제 시간표는 아직 등록되지 않았어요. 식사·수면은 설정의 기본 생활 리듬입니다.
@@ -926,20 +1080,48 @@ export default function App() {
           {tab === 'study' && (
             <>
               <div className="study-layout">
-                <section className={'focus-card '+(s.active?.segmentStart?'focus-running ':'')+(s.active && seconds >= s.active.target*60?'focus-complete':'')}>
-                  {s.active && <button className="focus-exit text-button" onClick={()=>setTab('today')}><ArrowRight size={15}/> 오늘로 · 타이머 유지</button>}
+                <section
+                  className={
+                    'focus-card ' +
+                    (s.active?.segmentStart ? 'focus-running ' : '') +
+                    (s.active && seconds >= s.active.target * 60 ? 'focus-complete' : '')
+                  }
+                >
+                  {s.active && (
+                    <button className="focus-exit text-button" onClick={() => setTab('today')}>
+                      <ArrowRight size={15} /> 오늘로 · 타이머 유지
+                    </button>
+                  )}
                   <span className="eyebrow">ONE THING AT A TIME</span>
                   <h2>{s.active ? s.active.action : '딱 한 문제부터.'}</h2>
                   <p>{s.active ? s.active.subject : '개념을 떠올리고, 풀고, 다시 확인하세요.'}</p>
                   <div className="focus-instrument">
-                  <FocusHalo progress={s.active ? seconds/(s.active.target*60):0} running={!!s.active?.segmentStart}/>
-                  <div className="focus-readout"><span>{s.active ? seconds >= s.active.target*60 ? 'TARGET REACHED' : s.active.segmentStart ? 'IN THE FLOW' : 'PAUSED' : 'READY WHEN YOU ARE'}</span>
-                  <div className="timer" aria-label="집중 타이머">
-                    {s.active
-                      ? `${String(Math.floor(Math.max(0, s.active.target * 60 - seconds) / 60)).padStart(2, '0')}:${String(Math.floor(Math.max(0, s.active.target * 60 - seconds) % 60)).padStart(2, '0')}`
-                      : `${String(duration).padStart(2, '0')}:00`}
+                    <FocusHalo
+                      progress={s.active ? seconds / (s.active.target * 60) : 0}
+                      running={!!s.active?.segmentStart}
+                    />
+                    <div className="focus-readout">
+                      <span>
+                        {s.active
+                          ? seconds >= s.active.target * 60
+                            ? 'TARGET REACHED'
+                            : s.active.segmentStart
+                              ? 'IN THE FLOW'
+                              : 'PAUSED'
+                          : 'READY WHEN YOU ARE'}
+                      </span>
+                      <div className="timer" aria-label="집중 타이머">
+                        {s.active
+                          ? `${String(Math.floor(Math.max(0, s.active.target * 60 - seconds) / 60)).padStart(2, '0')}:${String(Math.floor(Math.max(0, s.active.target * 60 - seconds) % 60)).padStart(2, '0')}`
+                          : `${String(duration).padStart(2, '0')}:00`}
+                      </div>
+                      <small className="focus-counter">
+                        {s.active
+                          ? `${Math.floor(seconds / 60)}분 경과 / ${s.active.target}분 목표`
+                          : '오직 하나에 집중하는 시간'}
+                      </small>
+                    </div>
                   </div>
-                  <small className="focus-counter">{s.active ? `${Math.floor(seconds/60)}분 경과 / ${s.active.target}분 목표` : '오직 하나에 집중하는 시간'}</small></div></div>
                   <p className="muted">
                     {s.active
                       ? seconds >= s.active.target * 60
@@ -1457,8 +1639,20 @@ export default function App() {
         </main>
       </div>
       <nav className="orbit-nav" aria-label="주 메뉴">
-        {NAV.filter(n=>n.id!=='settings').map(n=><button key={n.id} className={tab===n.id?'active':''} aria-current={tab===n.id?'page':undefined} onClick={()=>setTab(n.id)}><n.icon size={19}/><span>{n.label}</span></button>)}
-        <button className="nav-capture" aria-label="과제 빠르게 추가" onClick={()=>taskEditor()}><Plus size={23}/></button>
+        {NAV.filter((n) => n.id !== 'settings').map((n) => (
+          <button
+            key={n.id}
+            className={tab === n.id ? 'active' : ''}
+            aria-current={tab === n.id ? 'page' : undefined}
+            onClick={() => setTab(n.id)}
+          >
+            <n.icon size={19} />
+            <span>{n.label}</span>
+          </button>
+        ))}
+        <button className="nav-capture" aria-label="과제 빠르게 추가" onClick={() => taskEditor()}>
+          <Plus size={23} />
+        </button>
       </nav>
       {modal && (
         <Modal
@@ -1482,9 +1676,22 @@ export default function App() {
               {formError}
             </p>
           )}
-          {modal === 'capture' && <QuickCapture onDetailed={() => {setEditTask(null);open('task');}} onSave={task => {
-            if (commit(v=>({...v,tasks:[...v.tasks,task]}))) {setModal(null);setNotice('오늘에 담았습니다. 다음 행동이 준비됐습니다.');return true;}return false;
-          }}/>}
+          {modal === 'capture' && (
+            <QuickCapture
+              onDetailed={() => {
+                setEditTask(null);
+                open('task');
+              }}
+              onSave={(task) => {
+                if (commit((v) => ({ ...v, tasks: [...v.tasks, task] }))) {
+                  setModal(null);
+                  setNotice('오늘에 담았습니다. 다음 행동이 준비됐습니다.');
+                  return true;
+                }
+                return false;
+              }}
+            />
+          )}
           {modal === 'task' && (
             <form onSubmit={saveTask}>
               <div className="form-grid">
@@ -1775,11 +1982,19 @@ export default function App() {
             </form>
           )}
           {modal === 'finish' && s.active && (
-            <form onSubmit={finish}>
-              <p className="hint">
-                타이머 {Math.floor(seconds / 60)}분은 자동으로 학습 성과가 되지 않습니다. 실제로 한
-                만큼 적어주세요.
-              </p>
+            <form onSubmit={finish} className="finish-form">
+              <div className="session-receipt">
+                <span>SESSION / CAPTURED</span>
+                <strong>
+                  {Math.floor(seconds / 60)}
+                  <small>min</small>
+                </strong>
+                <p>
+                  {s.active.subject} · {s.active.action}
+                </p>
+                <Check size={23} />
+              </div>
+              <p className="hint">집중한 시간입니다. 실제로 풀거나 이해한 양을 기록하세요.</p>
               <Field label="완료한 문제 수">
                 <input
                   type="number"
@@ -1800,20 +2015,25 @@ export default function App() {
                   <option>이해함</option>
                 </select>
               </Field>
-              <Field label="오답 · 이해하지 못한 개념">
-                <textarea
-                  name="mistake"
-                  maxLength={3000}
-                  placeholder="적으면 내일 복습 목록에 남아요"
-                />
-              </Field>
-              <Field label="종료 · 중단 사유">
-                <input
-                  name="reason"
-                  maxLength={200}
-                  placeholder="계획한 분량 완료 / 다른 일정 / 집중 어려움"
-                />
-              </Field>
+              <details className="finish-details">
+                <summary>
+                  오답과 종료 사유 남기기 <Plus size={14} />
+                </summary>
+                <Field label="오답 · 이해하지 못한 개념">
+                  <textarea
+                    name="mistake"
+                    maxLength={3000}
+                    placeholder="적으면 내일 복습 목록에 남아요"
+                  />
+                </Field>
+                <Field label="종료 · 중단 사유">
+                  <input
+                    name="reason"
+                    maxLength={200}
+                    placeholder="계획한 분량 완료 / 다른 일정 / 집중 어려움"
+                  />
+                </Field>
+              </details>
               {s.active.taskId && (
                 <>
                   <label className="checkbox">

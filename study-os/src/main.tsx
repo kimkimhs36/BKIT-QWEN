@@ -18,4 +18,4 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator)
       .catch(() => {});
   });
 
-import "./visual-v2.css";
+import './visual-v2.css';
