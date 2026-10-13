@@ -9,7 +9,7 @@
 - 서버 기능: 배포에 포함하지 않습니다. 실제 AI 키·결제·동기화·Web Push는 별도 설정/구현이 필요합니다.
 - 원본: `kimkimhs36/BKIT-QWEN`의 `feat/bkit-study-os-v1` 브랜치. 기존 main·CNAME·DNS·teambkit.com 유지.
 - 빌드: `APP_BASE=/ npm run build`. 기존 `/study-os/` 경로용 개발 빌드와 분리합니다.
-- 검증: 위 루트 경로 빌드에서 브라우저 흐름 36개 통과. 원본 엔진·서버·저장·개선 테스트 47개 통과.
+- 검증: 위 루트 경로 빌드에서 브라우저 흐름 39개 통과. 원본 엔진·서버·저장·개선 테스트 47개 통과.
 
 Vercel은 `teambkit` 팀 접근이 403으로 거절되었고 CLI에도 인증이 없었습니다. GitHub 별도 저장소 생성은 `Resource not accessible by integration (createRepository)`로 거절되어 기존 Pages 설정을 바꾸지 않고 Sites로 전환했습니다.
 

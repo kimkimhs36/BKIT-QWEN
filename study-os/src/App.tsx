@@ -755,7 +755,12 @@ export default function App() {
                           ? current.kind === 'sleep'
                             ? '충분히 쉬고, 내일 다시 시작해요.'
                             : `${current.title}, 지금 준비하세요.`
-                          : actionTask?.title || '첫 할 일을 하나 적어볼까요?'}
+                          : actionTask?.title ||
+                            (awaiting.length
+                              ? '학습은 끝났어요. 제출도 확인해요.'
+                              : s.tasks.length
+                                ? '남은 학습 과제가 없어요.'
+                                : '첫 할 일을 하나 적어볼까요?')}
                     </h2>
                     <p>
                       {s.active
@@ -764,7 +769,9 @@ export default function App() {
                           ? `보호된 일정 · ${clock(current.start)}–${clock(current.end)}`
                           : actionTask
                             ? '첫 문제를 풀고, 답을 가린 채 풀이를 떠올려 보세요.'
-                            : '시간표나 과제를 등록하면 오늘의 첫 행동을 정리해드려요.'}
+                            : s.tasks.length
+                              ? '필요한 제출과 오답 복습을 확인하고 쉬어가세요.'
+                              : '시간표나 과제를 등록하면 오늘의 첫 행동을 정리해드려요.'}
                     </p>
                   </div>
                   <div className="action-footer">
@@ -788,9 +795,19 @@ export default function App() {
                       >
                         <Play size={16} /> 5분 공부 시작
                       </button>
+                    ) : awaiting.length ? (
+                      <button
+                        className="primary"
+                        onClick={() => {
+                          setFilter('submission');
+                          setTab('tasks');
+                        }}
+                      >
+                        <CheckCheck size={16} /> 제출 확인하기
+                      </button>
                     ) : (
                       <button className="primary" onClick={() => taskEditor()}>
-                        <Plus size={16} /> 첫 과제 등록
+                        <Plus size={16} /> {s.tasks.length ? '새 과제 등록' : '첫 과제 등록'}
                       </button>
                     )}
                   </div>
@@ -966,8 +983,14 @@ export default function App() {
                     {attentionOrdered.length ? (
                       attentionOrdered.slice(0, 3).map(taskRow)
                     ) : (
-                      <Empty title="아직 등록된 과제가 없어요">
-                        숙제 하나부터 입력하면 충분해요.
+                      <Empty
+                        title={
+                          s.tasks.length ? '지금 챙길 과제가 없어요' : '아직 등록된 과제가 없어요'
+                        }
+                      >
+                        {s.tasks.length
+                          ? '등록한 과제의 학습과 제출을 확인했어요.'
+                          : '숙제 하나부터 입력하면 충분해요.'}
                       </Empty>
                     )}
                     <button className="text-button all-tasks" onClick={() => setTab('tasks')}>

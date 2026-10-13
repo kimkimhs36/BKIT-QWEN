@@ -270,3 +270,20 @@ test('320px layout keeps actions and task filters within viewport', async ({ pag
     ).toBe(true);
   }
 });
+test('completed tasks show submission or clear completion instead of pretending no tasks exist', async ({
+  page,
+}) => {
+  await addTask(page);
+  await nav(page, '과제');
+  await page.getByRole('button', { name: '테스트 · 학습지 극한 1–3번 학습 완료로 변경' }).click();
+  await nav(page, '오늘');
+  await expect(
+    page.getByRole('heading', { name: '학습은 끝났어요. 제출도 확인해요.' }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: '제출 확인하기', exact: true }).click();
+  await page.getByRole('button', { name: '테스트 · 학습지 극한 1–3번 제출 완료 기록' }).click();
+  await nav(page, '오늘');
+  await expect(page.getByRole('heading', { name: '남은 학습 과제가 없어요.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '지금 챙길 과제가 없어요' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '새 과제 등록', exact: true })).toBeVisible();
+});
