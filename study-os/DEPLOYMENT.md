@@ -4,7 +4,7 @@
 
 - 대상: 신규 `bkit-study-os` Site. 기존 사용자 계정의 owner-private 접근을 유지합니다.
 - 배포 주소: https://bkit-study-os.jazzymoth5.chatgpt.site
-- 상태: **succeeded** — 2026-10-13 17:19 UTC. Sites의 개인용 production 배포이며 사용자 본인 1명만 허용, 공유 그룹 0개입니다.
+- 상태: **succeeded** — 2026-10-13 17:29 UTC. Sites의 개인용 production 배포이며 사용자 본인 1명만 허용, 공유 그룹 0개입니다.
 - 앱 모드: Demo AI Mode. 정적 버전은 외부 AI API 요청을 하지 않습니다.
 - 서버 기능: 배포에 포함하지 않습니다. 실제 AI 키·결제·동기화·Web Push는 별도 설정/구현이 필요합니다.
 - 원본: `kimkimhs36/BKIT-QWEN`의 `feat/bkit-study-os-v1` 브랜치. 기존 main·CNAME·DNS·teambkit.com 유지.
@@ -19,11 +19,11 @@ Vercel은 `teambkit` 팀 접근이 403으로 거절되었고 CLI에도 인증이
 
 ## 배포 식별 정보
 
-- 앱 소스 commit: `1f1fb0a37494fbe36167b2e67a0e21f94afd9c1d` (BKIT-QWEN feature branch).
-- Sites 정적 스냅샷 source commit: `3924132e31c5b86b9e74834e83db1084607a65de`.
+- 앱 소스 commit: `0a4e6ee114cec5f7b94060b4567b86e54a04206e` (BKIT-QWEN feature branch).
+- Sites 정적 스냅샷 source commit: `1154616e6854ce7360e2cd97ceb198520c3cbbd8`.
 - project: `appgprj_6ace66da00548191a0ec92118a6640a8`.
-- version: `appgprj_6ace66da00548191a0ec92118a6640a8~appgver_b5402755e15c8191afdd1cb3b958382d`.
-- deployment: `appgdep_6ace6821b4f48191a4641996d172632b`.
+- version: `appgprj_6ace66da00548191a0ec92118a6640a8~appgver_e3992994f75081919e5a3ea2ca6028ef`.
+- deployment: `appgdep_6ace6a87dfe08191b58bd74e4bbd71a0`.
 - 배포 manifest: Sites 전용 체크아웃 `/workspace/sites/bkit-study-os/.openai/hosting.json`. 원본 GitHub 소스와 Sites 정적 source repository를 혼동하지 마세요. 수정 시 같은 project ID를 재사용하고 앱 빌드 후 새 스냅샷을 push·save·deploy합니다.
 
 ## 실제 URL 검증
