@@ -4,6 +4,8 @@
 
 기존 CRASH//WEEK와 분리된 `study-os/` 앱입니다. 루트 `index.html`, `styles.css`, `app.js`, `README.md`, `CNAME`은 수정하지 않았습니다. 기존 `crashweek.v3` 저장 키도 읽거나 삭제하지 않습니다.
 
+배포된 개인용 앱: [BKIT STUDY OS](https://bkit-study-os.jazzymoth5.chatgpt.site). 본인 ChatGPT 계정으로 접근합니다. 배포·검증 정보는 [DEPLOYMENT.md](DEPLOYMENT.md)에 있습니다.
+
 ## 바로 실행
 
 Node.js 22 이상을 권장합니다.
@@ -93,7 +95,7 @@ npm run server
 
 ## WHAT IS NOT IMPLEMENTED
 
-- 사용자 로그인, 기기 간 동기화, 사용자별 DB, 서버 푸시·예약 작업.
+- 앱 내부 다중 사용자 DB·인증, 기기 간 동기화, 서버 푸시·예약 작업. 배포 페이지의 본인 계정 접근은 Sites 인증으로 제공하며 기록 동기화와는 별개입니다.
 - 실제 iPhone/iPad Safari 기기 검증. 현재 자동 브라우저 검증은 Chromium을 사용합니다.
 - 실제 유료 AI API 종단 테스트, 공급자별 모델 비교, 제공업체 청구 금액 조회.
 - 기초 진단 문제은행, 답 입력·정답 자동 채점, 적응형 난이도, 개인 이해도에 따른 자동 간격 복습. 현재 오답의 첫 복습 날짜는 다음 날입니다.
@@ -141,7 +143,7 @@ public/sw.js       빌드에서 버전·자산 목록을 주입하는 PWA 셸
 
 ## HOW TO DEPLOY SAFELY
 
-기존 공개 사이트 교체·main 병합·DNS 변경은 하지 않았습니다. 사용자의 추가 배포 요청으로 독립 Sites 배포를 진행합니다. Vercel은 teambkit 팀 접근 403과 CLI 미인증, 별도 GitHub 저장소 생성은 통합 권한 부족으로 사용할 수 없었습니다. 배포 기록은 DEPLOYMENT.md를 확인하세요. API 결제·키 등록은 별도 설정입니다.
+기존 공개 사이트 교체·main 병합·DNS 변경은 하지 않았습니다. 사용자의 추가 배포 요청으로 독립 Sites 배포를 완료했습니다. Vercel은 teambkit 팀 접근 403과 CLI 미인증, 별도 GitHub 저장소 생성은 통합 권한 부족으로 사용할 수 없었습니다. 배포 기록은 DEPLOYMENT.md를 확인하세요. API 결제·키 등록은 별도 설정입니다.
 
 1. `feat/bkit-study-os-v1` 브랜치의 코드를 검토하고 실제 기록 없이 별도 Preview 프로젝트에 배포하세요. 기본 루트는 `study-os`, 빌드 명령은 `npm ci && npm run build`, 출력 디렉터리는 `dist`입니다.
 2. 별도 Preview의 루트 URL을 쓸 때 `APP_BASE=/`로 빌드하세요. 기존 도메인의 별도 경로에 올릴 경우 `APP_BASE=/study-os/`를 유지합니다. 프런트엔드 `.env`에 `VITE_` 비밀키를 넣지 마세요.
