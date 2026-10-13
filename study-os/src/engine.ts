@@ -136,12 +136,12 @@ function gap(
   for (const b of blocked) {
     if (b.end <= cursor) continue;
     const available = Math.min(b.start, end) - cursor;
-    if (available >= 5 * MIN)
+    if (available >= Math.min(5, wanted) * MIN)
       return { start: cursor, end: cursor + Math.min(wanted * MIN, available) };
     cursor = Math.max(cursor, b.end);
     if (cursor >= end) return null;
   }
-  return end - cursor >= 5 * MIN
+  return end - cursor >= Math.min(5, wanted) * MIN
     ? { start: cursor, end: cursor + Math.min(wanted * MIN, end - cursor) }
     : null;
 }
@@ -239,8 +239,12 @@ export function validatePlan(s: State, blocks: Block[], now: number) {
       t = s.tasks.find((t) => t.id === b.taskId);
     if (!t || t.status === 'done') errors.push('완료했거나 삭제된 과제는 배치할 수 없습니다.');
     if (start < now) errors.push('이미 지난 시각에는 배치할 수 없습니다.');
-    if (end <= start || end - start < 5 * MIN || dayKey(start) !== dayKey(end - 1))
-      errors.push('학습 구간은 같은 날의 5분 이상이어야 합니다.');
+    if (
+      end <= start ||
+      end - start < Math.min(5, t?.remaining || 5) * MIN ||
+      dayKey(start) !== dayKey(end - 1)
+    )
+      errors.push('학습 구간은 같은 날에 남은 분량에 맞게 배치해야 합니다.');
     if (t?.due && end > +new Date(t.due)) errors.push('마감 이후에는 배치할 수 없습니다.');
     if (fixedForDay(s, dayKey(start)).some((f) => overlap({ start, end }, f)))
       errors.push('수업·준비·이동·식사·수면과 충돌합니다.');
@@ -312,7 +316,9 @@ export function delayMinutes(s: State, now: number) {
       (b) =>
         s.tasks.some((t) => t.id === b.taskId && t.status !== 'done') &&
         dayKey(b.start) === dayKey(now) &&
-        +new Date(b.start) < now,
+        +new Date(b.start) < now &&
+        s.active?.taskId !== b.taskId &&
+        !s.sessions.some((x) => x.taskId === b.taskId && dayKey(x.started) === dayKey(b.start)),
     )
     .reduce((n, b) => Math.max(n, Math.floor((now - +new Date(b.start)) / MIN)), 0);
 }

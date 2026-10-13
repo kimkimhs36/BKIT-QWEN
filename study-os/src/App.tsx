@@ -50,7 +50,10 @@ import {
   recoverySchema,
   type Recovery,
 } from './engine';
-import { elapsed, studySeconds, todayOutput } from './session';
+import { elapsed, studySeconds, todayOutput, closeSegment } from './session';
+import { needsSubmission, needsAttention, filteredTasks } from './tasks';
+import { inputError } from './input-error';
+import { apiEnabled, requestAI } from './ai';
 import { protectedBoundary, fixedConflicts } from './safety';
 import { KEY, readState, writeState, parseBackup } from './storage';
 const NAV = [
@@ -62,7 +65,7 @@ const NAV = [
   { id: 'settings', en: 'SETTINGS', label: '설정', icon: Settings },
 ];
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
-const statusName = { todo: '시작 전', doing: '진행 중', done: '학습 완료' };
+
 function Empty({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="empty">
@@ -192,7 +195,7 @@ export default function App() {
       setStorageError(
         '저장하지 못했습니다. 저장 공간과 입력값을 확인하세요. 화면의 기존 기록은 유지됩니다.',
       );
-      setFormError(e instanceof Error ? e.message : '저장 오류');
+      setFormError('입력값을 확인하거나 저장 공간을 비운 뒤 다시 시도해주세요.');
       return false;
     }
   }
@@ -212,6 +215,8 @@ export default function App() {
     fixed = fixedForDay(s, today),
     next = nextSchedule(s, now),
     pending = s.tasks.filter((t) => t.status !== 'done'),
+    awaiting = s.tasks.filter(needsSubmission),
+    attention = s.tasks.filter(needsAttention),
     todayBlocks = s.plan
       .filter(
         (b) =>
@@ -224,6 +229,12 @@ export default function App() {
       (a.due ? +new Date(a.due) : Infinity) - (b.due ? +new Date(b.due) : Infinity) ||
       b.priority - a.priority,
   );
+  const attentionOrdered = [...attention].sort(
+    (a, b) =>
+      (a.due ? +new Date(a.due) : Infinity) - (b.due ? +new Date(b.due) : Infinity) ||
+      b.priority - a.priority,
+  );
+  const visibleTasks = filteredTasks(s.tasks, filter);
   const current = fixed.find((f) => f.start <= now && f.end > now),
     nextBlock = todayBlocks.find((b) => +new Date(b.end) > now),
     actionTask = s.tasks.find((t) => t.id === nextBlock?.taskId) || ordered[0];
@@ -237,9 +248,7 @@ export default function App() {
       commit((v) => ({
         ...v,
         active: {
-          ...a,
-          elapsed: elapsed(a, boundary.at),
-          segmentStart: null,
+          ...closeSegment(a, boundary.at),
           pauses: [
             ...a.pauses,
             { at: iso(boundary.at), reason: boundary.title + ' 시작 · 자동 일시정지' },
@@ -284,6 +293,7 @@ export default function App() {
           segmentStart: iso(currentTime),
           elapsed: 0,
           pauses: [],
+          segments: [],
         },
         tasks: v.tasks.map((x) => (x.id === t?.id ? { ...x, status: 'doing' } : x)),
       }))
@@ -321,6 +331,7 @@ export default function App() {
             rating: String(f.get('rating')) as '어려움' | '보통' | '이해함',
             reason: String(f.get('reason')),
             pauses: a.pauses,
+            segments: a.segments,
             mistake: String(f.get('mistake')),
             reviewDate: f.get('mistake') ? addDays(dayKey(ended), 1) : null,
           },
@@ -381,7 +392,7 @@ export default function App() {
         setNotice('과제를 저장했습니다. 변경된 마감과 분량은 계획 복구에 반영됩니다.');
       }
     } catch (e) {
-      setFormError(e instanceof Error ? e.message : '입력을 확인하세요');
+      setFormError(inputError(e));
     }
   }
   function saveSchedule(e: FormEvent<HTMLFormElement>) {
@@ -422,7 +433,7 @@ export default function App() {
         setNotice('고정 일정을 저장했습니다. 충돌이 생긴 계획은 복구 버튼으로 다시 검토하세요.');
       }
     } catch (e) {
-      setFormError(e instanceof Error ? e.message : '입력을 확인하세요');
+      setFormError(inputError(e));
     }
   }
   async function recovery() {
@@ -436,14 +447,7 @@ export default function App() {
     const fallback = recover(snapshot, time);
     try {
       if (!online) throw new Error('offline');
-      const response = await fetch('/api/plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ state: privateSnapshot(snapshot), now: time }),
-        signal: AbortSignal.timeout(18000),
-      });
-      if (!response.ok) throw new Error('API 연결 불가');
-      const payload = await response.json(),
+      const payload = await requestAI('plan', { state: privateSnapshot(snapshot), now: time }),
         r = recoverySchema.parse(payload.result);
       if (validateRecovery(snapshot, r, time).length) throw new Error('안전 규칙 위반');
       setProposal(r);
@@ -477,22 +481,15 @@ export default function App() {
     const local = `미완료 과제 ${pending.length}개, 오늘 기록한 문제 ${todayOutput(s.sessions, now)}개. ${dueReview.length ? `복습할 오답 ${dueReview.length}개부터 다시 풀어보세요.` : weak.length ? `${weak.at(-1)?.subject}에서 어려웠던 개념 하나를 다시 떠올려 보세요.` : '과제 하나를 고르고 첫 문제부터 5분 시작하세요.'} 시간 기록만으로 이해도나 성적 향상을 판단하지 않습니다.`;
     setCoach(local);
     try {
-      const res = await fetch('/api/coach', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          pending: pending.map((t) => ({ subject: t.subject, remaining: t.remaining, due: t.due })),
-          sessions: s.sessions.slice(-20).map((x) => ({
-            subject: x.subject,
-            problems: x.problems,
-            rating: x.rating,
-            seconds: x.seconds,
-          })),
-        }),
-        signal: AbortSignal.timeout(18000),
+      const d = await requestAI('coach', {
+        pending: pending.map((t) => ({ subject: t.subject, remaining: t.remaining, due: t.due })),
+        sessions: s.sessions.slice(-20).map((x) => ({
+          subject: x.subject,
+          problems: x.problems,
+          rating: x.rating,
+          seconds: x.seconds,
+        })),
       });
-      if (!res.ok) throw new Error();
-      const d = await res.json();
       if (typeof d.summary === 'string' && d.summary.length <= 2000)
         setCoach(`${d.mode === 'live' ? '서버 AI' : 'Demo AI Mode'} · ${d.summary}`);
     } catch {
@@ -555,9 +552,32 @@ export default function App() {
           className={t.due && +new Date(t.due) < now && t.status !== 'done' ? 'danger' : 'muted'}
         >
           {t.due ? `${dayKey(t.due)} ${clock(t.due)}` : '마감 확인 필요'} · {t.remaining}분{' '}
-          {t.status === 'done' ? (t.submitted ? '· 제출 완료' : '· 제출 여부 확인') : ''}
+          {t.status === 'done'
+            ? t.submitted
+              ? '· 제출 완료'
+              : needsSubmission(t)
+                ? '· 제출 여부 확인'
+                : '· 학습 완료'
+            : ''}
         </span>
       </button>
+      {needsSubmission(t) && (
+        <button
+          className="submission-button"
+          aria-label={t.title + ' 제출 완료 기록'}
+          onClick={() => {
+            if (
+              commit((v) => ({
+                ...v,
+                tasks: v.tasks.map((x) => (x.id === t.id ? { ...x, submitted: true } : x)),
+              }))
+            )
+              setNotice('제출 완료를 기록했습니다.');
+          }}
+        >
+          <CheckCheck size={16} /> 제출
+        </button>
+      )}
       <ChevronRight size={18} className="muted" />
     </div>
   );
@@ -611,7 +631,7 @@ export default function App() {
             <br />
             다시 시작하는 하루.
           </p>
-          <span className="version">BKIT STUDY OS / V1.0</span>
+          <span className="version">BKIT STUDY OS / V1.1</span>
         </div>
       </aside>
       <div className="main-shell">
@@ -695,6 +715,17 @@ export default function App() {
           )}
           {tab === 'today' && (
             <>
+              {!s.tasks.length && !s.schedules.length && !s.sessions.length && (
+                <section className="onboarding-card">
+                  <div>
+                    <span className="eyebrow">처음엔 하나만 등록해도 괜찮아요</span>
+                    <p>숙제 한 개 → 5분 시작 → 실제 공부한 만큼 기록.</p>
+                  </div>
+                  <button className="secondary" onClick={() => scheduleEditor()}>
+                    시간표부터 등록 <CalendarDays size={16} />
+                  </button>
+                </section>
+              )}
               <div className="dashboard-top">
                 <section className="action-card">
                   <div className="card-kicker">
@@ -807,6 +838,24 @@ export default function App() {
                   )}
                 </section>
               </div>
+              {awaiting.length > 0 && (
+                <section className="submission-notice" aria-label="제출 확인 알림">
+                  <CheckCheck size={19} />
+                  <div>
+                    <strong>학습은 끝났어요. 제출도 확인해주세요.</strong>
+                    <p>숙제·수행평가 {awaiting.length}개가 제출 확인을 기다립니다.</p>
+                  </div>
+                  <button
+                    className="text-button"
+                    onClick={() => {
+                      setFilter('submission');
+                      setTab('tasks');
+                    }}
+                  >
+                    확인하기 <ArrowRight size={15} />
+                  </button>
+                </section>
+              )}
               <div className="metrics">
                 <div>
                   <span>오늘의 집중 기록</span>
@@ -825,10 +874,10 @@ export default function App() {
                 <div>
                   <span>남은 과제</span>
                   <strong>
-                    {pending.length} <small>개</small>
+                    {attention.length} <small>개</small>
                   </strong>
                   <p>
-                    {pending.filter((t) => t.due && +new Date(t.due) - now <= 86400000).length}개
+                    {attention.filter((t) => t.due && +new Date(t.due) - now <= 86400000).length}개
                     마감 임박 또는 지남
                   </p>
                 </div>
@@ -838,7 +887,7 @@ export default function App() {
                     {late} <small>분</small>
                   </strong>
                   <p>
-                    {s.plan.length ? '미완료 계획 시작 시각 기준' : '아직 승인한 계획이 없어요'}
+                    {s.plan.length ? '시작 기록 없는 오늘 계획 기준' : '아직 승인한 계획이 없어요'}
                   </p>
                 </div>
               </div>
@@ -904,7 +953,7 @@ export default function App() {
                   <section className="panel">
                     <div className="section-head">
                       <h2>
-                        먼저 챙길 과제 <span>{pending.length.toString().padStart(2, '0')}</span>
+                        먼저 챙길 과제 <span>{attention.length.toString().padStart(2, '0')}</span>
                       </h2>
                       <button
                         className="icon-button"
@@ -914,8 +963,8 @@ export default function App() {
                         <Plus size={18} />
                       </button>
                     </div>
-                    {ordered.length ? (
-                      ordered.slice(0, 3).map(taskRow)
+                    {attentionOrdered.length ? (
+                      attentionOrdered.slice(0, 3).map(taskRow)
                     ) : (
                       <Empty title="아직 등록된 과제가 없어요">
                         숙제 하나부터 입력하면 충분해요.
@@ -1069,6 +1118,7 @@ export default function App() {
                 <div className="segmented">
                   {[
                     ['pending', '할 일'],
+                    ['submission', '제출 확인'],
                     ['done', '학습 완료'],
                     ['all', '전체'],
                   ].map(([v, l]) => (
@@ -1086,18 +1136,8 @@ export default function App() {
                 </button>
               </div>
               <section className="panel">
-                {s.tasks.filter(
-                  (t) =>
-                    filter === 'all' ||
-                    (filter === 'done' ? t.status === 'done' : t.status !== 'done'),
-                ).length ? (
-                  s.tasks
-                    .filter(
-                      (t) =>
-                        filter === 'all' ||
-                        (filter === 'done' ? t.status === 'done' : t.status !== 'done'),
-                    )
-                    .map(taskRow)
+                {visibleTasks.length ? (
+                  visibleTasks.map(taskRow)
                 ) : (
                   <Empty title="여기에 할 일을 모아두세요">
                     마감일을 모르면 비워두세요. 확인 필요로 저장됩니다.
@@ -1212,7 +1252,7 @@ export default function App() {
                           if (
                             commit((v) => ({
                               ...v,
-                              active: { ...a, elapsed: elapsed(a, Date.now()), segmentStart: null },
+                              active: closeSegment(a, Date.now()),
                             }))
                           )
                             open('finish');
@@ -1613,6 +1653,11 @@ export default function App() {
                   </section>
                   <section className="note-card">
                     <h3>AI 연결 상태</h3>
+                    <p className="mode-label">
+                      {apiEnabled
+                        ? '서버 요청 사용 설정 · 응답 성공 시에만 서버 AI로 표시'
+                        : 'Demo AI Mode · 외부 API 요청 꺼짐'}
+                    </p>
                     <p>
                       기본: Demo AI Mode · 규칙 기반. 서버와 키를 설정하면 검증된 AI 응답을 사용할
                       수 있습니다. 외부 전송은 계획 복구·코치 버튼을 누를 때만 발생합니다.
@@ -1752,6 +1797,16 @@ export default function App() {
               <Field label="자료 링크">
                 <input name="link" type="url" defaultValue={editTask?.link} />
               </Field>
+              {editTask?.link && (
+                <a
+                  className="secondary"
+                  href={editTask.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  등록한 자료 열기 <ArrowUpRight size={16} />
+                </a>
+              )}
               <div className="modal-actions">
                 {editTask && (
                   <button
@@ -1924,9 +1979,7 @@ export default function App() {
                   commit((v) => ({
                     ...v,
                     active: {
-                      ...a,
-                      elapsed: elapsed(a, t),
-                      segmentStart: null,
+                      ...closeSegment(a, t),
                       pauses: [...a.pauses, { at: iso(t), reason: String(f.get('reason')) }],
                     },
                   }))

@@ -6,7 +6,7 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   use: {
-    baseURL: 'http://127.0.0.1:4173/study-os/',
+    baseURL: process.env.BKIT_TEST_BASE_URL || 'http://127.0.0.1:4173/study-os/',
     trace: 'retain-on-failure',
     launchOptions: {
       executablePath:
@@ -21,8 +21,8 @@ export default defineConfig({
     { name: 'desktop', use: { viewport: { width: 1440, height: 1000 }, browserName: 'chromium' } },
   ],
   webServer: {
-    command: 'npm run preview -- --port 4173',
-    url: 'http://127.0.0.1:4173/study-os/',
+    command: 'npm run preview -- --port ' + (process.env.BKIT_PREVIEW_PORT || '4173'),
+    url: process.env.BKIT_TEST_BASE_URL || 'http://127.0.0.1:4173/study-os/',
     reuseExistingServer: true,
   },
 });

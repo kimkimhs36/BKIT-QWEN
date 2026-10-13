@@ -232,3 +232,41 @@ test('Seoul dashboard advances across midnight without fabricated output', async
   ).toBeVisible();
   expect(await page.locator('.metrics').innerText()).toContain('0');
 });
+test('submission reminders remain on TODAY until the user marks submitted', async ({ page }) => {
+  await addTask(page);
+  await nav(page, '과제');
+  await page.getByRole('button', { name: '테스트 · 학습지 극한 1–3번 학습 완료로 변경' }).click();
+  await nav(page, '오늘');
+  await expect(page.getByRole('region', { name: '제출 확인 알림' })).toContainText(
+    '숙제·수행평가 1개',
+  );
+  await page.getByRole('button', { name: '확인하기', exact: true }).click();
+  await expect(page.getByRole('button', { name: '제출 확인', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '테스트 · 학습지 극한 1–3번 제출 완료 기록' }).click();
+  await nav(page, '오늘');
+  await expect(page.getByRole('region', { name: '제출 확인 알림' })).toHaveCount(0);
+  await page.reload();
+  expect(
+    await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!).tasks[0].submitted, KEY),
+  ).toBe(true);
+});
+test('static demo recovery makes no AI network request', async ({ page }) => {
+  let calls = 0;
+  page.on('request', (r) => {
+    if (r.url().includes('/api/')) calls++;
+  });
+  await addTask(page);
+  await page.getByRole('button', { name: '오늘 계획 복구' }).click();
+  await expect(page.getByRole('button', { name: '검토한 계획 승인' })).toBeEnabled();
+  expect(calls).toBe(0);
+});
+test('320px layout keeps actions and task filters within viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 720 });
+  await addTask(page);
+  for (const name of ['오늘', '시간표', '과제', '집중', '기록', '설정']) {
+    await nav(page, name);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+  }
+});

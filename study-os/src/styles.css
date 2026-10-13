@@ -1814,3 +1814,86 @@ dialog::backdrop {
   opacity: 1;
   color: #58654c;
 }
+.onboarding-card,
+.submission-notice {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 22px;
+  border: 1px solid #dce3d2;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  background: #fdfdf8;
+}
+.onboarding-card > div,
+.submission-notice > div {
+  flex: 1;
+}
+.onboarding-card p,
+.submission-notice p {
+  font-size: 12px;
+  color: #58654c;
+  margin: 3px 0;
+}
+.onboarding-card .eyebrow {
+  margin-bottom: 4px;
+}
+.submission-notice {
+  background: #f1ebdf;
+  margin: 20px 0;
+}
+.submission-notice strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+.submission-button {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  color: #42563d;
+  border: 1px solid #d5ddc9;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.action-footer {
+  flex-wrap: wrap;
+}
+@media (max-width: 620px) {
+  .onboarding-card,
+  .submission-notice {
+    padding: 16px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .onboarding-card p,
+  .submission-notice p {
+    font-size: 11px;
+  }
+  .onboarding-card .eyebrow {
+    font-size: 9px;
+  }
+  .submission-notice strong {
+    font-size: 12px;
+  }
+  .submission-button {
+    font-size: 10px;
+    padding: 6px;
+  }
+  .toolbar .segmented {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+}
+.form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.settings-layout > *:first-child,
+.settings-layout > div,
+.form-grid > * {
+  min-width: 0;
+}
+.toast {
+  pointer-events: none;
+}

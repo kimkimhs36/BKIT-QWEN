@@ -52,6 +52,9 @@ export const scheduleSchema = z
 export const blockSchema = z
   .object({ id, taskId: id, start: instant, end: instant, locked: z.boolean() })
   .refine((b) => b.end > b.start);
+export const segmentSchema = z
+  .object({ start: instant, end: instant })
+  .refine((v) => v.end > v.start, '집중 구간 종료 시각을 확인하세요');
 export const activeSchema = z.object({
   id,
   taskId: id.nullable(),
@@ -62,6 +65,7 @@ export const activeSchema = z.object({
   segmentStart: instant.nullable(),
   elapsed: z.number().min(0),
   pauses: z.array(z.object({ at: instant, reason: text })).max(100),
+  segments: z.array(segmentSchema).max(102).optional(),
 });
 export const sessionSchema = z.object({
   id,
@@ -79,6 +83,7 @@ export const sessionSchema = z.object({
   pauses: z.array(z.object({ at: instant, reason: text })),
   mistake: note,
   reviewDate: date.nullable(),
+  segments: z.array(segmentSchema).max(102).optional(),
 });
 export const settingsSchema = z
   .object({
@@ -118,6 +123,24 @@ export const stateSchema = z
     for (const key of ['tasks', 'schedules', 'sessions', 'plan', 'grades'] as const)
       if (new Set(s[key].map((x) => x.id)).size !== s[key].length)
         ctx.addIssue({ code: 'custom', message: `${key}: 중복 ID` });
+    for (const session of s.sessions) {
+      if (session.segments) {
+        const duration = session.segments.reduce(
+          (n, v) => n + (+new Date(v.end) - +new Date(v.start)) / 1000,
+          0,
+        );
+        if (
+          Math.abs(duration - session.seconds) > 0.01 ||
+          session.segments.some(
+            (v, i) =>
+              v.start < session.started ||
+              v.end > session.ended ||
+              (i > 0 && v.start < session.segments![i - 1].end),
+          )
+        )
+          ctx.addIssue({ code: 'custom', message: '집중 구간과 타이머 합계가 일치하지 않습니다' });
+      }
+    }
     if (s.plan.some((b) => !s.tasks.some((t) => t.id === b.taskId)))
       ctx.addIssue({ code: 'custom', message: '계획의 과제를 찾을 수 없습니다' });
   });
