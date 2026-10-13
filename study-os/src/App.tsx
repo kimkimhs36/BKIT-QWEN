@@ -1,3 +1,4 @@
+import { DayOrbit } from './DayOrbit';
 import { useEffect, useRef, useState, type ReactNode, type FormEvent } from 'react';
 import {
   ArrowUpRight,
@@ -582,58 +583,11 @@ export default function App() {
     </div>
   );
   return (
-    <div className="app-shell">
+    <div className={"app-shell visual-v2 page-" + tab + (tab === "study" && s.active ? " is-focusing" : "")}>
       <a className="skip" href="#main">
         본문으로 이동
       </a>
-      <aside className="sidebar">
-        <a
-          className="brand"
-          aria-label="BKIT STUDY OS 오늘로 이동"
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            setTab('today');
-          }}
-        >
-          <span className="brand-icon">
-            <Leaf size={24} />
-          </span>
-          <span>
-            BKIT<span className="brand-sub">STUDY OS</span>
-          </span>
-        </a>
-        <div className="workspace-label">MY PERSONAL WORKSPACE</div>
-        <nav aria-label="주 메뉴">
-          {NAV.map((n) => (
-            <button
-              key={n.id}
-              aria-label={n.label}
-              className={'nav-item ' + (tab === n.id ? 'active' : '')}
-              onClick={() => {
-                setTab(n.id);
-                setFormError('');
-              }}
-              aria-current={tab === n.id ? 'page' : undefined}
-            >
-              <n.icon size={20} />
-              <span>{n.label}</span>
-              <small>{n.en}</small>
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-bottom">
-          <div className="privacy">
-            <LockKeyhole size={14} /> 나만의 공간 · 기기에 저장
-          </div>
-          <p>
-            완벽한 하루보다
-            <br />
-            다시 시작하는 하루.
-          </p>
-          <span className="version">BKIT STUDY OS / V1.1</span>
-        </div>
-      </aside>
+      <a className="v2-brand" href="#" onClick={e => { e.preventDefault(); setTab('today'); }}><span className="brand-glyph">b.</span><strong>BKIT<small>STUDY OS / 02</small></strong></a>
       <div className="main-shell">
         <header className="topbar">
           <div>
@@ -641,7 +595,7 @@ export default function App() {
               BKIT <small>STUDY OS</small>
             </span>
             <span className="breadcrumb">
-              내 워크스페이스 <ChevronRight size={13} /> {NAV.find((n) => n.id === tab)?.label}
+              PERSONAL SYSTEM <ChevronRight size={13} /> {NAV.find((n) => n.id === tab)?.label}
             </span>
           </div>
           <div className="top-meta">
@@ -659,15 +613,15 @@ export default function App() {
         <main id="main" tabIndex={-1}>
           <div className="page-head">
             <div>
-              <p className="eyebrow">{NAV.find((n) => n.id === tab)?.en} / YOUR NEXT SMALL STEP</p>
+              <p className="eyebrow">{NAV.find((n) => n.id === tab)?.en} / MAKE TIME MATTER</p>
               <h1>
                 {
                   (
                     {
-                      today: '오늘, 한 걸음.',
+                      today: 'Own your day.',
                       school: '한 주의 리듬.',
-                      tasks: '할 일을 가볍게.',
-                      study: '지금에 집중하기.',
+                      tasks: '다음 행동을 명확하게.',
+                      study: 'Into focus.',
                       progress: '쌓여가는 기록.',
                       settings: '나에게 맞는 설정.',
                     } as Record<string, string>
@@ -678,7 +632,7 @@ export default function App() {
                 {
                   (
                     {
-                      today: '계획이 달라져도 괜찮아요. 지금 할 수 있는 것부터.',
+                      today: '지금의 선택이, 오늘의 방향이 됩니다.',
                       school: '학교부터 학원까지, 준비할 시간도 함께 챙겨요.',
                       tasks: '기억하는 대신 여기에 내려놓으세요.',
                       study: '시간을 채우기보다, 한 문제를 이해하는 시간.',
@@ -715,198 +669,25 @@ export default function App() {
           )}
           {tab === 'today' && (
             <>
-              {!s.tasks.length && !s.schedules.length && !s.sessions.length && (
-                <section className="onboarding-card">
-                  <div>
-                    <span className="eyebrow">처음엔 하나만 등록해도 괜찮아요</span>
-                    <p>숙제 한 개 → 5분 시작 → 실제 공부한 만큼 기록.</p>
+              <section className="command-stage">
+                <div className="command-left">
+                  <div className="live-label"><span className="status-dot"/> LIVE / {fullDate(now)}<span>SEOUL</span></div>
+                  <div className="live-clock" aria-label={`현재 ${clock(now)}`}><span>{clock(now).split(':')[0]}</span><i>:</i><span>{clock(now).split(':')[1]}</span><small>{String(new Date(now).getSeconds()).padStart(2,'0')}</small></div>
+                  <div className="day-progress"><span style={{width: `${(now-at(today,'00:00'))/864000}%`}}/></div>
+                  <div className="now-action">
+                    <div className="section-number">01 <span>YOUR NEXT MOVE</span></div>
+                    <h2>{s.active ? s.active.action : current ? current.kind === 'sleep' ? '지금은 수면 시간입니다.' : `${current.title}, 지금 준비하세요.` : actionTask?.title || (awaiting.length ? '끝낸 과제, 제출을 확인하세요.' : '무엇부터 해야 할까요?')}</h2>
+                    <p>{s.active ? `${s.active.subject} · 집중 세션 진행 중` : current ? current.kind === 'sleep' ? `다음 행동은 ${s.settings.wake}에 시작됩니다.` : `보호된 일정 ${clock(current.start)} — ${clock(current.end)}` : actionTask ? `${actionTask.subject} · 남은 학습 약 ${actionTask.remaining}분` : '한 줄로 할 일을 적고, 바로 시작하세요.'}</p>
+                    <div className="command-actions">{s.active ? <button className="primary" onClick={()=>setTab('study')}>집중으로 돌아가기 <ArrowUpRight size={18}/></button> : actionTask ? <button className="primary" disabled={!canStudy} onClick={()=>start(5,actionTask.id)}><Play size={16}/> 5분 공부 시작</button> : awaiting.length ? <button className="primary" onClick={()=>{setFilter('submission');setTab('tasks');}}>제출 확인 <ArrowRight size={18}/></button> : <button className="primary" onClick={()=>taskEditor()}>과제 빠르게 담기 <Plus size={18}/></button>}<button className="text-button" onClick={()=>setTab('study')}>집중 공간 <ArrowUpRight size={16}/></button></div>
                   </div>
-                  <button className="secondary" onClick={() => scheduleEditor()}>
-                    시간표부터 등록 <CalendarDays size={16} />
-                  </button>
-                </section>
-              )}
-              <div className="dashboard-top">
-                <section className="action-card">
-                  <div className="card-kicker">
-                    <span>
-                      <span className="status-dot" /> RIGHT NOW
-                    </span>
-                    <span>
-                      {s.active
-                        ? '집중 세션 진행 중'
-                        : current
-                          ? '생활 리듬 먼저'
-                          : '작은 시작이면 충분해요'}
-                    </span>
-                  </div>
-                  <div className="action-body">
-                    <span className="chip">
-                      {s.active
-                        ? s.active.subject
-                        : current
-                          ? current.title
-                          : actionTask?.subject || '첫 시작'}
-                    </span>
-                    <h2>
-                      {s.active
-                        ? s.active.action
-                        : current
-                          ? current.kind === 'sleep'
-                            ? '충분히 쉬고, 내일 다시 시작해요.'
-                            : `${current.title}, 지금 준비하세요.`
-                          : actionTask?.title ||
-                            (awaiting.length
-                              ? '학습은 끝났어요. 제출도 확인해요.'
-                              : s.tasks.length
-                                ? '남은 학습 과제가 없어요.'
-                                : '첫 할 일을 하나 적어볼까요?')}
-                    </h2>
-                    <p>
-                      {s.active
-                        ? '기록할 개념과 문제를 하나씩 쌓아보세요.'
-                        : current
-                          ? `보호된 일정 · ${clock(current.start)}–${clock(current.end)}`
-                          : actionTask
-                            ? '첫 문제를 풀고, 답을 가린 채 풀이를 떠올려 보세요.'
-                            : s.tasks.length
-                              ? '필요한 제출과 오답 복습을 확인하고 쉬어가세요.'
-                              : '시간표나 과제를 등록하면 오늘의 첫 행동을 정리해드려요.'}
-                    </p>
-                  </div>
-                  <div className="action-footer">
-                    <span>
-                      <Clock size={16} />
-                      {s.active
-                        ? `${Math.floor(seconds / 60)}분 타이머 기록`
-                        : actionTask
-                          ? `남은 분량 약 ${actionTask.remaining}분`
-                          : '5분부터 천천히'}
-                    </span>
-                    {s.active ? (
-                      <button className="primary" onClick={() => setTab('study')}>
-                        집중으로 돌아가기 <ArrowRight size={17} />
-                      </button>
-                    ) : actionTask ? (
-                      <button
-                        className="primary"
-                        disabled={!canStudy}
-                        onClick={() => start(5, actionTask.id)}
-                      >
-                        <Play size={16} /> 5분 공부 시작
-                      </button>
-                    ) : awaiting.length ? (
-                      <button
-                        className="primary"
-                        onClick={() => {
-                          setFilter('submission');
-                          setTab('tasks');
-                        }}
-                      >
-                        <CheckCheck size={16} /> 제출 확인하기
-                      </button>
-                    ) : (
-                      <button className="primary" onClick={() => taskEditor()}>
-                        <Plus size={16} /> {s.tasks.length ? '새 과제 등록' : '첫 과제 등록'}
-                      </button>
-                    )}
-                  </div>
-                </section>
-                <section className="next-card">
-                  <div className="section-label">
-                    <span>UP NEXT</span>
-                    <ArrowUpRight size={19} />
-                  </div>
-                  <h3>{next?.title || '다음 일정이 비어 있어요'}</h3>
-                  <p>
-                    {next
-                      ? `${fullDate(next.classStart)} · ${clock(next.classStart)}–${clock(next.end)}`
-                      : '학교와 학원 일정을 등록해보세요.'}
-                  </p>
-                  {next ? (
-                    <>
-                      <div className="countdown">
-                        {now >= next.classStart
-                          ? '수업 중'
-                          : now >= next.depart
-                            ? '이동 시간'
-                            : now >= next.start
-                              ? '준비 시간'
-                              : `${Math.ceil((next.start - now) / MIN)}`}
-                        <span>{now < next.start ? '분 후 준비 시작' : '안전하게 이동하세요'}</span>
-                      </div>
-                      <div className="departure">
-                        <span>
-                          준비 <b>{clock(next.start)}</b>
-                        </span>
-                        <span>
-                          출발 <b>{clock(next.depart)}</b>
-                        </span>
-                        <span>
-                          도착 <b>{clock(next.arrive)}</b>
-                        </span>
-                      </div>
-                      {next.materials && <p>준비물 · {next.materials}</p>}
-                    </>
-                  ) : (
-                    <button className="text-button" onClick={() => scheduleEditor()}>
-                      일정 등록 <ArrowRight size={16} />
-                    </button>
-                  )}
-                </section>
-              </div>
-              {awaiting.length > 0 && (
-                <section className="submission-notice" aria-label="제출 확인 알림">
-                  <CheckCheck size={19} />
-                  <div>
-                    <strong>학습은 끝났어요. 제출도 확인해주세요.</strong>
-                    <p>숙제·수행평가 {awaiting.length}개가 제출 확인을 기다립니다.</p>
-                  </div>
-                  <button
-                    className="text-button"
-                    onClick={() => {
-                      setFilter('submission');
-                      setTab('tasks');
-                    }}
-                  >
-                    확인하기 <ArrowRight size={15} />
-                  </button>
-                </section>
-              )}
-              <div className="metrics">
-                <div>
-                  <span>오늘의 집중 기록</span>
-                  <strong>
-                    {Math.floor(studySeconds(s.sessions, today) / 60)} <small>분</small>
-                  </strong>
-                  <p>완료한 세션의 타이머 기록</p>
                 </div>
-                <div>
-                  <span>실제 문제풀이</span>
-                  <strong>
-                    {todayOutput(s.sessions, now)} <small>문제</small>
-                  </strong>
-                  <p>직접 입력한 완료량</p>
-                </div>
-                <div>
-                  <span>남은 과제</span>
-                  <strong>
-                    {attention.length} <small>개</small>
-                  </strong>
-                  <p>
-                    {attention.filter((t) => t.due && +new Date(t.due) - now <= 86400000).length}개
-                    마감 임박 또는 지남
-                  </p>
-                </div>
-                <div>
-                  <span>계획 시작 지연</span>
-                  <strong>
-                    {late} <small>분</small>
-                  </strong>
-                  <p>
-                    {s.plan.length ? '시작 기록 없는 오늘 계획 기준' : '아직 승인한 계획이 없어요'}
-                  </p>
-                </div>
+                <DayOrbit now={now} events={[...fixed, ...todayBlocks.map(b=>({id:b.id,title:s.tasks.find(t=>t.id===b.taskId)?.title || '학습',start:+new Date(b.start),end:+new Date(b.end),kind:'study'}))]}/>
+              </section>
+              <div className="day-strip">
+                <button className="strip-next" onClick={()=>setTab('school')}><span className="section-number">02 <span>UP NEXT</span></span><strong>{next?.title || '다음 일정을 설계하세요'} <ArrowUpRight size={16}/></strong><small>{next ? `${clock(next.start)} 준비 · ${clock(next.depart)} 출발${now < next.start ? ` · ${Math.ceil((next.start-now)/MIN)}분 후` : ' · 진행 중'}` : '시간표에 학교·학원 일정 추가'}</small></button>
+                <div className="strip-stat"><span>FOCUS TODAY</span><strong>{Math.floor(studySeconds(s.sessions,today)/60)}<small>min</small></strong></div>
+                <div className="strip-stat"><span>TO COMPLETE</span><strong>{attention.length.toString().padStart(2,'0')}<small>tasks</small></strong></div>
+                <button className="strip-recover" onClick={recovery} disabled={!pending.length}><RotateCcw size={19}/><span>{late ? `${late}분 지연 · 계획 복구` : '오늘 계획 정리'}<small>RECALIBRATE YOUR DAY</small></span><ArrowUpRight size={17}/></button>
               </div>
               <div className="dashboard-bottom">
                 <section className="panel">
@@ -1695,23 +1476,14 @@ export default function App() {
             </>
           )}
           <footer className="page-footer">
-            <span>작은 시작. 꾸준한 회복.</span>
+            <span>BKIT / TIME WELL SPENT.</span>
             <span>ASIA / SEOUL · LOCAL FIRST</span>
           </footer>
         </main>
       </div>
-      <nav className="bottom-nav" aria-label="모바일 메뉴">
-        {NAV.map((n) => (
-          <button
-            key={n.id}
-            className={tab === n.id ? 'active' : ''}
-            aria-current={tab === n.id ? 'page' : undefined}
-            onClick={() => setTab(n.id)}
-          >
-            <n.icon size={20} />
-            <span>{n.label}</span>
-          </button>
-        ))}
+      <nav className="orbit-nav" aria-label="주 메뉴">
+        {NAV.filter(n=>n.id!=='settings').map(n=><button key={n.id} className={tab===n.id?'active':''} aria-current={tab===n.id?'page':undefined} onClick={()=>setTab(n.id)}><n.icon size={19}/><span>{n.label}</span></button>)}
+        <button className="nav-capture" aria-label="과제 빠르게 추가" onClick={()=>taskEditor()}><Plus size={23}/></button>
       </nav>
       {modal && (
         <Modal
