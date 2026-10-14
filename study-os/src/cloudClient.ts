@@ -42,7 +42,7 @@ let scriptPromise:Promise<void>|null=null;
 function loadGoogleIdentity():Promise<void>{
   if(window.google?.accounts?.oauth2)return Promise.resolve();
   if(scriptPromise)return scriptPromise;
-  scriptPromise=new Promise((resolve,reject)=>{
+  scriptPromise=new Promise<void>((resolve,reject)=>{
     const script=document.createElement('script');
     script.src='https://accounts.google.com/gsi/client';
     script.async=true;
