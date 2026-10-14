@@ -16,7 +16,8 @@ function pngMap(w: number, h: number, radius: number) {
   const ctx = surface.getContext('2d');
   if (!ctx) return '';
   const pixels = makeLensBytes(w, h, radius);
-  const rgba = new ImageData(pixels, w, h);
+  const rgba = ctx.createImageData(w, h);
+  rgba.data.set(pixels);
   ctx.putImageData(rgba, 0, 0);
   return surface.toDataURL('image/png');
 }
