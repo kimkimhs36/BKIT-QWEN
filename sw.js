@@ -1,10 +1,12 @@
 // Build injects versioned local assets. This worker never handles the old site or AI.
-const CACHE = 'bkit-study-os-shell-0db509121272';
+const CACHE = 'bkit-study-os-shell-fe843c6a7dd5';
 const ROOT = new URL('./', self.location.href).href;
-const PRECACHE = ["index.html","icon.svg","icon-192.png","icon-512.png","apple-touch-icon.png","manifest.webmanifest","assets/dm-sans-latin-400-normal-BwCSEQnW.woff","assets/dm-sans-latin-400-normal-CW0RaeGs.woff2","assets/dm-sans-latin-500-normal-B9HHJjqV.woff2","assets/dm-sans-latin-500-normal-Dr3UlScf.woff","assets/dm-sans-latin-600-normal-Aqo67rzb.woff2","assets/dm-sans-latin-600-normal-BmdmIIQ2.woff","assets/dm-sans-latin-700-normal-CUSSCpQX.woff","assets/dm-sans-latin-700-normal-DvUfVpUG.woff2","assets/dm-sans-latin-ext-400-normal-BjWJ59Pq.woff","assets/dm-sans-latin-ext-400-normal-BtiwyxMk.woff2","assets/dm-sans-latin-ext-500-normal-BJfUCQsA.woff2","assets/dm-sans-latin-ext-500-normal-DR84L5F-.woff","assets/dm-sans-latin-ext-600-normal-4vooXBpG.woff2","assets/dm-sans-latin-ext-600-normal-DRtaDpgU.woff","assets/dm-sans-latin-ext-700-normal-BLI3TTWz.woff","assets/dm-sans-latin-ext-700-normal-CJIcxD6K.woff2","assets/index-D6iYwFjl.css","assets/index-bskItttC.js"];
+const PRECACHE = ["index.html","icon.svg","icon-192.png","icon-512.png","apple-touch-icon.png","manifest.webmanifest","assets/dm-sans-latin-400-normal-BwCSEQnW.woff","assets/dm-sans-latin-400-normal-CW0RaeGs.woff2","assets/dm-sans-latin-500-normal-B9HHJjqV.woff2","assets/dm-sans-latin-500-normal-Dr3UlScf.woff","assets/dm-sans-latin-600-normal-Aqo67rzb.woff2","assets/dm-sans-latin-600-normal-BmdmIIQ2.woff","assets/dm-sans-latin-700-normal-CUSSCpQX.woff","assets/dm-sans-latin-700-normal-DvUfVpUG.woff2","assets/dm-sans-latin-ext-400-normal-BjWJ59Pq.woff","assets/dm-sans-latin-ext-400-normal-BtiwyxMk.woff2","assets/dm-sans-latin-ext-500-normal-BJfUCQsA.woff2","assets/dm-sans-latin-ext-500-normal-DR84L5F-.woff","assets/dm-sans-latin-ext-600-normal-4vooXBpG.woff2","assets/dm-sans-latin-ext-600-normal-DRtaDpgU.woff","assets/dm-sans-latin-ext-700-normal-BLI3TTWz.woff","assets/dm-sans-latin-ext-700-normal-CJIcxD6K.woff2","assets/index-ChzyQRiy.js","assets/index-CvBodEx7.css"];
 self.addEventListener('install', (e) =>
   e.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(PRECACHE.map((path) => new URL(path, ROOT).href))),
+    caches.open(CACHE)
+      .then((c) => c.addAll(PRECACHE.map((path) => new URL(path, ROOT).href)))
+      .then(() => self.skipWaiting()),
   ),
 );
 self.addEventListener('activate', (e) =>
