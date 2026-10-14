@@ -8,19 +8,19 @@ export function FocusHalo({ progress, running }: { progress: number; running: bo
     >
       <defs>
         <radialGradient id="focusLight">
-          <stop stopColor="#d7efae" stopOpacity=".09" />
-          <stop offset=".75" stopColor="#a3bd71" stopOpacity=".02" />
-          <stop offset="1" stopColor="#a3bd71" stopOpacity="0" />
+          <stop stopColor="#ccd9ff" stopOpacity=".09" />
+          <stop offset=".75" stopColor="#b6c5f8" stopOpacity=".02" />
+          <stop offset="1" stopColor="#b6c5f8" stopOpacity="0" />
         </radialGradient>
       </defs>
       <circle cx="220" cy="220" r="210" fill="url(#focusLight)" className="focus-aura" />
-      <circle cx="220" cy="220" r="169" fill="none" stroke="#465335" strokeWidth=".6" />
+      <circle cx="220" cy="220" r="169" fill="none" stroke="#b3bed7" strokeWidth=".6" />
       <circle
         cx="220"
         cy="220"
         r="151"
         fill="none"
-        stroke="#334329"
+        stroke="#cbd4e6"
         strokeWidth=".5"
         strokeDasharray="1 7"
       />
@@ -33,7 +33,7 @@ export function FocusHalo({ progress, running }: { progress: number; running: bo
             y1={220 - Math.cos(a) * 185}
             x2={220 + Math.sin(a) * (i % 5 === 0 ? 197 : 190)}
             y2={220 - Math.cos(a) * (i % 5 === 0 ? 197 : 190)}
-            stroke={i / 90 <= p ? '#dff9b0' : '#445236'}
+            stroke={i / 90 <= p ? '#5f73dd' : '#c4cee0'}
             strokeWidth={i / 90 <= p ? 2 : 1}
           />
         );
@@ -43,7 +43,7 @@ export function FocusHalo({ progress, running }: { progress: number; running: bo
         cy="220"
         r="169"
         fill="none"
-        stroke="#d8f59e"
+        stroke="#677be6"
         strokeWidth="2"
         pathLength="100"
         strokeDasharray={`${p * 100} 100`}
@@ -54,7 +54,7 @@ export function FocusHalo({ progress, running }: { progress: number; running: bo
         cx={220 + Math.sin(p * Math.PI * 2) * 169}
         cy={220 - Math.cos(p * Math.PI * 2) * 169}
         r="4"
-        fill="#e6ffc1"
+        fill="#4966d6"
       />
     </svg>
   );

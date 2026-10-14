@@ -33,8 +33,8 @@ export function DayOrbit({ now, events }: { now: number; events: OrbitEvent[] })
         >
           <defs>
             <radialGradient id="orbitGlow">
-              <stop stopColor="#d4ed91" stopOpacity=".09" />
-              <stop offset="1" stopColor="#d4ed91" stopOpacity="0" />
+              <stop stopColor="#c9d9ff" stopOpacity=".09" />
+              <stop offset="1" stopColor="#c9d9ff" stopOpacity="0" />
             </radialGradient>
           </defs>
           <circle cx="250" cy="250" r="205" fill="url(#orbitGlow)" />
