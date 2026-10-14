@@ -21,3 +21,4 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator)
 import './visual-v2.css';
 import './soft-ui.css';
 import './liquid-v6.css';
+import './ios-ready.css';

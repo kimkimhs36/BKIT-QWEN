@@ -701,7 +701,7 @@ export default function App() {
       >
         <span className="brand-glyph">b.</span>
         <strong>
-          BKIT<small>STUDY OS / 06</small>
+          BKIT<small>STUDY OS</small>
         </strong>
       </a>
       <div className="main-shell">
@@ -711,18 +711,29 @@ export default function App() {
               BKIT <small>STUDY OS</small>
             </span>
             <span className="breadcrumb">
-              PERSONAL SYSTEM <ChevronRight size={13} /> {NAV.find((n) => n.id === tab)?.label}
+              BKIT <ChevronRight size={13} /> {NAV.find((n) => n.id === tab)?.label}
             </span>
           </div>
           <div className="top-meta">
             <span className={'status-dot ' + (!online ? 'offline' : '')} />
             <span>{online ? '로컬 저장 모드' : '오프라인 모드'}</span>
             <button
-              className="icon-button"
+              type="button"
+              className="icon-button topbar-add-action"
+              aria-label="과제 추가"
+              title="과제 추가"
+              onClick={() => taskEditor()}
+            >
+              <Plus size={20} strokeWidth={2.25} />
+            </button>
+            <button
+              type="button"
+              className="icon-button topbar-settings-action"
               aria-label="설정 열기"
+              title="설정 열기"
               onClick={() => setTab('settings')}
             >
-              <SlidersHorizontal size={18} />
+              <SlidersHorizontal size={19} />
             </button>
           </div>
         </header>
@@ -1713,13 +1724,10 @@ export default function App() {
             aria-current={tab === n.id ? 'page' : undefined}
             onClick={() => setTab(n.id)}
           >
-            <n.icon size={19} />
+            <n.icon size={20} strokeWidth={tab === n.id ? 2.3 : 1.9} aria-hidden="true" />
             <span>{n.label}</span>
           </button>
         ))}
-        <button className="nav-capture" aria-label="과제 빠르게 추가" onClick={() => taskEditor()}>
-          <Plus size={23} />
-        </button>
       </nav>
       {modal && (
         <Modal
