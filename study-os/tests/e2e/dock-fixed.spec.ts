@@ -25,7 +25,7 @@ test('iPhone dock is visible at the top, middle, and bottom of a long page', asy
   expect(before.horizontalOverflow).toBe(false);
 
   const details = page.locator('.today-more');
-  await details.locator('summary').click();
+  await details.locator(':scope > summary').click();
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight / 2));
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(60);
   await expect(nav).toBeInViewport({ ratio: 1 });
