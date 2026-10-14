@@ -1,5 +1,7 @@
 import { QuickCapture } from './QuickCapture';
 import { NowFocus } from './NowFocus';
+import { ReviewDeck } from './ReviewDeck';
+import { buildReviewQueue, recordReviewOutcome, type ReviewOutcome } from './review';
 import { shouldAutoHideFocusUi } from './focusQuiet';
 import { FocusHalo } from './FocusHalo';
 import { DayTimeline } from './DayTimeline';
@@ -289,6 +291,7 @@ export default function App() {
           s.tasks.some((t) => t.id === b.taskId && t.status !== 'done'),
       )
       .sort((a, b) => a.start.localeCompare(b.start));
+  const reviewQueue = buildReviewQueue(s, today);
   const ordered = [...pending].sort(
     (a, b) =>
       (a.due ? +new Date(a.due) : Infinity) - (b.due ? +new Date(b.due) : Infinity) ||
@@ -366,6 +369,12 @@ export default function App() {
       setTab('study');
       setNotice('시작했어요. 첫 한 문제에 집중하세요.');
     }
+  }
+  function handleReview(sessionId: string, outcome: ReviewOutcome) {
+    const saved = commit((v) => recordReviewOutcome(v, sessionId, outcome, Date.now()));
+    if (saved)
+      setNotice(outcome === 'retry' ? '내일 다시 연습하도록 기록했어요.' : '다음 복습 날짜를 갱신했어요.');
+    return saved;
   }
   function finish(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -801,6 +810,20 @@ export default function App() {
                   ]}
                 />
               </section>
+              {reviewQueue.due.length > 0 && (
+                <button className="review-today-nudge" onClick={() => {
+                  document.getElementById('today-review-deck')?.scrollIntoView({
+                    behavior: 'smooth', block: 'start',
+                  });
+                }}>
+                  <div>
+                    <span>RECALL / READY TODAY</span>
+                    <strong>오늘 복습할 오답 {reviewQueue.due.length}개</strong>
+                    <small>{reviewQueue.due[0].subject} · 정답 없이 먼저 떠올려 보기</small>
+                  </div>
+                  <span className="review-today-link">복습하기 <ArrowRight size={16} /></span>
+                </button>
+              )}
               <div className="day-strip">
                 <button className="strip-next" onClick={() => setTab('school')}>
                   <span className="section-number">
@@ -838,6 +861,11 @@ export default function App() {
                   <ArrowUpRight size={17} />
                 </button>
               </div>
+              {reviewQueue.due.length > 0 && (
+                <div id="today-review-deck" className="today-review-deck">
+                  <ReviewDeck queue={reviewQueue} onReview={handleReview} />
+                </div>
+              )}
               <div className="dashboard-bottom">
                 <section className="panel">
                   <div className="section-head">
@@ -1234,38 +1262,7 @@ export default function App() {
                     <span>잠깐 막혔다면 기초 예제 하나로 돌아가세요.</span>
                   </div>
                 </section>
-                <section className="panel">
-                  <div className="section-head">
-                    <h2>오답 · 간격 복습</h2>
-                    <span className="chip">회상 → 재시도</span>
-                  </div>
-                  {s.sessions.filter((x) => x.mistake && !s.reviewsDone.includes(x.id)).length ? (
-                    s.sessions
-                      .filter((x) => x.mistake && !s.reviewsDone.includes(x.id))
-                      .map((x) => (
-                        <div className="review-row" key={x.id}>
-                          <span className="subject">
-                            {x.subject} · {x.reviewDate} 복습
-                          </span>
-                          <h3>{x.mistake}</h3>
-                          <p>답을 보지 않고 다시 풀어보고, 막힌 개념을 확인하세요.</p>
-                          <button
-                            className="secondary"
-                            onClick={() =>
-                              commit((v) => ({ ...v, reviewsDone: [...v.reviewsDone, x.id] }))
-                            }
-                          >
-                            <Check size={15} /> 재시도 완료
-                          </button>
-                        </div>
-                      ))
-                  ) : (
-                    <Empty title="다시 풀 문제가 아직 없어요">
-                      세션을 마칠 때 오답이나 이해하지 못한 개념을 적어두세요. 다음 날 복습 목록에
-                      남습니다.
-                    </Empty>
-                  )}
-                </section>
+                <ReviewDeck queue={reviewQueue} onReview={handleReview} />
               </div>
             </>
           )}

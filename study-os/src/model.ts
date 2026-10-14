@@ -118,6 +118,18 @@ export const stateSchema = z
     settings: settingsSchema,
     grades: z.array(gradeSchema).max(500),
     reviewsDone: z.array(id).max(5000),
+    // Optional to preserve existing v1 backups and local records.
+    reviewProgress: z
+      .array(
+        z.object({
+          sessionId: id,
+          stage: z.number().int().min(0).max(2),
+          due: date,
+          updatedAt: instant,
+        }),
+      )
+      .max(5000)
+      .optional(),
   })
   .superRefine((s, ctx) => {
     for (const key of ['tasks', 'schedules', 'sessions', 'plan', 'grades'] as const)
@@ -160,6 +172,7 @@ export const newState = (): State => ({
   undo: null,
   grades: [],
   reviewsDone: [],
+  reviewProgress: [],
   settings: {
     wake: '07:00',
     bed: '23:00',
