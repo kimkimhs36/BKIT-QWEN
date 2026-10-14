@@ -3,6 +3,7 @@ import type { Fixed } from './engine';
 import type { State, Task } from './model';
 import { clock } from './time';
 import { canStartSprint } from './now';
+import {formatQuantity} from './capture';
 
 type Props = {
   now: number;
@@ -67,7 +68,7 @@ export function NowFocus({
       : !ready
         ? '곧 ' + (nextFixed?.title ?? '고정 일정') + '이 시작돼.'
         : chosen
-          ? chosen.subject + ' · 남은 ' + chosen.remaining + '분'
+          ? chosen.subject + (chosen.quantity?' · '+formatQuantity(chosen.quantity):'')+' · 예상 '+chosen.remaining+'분'
           : '과제 없이 자율 학습도 가능해.';
 
   return (

@@ -1,0 +1,10 @@
+/* BKIT / research capture v2: transparent provenance without noisy effects. */
+.capture-v2-indicators{display:flex;flex-wrap:wrap;gap:7px;margin:3px 0 12px}
+.capture-v2-indicators span{display:inline-flex;align-items:center;min-height:27px;
+ padding:3px 10px;border-radius:999px;font-size:11px;font-weight:620;
+ background:#edf2ff;border:1px solid #dce5fd;color:#4e6197}
+.quick-capture .capture-chips{gap:10px}
+.quick-capture .capture-chips label{min-width:0}
+.quick-capture .capture-chips input,.quick-capture .capture-chips select{min-width:0;max-width:100%}
+.quick-capture .capture-note{line-height:1.6;color:#53667e}
+@media(max-width:385px){.quick-capture .capture-chips{grid-template-columns:minmax(0,1fr)}}

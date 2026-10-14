@@ -1,4 +1,5 @@
 import { QuickCapture } from './QuickCapture';
+import {captureDeadline,formatTaskDeadline,formatQuantity} from './capture';
 import { NowFocus } from './NowFocus';
 import { DeadlinePulse } from './DeadlinePulse';
 import { StudyRhythm } from './StudyRhythm';
@@ -453,14 +454,29 @@ export default function App() {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     try {
+      const dueDate=String(f.get('dueDate')||'');
+      const duePrecision=String(f.get('duePrecision')||'unknown') as 'unknown'|'date-only'|'exact-time';
+      const deadline=captureDeadline({
+        due:dueDate,precision:dueDate?duePrecision:'unknown',
+        dueTime:String(f.get('dueTime')||''),provenance:'user-confirmed',
+      });
+      const unit=String(f.get('quantityUnit')||'');
+      const amount=Number(f.get('quantityTotal')||0);
+      const quantity=unit&&amount>0 ? {
+        unit,total:amount,
+        remaining:editTask?.quantity?.unit===unit ? Math.min(editTask.quantity.remaining,amount) : amount,
+      }:undefined;
+      const duration=Number(f.get('minutes'));
       const t = taskSchema.parse({
         id: editTask?.id || uid(),
         subject: f.get('subject'),
         title: f.get('title'),
         kind: f.get('kind'),
-        due: f.get('due') ? fromInput(String(f.get('due'))) : null,
+        ...deadline,
+        quantity,
+        estimate:{minMinutes:duration,maxMinutes:duration,source:'user'},
         priority: Number(f.get('priority')),
-        minutes: Number(f.get('minutes')),
+        minutes: duration,
         remaining: Number(f.get('remaining')),
         status: f.get('status'),
         submitted: f.has('submitted'),
@@ -647,7 +663,7 @@ export default function App() {
         <span
           className={t.due && +new Date(t.due) < now && t.status !== 'done' ? 'danger' : 'muted'}
         >
-          {t.due ? `${dayKey(t.due)} ${clock(t.due)}` : '마감 확인 필요'} · {t.remaining}분{' '}
+          {formatTaskDeadline(t)} · {t.remaining}분{t.quantity ? ' · ' + formatQuantity(t.quantity) : ''}{' '}
           {t.status === 'done'
             ? t.submitted
               ? '· 제출 완료'
@@ -1815,13 +1831,38 @@ export default function App() {
                   placeholder="예: 학습지 4쪽 극한 문제 1–3번 풀기"
                 />
               </Field>
-              <Field label="마감 (한국 시각 · 미확정이면 비워두세요)">
-                <input
-                  type="datetime-local"
-                  name="due"
-                  defaultValue={editTask?.due ? localInput(editTask.due) : ''}
-                />
-              </Field>
+              <div className="form-grid">
+                <Field label="마감 날짜 (모르면 비우기)">
+                  <input type="date" name="dueDate"
+                    defaultValue={editTask?.deadline?.date ?? (editTask?.due ? dayKey(editTask.due) : '')}/>
+                </Field>
+                <Field label="마감의 정확성">
+                  <select name="duePrecision" defaultValue={editTask?.deadline?.precision ?? (editTask?.due?'exact-time':'date-only')}>
+                    <option value="date-only">날짜만 확인</option>
+                    <option value="exact-time">시각까지 확인</option>
+                    <option value="unknown">마감 미확인</option>
+                  </select>
+                </Field>
+                <Field label="확정된 시각 (시각까지 알 때)">
+                  <input type="time" name="dueTime"
+                    defaultValue={editTask?.due && (!editTask.deadline || editTask.deadline.precision==='exact-time') ? clock(editTask.due) : ''}/>
+                </Field>
+              </div>
+              <div className="form-grid">
+                <Field label="학습 분량 단위">
+                  <select name="quantityUnit" defaultValue={editTask?.quantity?.unit ?? ''}>
+                    <option value="">미확인</option>
+                    <option value="problems">문제</option>
+                    <option value="pages">쪽</option>
+                    <option value="passages">지문</option>
+                    <option value="chapters">단원</option>
+                  </select>
+                </Field>
+                <Field label="총 분량">
+                  <input name="quantityTotal" type="number" min="0" max="10000"
+                    defaultValue={editTask?.quantity?.total ?? 0}/>
+                </Field>
+              </div>
               <div className="form-grid">
                 <Field label="예상 전체 시간 (분)">
                   <input

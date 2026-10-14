@@ -12,6 +12,21 @@ export const date = z
 export const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 export const instant = z.string().datetime({ offset: true });
 const minutes = z.number().int().min(1).max(480);
+export const taskDeadlineSchema = z.object({
+  date,
+  precision: z.enum(['date-only', 'exact-time']),
+  provenance: z.enum(['explicit', 'inferred', 'user-confirmed']),
+});
+export const taskQuantitySchema = z.object({
+  unit: z.enum(['problems', 'pages', 'passages', 'chapters']),
+  total: z.number().int().min(1).max(10000),
+  remaining: z.number().int().min(0).max(10000),
+}).refine(q => q.remaining <= q.total, '남은 분량은 총량 이하여야 합니다');
+export const taskEstimateSchema = z.object({
+  minMinutes: minutes,
+  maxMinutes: minutes,
+  source: z.enum(['default', 'user', 'history']),
+}).refine(e => e.minMinutes <= e.maxMinutes);
 export const taskSchema = z
   .object({
     id,
@@ -19,6 +34,10 @@ export const taskSchema = z
     title: text.min(1),
     kind: z.enum(['숙제', '수행평가', '시험공부', '개인 일정']),
     due: instant.nullable(),
+    // Optional provenance preserves all existing v1 records.
+    deadline: taskDeadlineSchema.optional(),
+    quantity: taskQuantitySchema.optional(),
+    estimate: taskEstimateSchema.optional(),
     priority: z.number().int().min(1).max(3),
     minutes,
     remaining: minutes,
