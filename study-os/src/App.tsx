@@ -1,4 +1,6 @@
 import { QuickCapture } from './QuickCapture';
+import { CloudSyncPanel } from './CloudSyncPanel';
+import {useStudyCloud} from './useStudyCloud';
 import { ProblemWorkspace } from './ProblemWorkspace';
 import {captureDeadline,formatTaskDeadline,formatQuantity} from './capture';
 import { NowFocus } from './NowFocus';
@@ -301,6 +303,15 @@ export default function App() {
       return false;
     }
   }
+  const cloud = useStudyCloud(s, (incoming) => commit((v) => ({
+    ...v,
+    tasks: incoming.tasks,
+    schedules: incoming.schedules,
+    // Remote changes may remove/move tasks; never retain orphaned plan blocks.
+    plan: [],
+    undo: null,
+    settings: { ...v.settings, goal: incoming.goal },
+  })));
   function open(kind: NonNullable<typeof modal>) {
     setFormError('');
     setModal(kind);
@@ -1710,14 +1721,16 @@ export default function App() {
                   </form>
                 </section>
                 <div>
+                  <CloudSyncPanel cloud={cloud}/>
                   <section className="panel">
                     <div className="section-head">
                       <h2>내 데이터</h2>
                       <LockKeyhole size={18} />
                     </div>
                     <p className="muted">
-                      이 기기의 브라우저에 저장됩니다. 개인 기록은 저장소에 커밋되지 않습니다. 기기
-                      변경·브라우저 데이터 삭제 전 백업하세요.
+                      이 기기의 브라우저에 오프라인 캐시가 남아. Google을 연결하면
+                      과제·시간표·목표만 공유 시트와 동기화하고, 문제 풀이·세션·성적은
+                      계속 이 기기에 저장해. 기기 변경 전에는 JSON 백업도 활용해.
                     </p>
                     <div className="button-stack">
                       <button

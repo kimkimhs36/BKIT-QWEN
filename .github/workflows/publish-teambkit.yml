@@ -54,8 +54,8 @@ jobs:
           APP_BASE: /
         run: |
           npx playwright install --with-deps chromium webkit
-          npm run test:e2e -- tests/e2e/focus-restore.spec.ts tests/e2e/home-simple.spec.ts tests/e2e/soft-ui.spec.ts tests/e2e/liquid-optics.spec.ts tests/e2e/ios-navigation.spec.ts tests/e2e/research-now.spec.ts tests/e2e/capture-v2.spec.ts tests/e2e/quality-v10.spec.ts tests/e2e/dock-fixed.spec.ts --project=iphone
-          npm run test:e2e -- tests/e2e/liquid-optics.spec.ts tests/e2e/ios-navigation.spec.ts tests/e2e/research-now.spec.ts tests/e2e/capture-v2.spec.ts tests/e2e/quality-v10.spec.ts tests/e2e/dock-fixed.spec.ts --project=webkit-iphone
+          npm run test:e2e -- tests/e2e/focus-restore.spec.ts tests/e2e/home-simple.spec.ts tests/e2e/soft-ui.spec.ts tests/e2e/liquid-optics.spec.ts tests/e2e/ios-navigation.spec.ts tests/e2e/research-now.spec.ts tests/e2e/capture-v2.spec.ts tests/e2e/quality-v10.spec.ts tests/e2e/dock-fixed.spec.ts tests/e2e/cloud-sync.spec.ts --project=iphone
+          npm run test:e2e -- tests/e2e/liquid-optics.spec.ts tests/e2e/ios-navigation.spec.ts tests/e2e/research-now.spec.ts tests/e2e/capture-v2.spec.ts tests/e2e/quality-v10.spec.ts tests/e2e/dock-fixed.spec.ts tests/e2e/cloud-sync.spec.ts --project=webkit-iphone
 
       - name: Checkout existing site branch
         uses: actions/checkout@v4

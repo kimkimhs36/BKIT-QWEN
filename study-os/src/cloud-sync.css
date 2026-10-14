@@ -1,0 +1,45 @@
+/* BKIT Cloud Study Hub 01: quiet setup surface within the existing iOS UI. */
+.bkit-cloud-panel { margin-bottom: 20px; }
+.bkit-cloud-panel .section-head h2 { display: inline-flex; align-items: center; gap: 9px; }
+.bkit-cloud-state {
+  font-size: 11px; font-weight: 690; letter-spacing: -.1px;
+  padding: 5px 10px; border-radius: 999px; background: #f0f3fb;
+  color: #677891; white-space: nowrap;
+}
+.bkit-cloud-state--connected { background: #e8f5ef; color: #2d7856; }
+.bkit-cloud-state--conflict { background: #fff2df; color: #906020; }
+.bkit-cloud-state--error { background: #fff0f1; color: #a34b57; }
+.bkit-cloud-status {
+  margin: 14px 0 8px; background: #f7f9ff; color: #354b75;
+  border: 1px solid #e3e9f6; border-radius: 14px;
+  padding: 12px 14px; font-size: 13px; line-height: 1.6;
+}
+.bkit-cloud-actions { margin-top: 12px; }
+.bkit-cloud-actions > button,.bkit-cloud-actions > a { min-height: 44px; }
+.bkit-cloud-advanced {
+  display: inline-flex; margin-top: 12px;
+  font-size: 12px; color: #5068ad;
+  min-height: 42px; padding: 5px 9px;
+}
+.bkit-cloud-config {
+  padding: 14px 12px;
+  margin: 6px 0 10px;
+  background: rgba(255,255,255,.8);
+  border-radius: 15px;
+  border: 1px solid #e5eaf4;
+}
+.bkit-cloud-config input {
+  width: 100%; box-sizing: border-box; min-width: 0; font-size: 13px;
+}
+.bkit-cloud-config .field { margin-bottom: 13px; }
+.bkit-cloud-config .hint { color: #62738c; line-height: 1.65; font-size: 12px; }
+.bkit-cloud-privacy {
+  display:flex; align-items: flex-start; gap:7px;
+  margin: 12px 0 0; color: #6a7992;
+  font-size: 11px; line-height: 1.6;
+}
+.bkit-cloud-privacy svg { flex: 0 0 auto; margin-top: 2px; }
+@media (max-width: 420px) {
+ .bkit-cloud-panel { padding: 16px 13px; }
+ .bkit-cloud-panel .section-head h2 { font-size: 18px; }
+}
