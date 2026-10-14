@@ -1,5 +1,8 @@
 import { QuickCapture } from './QuickCapture';
 import { NowFocus } from './NowFocus';
+import { DeadlinePulse } from './DeadlinePulse';
+import { StudyRhythm } from './StudyRhythm';
+import { FocusStayAwake } from './FocusStayAwake';
 import { ReviewDeck } from './ReviewDeck';
 import { buildReviewQueue, recordReviewOutcome, type ReviewOutcome } from './review';
 import { shouldAutoHideFocusUi } from './focusQuiet';
@@ -35,6 +38,7 @@ import {
   LockKeyhole,
   Pencil,
   CheckSquare,
+  EyeOff,
 } from 'lucide-react';
 import {
   stateSchema,
@@ -180,7 +184,7 @@ export default function App() {
   }, []);
   // Stay on the study screen while studying: only the chrome fades, never the task or timer.
   useEffect(() => {
-    const canHide = shouldAutoHideFocusUi(tab === 'study', Boolean(s.active?.segmentStart), Boolean(modal));
+    const canHide = shouldAutoHideFocusUi(tab === 'study', Boolean(s.active?.segmentStart), Boolean(modal)) && !!s.active && elapsed(s.active, Date.now()) < s.active.target * 60;
     if (!canHide) {
       setFocusUiVisible(true);
       return;
@@ -193,7 +197,7 @@ export default function App() {
         if (focused !== 'INPUT' && focused !== 'SELECT' && focused !== 'TEXTAREA') {
           setFocusUiVisible(false);
         }
-      }, 7000);
+      }, 5000);
     };
     const reveal = () => {
       setFocusUiVisible(true);
@@ -203,6 +207,7 @@ export default function App() {
       if (e.pointerType === 'mouse') reveal();
     };
     window.addEventListener('pointerdown', reveal, { passive: true });
+    window.addEventListener('touchstart', reveal, { passive: true });
     window.addEventListener('touchmove', reveal, { passive: true });
     window.addEventListener('keydown', reveal);
     window.addEventListener('pointermove', mouseMove, { passive: true });
@@ -210,11 +215,12 @@ export default function App() {
     return () => {
       if (timeout) clearTimeout(timeout);
       window.removeEventListener('pointerdown', reveal);
+      window.removeEventListener('touchstart', reveal);
       window.removeEventListener('touchmove', reveal);
       window.removeEventListener('keydown', reveal);
       window.removeEventListener('pointermove', mouseMove);
     };
-  }, [tab, s.active?.id, s.active?.segmentStart, modal]);
+  }, [tab, s.active?.id, s.active?.segmentStart, s.active?.target, modal, Boolean(s.active && elapsed(s.active, now) >= s.active.target * 60)]);
 
   const memory = useRef(s);
   memory.current = s;
@@ -679,7 +685,7 @@ export default function App() {
       >
         <span className="brand-glyph">b.</span>
         <strong>
-          BKIT<small>STUDY OS / 02</small>
+          BKIT<small>STUDY OS / 03</small>
         </strong>
       </a>
       <div className="main-shell">
@@ -824,6 +830,7 @@ export default function App() {
                   <span className="review-today-link">복습하기 <ArrowRight size={16} /></span>
                 </button>
               )}
+              <DeadlinePulse tasks={s.tasks} now={now} onTasks={() => setTab('tasks')} onAdd={() => taskEditor()} />
               <div className="day-strip">
                 <button className="strip-next" onClick={() => setTab('school')}>
                   <span className="section-number">
@@ -1150,6 +1157,15 @@ export default function App() {
                       </small>
                     </div>
                   </div>
+                  {s.active?.segmentStart && (
+                    <div className="focus-quiet-tools" aria-label="몰입 화면 옵션">
+                      <button type="button" className="text-button quiet-now" onClick={() => setFocusUiVisible(false)}>
+                        <EyeOff size={16} /> 지금 UI 숨기기
+                      </button>
+                      <FocusStayAwake running={Boolean(s.active?.segmentStart)} />
+                      <span>5초 뒤 자동 숨김 · 화면 터치로 복귀</span>
+                    </div>
+                  )}
                   <p className="muted">
                     {s.active
                       ? seconds >= s.active.target * 60
@@ -1254,7 +1270,7 @@ export default function App() {
                   )}
                   <p className="hint">
                     {s.active
-                      ? '7초 동안 터치하지 않으면 조작 버튼만 사라집니다. 화면을 터치하거나 쓸어 올리면 다시 나타나요. 자리를 비울 때는 일시정지하세요.'
+                      ? '5초 동안 조작하지 않으면 조작 버튼이 사라집니다. 화면을 터치하거나 쓸어 올리면 다시 나타나요. 자리를 비울 때는 일시정지하세요.'
                       : '백그라운드에서도 경과 시간을 계산합니다. 수면·고정 일정 시작에는 자동 정지하며, 학습 완료량은 직접 입력합니다.'}
                   </p>
                   <div className="focus-tip">
@@ -1322,6 +1338,7 @@ export default function App() {
                   <p>확인한 시험 날짜만 표시</p>
                 </div>
               </div>
+              <StudyRhythm sessions={s.sessions} today={today} />
               <section className="panel">
                 <div className="section-head">
                   <h2>학습 코치</h2>

@@ -2115,3 +2115,85 @@ main {
   .review-today-nudge { flex-direction:column; align-items:flex-start; padding:17px; }
   .review-deck-choices { flex-direction:column; }
 }
+
+/* BKIT 03 — intentional fade with visible clock and one task */
+.is-focusing {overscroll-behavior-y:contain;}
+.is-focusing .focus-card {
+  min-height:100dvh;
+  padding:max(65px,env(safe-area-inset-top)) 22px max(35px,env(safe-area-inset-bottom));
+}
+.is-focusing .focus-card > h2 {
+  font-size:clamp(23px,4vw,35px);
+  max-width:850px;text-align:center;line-height:1.45;overflow-wrap:anywhere;
+}
+.is-focusing .focus-card > p:not(.hint) {text-align:center;}
+.focus-quiet-tools {display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px 16px;margin-top:5px;color:#a5b59d;font-size:10px;}
+.focus-quiet-tools > span {width:100%;text-align:center;opacity:.72;}
+.focus-quiet-tools button {font-size:11px;border-radius:8px;padding:0 10px;}
+.focus-quiet-tools .quiet-now {color:#ddf5ba;}
+.wake-control {display:flex;flex-direction:column;align-items:center;}
+.wake-control small {font-size:10px;color:#f2b48a;max-width:200px;text-align:center;}
+.is-focusing .focus-quiet-tools,
+.is-focusing .focus-card > p:not(.hint),
+.is-focusing .focus-readout > span,
+.is-focusing .focus-counter {
+ transition:opacity .5s ease,transform .5s ease,visibility .5s;
+}
+.is-focusing.focus-quiet .focus-quiet-tools,
+.is-focusing.focus-quiet .focus-card > p:not(.hint),
+.is-focusing.focus-quiet .focus-readout > span,
+.is-focusing.focus-quiet .focus-counter,
+.is-focusing.focus-quiet .focus-exit,
+.is-focusing.focus-quiet .focus-card > .eyebrow,
+.is-focusing.focus-quiet .focus-card > .muted,
+.is-focusing.focus-quiet .focus-card > .hint,
+.is-focusing.focus-quiet .focus-actions {
+ opacity:0 !important;visibility:hidden !important;
+ pointer-events:none !important;transform:translateY(12px);
+}
+.is-focusing.focus-quiet .focus-readout .timer,
+.is-focusing.focus-quiet .focus-card > h2,
+.is-focusing.focus-quiet .focus-instrument {opacity:1 !important;visibility:visible !important;}
+.is-focusing.focus-quiet .toast {opacity:0;pointer-events:none;}
+.deadline-pulse {
+ display:flex;align-items:center;justify-content:space-between;gap:18px;
+ border:1px solid #394836;border-radius:16px;background:#1b241c;
+ padding:21px 25px;margin:20px 0 24px;
+}
+.deadline-pulse-intro {min-width:0;}
+.deadline-pulse-kicker {display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:1.4px;color:#b6ca9c;}
+.deadline-pulse h2 {font-weight:500;font-size:clamp(17px,2vw,24px);margin:10px 0 4px;}
+.deadline-pulse p {font-size:11px;line-height:1.55;color:#a8baa2;overflow-wrap:anywhere;}
+.deadline-pulse-right {flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;}
+.deadline-pulse-badges {display:flex;gap:20px;}
+.deadline-pulse-badges span {color:#a7bba0;font-size:9px;white-space:nowrap;}
+.deadline-pulse-badges strong {display:block;font-size:24px;color:#d6e9cb;font-weight:500;text-align:center;}
+.deadline-pulse-badges .has-overdue strong {color:#f0b290;}
+.rhythm-panel {margin-bottom:25px;}
+.rhythm-total {font-size:11px;color:#c5d9b7;}
+.rhythm-caption {font-size:11px;color:#a5b8a0;}
+.rhythm-chart {display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:clamp(7px,2vw,22px);height:190px;margin:20px 0 15px;}
+.rhythm-day {display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;min-width:0;}
+.rhythm-value {height:16px;font-size:10px;color:#b7c7ac;font-variant-numeric:tabular-nums;}
+.rhythm-rail {position:relative;flex:1;width:100%;max-width:48px;background:#283528;border-radius:5px;overflow:hidden;}
+.rhythm-fill {position:absolute;bottom:0;left:0;right:0;min-height:2px;background:#40513c;transition:height .5s ease;}
+.rhythm-fill.is-recorded {background:linear-gradient(to top,#789d56,#e1f7b6);}
+.rhythm-day time {font-size:10px;color:#c0cdb6;}
+.rhythm-subjects {border-top:1px solid #384733;padding-top:13px;display:flex;gap:10px 18px;flex-wrap:wrap;color:#b8c9aa;font-size:11px;}
+.rhythm-subjects strong {color:#edf6e1;font-weight:500;}
+@media(max-width:700px) {
+ .deadline-pulse {flex-direction:column;align-items:stretch;padding:18px;}
+ .deadline-pulse-right {align-items:flex-start;}
+ .deadline-pulse-badges {gap:30px;}
+ .deadline-pulse-badges strong {text-align:left;}
+ .rhythm-chart {height:158px;gap:7px;}
+ .is-focusing .focus-instrument {width:min(88vw,49dvh,480px);}
+ .is-focusing .focus-readout .timer {font-size:clamp(56px,16vw,90px);}
+}
+@media(prefers-reduced-motion:reduce) {
+ .is-focusing .focus-quiet-tools,
+ .is-focusing .focus-card > p:not(.hint),
+ .is-focusing .focus-readout > span,
+ .is-focusing .focus-counter,
+ .rhythm-fill {transition:none;}
+}
