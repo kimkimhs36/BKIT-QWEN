@@ -4,7 +4,7 @@ test('Cloud Sync settings remain private until explicit Google consent',async({p
  const sheetId='BKIT_TEST_SHEET_ID_SAMPLE_1234567890';
  await page.goto('./?bkit_sheet='+sheetId);
  await expect(page.getByRole('navigation',{name:'주 메뉴'})).toBeVisible();
- await page.getByRole('button',{name:'설정',exact:true}).first().click();
+ await page.getByRole('button',{name:'설정 열기'}).click();
  const cloud=page.getByRole('region',{name:'BKIT 클라우드 동기화'});
  await expect(cloud).toContainText('Google 계정 연결');
  await expect(cloud).toContainText('연결 전');
