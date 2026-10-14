@@ -1,5 +1,6 @@
 import { QuickCapture } from './QuickCapture';
 import { NowFocus } from './NowFocus';
+import { shouldAutoHideFocusUi } from './focusQuiet';
 import { FocusHalo } from './FocusHalo';
 import { DayTimeline } from './DayTimeline';
 import { DayOrbit } from './DayOrbit';
@@ -162,7 +163,8 @@ export default function App() {
     [mode, setMode] = useState('Demo AI Mode · 규칙 기반'),
     [formError, setFormError] = useState(''),
     [imported, setImported] = useState<State | null>(null),
-    [coach, setCoach] = useState('');
+    [coach, setCoach] = useState(''),
+    [focusUiVisible, setFocusUiVisible] = useState(true);
   useEffect(() => {
     const shortcut = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -174,6 +176,44 @@ export default function App() {
     window.addEventListener('keydown', shortcut);
     return () => window.removeEventListener('keydown', shortcut);
   }, []);
+  // Stay on the study screen while studying: only the chrome fades, never the task or timer.
+  useEffect(() => {
+    const canHide = shouldAutoHideFocusUi(tab === 'study', Boolean(s.active?.segmentStart), Boolean(modal));
+    if (!canHide) {
+      setFocusUiVisible(true);
+      return;
+    }
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const scheduleHide = () => {
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const focused = document.activeElement?.tagName;
+        if (focused !== 'INPUT' && focused !== 'SELECT' && focused !== 'TEXTAREA') {
+          setFocusUiVisible(false);
+        }
+      }, 7000);
+    };
+    const reveal = () => {
+      setFocusUiVisible(true);
+      scheduleHide();
+    };
+    const mouseMove = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') reveal();
+    };
+    window.addEventListener('pointerdown', reveal, { passive: true });
+    window.addEventListener('touchmove', reveal, { passive: true });
+    window.addEventListener('keydown', reveal);
+    window.addEventListener('pointermove', mouseMove, { passive: true });
+    reveal();
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      window.removeEventListener('pointerdown', reveal);
+      window.removeEventListener('touchmove', reveal);
+      window.removeEventListener('keydown', reveal);
+      window.removeEventListener('pointermove', mouseMove);
+    };
+  }, [tab, s.active?.id, s.active?.segmentStart, modal]);
+
   const memory = useRef(s);
   memory.current = s;
   useEffect(() => {
@@ -610,7 +650,11 @@ export default function App() {
   return (
     <div
       className={
-        'app-shell visual-v2 page-' + tab + (tab === 'study' && s.active ? ' is-focusing' : '')
+        'app-shell visual-v2 page-' + tab +
+        (tab === 'study' && s.active ? ' is-focusing' : '') +
+        (tab === 'study' && s.active?.segmentStart && !focusUiVisible && !modal
+          ? ' focus-quiet'
+          : '')
       }
     >
       <a className="skip" href="#main">
@@ -1181,8 +1225,9 @@ export default function App() {
                     </div>
                   )}
                   <p className="hint">
-                    백그라운드에서도 경과 시간을 계산합니다. 자리를 비웠다면 일시정지하세요.
-                    수면·고정 일정 시작에는 자동 정지하며, 학습 완료량은 직접 입력합니다.
+                    {s.active
+                      ? '7초 동안 터치하지 않으면 조작 버튼만 사라집니다. 화면을 터치하거나 쓸어 올리면 다시 나타나요. 자리를 비울 때는 일시정지하세요.'
+                      : '백그라운드에서도 경과 시간을 계산합니다. 수면·고정 일정 시작에는 자동 정지하며, 학습 완료량은 직접 입력합니다.'}
                   </p>
                   <div className="focus-tip">
                     <Leaf size={17} />

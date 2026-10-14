@@ -2051,3 +2051,36 @@ main {
     transition: none;
   }
 }
+
+/* Immersive focus — controls softly disappear, but the task and timer never do. */
+.is-focusing .focus-exit,
+.is-focusing .focus-card > .eyebrow,
+.is-focusing .focus-card > .muted,
+.is-focusing .focus-card > .hint,
+.is-focusing .focus-actions {
+  transition: opacity 360ms ease, transform 360ms ease, visibility 360ms;
+}
+.is-focusing.focus-quiet .focus-exit,
+.is-focusing.focus-quiet .focus-card > .eyebrow,
+.is-focusing.focus-quiet .focus-card > .muted,
+.is-focusing.focus-quiet .focus-card > .hint,
+.is-focusing.focus-quiet .focus-actions {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(9px);
+}
+.is-focusing.focus-quiet .focus-card > h2,
+.is-focusing.focus-quiet .focus-instrument {
+  visibility: visible;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-focusing .focus-exit,
+  .is-focusing .focus-card > .eyebrow,
+  .is-focusing .focus-card > .muted,
+  .is-focusing .focus-card > .hint,
+  .is-focusing .focus-actions {
+    transition: none;
+  }
+}
