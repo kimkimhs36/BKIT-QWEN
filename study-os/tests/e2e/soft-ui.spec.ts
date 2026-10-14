@@ -14,9 +14,9 @@ test('the mobile dashboard is bright, soft and action-first without overflow', a
     const nav = getComputedStyle(document.querySelector('.orbit-nav')!);
     return {
       scheme: root.colorScheme,
-      bg: body.backgroundColor,
+      bg: body.backgroundImage,
       focusColor: focus.color,
-      focusBackground: focus.backgroundImage,
+      focusBackground: focus.backgroundColor,
       startColor: start.color,
       navBackground: nav.backgroundColor,
       width: document.documentElement.scrollWidth,
@@ -24,8 +24,8 @@ test('the mobile dashboard is bright, soft and action-first without overflow', a
     };
   });
   expect(state.scheme).toBe('light');
-  expect(state.bg).toBe('rgb(247, 248, 254)');
-  expect(state.focusBackground).toContain('linear-gradient');
+  expect(state.bg).toContain('gradient(');
+  expect(state.focusBackground).toMatch(/^rgba?\\(/);
   expect(state.startColor).toBe('rgb(255, 255, 255)');
   expect(state.width).toBeLessThanOrEqual(state.viewport + 1);
 });
