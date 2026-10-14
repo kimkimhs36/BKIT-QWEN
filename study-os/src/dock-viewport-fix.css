@@ -1,0 +1,29 @@
+/*
+ * BKIT 10.1 / iPhone dock positioning repair
+ * The glass tab bar must be pinned to the visual viewport, NOT the content.
+ * React portals the navigation directly into document.body, avoiding fixed-
+ * positioning bugs caused by any visual/compositing ancestor in iOS WebKit
+ * and in-app browsers. Fixed positioning is explicit for all viewports.
+ */
+body > .orbit-nav {
+  position: fixed;
+  inset: auto auto max(15px, env(safe-area-inset-bottom)) 50%;
+  transform: translate3d(-50%, 0, 0);
+  width: min(calc(100% - 24px), 460px);
+  z-index: 35;
+  margin: 0;
+  display: flex;
+  pointer-events: auto;
+}
+body > .orbit-nav--hidden {
+  display: none;
+}
+@media (max-width: 385px) {
+  body > .orbit-nav { width: calc(100% - 14px); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  body > .orbit-nav {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

@@ -13,6 +13,7 @@ import { LiquidOptics } from './LiquidOptics';
 import { DayTimeline } from './DayTimeline';
 import { DayOrbit } from './DayOrbit';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type FormEvent } from 'react';
+import { createPortal } from 'react-dom';
 import {
   ArrowUpRight,
   ArrowRight,
@@ -1814,19 +1815,25 @@ export default function App() {
           </footer>
         </main>
       </div>
-      <nav className="orbit-nav" aria-label="주 메뉴">
-        {NAV.filter((n) => n.id !== 'settings').map((n) => (
-          <button
-            key={n.id}
-            className={tab === n.id ? 'active' : ''}
-            aria-current={tab === n.id ? 'page' : undefined}
-            onClick={() => setTab(n.id)}
-          >
-            <n.icon size={20} strokeWidth={tab === n.id ? 2.3 : 1.9} aria-hidden="true" />
-            <span>{n.label}</span>
-          </button>
-        ))}
-      </nav>
+      {createPortal(
+        <nav
+          className={'orbit-nav' + (tab === 'study' && s.active ? ' orbit-nav--hidden' : '')}
+          aria-label="주 메뉴"
+        >
+          {NAV.filter((n) => n.id !== 'settings').map((n) => (
+            <button
+              key={n.id}
+              className={tab === n.id ? 'active' : ''}
+              aria-current={tab === n.id ? 'page' : undefined}
+              onClick={() => setTab(n.id)}
+            >
+              <n.icon size={20} strokeWidth={tab === n.id ? 2.3 : 1.9} aria-hidden="true" />
+              <span>{n.label}</span>
+            </button>
+          ))}
+        </nav>,
+        document.body,
+      )}
       {modal && (
         <Modal
           title={

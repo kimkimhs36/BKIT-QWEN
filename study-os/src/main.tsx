@@ -25,3 +25,4 @@ import './ios-ready.css';
 import './research-now.css';
 import './capture-v2.css';
 import './quality-v10.css';
+import './dock-viewport-fix.css';
