@@ -820,6 +820,16 @@ export default function App() {
                   <div className="day-progress">
                     <span style={{ width: `${(now - at(today, '00:00')) / 864000}%` }} />
                   </div>
+                  <button type="button" className="research-next-context"
+                    aria-label="다음 고정 일정 확인" onClick={() => setTab('school')}>
+                    <Clock size={15} aria-hidden="true" />
+                    <span>{current && current.kind !== 'sleep' && current.kind !== 'meal'
+                      ? `진행 중 · ${current.title} · ${clock(current.end)}까지`
+                      : next
+                        ? `다음 일정 · ${dayKey(next.start) === today ? '오늘' : fullDate(next.start)} ${clock(next.start)} 준비 · ${next.title}`
+                        : '다음 일정 미등록 · 시간표에서 확인'}</span>
+                    <ChevronRight size={16} aria-hidden="true" />
+                  </button>
                   <NowFocus
                     now={now}
                     current={current}
@@ -838,6 +848,15 @@ export default function App() {
                 </div>
 
               </section>
+              <button type="button" className="research-quick-capture"
+                onClick={() => taskEditor()}>
+                <span className="research-quick-icon" aria-hidden="true"><Plus size={18} /></span>
+                <span className="research-quick-copy">
+                  <strong>빠르게 추가</strong>
+                  <small>예: 금요일까지 경제 수행평가 제출</small>
+                </span>
+                <ChevronRight size={17} aria-hidden="true" />
+              </button>
               {reviewQueue.due.length > 0 && (
                 <button className="review-today-nudge" onClick={() => {
                   if (todayDetailsRef.current) todayDetailsRef.current.open = true;

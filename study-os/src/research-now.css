@@ -1,0 +1,42 @@
+/* Research reference: BKIT deep research 2026-10-14 pp. 33–35 and 62–64.
+   Content is the primary interaction. Decorative time and large dashboards
+   must not crowd out the single current learning action. */
+.page-today .today-timebar { min-height: 30px; margin: 0 0 4px; border-bottom: 0; }
+.page-today .today-timebar .live-clock,
+.page-today .day-progress { display: none; }
+.research-next-context {
+  display: flex; box-sizing: border-box; width: 100%; align-items: center;
+  gap: 9px; min-height: 45px; border: 0; background: transparent;
+  padding: 7px 4px; margin: 2px 0 10px; font-size: 12px;
+  line-height: 1.45; color: #596b82; text-align: left; border-radius: 12px;
+}
+.research-next-context > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.research-next-context > svg { flex-shrink: 0; }
+.research-next-context:hover { background: rgba(255,255,255,.55); color: #3e57a4; }
+.research-quick-capture {
+  display: flex; box-sizing: border-box; align-items: center; text-align: left;
+  width: 100%; max-width: 770px; gap: 13px; min-height: 66px;
+  margin: 13px 0 14px; padding: 13px 16px; border-radius: 19px;
+  color: #324662; border: 1px solid rgba(208,217,233,.75);
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 3px 14px rgba(60,83,136,.05);
+  transition: background .17s ease, transform .22s cubic-bezier(.2,1.2,.3,1);
+}
+.research-quick-capture:hover { background: #fff; }
+.research-quick-capture:active { transform: scale(.989); }
+.research-quick-icon {
+  display: grid; place-items: center; flex-shrink: 0;
+  min-width: 39px; height: 39px; border-radius: 13px;
+  background: #edf2ff; color: #4b63ba;
+}
+.research-quick-copy { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
+.research-quick-copy strong { font-size: 14px; font-weight: 660; color: #263755; }
+.research-quick-copy small { font-size: 12px; color: #65758f; overflow-wrap: anywhere; }
+.research-quick-capture > svg { flex-shrink: 0; color: #8999ad; }
+.research-quick-capture:focus-visible,
+.research-next-context:focus-visible { outline: 3px solid #5774ca; outline-offset: 3px; }
+@media (max-width:720px) {
+  .research-next-context { margin-bottom: 10px; padding: 7px 2px; min-height: 42px; }
+  .research-quick-capture { margin: 10px 0 13px; min-height: 64px; padding: 11px 14px; }
+}
+@media (prefers-reduced-motion:reduce) { .research-quick-capture { transition: none; } }
