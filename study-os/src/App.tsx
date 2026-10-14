@@ -38,6 +38,7 @@ import {
   LockKeyhole,
   Pencil,
   CheckSquare,
+  Eye,
   EyeOff,
 } from 'lucide-react';
 import {
@@ -170,7 +171,8 @@ export default function App() {
     [formError, setFormError] = useState(''),
     [imported, setImported] = useState<State | null>(null),
     [coach, setCoach] = useState(''),
-    [focusUiVisible, setFocusUiVisible] = useState(true);
+    [focusUiVisible, setFocusUiVisible] = useState(true),
+    [updateAvailable, setUpdateAvailable] = useState(false);
   useEffect(() => {
     const shortcut = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -221,6 +223,17 @@ export default function App() {
       window.removeEventListener('pointermove', mouseMove);
     };
   }, [tab, s.active?.id, s.active?.segmentStart, s.active?.target, modal, Boolean(s.active && elapsed(s.active, now) >= s.active.target * 60)]);
+
+  // Never reload a running timer. The owner decides when to refresh.
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    const wasControlled = Boolean(navigator.serviceWorker.controller);
+    const onControllerChange = () => {
+      if (wasControlled) setUpdateAvailable(true);
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
+    return () => navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
+  }, []);
 
   const memory = useRef(s);
   memory.current = s;
@@ -667,7 +680,7 @@ export default function App() {
       className={
         'app-shell visual-v2 page-' + tab +
         (tab === 'study' && s.active ? ' is-focusing' : '') +
-        (tab === 'study' && s.active?.segmentStart && !focusUiVisible && !modal
+        (tab === 'study' && s.active?.segmentStart && seconds < s.active.target * 60 && !focusUiVisible && !modal
           ? ' focus-quiet'
           : '')
       }
@@ -767,6 +780,14 @@ export default function App() {
               {notice}
             </div>
           )}
+          {updateAvailable && (
+            <div className="app-update-notice" role="status">
+              <span>새 버전 준비 완료. 학습 기록은 유지돼.</span>
+              <button className="primary" onClick={() => window.location.reload()}>
+                새 버전 열기 <ArrowUpRight size={16} />
+              </button>
+            </div>
+          )
           {tab === 'today' && (
             <>
               <section className="command-stage">
@@ -1157,13 +1178,23 @@ export default function App() {
                       </small>
                     </div>
                   </div>
+                  {s.active?.segmentStart && !focusUiVisible && !modal && seconds < s.active.target * 60 && (
+                    <button
+                      className="focus-reveal-control"
+                      type="button"
+                      aria-label="조작 표시"
+                      onClick={() => setFocusUiVisible(true)}
+                    >
+                      <Eye size={16} /> 조작 표시
+                    </button>
+                  )}
                   {s.active?.segmentStart && (
                     <div className="focus-quiet-tools" aria-label="몰입 화면 옵션">
                       <button type="button" className="text-button quiet-now" onClick={() => setFocusUiVisible(false)}>
                         <EyeOff size={16} /> 지금 UI 숨기기
                       </button>
                       <FocusStayAwake running={Boolean(s.active?.segmentStart)} />
-                      <span>5초 뒤 자동 숨김 · 화면 터치로 복귀</span>
+                      <span>5초 뒤 자동 숨김 · 화면 터치 또는 아래 버튼으로 복귀</span>
                     </div>
                   )}
                   <p className="muted">

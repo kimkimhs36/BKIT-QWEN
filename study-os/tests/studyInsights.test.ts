@@ -21,11 +21,20 @@ describe('real-data overview',()=>{
      .toEqual([{subject:'국어',minutes:20},{subject:'영어',minutes:10}]);
  });
  it('separates overdue, imminent, unknown, done',()=>{
-   expect(deadlineDigest([task('2026-10-13','old'),task('2026-10-15','soon'),task(null,'unknown'),task('2026-10-13','done','done')],at('2026-10-14','15:00')))
+   expect(deadlineDigest([task('2026-10-13','old'),task('2026-10-15','soon'),task(null,'unknown'),{...task('2026-10-13','done','done'),submitted:true}],at('2026-10-14','15:00')))
      .toMatchObject({total:3,overdue:1,soon:1,unknown:1,earliest:{id:'old'}});
  });
  it('does not invent completed study or near deadlines',()=>{
    expect(recentStudyDays(newState().sessions,'2026-10-14').every(x=>x.seconds===0)).toBe(true);
    expect(deadlineDigest([task('2026-11-15','future')],at('2026-10-14','15:00')).soon).toBe(0);
  });
+});
+
+describe('completed but unsubmitted homework is still urgent', () => {
+  it('is an obligation until submission is recorded', () => {
+    const unsubmitted = task('2026-10-14','unsubmitted','done');
+    const now = at('2026-10-14','14:00');
+    expect(deadlineDigest([unsubmitted],now).total).toBe(1);
+    expect(deadlineDigest([{...unsubmitted,submitted:true}],now).total).toBe(0);
+  });
 });

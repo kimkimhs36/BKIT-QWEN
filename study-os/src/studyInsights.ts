@@ -1,6 +1,7 @@
 import { studySeconds } from './session';
 import { addDays } from './time';
 import type { Session, Task } from './model';
+import { needsAttention } from './tasks';
 export function recentStudyDays(sessions: Session[], today: string) {
   return Array.from({length:7},(_,i)=>{
     const day=addDays(today,i-6), seconds=studySeconds(sessions,day);
@@ -8,7 +9,7 @@ export function recentStudyDays(sessions: Session[], today: string) {
   });
 }
 export function deadlineDigest(tasks: Task[], now: number) {
-  const pending=tasks.filter(x=>x.status!=='done');
+  const pending=tasks.filter(needsAttention);
   const overdue=pending.filter(x=>x.due && +new Date(x.due)<now);
   const soon=pending.filter(x=>x.due && +new Date(x.due)>=now && +new Date(x.due)<=now+48*3600000);
   const unknown=pending.filter(x=>!x.due).length;
