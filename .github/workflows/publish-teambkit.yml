@@ -1,0 +1,80 @@
+name: Publish BKIT Study OS to teambkit.com
+
+on:
+  push:
+    branches:
+      - feat/study-os-visual-v2
+    paths:
+      - 'study-os/**'
+      - '.github/workflows/publish-teambkit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: teambkit-com-publication
+  cancel-in-progress: false
+
+jobs:
+  verify-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Study OS source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: study-os
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: study-os
+        run: npm test
+
+      - name: Typecheck and build for root domain
+        working-directory: study-os
+        env:
+          APP_BASE: /
+        run: npm run build
+
+      - name: Checkout existing site branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: teambkit-site
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Publish tested static assets to teambkit.com
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          cp -a study-os/dist/. teambkit-site/
+          printf 'teambkit.com\n' > teambkit-site/CNAME
+          touch teambkit-site/.nojekyll
+
+          # The new HTML no longer references the legacy CRASH//WEEK files.
+          rm -f teambkit-site/app.js teambkit-site/styles.css
+
+          cd teambkit-site
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo 'No changes to deploy.'
+          else
+            git commit -m "deploy: BKIT STUDY OS v2 (${SOURCE_SHA})"
+            git push origin HEAD:main
+          fi
