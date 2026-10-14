@@ -1,4 +1,5 @@
 import { QuickCapture } from './QuickCapture';
+import { NowFocus } from './NowFocus';
 import { FocusHalo } from './FocusHalo';
 import { DayTimeline } from './DayTimeline';
 import { DayOrbit } from './DayOrbit';
@@ -726,66 +727,21 @@ export default function App() {
                   <div className="day-progress">
                     <span style={{ width: `${(now - at(today, '00:00')) / 864000}%` }} />
                   </div>
-                  <div className="now-action">
-                    <div className="section-number">
-                      01 <span>YOUR NEXT MOVE</span>
-                    </div>
-                    <h2>
-                      {s.active
-                        ? s.active.action
-                        : current
-                          ? current.kind === 'sleep'
-                            ? '지금은 수면 시간입니다.'
-                            : `${current.title}, 지금 준비하세요.`
-                          : actionTask?.title ||
-                            (awaiting.length
-                              ? '끝낸 과제, 제출을 확인하세요.'
-                              : '무엇부터 해야 할까요?')}
-                    </h2>
-                    <p>
-                      {s.active
-                        ? `${s.active.subject} · 집중 세션 진행 중`
-                        : current
-                          ? current.kind === 'sleep'
-                            ? `다음 행동은 ${s.settings.wake}에 시작됩니다.`
-                            : `보호된 일정 ${clock(current.start)} — ${clock(current.end)}`
-                          : actionTask
-                            ? `${actionTask.subject} · 남은 학습 약 ${actionTask.remaining}분`
-                            : '한 줄로 할 일을 적고, 바로 시작하세요.'}
-                    </p>
-                    <div className="command-actions">
-                      {s.active ? (
-                        <button className="primary" onClick={() => setTab('study')}>
-                          집중으로 돌아가기 <ArrowUpRight size={18} />
-                        </button>
-                      ) : actionTask ? (
-                        <button
-                          className="primary"
-                          disabled={!canStudy}
-                          onClick={() => start(5, actionTask.id)}
-                        >
-                          <Play size={16} /> 5분 공부 시작
-                        </button>
-                      ) : awaiting.length ? (
-                        <button
-                          className="primary"
-                          onClick={() => {
-                            setFilter('submission');
-                            setTab('tasks');
-                          }}
-                        >
-                          제출 확인 <ArrowRight size={18} />
-                        </button>
-                      ) : (
-                        <button className="primary" onClick={() => taskEditor()}>
-                          과제 빠르게 담기 <Plus size={18} />
-                        </button>
-                      )}
-                      <button className="text-button" onClick={() => setTab('study')}>
-                        집중 공간 <ArrowUpRight size={16} />
-                      </button>
-                    </div>
-                  </div>
+                  <NowFocus
+                    now={now}
+                    current={current}
+                    nextFixed={fixed.find((item) => item.start > now)}
+                    active={s.active}
+                    seconds={seconds}
+                    tasks={ordered}
+                    recommended={actionTask}
+                    selection={selected}
+                    onSelectionChange={setSelected}
+                    onStart={(taskId) => start(5, taskId)}
+                    onFocus={() => setTab('study')}
+                    onAddTask={() => taskEditor()}
+                    onSchedule={() => setTab('school')}
+                  />
                 </div>
                 <DayOrbit
                   now={now}
@@ -1135,7 +1091,8 @@ export default function App() {
                     <>
                       <Field label="공부할 과제">
                         <select value={selected} onChange={(e) => setSelected(e.target.value)}>
-                          <option value="">자율 학습 / 추천 과제</option>
+                          <option value="">추천 과제</option>
+                           <option value="__free__">자율 학습 · 과제 연결 없음</option>
                           {pending.map((t) => (
                             <option key={t.id} value={t.id}>
                               {t.subject} · {t.title}
