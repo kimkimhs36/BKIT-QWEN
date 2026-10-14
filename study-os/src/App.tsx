@@ -787,7 +787,7 @@ export default function App() {
                 새 버전 열기 <ArrowUpRight size={16} />
               </button>
             </div>
-          )
+          )}
           {tab === 'today' && (
             <>
               <section className="command-stage">
