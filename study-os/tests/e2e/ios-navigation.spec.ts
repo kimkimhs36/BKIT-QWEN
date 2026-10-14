@@ -30,7 +30,7 @@ test('iOS-first layout keeps navigation separate from actions', async ({page}) =
   expect(sizes.overflow).toBe(false);
   await add.click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.getByRole('dialog').getByRole('heading',{name:'새 과제'})).toBeVisible();
+  await expect(page.getByRole('dialog').getByRole('heading',{name:'무엇부터 해야 할까요?'})).toBeVisible();
   await page.getByRole('dialog').getByRole('button',{name:'닫기'}).click();
   await tabBar.getByRole('button',{name:'시간표'}).click();
   await expect(tabBar.getByRole('button',{name:'시간표'})).toHaveAttribute('aria-current','page');
