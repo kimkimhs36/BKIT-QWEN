@@ -74,6 +74,18 @@ export const blockSchema = z
 export const segmentSchema = z
   .object({ start: instant, end: instant })
   .refine((v) => v.end > v.start, '집중 구간 종료 시각을 확인하세요');
+/** A learner's own response; never presented as AI-verified correctness. */
+export const learningAttemptSchema = z.object({
+  id,
+  answer: note.min(1),
+  submittedAt: instant,
+  selfCheck: z.enum(['unreviewed', 'remembered', 'retry']),
+});
+export const problemWorkspaceSchema = z.object({
+  problem: note.min(1),
+  source: text,
+  attempts: z.array(learningAttemptSchema).max(20),
+});
 export const activeSchema = z.object({
   id,
   taskId: id.nullable(),
@@ -81,6 +93,7 @@ export const activeSchema = z.object({
   action: text.min(1),
   target: minutes,
   started: instant,
+  workspace: problemWorkspaceSchema.optional(),
   segmentStart: instant.nullable(),
   elapsed: z.number().min(0),
   pauses: z.array(z.object({ at: instant, reason: text })).max(100),
@@ -93,6 +106,7 @@ export const sessionSchema = z.object({
   action: text,
   started: instant,
   ended: instant,
+  workspace: problemWorkspaceSchema.optional(),
   seconds: z.number().min(0),
   target: minutes,
   problems: z.number().int().min(0).max(10000),

@@ -1,4 +1,5 @@
 import { QuickCapture } from './QuickCapture';
+import { ProblemWorkspace } from './ProblemWorkspace';
 import {captureDeadline,formatTaskDeadline,formatQuantity} from './capture';
 import { NowFocus } from './NowFocus';
 import { DeadlinePulse } from './DeadlinePulse';
@@ -11,7 +12,7 @@ import { FocusHalo } from './FocusHalo';
 import { LiquidOptics } from './LiquidOptics';
 import { DayTimeline } from './DayTimeline';
 import { DayOrbit } from './DayOrbit';
-import { useEffect, useRef, useState, type ReactNode, type FormEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type FormEvent } from 'react';
 import {
   ArrowUpRight,
   ArrowRight,
@@ -176,6 +177,17 @@ export default function App() {
     [focusUiVisible, setFocusUiVisible] = useState(true),
     [updateAvailable, setUpdateAvailable] = useState(false);
   const todayDetailsRef = useRef<HTMLDetailsElement>(null);
+  // A fixed tab bar changes content but not the document's scroll position.
+  // Reset before paint, then again after Safari has laid out the new section.
+  useLayoutEffect(() => {
+    const reset = () => {
+      window.scrollTo(0, 0);
+      if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+    };
+    reset();
+    const frame = requestAnimationFrame(reset);
+    return () => cancelAnimationFrame(frame);
+  }, [tab]);
   useEffect(() => {
     const shortcut = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -189,7 +201,7 @@ export default function App() {
   }, []);
   // Stay on the study screen while studying: only the chrome fades, never the task or timer.
   useEffect(() => {
-    const canHide = shouldAutoHideFocusUi(tab === 'study', Boolean(s.active?.segmentStart), Boolean(modal)) && !!s.active && elapsed(s.active, Date.now()) < s.active.target * 60;
+    const canHide = shouldAutoHideFocusUi(tab === 'study', Boolean(s.active?.segmentStart), Boolean(modal)) && !!s.active && !s.active.workspace && elapsed(s.active, Date.now()) < s.active.target * 60;
     if (!canHide) {
       setFocusUiVisible(true);
       return;
@@ -225,7 +237,7 @@ export default function App() {
       window.removeEventListener('keydown', reveal);
       window.removeEventListener('pointermove', mouseMove);
     };
-  }, [tab, s.active?.id, s.active?.segmentStart, s.active?.target, modal, Boolean(s.active && elapsed(s.active, now) >= s.active.target * 60)]);
+  }, [tab, s.active?.id, s.active?.segmentStart, s.active?.target, modal, Boolean(s.active?.workspace), Boolean(s.active && elapsed(s.active, now) >= s.active.target * 60)]);
 
   // Never reload a running timer. The owner decides when to refresh.
   useEffect(() => {
@@ -398,6 +410,35 @@ export default function App() {
       setNotice(outcome === 'retry' ? '내일 다시 연습하도록 기록했어요.' : '다음 복습 날짜를 갱신했어요.');
     return saved;
   }
+  function setLearningProblem(problem: string, source: string) {
+    if (!s.active || s.active.workspace) return;
+    if (commit(v => v.active ? {
+      ...v, active: {...v.active, workspace:{problem,source,attempts:[]}},
+    } : v)) setNotice('문제를 준비했어. 이제 내 답을 먼저 적어봐.');
+  }
+  function addLearningAttempt(answer: string) {
+    if (!s.active?.workspace || s.active.workspace.attempts.length >= 20) return;
+    if (commit(v => {
+      if (!v.active?.workspace) return v;
+      return {...v,active:{...v.active,workspace:{
+        ...v.active.workspace,
+        attempts:[...v.active.workspace.attempts,{
+          id:uid(), answer, submittedAt:iso(Date.now()), selfCheck:'unreviewed' as const,
+        }],
+      }}};
+    })) setNotice('내 답을 저장했어. 해설을 확인한 뒤 스스로 평가해.');
+  }
+  function markLearningAttempt(attemptId:string, outcome:'remembered'|'retry') {
+    if (!s.active?.workspace) return;
+    if (commit(v => {
+      if (!v.active?.workspace) return v;
+      return {...v,active:{...v.active,workspace:{
+        ...v.active.workspace,
+        attempts:v.active.workspace.attempts.map(a=>a.id===attemptId&&a.selfCheck==='unreviewed'
+          ? {...a,selfCheck:outcome}:a),
+      }}};
+    })) setNotice(outcome==='retry'?'재시도할 수 있어. 답을 다시 써봐.':'자가 확인을 기록했어.');
+  }
   function finish(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const a = s.active;
@@ -420,6 +461,7 @@ export default function App() {
             action: a.action,
             started: a.started,
             ended: iso(ended),
+            workspace: a.workspace,
             seconds: sec,
             target: a.target,
             problems: Number(f.get('problems')),
@@ -698,7 +740,8 @@ export default function App() {
       className={
         'app-shell visual-v2 page-' + tab +
         (tab === 'study' && s.active ? ' is-focusing' : '') +
-        (tab === 'study' && s.active?.segmentStart && seconds < s.active.target * 60 && !focusUiVisible && !modal
+        (tab === 'study' && s.active?.workspace ? ' focus-learning' : '') +
+        (tab === 'study' && s.active?.segmentStart && !s.active.workspace && seconds < s.active.target * 60 && !focusUiVisible && !modal
           ? ' focus-quiet'
           : '')
       }
@@ -715,7 +758,7 @@ export default function App() {
           setTab('today');
         }}
       >
-        <span className="brand-glyph">b.</span>
+        
         <strong>
           BKIT<small>STUDY OS</small>
         </strong>
@@ -1217,6 +1260,14 @@ export default function App() {
                   <span className="eyebrow">ONE THING AT A TIME</span>
                   <h2>{s.active ? s.active.action : '딱 한 문제부터.'}</h2>
                   <p>{s.active ? s.active.subject : '개념을 떠올리고, 풀고, 다시 확인하세요.'}</p>
+                  {s.active && (
+                    <ProblemWorkspace
+                      active={s.active}
+                      onSetProblem={setLearningProblem}
+                      onRecordAttempt={addLearningAttempt}
+                      onSelfCheck={markLearningAttempt}
+                    />
+                  )}
                   <div className="focus-instrument">
                     <FocusHalo
                       progress={s.active ? seconds / (s.active.target * 60) : 0}
@@ -1381,6 +1432,18 @@ export default function App() {
           )}
           {tab === 'progress' && (
             <>
+              {s.sessions.some(entry=>entry.workspace?.attempts.length) && (
+                <section className="panel problem-history">
+                  <div className="section-head"><h2>내가 실제로 답한 문제</h2><span className="muted">이 기기에만 저장</span></div>
+                  {s.sessions.filter(entry=>entry.workspace?.attempts.length).slice(-5).reverse().map(entry=>(
+                    <details key={entry.id}>
+                      <summary>{entry.subject} · {entry.workspace!.problem.slice(0,45)} · 내 답 {entry.workspace!.attempts.length}회</summary>
+                      {entry.workspace!.source&&<p className="muted">출처: {entry.workspace!.source}</p>}
+                      <ol>{entry.workspace!.attempts.map(a=><li key={a.id}>{a.answer} · {a.selfCheck==='remembered'?'자가 확인':a.selfCheck==='retry'?'다시 풀기':'미확인'}</li>)}</ol>
+                    </details>
+                  ))}
+                </section>
+              )}
               <section className="note-card">
                 <span className="eyebrow">YOUR LONG-TERM DIRECTION</span>
                 <h3>{s.settings.goal}</h3>

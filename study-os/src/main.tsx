@@ -24,3 +24,4 @@ import './liquid-v6.css';
 import './ios-ready.css';
 import './research-now.css';
 import './capture-v2.css';
+import './quality-v10.css';
