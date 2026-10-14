@@ -7,6 +7,7 @@ import { ReviewDeck } from './ReviewDeck';
 import { buildReviewQueue, recordReviewOutcome, type ReviewOutcome } from './review';
 import { shouldAutoHideFocusUi } from './focusQuiet';
 import { FocusHalo } from './FocusHalo';
+import { LiquidOptics } from './LiquidOptics';
 import { DayTimeline } from './DayTimeline';
 import { DayOrbit } from './DayOrbit';
 import { useEffect, useRef, useState, type ReactNode, type FormEvent } from 'react';
@@ -686,6 +687,7 @@ export default function App() {
           : '')
       }
     >
+      <LiquidOptics />
       <a className="skip" href="#main">
         본문으로 이동
       </a>
@@ -699,7 +701,7 @@ export default function App() {
       >
         <span className="brand-glyph">b.</span>
         <strong>
-          BKIT<small>STUDY OS / 03</small>
+          BKIT<small>STUDY OS / 06</small>
         </strong>
       </a>
       <div className="main-shell">

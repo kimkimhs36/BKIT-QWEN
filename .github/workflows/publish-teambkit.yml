@@ -53,8 +53,9 @@ jobs:
           BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
           APP_BASE: /
         run: |
-          npx playwright install --with-deps chromium
-          npm run test:e2e -- tests/e2e/focus-restore.spec.ts tests/e2e/home-simple.spec.ts tests/e2e/soft-ui.spec.ts --project=iphone
+          npx playwright install --with-deps chromium webkit
+          npm run test:e2e -- tests/e2e/focus-restore.spec.ts tests/e2e/home-simple.spec.ts tests/e2e/soft-ui.spec.ts tests/e2e/liquid-optics.spec.ts --project=iphone
+          npm run test:e2e -- tests/e2e/liquid-optics.spec.ts --project=webkit-iphone
 
       - name: Checkout existing site branch
         uses: actions/checkout@v4

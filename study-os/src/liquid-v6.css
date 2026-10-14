@@ -1,0 +1,407 @@
+/*
+ * BKIT LIQUID 06 — Optical Material System (2026-10)
+ * Refraction concepts reviewed against MIT open-source samasante/liquid-glass
+ * and dpawlikowski/liquid-glass, independently implemented (see notices).
+ * Apple-inspired material, BKIT-original styling, no Apple UI assets.
+ */
+:root {
+  --liquid-ink: #273450;
+  --liquid-deep: #536bd4;
+  --liquid-x: 18%;
+  --liquid-y: 0%;
+  --liquid-surface: rgba(255,255,255,.30);
+  --liquid-edge: rgba(255,255,255,.92);
+  --liquid-shadow: 0 22px 65px rgba(70,90,147,.14), 0 3px 12px rgba(73,88,143,.065);
+}
+.bkit-liquid-filters {
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+body {
+  background:
+    radial-gradient(ellipse 80% 33% at 2% -5%, rgba(255,194,188,.71) 0%, transparent 78%),
+    radial-gradient(ellipse 45% 42% at 112% 16%, rgba(159,193,255,.69) 0%, transparent 87%),
+    radial-gradient(ellipse 38% 38% at 6% 72%, rgba(224,195,255,.55) 0%, transparent 94%),
+    radial-gradient(ellipse 50% 50% at 95% 102%, rgba(162,229,243,.50) 0%, transparent 88%),
+    linear-gradient(145deg,#fafaff 0%,#f5f7ff 56%,#f7f7ff 100%);
+}
+
+/* System bevel language. The edges have a distinct specular lip.
+   Optical layers render behind content; text and controls remain untouched. */
+.orbit-nav, .now-focus.now-action, .deadline-pulse,
+.panel, dialog, .review-deck-card {
+  --liquid-x: 24%;
+  --liquid-y: 0%;
+  position: relative;
+  isolation: isolate;
+  border: 1px solid rgba(255,255,255,.95);
+  box-shadow:
+    inset 0 1.8px .5px rgba(255,255,255,.97),
+    inset 0 -1px 1.5px rgba(84,105,165,.10),
+    inset 1px 0 1px rgba(255,255,255,.60),
+    var(--liquid-shadow);
+}
+.orbit-nav::after, .now-focus.now-action::after,
+.deadline-pulse::after, .panel::after, dialog::after,
+.review-deck-card::after {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 48% 52% at var(--liquid-x) var(--liquid-y),
+      rgba(255,255,255,.85), rgba(255,255,255,.20) 47%,transparent 100%),
+    linear-gradient(172deg,rgba(255,255,255,.56) 0%,rgba(255,255,255,.03) 28%,transparent 56%);
+  opacity: .55;
+  border: 1px solid rgba(255,255,255,.42);
+  -webkit-mask-image: linear-gradient(#000,#000);
+  mask-image: linear-gradient(#000,#000);
+}
+.orbit-nav > *, .now-focus.now-action > *,
+.deadline-pulse > *, .panel > *, dialog > *,
+.review-deck-card > * {
+  position: relative;
+  z-index: 1;
+}
+.orbit-nav button, .now-focus.now-action button,
+.deadline-pulse button, .panel button { position: relative; }
+
+/* The floating iPhone dock is the most optical surface: rounded,
+   refractive, gently compressed, and lit from multiple directions. */
+.orbit-nav {
+  bottom: max(15px,env(safe-area-inset-bottom));
+  border-radius: 29px;
+  padding: 8px;
+  overflow: hidden;
+  background: rgba(244,247,255,.29);
+  -webkit-backdrop-filter: blur(21px) saturate(180%) brightness(1.045);
+  backdrop-filter: blur(21px) saturate(180%) brightness(1.045);
+  box-shadow:
+    0 29px 58px -16px rgba(66,84,146,.26),
+    0 8px 28px -13px rgba(82,103,155,.25),
+    inset 0 2px 1px rgba(255,255,255,.94),
+    inset 0 -1px 1px rgba(110,130,186,.23);
+  transform: translateX(-50%) translateZ(0);
+}
+.orbit-nav::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 47% 90% at 12% 5%, rgba(255,255,255,.94),transparent 75%),
+    radial-gradient(ellipse 65% 130% at 82% 90%, rgba(146,170,239,.49),transparent 77%),
+    linear-gradient(122deg,rgba(238,244,255,.45),rgba(255,255,255,.16),rgba(214,226,255,.33));
+  filter: url("#bkit-liquid-dock");
+  opacity: .84;
+}
+.orbit-nav::after {
+  inset: 1px;
+  z-index: 0;
+  border-radius: 28px;
+  opacity: .76;
+  background:
+    radial-gradient(ellipse 62% 108% at var(--liquid-x) -18%,rgba(255,255,255,.97),rgba(255,255,255,.08) 58%,transparent 82%),
+    linear-gradient(166deg,rgba(255,255,255,.74),transparent 31%);
+}
+.orbit-nav > button { z-index: 1; min-width: 44px; min-height: 47px; }
+.orbit-nav button:not(.nav-capture) {
+  color: #516481;
+  border-radius: 18px;
+  font-size: 11px;
+  transition: background-color .28s ease, box-shadow .36s ease, transform .52s cubic-bezier(.2,1.6,.25,1);
+}
+.orbit-nav button.active {
+  color: #344f9f;
+  background: linear-gradient(135deg,rgba(255,255,255,.92),rgba(216,226,255,.65));
+  box-shadow: inset 0 1px 1px #fff,
+    inset 0 -1px rgba(105,130,196,.12),
+    0 5px 16px rgba(77,98,164,.16);
+  font-weight: 650;
+}
+.orbit-nav .nav-capture {
+  flex: 0 0 48px;
+  height: 47px;
+  border-radius: 17px;
+  background: linear-gradient(160deg,#91a7fa 0%,#637be5 42%,#4f64cb 100%);
+  border: 1px solid rgba(255,255,255,.6);
+  box-shadow: inset 0 2px 2px rgba(255,255,255,.38),
+    inset 0 -2px 1px rgba(53,67,155,.23),
+    0 5px 11px rgba(68,85,190,.18);
+}
+html[data-bkit-glass-engine="svg-backdrop"] .orbit-nav {
+  -webkit-backdrop-filter: blur(9px) saturate(175%);
+  backdrop-filter: blur(9px) saturate(175%) url("#bkit-liquid-dock");
+}
+
+/* Large action card has a thicker inner meniscus and soft caustic movement. */
+.now-focus.now-action {
+  border-radius: 31px;
+  padding: 25px 26px;
+  overflow: hidden;
+  background: rgba(255,255,255,.39);
+  -webkit-backdrop-filter: blur(17px) saturate(150%);
+  backdrop-filter: blur(17px) saturate(150%);
+  box-shadow: 0 26px 70px rgba(76,101,164,.11),
+    0 5px 19px rgba(76,101,164,.075),
+    inset 0 2px 1px rgba(255,255,255,.96),
+    inset 0 -1px 1px rgba(97,121,173,.11);
+}
+.now-focus.now-action::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 14% 9%,rgba(255,255,255,.84),transparent 57%),
+    radial-gradient(ellipse at 94% 92%,rgba(164,186,255,.33),transparent 63%),
+    linear-gradient(144deg,rgba(255,255,255,.35),rgba(233,238,255,.18));
+  opacity: .8;
+  filter: url("#bkit-liquid-panel");
+}
+.now-focus.now-action::after { opacity: .72; }
+html[data-bkit-glass-engine="svg-backdrop"] .now-focus.now-action {
+  -webkit-backdrop-filter: blur(8px) saturate(157%);
+  backdrop-filter: blur(8px) saturate(157%) url("#bkit-liquid-panel");
+}
+.now-focus-label { font-size: 13px; letter-spacing: -.2px; color: #47587a; }
+.now-focus-status {
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(231,236,255,.70);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.9);
+  color: #455ab8;
+}
+.now-focus-dot { box-shadow: 0 0 0 3px rgba(134,157,240,.2); }
+.now-focus.now-action h2 {
+  font-size: clamp(22px,2.7vw,28px);
+  line-height: 1.35;
+  letter-spacing: -.7px;
+  color: #263450;
+  font-weight: 700;
+}
+.now-focus .now-focus-description { color: #50617b; font-size: 14px; }
+.now-focus .now-focus-actions { margin-top: 19px; }
+.now-focus-primary {
+  min-height: 52px;
+  border-radius: 17px;
+}
+.primary {
+  background: linear-gradient(165deg,#8195f4 0%,#6076df 41%,#5167d1 100%);
+  color: #fff;
+  border-color: rgba(255,255,255,.49);
+  border-radius: 16px;
+  box-shadow: inset 0 1.8px 2px rgba(255,255,255,.34),
+    inset 0 -2px 1px rgba(50,66,156,.22),
+    0 7px 17px rgba(77,99,196,.23);
+  transition: transform .48s cubic-bezier(.18,1.64,.28,1),
+    box-shadow .3s ease, filter .25s ease, background .3s ease;
+  overflow: hidden;
+}
+.primary::before, .orbit-nav .nav-capture::before {
+  content: "";
+  position: absolute;
+  top: 1px; left: 8px; right: 8px;
+  height: 44%;
+  border-radius: 999px 999px 50% 50%;
+  background: linear-gradient(180deg,rgba(255,255,255,.26),transparent);
+  pointer-events: none;
+  opacity: .77;
+}
+.primary:hover { filter: brightness(1.075); }
+.primary:active:not(:disabled) {
+  transform: translateY(1.5px) scale(.975);
+  box-shadow: inset 0 2px 6px rgba(34,56,133,.22),0 2px 9px rgba(77,99,196,.15);
+}
+.primary:disabled { filter: none; }
+.secondary {
+  border-radius: 15px;
+  background: linear-gradient(145deg,rgba(255,255,255,.91),rgba(229,234,253,.76));
+  border: 1px solid rgba(204,214,243,.8);
+  box-shadow: inset 0 1px 1px #fff, 0 3px 9px rgba(80,95,154,.07);
+  color: #3c5497;
+}
+.secondary:active:not(:disabled) { transform: translateY(1px) scale(.987); }
+.liquid-pressed.primary, .liquid-pressed.secondary {
+  transform: translateY(1px) scale(.979);
+}
+.liquid-pressed.orbit-nav { box-shadow: 0 20px 40px rgba(66,84,146,.2),inset 0 2px 1px #fff; }
+
+/* Compact cards: clear spacing and no opaque white slabs. */
+.deadline-pulse {
+  background: rgba(255,255,255,.43);
+  border-radius: 24px;
+  -webkit-backdrop-filter: blur(15px) saturate(155%);
+  backdrop-filter: blur(15px) saturate(155%);
+  box-shadow: 0 10px 37px rgba(78,98,154,.095),inset 0 2px 1px #fff;
+}
+.deadline-pulse h2 { font-size: 16px; color: #2c3c59; font-weight: 680; }
+.deadline-pulse-kicker { color: #596d96; }
+.deadline-pulse-action {
+  color: #4360b1; min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 13px;
+  background: rgba(234,239,255,.59);
+  box-shadow: inset 0 1px rgba(255,255,255,.9);
+}
+.panel, dialog, .review-deck-card {
+  background: rgba(255,255,255,.47);
+  -webkit-backdrop-filter: blur(15px) saturate(150%);
+  backdrop-filter: blur(15px) saturate(150%);
+  border-radius: 25px;
+  box-shadow: 0 10px 39px rgba(73,97,158,.075), inset 0 1px 1px #fff;
+}
+.panel::after, .review-deck-card::after { opacity: .37; }
+.panel h2, .panel h3, .note-card h3 { color: #2d3b55; }
+.review-deck-card {
+  border: 1px solid rgba(255,255,255,.97);
+  border-radius: 20px;
+  background: rgba(243,246,255,.71);
+}
+.review-deck-card .review-deck-answer p { color: #2e3e58; }
+.review-today-nudge {
+  border-radius: 22px;
+  box-shadow: 0 10px 28px rgba(105,111,185,.07),inset 0 1.5px 1px #fff;
+}
+.today-more > summary, .orbit-disclosure > summary, .now-task-options > summary {
+  min-height: 48px;
+  border-radius: 13px;
+  transition: color .25s ease, background-color .25s ease;
+}
+.today-more > summary:hover, .orbit-disclosure > summary:hover,
+.now-task-options > summary:hover { color: #425dba; }
+.today-more[open] .today-more-count svg,
+.orbit-disclosure[open] > summary svg {
+  transition: transform .48s cubic-bezier(.2,1.5,.24,1);
+}
+
+/* Form controls mimic milky inset wells, not glass-textured text. */
+.field input, .field select, .field textarea, .toolbar > input,
+.now-focus-picker select, .capture-chips label {
+  color: #263653;
+  background: rgba(255,255,255,.66);
+  border: 1px solid rgba(190,204,239,.77);
+  border-radius: 15px;
+  box-shadow: inset 0 2px 5px rgba(85,109,167,.045),
+    inset 0 1px 1px rgba(255,255,255,.9);
+}
+.field input:focus, .field select:focus, .field textarea:focus,
+.now-focus-picker select:focus {
+  border-color: #758ce4;
+  box-shadow: 0 0 0 3px rgba(110,136,240,.15), inset 0 1px 1px #fff;
+}
+.capture-input textarea {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  color: #27334c;
+}
+.capture-chips label > span, .field > span { color: #526480; }
+dialog {
+  border-radius: 30px;
+  background: rgba(250,251,255,.91);
+  -webkit-backdrop-filter: blur(32px) saturate(170%);
+  backdrop-filter: blur(32px) saturate(170%);
+  box-shadow: 0 35px 95px rgba(37,51,103,.22),
+    inset 0 2px 1px #fff;
+}
+dialog::backdrop {
+  background: rgba(23,33,69,.23);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.modal-head .icon-button { border-radius: 14px; }
+
+/* Focus lens: pale, translucent ring and condensed timer with high contrast. */
+.is-focusing {
+  background:
+    radial-gradient(ellipse 44% 36% at 50% 38%, rgba(189,201,255,.55),transparent 86%),
+    radial-gradient(ellipse 56% 45% at 49% 88%,rgba(255,210,211,.34),transparent 81%),
+    #f5f7ff;
+}
+.is-focusing .focus-card { background: transparent; }
+.is-focusing .focus-readout .timer {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -3.5px;
+  color: #25385a;
+  text-shadow: 0 1px 1px rgba(255,255,255,.95),0 7px 30px rgba(116,136,206,.13);
+}
+.focus-halo { filter: drop-shadow(0 4px 14px rgba(96,113,217,.1)); }
+.focus-progress { stroke-width: 2.7px; }
+.focus-reveal-control, .is-focusing.focus-quiet .focus-reveal-control {
+  background: rgba(255,255,255,.60);
+  -webkit-backdrop-filter: blur(22px) saturate(155%);
+  backdrop-filter: blur(22px) saturate(155%);
+  box-shadow: 0 13px 35px rgba(68,90,143,.16),inset 0 1.5px 1px #fff;
+  border-radius: 999px;
+  border-color: rgba(255,255,255,.92);
+  color: #425eac;
+}
+.focus-simplify-toggle { border-radius: 99px; }
+
+/* Blur-free detail lines; genuine legibility takes precedence over cosmetics. */
+.muted, .hint, .empty p, .task-main small, .review-deck-summary,
+.rhythm-caption, .week-pulse-foot { color: #596984; }
+.toast, .app-update-notice {
+  background: rgba(252,253,255,.91);
+  -webkit-backdrop-filter: blur(22px) saturate(155%);
+  backdrop-filter: blur(22px) saturate(155%);
+  border-color: rgba(255,255,255,.97);
+  border-radius: 19px;
+  box-shadow: 0 17px 50px rgba(57,80,150,.16),inset 0 1px 1px #fff;
+}
+
+/* Accessible contrast and system preferences. */
+@media (max-width: 720px) {
+  .orbit-nav { width: calc(100% - 24px); border-radius: 27px; padding: 7px; }
+  .orbit-nav button:not(.nav-capture) { font-size: 10px; border-radius: 16px; }
+  .orbit-nav .nav-capture { flex-basis: 46px; height: 46px; border-radius: 16px; }
+  .now-focus.now-action { padding: 22px 20px; border-radius: 27px; }
+  .now-focus.now-action h2 { font-size: 22px; line-height: 1.36; }
+  .deadline-pulse { border-radius: 21px; }
+  .panel { border-radius: 22px; }
+  .page-head h1 { font-size: 24px; }
+  .primary { border-radius: 16px; }
+}
+@media (max-width: 385px) {
+  .orbit-nav button:not(.nav-capture) { font-size: 9px; }
+  .orbit-nav .nav-capture { flex-basis: 43px; }
+  .now-focus.now-action { padding: 19px 16px; }
+  .now-focus.now-action h2 { font-size: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbit-nav *, .primary, .secondary, .now-focus, .panel,
+  .deadline-pulse, .review-deck-card, .liquid-pressed {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .orbit-nav, .now-focus.now-action, .panel,
+  .deadline-pulse, dialog {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: #f7f9ff;
+  }
+  .orbit-nav::before, .now-focus.now-action::before { filter: none; }
+}
+@media print {
+  .bkit-liquid-filters { display: none; }
+  .orbit-nav, .now-focus.now-action, .panel, .deadline-pulse, dialog {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    background: #fff;
+    border: 1px solid #ccd2db;
+  }
+}

@@ -19,6 +19,7 @@ export default defineConfig({
     { name: 'iphone', use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium' } },
     { name: 'ipad', use: { ...devices['iPad Pro 11'], defaultBrowserType: 'chromium' } },
     { name: 'desktop', use: { viewport: { width: 1440, height: 1000 }, browserName: 'chromium' } },
+    { name: 'webkit-iphone', use: { ...devices['iPhone 13'], browserName: 'webkit', defaultBrowserType: 'webkit' } },
   ],
   webServer: {
     command: 'npm run preview -- --port ' + (process.env.BKIT_PREVIEW_PORT || '4173'),
