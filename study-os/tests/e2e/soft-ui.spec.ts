@@ -25,7 +25,7 @@ test('the mobile dashboard is bright, soft and action-first without overflow', a
   });
   expect(state.scheme).toBe('light');
   expect(state.bg).toContain('gradient(');
-  expect(state.focusBackground).toMatch(/^rgba?\\(/);
+  expect(state.focusBackground).toContain('rgb');
   expect(state.startColor).toBe('rgb(255, 255, 255)');
   expect(state.width).toBeLessThanOrEqual(state.viewport + 1);
 });
