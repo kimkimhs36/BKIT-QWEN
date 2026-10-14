@@ -51,6 +51,7 @@ jobs:
         working-directory: study-os
         env:
           BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
+          APP_BASE: /
         run: |
           npx playwright install --with-deps chromium
           npm run test:e2e -- tests/e2e/focus-restore.spec.ts --project=iphone
