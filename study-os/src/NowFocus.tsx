@@ -44,13 +44,13 @@ export function NowFocus({
   const progress = active ? Math.min(100, (seconds / (active.target * 60)) * 100) : 0;
   const stateLabel = active
     ? active.segmentStart
-      ? 'FOCUS IN PROGRESS'
-      : 'FOCUS PAUSED'
+      ? '집중 중'
+      : '일시정지'
     : current
-      ? 'PROTECTED TIME'
+      ? '일정 · 휴식 중'
       : ready
-        ? 'READY FOR FIVE'
-        : 'UPCOMING SCHEDULE';
+        ? '시작 가능'
+        : '다음 일정 준비';
   const headline = active
     ? active.action
     : current
@@ -59,26 +59,24 @@ export function NowFocus({
         : current.title + ' 시간이에요.'
       : !ready
         ? '다음 일정까지, 잠시 준비해요.'
-        : chosen?.title ?? '첫 행동 하나, 지금.';
+        : chosen?.title ?? '5분부터 시작해 보자.';
   const explanation = active
-    ? active.subject + ' · 시작한 집중 기록이 유지되고 있어요.'
+    ? active.subject + ' · 타이머 기록 중'
     : current
-      ? clock(current.end) + '까지 보호된 시간입니다. 공부보다 이 일정을 먼저 지켜요.'
+      ? clock(current.end) + '까지 일정 보호 중'
       : !ready
-        ? '곧 ' + (nextFixed?.title ?? '고정 일정') + '이 시작됩니다. 5분 세션은 건너뛰어요.'
+        ? '곧 ' + (nextFixed?.title ?? '고정 일정') + '이 시작돼.'
         : chosen
-          ? chosen.subject + ' · 남은 ' + chosen.remaining + '분 중 첫 5분'
-          : '과제가 없어도 자율 학습으로 시작할 수 있어요.';
+          ? chosen.subject + ' · 남은 ' + chosen.remaining + '분'
+          : '과제 없이 자율 학습도 가능해.';
 
   return (
     <section className="now-action now-focus" aria-label="지금 할 일과 5분 집중">
-      <div className="section-number">
-        01 <span>NOW / THE NEXT FIVE MINUTES</span>
-      </div>
-      <div className="now-focus-status">
-        <span className="now-focus-dot" aria-hidden="true" />
-        {stateLabel}
-        <span className="now-focus-serial">BKIT / 05</span>
+      <div className="now-focus-top">
+        <span className="now-focus-label">지금 할 일</span>
+        <span className="now-focus-status">
+          <span className="now-focus-dot" aria-hidden="true" /> {stateLabel}
+        </span>
       </div>
       <h2>{headline}</h2>
       <p className="now-focus-description">{explanation}</p>
@@ -113,10 +111,6 @@ export function NowFocus({
           ) : (
             <div className="now-focus-empty">등록된 과제가 없어요. 자율 학습으로 바로 시작합니다.</div>
           )}
-          <div className="now-focus-steps" aria-label="첫 5분 행동">
-            <span>01 / 자료 열기</span>
-            <span>02 / 첫 문제 또는 첫 행동</span>
-          </div>
         </div>
       ) : (
         <div className="now-focus-guard">

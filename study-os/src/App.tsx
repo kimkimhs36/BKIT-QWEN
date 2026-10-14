@@ -731,12 +731,12 @@ export default function App() {
                 {
                   (
                     {
-                      today: 'Own your day.',
-                      school: '한 주의 리듬.',
-                      tasks: '다음 행동을 명확하게.',
-                      study: 'Into focus.',
-                      progress: '쌓여가는 기록.',
-                      settings: '나에게 맞는 설정.',
+                      today: '오늘',
+                      school: '시간표',
+                      tasks: '할 일',
+                      study: '집중',
+                      progress: '공부 기록',
+                      settings: '설정',
                     } as Record<string, string>
                   )[tab]
                 }
@@ -793,8 +793,8 @@ export default function App() {
               <section className="command-stage">
                 <div className="command-left">
                   <div className="live-label">
-                    <span className="status-dot" /> LIVE / {fullDate(now)}
-                    <span>SEOUL</span>
+                    <span className="status-dot" /> {fullDate(now)}
+                    <span>현재 시각</span>
                   </div>
                   <div className="live-clock" aria-label={`현재 ${clock(now)}`}>
                     <span>{clock(now).split(':')[0]}</span>
@@ -823,19 +823,7 @@ export default function App() {
                     onSchedule={() => setTab('school')}
                   />
                 </div>
-                <DayOrbit
-                  now={now}
-                  events={[
-                    ...fixed,
-                    ...todayBlocks.map((b) => ({
-                      id: b.id,
-                      title: s.tasks.find((t) => t.id === b.taskId)?.title || '학습',
-                      start: +new Date(b.start),
-                      end: +new Date(b.end),
-                      kind: 'study',
-                    })),
-                  ]}
-                />
+
               </section>
               {reviewQueue.due.length > 0 && (
                 <button className="review-today-nudge" onClick={() => {
@@ -855,7 +843,7 @@ export default function App() {
               <div className="day-strip">
                 <button className="strip-next" onClick={() => setTab('school')}>
                   <span className="section-number">
-                    02 <span>UP NEXT</span>
+                    <span>다음 일정</span>
                   </span>
                   <strong>
                     {next?.title || '다음 일정을 설계하세요'} <ArrowUpRight size={16} />
@@ -867,14 +855,14 @@ export default function App() {
                   </small>
                 </button>
                 <div className="strip-stat">
-                  <span>FOCUS TODAY</span>
+                  <span>오늘 집중</span>
                   <strong>
                     {Math.floor(studySeconds(s.sessions, today) / 60)}
                     <small>min</small>
                   </strong>
                 </div>
                 <div className="strip-stat">
-                  <span>TO COMPLETE</span>
+                  <span>남은 과제</span>
                   <strong>
                     {attention.length.toString().padStart(2, '0')}
                     <small>tasks</small>
@@ -889,6 +877,25 @@ export default function App() {
                   <ArrowUpRight size={17} />
                 </button>
               </div>
+              <details className="orbit-disclosure">
+                <summary>
+                  <span>24시간 일정 그래프</span>
+                  <span>펼쳐 보기 <ChevronRight size={15} /></span>
+                </summary>
+                <DayOrbit
+                  now={now}
+                  events={[
+                    ...fixed,
+                    ...todayBlocks.map((b) => ({
+                      id: b.id,
+                      title: s.tasks.find((t) => t.id === b.taskId)?.title || '학습',
+                      start: +new Date(b.start),
+                      end: +new Date(b.end),
+                      kind: 'study',
+                    })),
+                  ]}
+                />
+              </details>
               {reviewQueue.due.length > 0 && (
                 <div id="today-review-deck" className="today-review-deck">
                   <ReviewDeck queue={reviewQueue} onReview={handleReview} />
