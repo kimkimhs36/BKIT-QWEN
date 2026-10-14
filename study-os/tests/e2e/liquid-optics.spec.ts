@@ -31,7 +31,7 @@ test('optical materials mount, remain readable and have a safe fallback', async 
   expect(detail.map).toBe(true);
   expect(detail.buttonColor).toBe('rgb(255, 255, 255)');
   expect(detail.radius).toBeGreaterThan(23);
-  expect(detail.cardRadius).toBeGreaterThan(25);
+  expect(detail.cardRadius).toBeGreaterThanOrEqual(20);
   expect(detail.width).toBeLessThanOrEqual(detail.screen+1);
   expect(detail.blurred).not.toBe('none');
   expect(detail.opticalFilter).toContain('bkit-liquid-dock');

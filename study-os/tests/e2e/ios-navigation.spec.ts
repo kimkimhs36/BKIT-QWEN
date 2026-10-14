@@ -7,7 +7,8 @@ test('iOS-first layout keeps navigation separate from actions', async ({page}) =
   await expect(tabBar).toBeVisible();
   await expect(tabBar.getByRole('button')).toHaveCount(5);
   await expect(tabBar.getByRole('button',{name:'과제 추가'})).toHaveCount(0);
-  const add=page.getByRole('button',{name:'과제 추가'});
+  const add=page.locator('.topbar-add-action');
+  await expect(add).toHaveAttribute('aria-label','과제 추가');
   await expect(add).toBeVisible();
   const sizes=await page.evaluate(()=>{
     const tabs=[...document.querySelectorAll<HTMLButtonElement>('.orbit-nav button')];
