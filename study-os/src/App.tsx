@@ -173,6 +173,7 @@ export default function App() {
     [coach, setCoach] = useState(''),
     [focusUiVisible, setFocusUiVisible] = useState(true),
     [updateAvailable, setUpdateAvailable] = useState(false);
+  const todayDetailsRef = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     const shortcut = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -792,17 +793,16 @@ export default function App() {
             <>
               <section className="command-stage">
                 <div className="command-left">
-                  <div className="live-label">
-                    <span className="status-dot" /> {fullDate(now)}
-                    <span>현재 시각</span>
-                  </div>
-                  <div className="live-clock" aria-label={`현재 ${clock(now)}`}>
-                    <span>{clock(now).split(':')[0]}</span>
-                    <i>:</i>
-                    <span>{clock(now).split(':')[1]}</span>
-                    <small key={Math.floor(now / 1000)} className="clock-second">
-                      {String(new Date(now).getSeconds()).padStart(2, '0')}
-                    </small>
+                  <div className="today-timebar">
+                    <div className="live-label">
+                      <span className="status-dot" /> {fullDate(now)}
+                      <span>현재 시각</span>
+                    </div>
+                    <div className="live-clock" aria-label={`현재 ${clock(now)}`}>
+                      <span>{clock(now).split(':')[0]}</span>
+                      <i>:</i>
+                      <span>{clock(now).split(':')[1]}</span>
+                    </div>
                   </div>
                   <div className="day-progress">
                     <span style={{ width: `${(now - at(today, '00:00')) / 864000}%` }} />
@@ -827,8 +827,11 @@ export default function App() {
               </section>
               {reviewQueue.due.length > 0 && (
                 <button className="review-today-nudge" onClick={() => {
-                  document.getElementById('today-review-deck')?.scrollIntoView({
-                    behavior: 'smooth', block: 'start',
+                  if (todayDetailsRef.current) todayDetailsRef.current.open = true;
+                  requestAnimationFrame(() => {
+                    document.getElementById('today-review-deck')?.scrollIntoView({
+                      behavior: 'smooth', block: 'start',
+                    });
                   });
                 }}>
                   <div>
@@ -840,7 +843,13 @@ export default function App() {
                 </button>
               )}
               <DeadlinePulse tasks={s.tasks} now={now} onTasks={() => setTab('tasks')} onAdd={() => taskEditor()} />
-              <div className="day-strip">
+              <details ref={todayDetailsRef} className="today-more">
+                <summary>
+                  <span>오늘 일정과 기록</span>
+                  <span className="today-more-count">남은 과제 {attention.length}개 <ChevronRight size={16} /></span>
+                </summary>
+                <div className="today-more-content">
+                  <div className="day-strip">
                 <button className="strip-next" onClick={() => setTab('school')}>
                   <span className="section-number">
                     <span>다음 일정</span>
@@ -984,6 +993,8 @@ export default function App() {
                   </section>
                 </div>
               </div>
+                </div>
+              </details>
             </>
           )}
           {tab === 'school' && (

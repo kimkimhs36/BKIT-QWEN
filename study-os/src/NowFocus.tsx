@@ -96,21 +96,22 @@ export function NowFocus({
       ) : ready ? (
         <div className="now-focus-ready">
           {tasks.length > 0 ? (
-            <label className="now-focus-picker">
-              <span>지금 시작할 과제</span>
-              <select value={selection} onChange={(e) => onSelectionChange(e.target.value)}>
-                <option value="">추천 · {recommended?.title ?? '자율 학습'}</option>
-                {tasks.map((task) => (
-                  <option key={task.id} value={task.id}>
-                    {task.subject} · {task.title}
-                  </option>
-                ))}
-                <option value="__free__">자율 학습 · 과제 연결 없음</option>
-              </select>
-            </label>
-          ) : (
-            <div className="now-focus-empty">등록된 과제가 없어요. 자율 학습으로 바로 시작합니다.</div>
-          )}
+            <details className="now-task-options">
+              <summary>다른 과제로 바꾸기</summary>
+              <label className="now-focus-picker">
+                <span>시작할 과제</span>
+                <select value={selection} onChange={(e) => onSelectionChange(e.target.value)}>
+                  <option value="">추천 · {recommended?.title ?? '자율 학습'}</option>
+                  {tasks.map((task) => (
+                    <option key={task.id} value={task.id}>
+                      {task.subject} · {task.title}
+                    </option>
+                  ))}
+                  <option value="__free__">자율 학습 · 과제 연결 없음</option>
+                </select>
+              </label>
+            </details>
+          ) : null}
         </div>
       ) : (
         <div className="now-focus-guard">

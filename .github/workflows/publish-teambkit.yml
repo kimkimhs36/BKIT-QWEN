@@ -54,7 +54,7 @@ jobs:
           APP_BASE: /
         run: |
           npx playwright install --with-deps chromium
-          npm run test:e2e -- tests/e2e/focus-restore.spec.ts --project=iphone
+          npm run test:e2e -- tests/e2e/focus-restore.spec.ts tests/e2e/home-simple.spec.ts --project=iphone
 
       - name: Checkout existing site branch
         uses: actions/checkout@v4
