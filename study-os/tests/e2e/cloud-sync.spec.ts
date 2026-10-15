@@ -24,7 +24,7 @@ test('Cloud Sync settings remain private until explicit Google consent',async({p
 test('closing the Google consent popup produces a retryable error',async({page})=>{
  await page.route('https://accounts.google.com/gsi/client',route=>route.fulfill({
   status:200,contentType:'application/javascript',
-  body:'window.google={accounts:{oauth2:{initTokenClient(config){return {requestAccessToken(){config.error_callback({type:"popup_closed"})}}}}}};',
+  body:'window.google={accounts:{oauth2:{initTokenClient(config){return {requestAccessToken(){setTimeout(()=>config.error_callback({type:"popup_closed"}),0)}}}}}};',
  }));
  await page.goto('./?bkit_sheet=BKIT_TEST_SHEET_ID_SAMPLE_1234567890');
  await page.getByRole('button',{name:'설정 열기'}).click();

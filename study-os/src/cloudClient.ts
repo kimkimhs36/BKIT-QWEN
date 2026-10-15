@@ -54,8 +54,11 @@ export function prepareGoogleIdentity():Promise<void>{
   return scriptPromise;
 }
 /** Browser OAuth consent. Access token stays in memory, never in a URL, sheet or localStorage. */
-export async function authorizeGoogle(clientId:string):Promise<string>{
-  await prepareGoogleIdentity();
+export function authorizeGoogle(clientId:string):Promise<string>{
+  // Do not await script loading here: on iOS Safari the OAuth popup must
+  // open synchronously from the user's Connect tap.
+  if(!window.google?.accounts?.oauth2)
+    return Promise.reject(new Error('Google 로그인 준비가 끝나지 않았어. 설정 화면을 다시 열어줘.'));
   return new Promise((resolve,reject)=>{
     let done=false;
     const fail=(message:string)=>{if(!done){done=true;reject(new Error(message));}};
