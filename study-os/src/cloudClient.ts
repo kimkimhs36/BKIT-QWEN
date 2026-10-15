@@ -4,7 +4,9 @@ import {
   type SheetBundle, type StudyCloudData,
 } from './cloudSheet';
 
-const SCOPES='https://www.googleapis.com/auth/spreadsheets';
+const SHEETS_SCOPE='https://www.googleapis.com/auth/spreadsheets';
+const EMAIL_SCOPE='https://www.googleapis.com/auth/userinfo.email';
+const SCOPES=SHEETS_SCOPE+' '+EMAIL_SCOPE;
 export const CONFIG_KEY='bkit.cloud-settings.v1';
 export type CloudConfig={sheetId:string;oauthClientId:string};
 type TokenResponse={access_token?:string;scope?:string;error?:string;error_description?:string};
@@ -68,8 +70,8 @@ export function authorizeGoogle(clientId:string):Promise<string>{
         callback:(result)=>{
           if(done)return;
           if(result.error||!result.access_token)fail(result.error_description||result.error||'Google 로그인이 취소됐어.');
-          else if(result.scope && !result.scope.split(/\s+/).includes(SCOPES))
-            fail('Google Sheets 접근 권한을 승인해야 연결할 수 있어.');
+          else if(result.scope && !SCOPES.split(' ').every(scope=>result.scope!.split(/\s+/).includes(scope)))
+            fail('Google Sheets와 이메일 확인 권한을 승인해야 BKIT 비서를 연결할 수 있어.');
           else {done=true;resolve(result.access_token);}
         },
         error_callback:(result)=>{
@@ -81,7 +83,7 @@ export function authorizeGoogle(clientId:string):Promise<string>{
       // Called after a real Connect button interaction. Never automatically
       // display an OAuth consent popup on page load.
       // A returning user should not be forced through consent on every visit.
-      client.requestAccessToken({prompt:''});
+      client.requestAccessToken({prompt:'consent'});
     }catch(e){fail(e instanceof Error?e.message:'Google 로그인을 시작할 수 없어.');}
   });
 }

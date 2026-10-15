@@ -7,8 +7,9 @@ import { apiEnabled, requestAI } from './ai';
 type Message = { role: 'user' | 'assistant'; text: string; action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress'; saved?: boolean };
 const SUGGESTIONS = ['오늘 뭐부터 공부해?', '공부 기록 피드백해줘', '내일 화학 학습지 3장 추가해줘', '시간표 보여줘'];
 
-export function AssistantPanel({ state, onAction, onNavigate }: {
+export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: {
   state: State;
+  getAccessToken: () => string;
   onAction: (action: AssistantAction) => boolean;
   onNavigate: (tab: 'school' | 'tasks' | 'progress') => void;
 }) {
@@ -33,7 +34,7 @@ export function AssistantPanel({ state, onAction, onNavigate }: {
         try {
           const response = await requestAI('assistant', {
             question, context: assistantContext(state),
-          }) as { answer?: string; mode?: string };
+          }, getAccessToken()) as { answer?: string; mode?: string };
           const answer = typeof response.answer === 'string' && response.answer.trim().length <= 2000
             ? response.answer.trim() : offline.answer;
           setMessages(old => [...old, { role: 'assistant', text: answer }]);
@@ -96,7 +97,7 @@ export function AssistantPanel({ state, onAction, onNavigate }: {
           <Send size={19}/>
         </button>
       </form>
-      <p className="assistant-foot"><Sparkles size={13}/> 일정·과제 자동 변경 없음 · 확인 후 저장 · 학습 원본 사진은 ChatGPT에서 처리</p>
+      <p className="assistant-foot"><Sparkles size={13}/> 일정·과제 자동 변경 없음 · 확인 후 저장 · AI 질문은 Google 계정으로 인증 후 외부 API에 전송</p>
     </section>
   );
 }

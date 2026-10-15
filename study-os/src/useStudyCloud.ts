@@ -156,10 +156,11 @@ export function useStudyCloud(state:State, applyRemote:(remote:StudyCloudData)=>
     window.addEventListener('online',focus);
     return ()=>{clearInterval(timer);document.removeEventListener('visibilitychange',focus);window.removeEventListener('online',focus);};
   },[status]);
+  function getAccessToken(){return client.current?.token||'';}
   function disconnect(){
     client.current=null;lastCloud.current='';lastLocal.current='';
     setStatus('disconnected');setMessage('동기화를 중지했어. 오프라인 로컬 기록은 유지돼.');
   }
-  return {status,message,configuration,setConfig,syncedAt,connect,pull,push,refresh,disconnect};
+  return {status,message,configuration,setConfig,syncedAt,connect,pull,push,refresh,disconnect,getAccessToken};
 }
 export type StudyCloudBridge=ReturnType<typeof useStudyCloud>;

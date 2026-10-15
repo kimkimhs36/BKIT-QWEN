@@ -635,7 +635,7 @@ export default function App() {
     const fallback = recover(snapshot, time);
     try {
       if (!online) throw new Error('offline');
-      const payload = await requestAI('plan', { state: privateSnapshot(snapshot), now: time }),
+      const payload = await requestAI('plan', { state: privateSnapshot(snapshot), now: time }, cloud.getAccessToken()),
         r = recoverySchema.parse(payload.result);
       if (validateRecovery(snapshot, r, time).length) throw new Error('안전 규칙 위반');
       setProposal(r);
@@ -677,7 +677,7 @@ export default function App() {
           rating: x.rating,
           seconds: x.seconds,
         })),
-      });
+      }, cloud.getAccessToken());
       if (typeof d.summary === 'string' && d.summary.length <= 2000)
         setCoach(`${d.mode === 'live' ? '서버 AI' : 'Demo AI Mode'} · ${d.summary}`);
     } catch {
@@ -1902,7 +1902,7 @@ export default function App() {
             </p>
           )}
           {modal === 'assistant' && (
-            <AssistantPanel state={s} onAction={applyAssistantAction}
+            <AssistantPanel state={s} getAccessToken={cloud.getAccessToken} onAction={applyAssistantAction}
               onNavigate={next => { setModal(null); setTab(next); }} />
           )}
           {modal === 'capture' && (

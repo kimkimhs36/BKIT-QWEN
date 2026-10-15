@@ -96,7 +96,7 @@ export function CloudSyncPanel({cloud}:{cloud:StudyCloudBridge}){
         </p>
         <p className="hint">
           Google Sheets를 수정할 수 있는 권한을 요청하므로 개인 Google 계정만 연결해.
-          인증 토큰은 브라우저 메모리에만 두고 저장하지 않아. 새로 방문하면 다시 연결해야 해.
+          Google 이메일 확인 권한도 BKIT 서버 접근 제어에만 사용해. 인증 토큰은 브라우저 메모리에만 두고 저장하지 않아. 새로 방문하면 다시 연결해야 해.
         </p>
       </div>}
       <p className="bkit-cloud-privacy"><ShieldCheck size={16} aria-hidden="true"/>
