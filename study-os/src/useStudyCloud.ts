@@ -41,7 +41,8 @@ export function useStudyCloud(state:State, applyRemote:(remote:StudyCloudData)=>
   }
   function markSuccess(message:string,sig:string) {
     lastCloud.current=sig;
-    lastLocal.current=localSignature(local.current);
+    // Record the version actually read/written, not changes made during an in-flight request.
+    lastLocal.current=sig;
     setSyncedAt(new Date().toLocaleTimeString('ko-KR'));
     setMessage(message);
     setStatus('connected');
@@ -103,13 +104,14 @@ export function useStudyCloud(state:State, applyRemote:(remote:StudyCloudData)=>
     try{
       const remote=await client.current.read();
       const remoteHash=cloudSignature(remote);
-      const ours=localSignature(local.current);
+      const snapshot=local.current;
+      const ours=localSignature(snapshot);
       if(!force && lastCloud.current && remoteHash!==lastCloud.current && remoteHash!==ours) {
         setStatus('conflict');
         setMessage('ChatGPT/Sheets에서 계획이 바뀌었어. 덮어쓰기 전에 어느 쪽을 남길지 선택해.');
         return;
       }
-      await client.current.write(local.current);
+      await client.current.write(snapshot);
       markSuccess('BKIT의 과제·시간표·목표를 Google Sheets에 저장했어.',ours);
     }catch(e){setStatus('error');setMessage(e instanceof Error?e.message:'업로드 실패');}
     finally{busy.current=false;}

@@ -1,10 +1,20 @@
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {Cloud, ExternalLink, Link2, RefreshCw, ShieldCheck, UploadCloud, DownloadCloud, Unplug} from 'lucide-react';
 import type {StudyCloudBridge} from './useStudyCloud';
+import {prepareGoogleIdentity} from './cloudClient';
 
 export function CloudSyncPanel({cloud}:{cloud:StudyCloudBridge}){
   const [advanced,setAdvanced]=useState(false);
-  const [confirmVisible,setConfirmVisible]=useState(false);
+  const [authReady,setAuthReady]=useState(false);
+  const [authError,setAuthError]=useState('');
+  useEffect(()=>{
+    let active=true;
+    // Prepare Google's script before the user presses Connect: Safari's
+    // OAuth popup must open from an actual user gesture.
+    void prepareGoogleIdentity().then(()=>{if(active)setAuthReady(true);})
+      .catch(()=>{if(active)setAuthError('Google 로그인 준비에 실패했어. 네트워크나 콘텐츠 차단 설정을 확인하고 설정 화면을 다시 열어줘.');});
+    return ()=>{active=false;};
+  },[]);
   const {configuration:config}=cloud;
   const isLinked=cloud.status==='connected'||cloud.status==='conflict';
   const cloudUrl = config.sheetId && /^[\w-]{20,}$/.test(config.sheetId)
@@ -33,14 +43,15 @@ export function CloudSyncPanel({cloud}:{cloud:StudyCloudBridge}){
         공부 답변·건강 정보·전체 ChatGPT 대화는 자동으로 전송하지 않아.
       </p>
       <p className="bkit-cloud-status" role="status" aria-live="polite">{cloud.message}</p>
+      {authError&&<p className="hint" role="alert">{authError}</p>}
       {cloud.syncedAt&&<p className="hint">마지막 확인: {cloud.syncedAt}</p>}
       <div className="button-stack bkit-cloud-actions">
         {cloudUrl&&<a href={cloudUrl} target="_blank" rel="noopener noreferrer" className="secondary">
           <ExternalLink size={17}/> 공유 시트 열기
         </a>}
-        {!isLinked&&<button className="primary" type="button" disabled={cloud.status==='connecting'}
+        {!isLinked&&<button className="primary" type="button" disabled={cloud.status==='connecting'||!authReady}
           onClick={()=>void cloud.connect()}>
-          <Link2 size={17}/> {cloud.status==='connecting'?'로그인 요청 중…':'Google 계정 연결'}
+          <Link2 size={17}/> {cloud.status==='connecting'?'로그인 요청 중…':!authReady?'Google 로그인 준비 중…':'Google 계정 연결'}
         </button>}
         {cloud.status==='connected'&&<>
           <button className="secondary" type="button" onClick={()=>void cloud.refresh()}>

@@ -7,11 +7,12 @@ import {
 const SCOPES='https://www.googleapis.com/auth/spreadsheets';
 export const CONFIG_KEY='bkit.cloud-settings.v1';
 export type CloudConfig={sheetId:string;oauthClientId:string};
-type TokenResponse={access_token?:string;error?:string;error_description?:string};
+type TokenResponse={access_token?:string;scope?:string;error?:string;error_description?:string};
 type TokenClient={requestAccessToken:(options?:{prompt?:string})=>void};
 type GoogleOAuth={
   accounts:{oauth2:{initTokenClient:(args:{
     client_id:string;scope:string;callback:(result:TokenResponse)=>void;
+    error_callback?:(result:{type?:string;message?:string})=>void;
   })=>TokenClient}}
 };
 declare global { interface Window { google?:GoogleOAuth } }
@@ -39,7 +40,7 @@ export function storeCloudConfig(config:CloudConfig){
   return saved;
 }
 let scriptPromise:Promise<void>|null=null;
-function loadGoogleIdentity():Promise<void>{
+export function prepareGoogleIdentity():Promise<void>{
   if(window.google?.accounts?.oauth2)return Promise.resolve();
   if(scriptPromise)return scriptPromise;
   scriptPromise=new Promise<void>((resolve,reject)=>{
@@ -54,7 +55,7 @@ function loadGoogleIdentity():Promise<void>{
 }
 /** Browser OAuth consent. Access token stays in memory, never in a URL, sheet or localStorage. */
 export async function authorizeGoogle(clientId:string):Promise<string>{
-  await loadGoogleIdentity();
+  await prepareGoogleIdentity();
   return new Promise((resolve,reject)=>{
     let done=false;
     const fail=(message:string)=>{if(!done){done=true;reject(new Error(message));}};
@@ -64,12 +65,20 @@ export async function authorizeGoogle(clientId:string):Promise<string>{
         callback:(result)=>{
           if(done)return;
           if(result.error||!result.access_token)fail(result.error_description||result.error||'Google 로그인이 취소됐어.');
+          else if(result.scope && !result.scope.split(/\s+/).includes(SCOPES))
+            fail('Google Sheets 접근 권한을 승인해야 연결할 수 있어.');
           else {done=true;resolve(result.access_token);}
-        }
+        },
+        error_callback:(result)=>{
+          fail(result.type==='popup_closed'?'Google 로그인 창을 닫았어. 다시 연결을 눌러줘.':
+            result.type==='popup_failed_to_open'?'Google 로그인 팝업이 차단됐어. Safari의 팝업 차단 설정을 확인해 줘.':
+            result.message||'Google 로그인 창을 열 수 없어.');
+        },
       });
       // Called after a real Connect button interaction. Never automatically
       // display an OAuth consent popup on page load.
-      client.requestAccessToken({prompt:'consent'});
+      // A returning user should not be forced through consent on every visit.
+      client.requestAccessToken({prompt:''});
     }catch(e){fail(e instanceof Error?e.message:'Google 로그인을 시작할 수 없어.');}
   });
 }
@@ -85,7 +94,7 @@ export class StudySheetClient{
     });
     if(!res.ok){
       if(res.status===401)throw new Error('Google 로그인 세션이 만료됐어. 다시 연결해 줘.');
-      if(res.status===403)throw new Error('Google Sheets 편집 권한이 없어. 같은 Google 계정인지 확인해 줘.');
+      if(res.status===403)throw new Error('Google Sheets 접근이 거부됐어. 시트 편집 권한과 Google Cloud의 Sheets API 활성화 여부를 확인해 줘.');
       if(res.status===404)throw new Error('공유 Google Sheet를 찾을 수 없어. 주소를 확인해 줘.');
       throw new Error('Google Sheets 연결 오류 ('+res.status+').');
     }

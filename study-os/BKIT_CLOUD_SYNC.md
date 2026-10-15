@@ -90,3 +90,9 @@ Additional context notes are for explicitly requested ChatGPT analysis.
   to remove an offline cache from a PWA.
 
 **Do not put a private sheet ID or user study context into public GitHub tests.**
+
+## OAuth reliability and sync safety hardening (2026-10-15)
+- Prefetch the Google Identity Services script only when the Cloud settings panel mounts; the Connect button waits until the script is available so iPhone Safari can open consent from a direct tap.
+- Handle Google popup closed/blocked failures and avoid forcing re-consent at every reconnection.
+- Preserve the exact snapshot signature written to Sheets; a local edit made during a pending network request is not falsely marked as already synced.
+- GitHub CI/browser-mock tests can verify these paths, but cannot prove real Google OAuth authorization or physical iPhone behavior. Real owner consent remains necessary.
