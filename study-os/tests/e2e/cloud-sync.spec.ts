@@ -22,10 +22,15 @@ test('Cloud Sync settings remain private until explicit Google consent',async({p
 
 
 test('closing the Google consent popup produces a retryable error',async({page})=>{
- await page.route('https://accounts.google.com/gsi/client',route=>route.fulfill({
-  status:200,contentType:'application/javascript',
-  body:'window.google={accounts:{oauth2:{initTokenClient(config){return {requestAccessToken(){setTimeout(()=>config.error_callback({type:"popup_closed"}),0)}}}}}};',
- }));
+ // Inject a deterministic identity-provider double before the page loads.
+ // Unlike network routing, this behaves consistently in Chromium and WebKit.
+ await page.addInitScript(()=>{
+  Object.assign(window,{google:{accounts:{oauth2:{
+   initTokenClient:(config:{error_callback:(event:{type:string})=>void})=>({
+    requestAccessToken:()=>{queueMicrotask(()=>config.error_callback({type:'popup_closed'}));},
+   }),
+  }}}});
+ });
  await page.goto('./?bkit_sheet=BKIT_TEST_SHEET_ID_SAMPLE_1234567890');
  await page.getByRole('button',{name:'설정 열기'}).click();
  const cloud=page.getByRole('region',{name:'BKIT 클라우드 동기화'});
