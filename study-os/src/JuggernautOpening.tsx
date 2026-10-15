@@ -25,7 +25,7 @@ export function JuggernautOpening({onComplete}:{onComplete:()=>void}){
  },[onComplete]);
  const dreamIndex=phase.startsWith('dream-')?Number(phase.slice(6)):-1;
  const dream=dreamIndex>=0?DREAMS[dreamIndex]:null;
- return <div className={'jg-op jg-op--'+phase} role="region" aria-label="007 JUGGERNAUT 작전 오프닝">
+ return <div className={'jg-op jg-op--'+phase} role="region" aria-label="TOHEŞAR JUGGERNAUT 작전 오프닝">
   <div className="jg-op-vignette" aria-hidden="true"/>
   <div className="jg-op-tunnel" aria-hidden="true">
     <div className="jg-op-hollow"><div className="jg-op-grooves"/></div>
@@ -33,10 +33,10 @@ export function JuggernautOpening({onComplete}:{onComplete:()=>void}){
     <div className="jg-op-crosshair"><span/><span/></div>
   </div>
   {phase==='signal'&&<div className="jg-op-signal" aria-live="polite">
-    <span className="jg-op-code">BKIT / CLASSIFIED OPERATION</span>
+    <span className="jg-op-code">TOHEŞAR / PRIVATE MOTION PICTURE</span>
     <i className="jg-op-radar"/>
-    <strong>007</strong>
-    <p>JUGGERNAUT <span>2028</span></p>
+    <strong>J</strong>
+    <p>JUGGERNAUT <span>MMXXVIII</span></p>
     <small>ESTABLISHING CONNECTION</small>
   </div>}
   {phase==='barrel'&&<div className="jg-op-breach">
@@ -72,7 +72,7 @@ export function JuggernautOpening({onComplete}:{onComplete:()=>void}){
      {reduceMotion&&<button className="jg-op-finish" onClick={onComplete}>작전 파일 열기 <ArrowRight size={17}/></button>}
   </div>}
   <div className="jg-op-topline">
-    <span>BKIT / OPERATION JUGGERNAUT</span>
+    <span>TOHEŞAR / JUGGERNAUT</span>
     <span>{phase==='reality'?'REALITY CHECK':'CHAPTER 00'}</span>
   </div>
   <div className="jg-op-bottomline">

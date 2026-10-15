@@ -3,6 +3,7 @@ import {JuggernautOpening} from './JuggernautOpening';
 import {JuggernautArchive} from './JuggernautArchive';
 import {ArrowLeft, ArrowRight, CalendarDays, ChevronDown, Compass, ExternalLink, Flame, Focus, GraduationCap, Layers3, Target, TimerReset, Zap} from 'lucide-react';
 import './juggernaut.css';
+import './juggernaut-heritage.css';
 
 type Stage='intro'|'arrival'|'archive'|'system'|'strategy'|'launch';
 type Subject={name:string;time:string;questions:string;scope:string;note:string;doNow:string;tag:string};
@@ -65,12 +66,12 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
   document.getElementById('jg-scroll')?.scrollTo({top:0,behavior:'smooth'});
  },[]);
  const finishIntro=useCallback(()=>change('arrival'),[change]);
- return <section className="juggernaut" aria-label="007 JUGGERNAUT — 2028 수능 작전">
+ return <section className="juggernaut jg-heritage" aria-label="TOHEŞAR JUGGERNAUT — 2028 수능 작전">
   {stage==='intro' ? <JuggernautOpening onComplete={finishIntro}/> : <div className="jg-scroll" id="jg-scroll">
    <header className="jg-header">
     <button className="jg-back" onClick={onExit} type="button"><ArrowLeft size={17}/> BKIT</button>
-    <strong>007 JUGGERNAUT <span>/ 2028</span></strong>
-    <span className="jg-live"><i/> 2028 CSAT</span>
+    <div className="jg-masthead"><span className="jg-house-mark">TOHEŞAR</span><strong>JUGGERNAUT <span>/ MMXXVIII</span></strong></div>
+    <span className="jg-live"><i/> PRIVATE EDITION</span>
    </header>
    <nav className="jg-steps" aria-label="저거너트 탐험 단계">
     {STAGES.map(s=><button key={s.key} className={stage===s.key?'is-active':''} onClick={()=>change(s.key)} type="button">
@@ -78,10 +79,12 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
     </button>)}
    </nav>
    <div className="jg-content">
+   <div className="jg-chapter-line"><span>TOHEŞAR / PRIVATE CHAPTERS</span><i/><span>EST. 2026 · OPERATION 2028</span></div>
    {stage==='arrival'&&<div className="jg-arrival">
-    <div className="jg-kicker"><span className="jg-pulse"/> OPERATION 007 · THE FIRST INTEGRATED CSAT</div>
-    <h1>아직, <em>뒤집을</em><br/>시간이 있다.</h1>
-    <p className="jg-lede">시간은 자동으로 줄어든다.<br/>실력은, 오늘부터 바꿀 수 있다.</p>
+    <div className="jg-kicker"><span className="jg-pulse"/> TOHEŞAR PRESENTS / OPERATION 2028</div>
+    <div className="jg-heraldic-seal" aria-hidden="true"><span>J</span></div>
+    <h1>미래는 아직<br/><em>네 손에 있다.</em></h1>
+    <p className="jg-lede">기회는 기다리는 사람의 것이 아니다.<br/>스스로 준비하는 사람의 것이 된다.</p>
     <button type="button" className="jg-world" aria-label="3D 코어를 터치하여 2028 수능 알아보기" onClick={()=>change('archive')}
        onPointerMove={e=>{if(e.pointerType==='touch')return;const r=e.currentTarget.getBoundingClientRect();setTilt({x:((e.clientY-r.top)/r.height-.5)*-22,y:((e.clientX-r.left)/r.width-.5)*22});}}
        onPointerLeave={()=>setTilt({x:0,y:0})}
@@ -91,20 +94,21 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
       <span className="jg-ring jg-ring-two"/>
       <span className="jg-ring jg-ring-three"/>
       <span className="jg-core"><span>28</span><i/></span>
-      <span className="jg-world-label">TOUCH TO DISCOVER <ArrowRight size={13}/></span>
+      <span className="jg-world-label">UNLOCK YOUR ARCHIVE <ArrowRight size={13}/></span>
     </button>
     <div className="jg-count">
       <span>2027년 11월 18일 목요일</span>
       <div><small>D</small><strong>{days===0?'DAY':'−'+days}</strong></div>
       <p>2028학년도 대학수학능력시험까지</p>
     </div>
-    <p className="jg-human">꿈이 있는 건 좋다. 그 장면이 진짜가 될지는 오늘 무엇을 하느냐에 달려 있어.</p>
-    <button className="jg-primary" type="button" onClick={()=>change('archive')}>기밀 파일 · 수능의 역사 열기 <ArrowRight size={18}/></button>
+    <div className="jg-manifesto"><span>THE ART OF BECOMING</span><strong>높은 목표를 가진 사람은<br/>오늘의 작은 선택도 가볍게 여기지 않는다.</strong></div>
+    <p className="jg-human">꿈이 있는 건 좋다. 그 미래를 만들어갈 권한도, 네 손에 있다.</p>
+    <button className="jg-primary" type="button" onClick={()=>change('archive')}>THE ARCHIVE · 수능의 역사 탐험 <ArrowRight size={18}/></button>
     <button className="jg-replay" type="button" onClick={()=>change('intro')}>오프닝 다시 보기</button>
    </div>}
    {stage==='archive'&&<JuggernautArchive onNext={()=>change('system')}/>}
    {stage==='system'&&<div className="jg-system">
-    <div className="jg-section-top"><span>THE RULES HAVE CHANGED</span><h2>네가 치를 시험은<br/><em>이전과 다르다.</em></h2>
+    <div className="jg-section-top"><span>CHAPTER III / THE RULEBOOK</span><h2>규칙을 아는 사람이<br/><em>판을 읽는다.</em></h2>
      <p>2028학년도는 첫 통합형 수능. 아래는 교육부 확정 사항이며, 대학별 전형 방식과 구별해야 해.</p></div>
     <div className="jg-breakout">
      <div><b>01</b><strong>선택과목 폐지</strong><p>국어·수학·탐구의 선택과목을 없애고 공통 체제로 전환.</p></div>
@@ -125,7 +129,7 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
     <button className="jg-primary" type="button" onClick={()=>change('strategy')}>그럼 어떻게 준비할까? <ArrowRight size={18}/></button>
    </div>}
    {stage==='strategy'&&<div className="jg-strategy">
-    <div className="jg-section-top"><span>AN INTELLIGENT CAMPAIGN</span><h2>막연한 각오 대신,<br/><em>다음 행동.</em></h2><p>성적과 공부 시간을 꾸며서 예측하지 않아. 아래는 현재 시점에 맞춘 추천 학습 로드맵이야. 공식 시험 제도와는 구분해 봐.</p></div>
+    <div className="jg-section-top"><span>CHAPTER IV / THE DISCIPLINE</span><h2>자신감은<br/><em>준비에서 나온다.</em></h2><p>성적과 공부 시간을 꾸며서 예측하지 않아. 아래는 현재 시점에 맞춘 추천 학습 로드맵이야. 공식 시험 제도와는 구분해 봐.</p></div>
     <div className="jg-strategy-note"><Compass size={21}/><span><b>전략 / 추천</b> · 이 구역은 BKIT의 학습 제안이지 평가원 발표가 아니야.</span></div>
     <div className="jg-phases">{PHASES.map(phase=><article key={phase.step} className="jg-phase"><small>{phase.step} / {phase.time}</small><h3>{phase.title}</h3><p>{phase.copy}</p></article>)}</div>
     <h3 className="jg-midtitle">첫 통합형 수능에 대한 오해 확인</h3>
@@ -138,7 +142,7 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
     <button className="jg-primary" type="button" onClick={()=>change('launch')}>내 첫 미션 선택하기 <ArrowRight size={18}/></button>
    </div>}
    {stage==='launch'&&<div className="jg-launch">
-    <div className="jg-section-top"><span>FROM EMOTION TO EXECUTION</span><h2>달라질 수 있는 건<br/><em>지금부터.</em></h2><p>하루 전체를 바꾸겠다고 약속할 필요 없어. 오늘 첫 20분만 실제로 시작해 보자.</p></div>
+    <div className="jg-section-top"><span>CHAPTER V / THE FIRST MOVE</span><h2>당당하게,<br/><em>첫 페이지부터.</em></h2><p>하루 전체를 바꾸겠다고 약속할 필요 없어. 오늘 첫 20분만 실제로 시작해 보자.</p></div>
     <div className="jg-launch-orbit"><span className="jg-launch-ring"/><Target size={56}/><strong>20<span>MIN</span></strong><small>FIRST MISSION</small></div>
     <h3 className="jg-midtitle">오늘 시작할 과목은?</h3>
     <div className="jg-missions">
@@ -149,7 +153,8 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
     <p className="jg-launch-small">타이머를 자동으로 켜거나 기록을 조작하지 않아. BKIT 집중 화면에서 직접 시작해.</p>
    </div>}
    <footer className="jg-footer">
-    <span>FACTS FIRST. THE FUTURE IS NOT FIXED.</span>
+    <span className="jg-footer-house">TOHEŞAR <i/> JUGGERNAUT</span>
+    <span>KNOW THE FACTS · COMMAND THE NEXT MOVE.</span>
     <details><summary>공식 출처 및 정보 갱신 안내 <ChevronDown size={14}/></summary>
      <p>확정: 교육부가 발표한 시험일·시험 구조. 예상: 위 학습 로드맵과 행동 추천. 대학별 지원 가능성·모집요강·점수 컷은 여기서 예측하지 않음. 2026.10 기준 작성.</p>
      {OFFICIAL.map(s=><a key={s.name} target="_blank" rel="noopener noreferrer" href={s.url}>{s.name} <ExternalLink size={12}/></a>)}

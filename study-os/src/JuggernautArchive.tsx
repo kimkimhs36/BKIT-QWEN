@@ -21,9 +21,9 @@ export function JuggernautArchive({onNext}:{onNext:()=>void}){
  const file=FILES[open];
  return <div className="jg-archive">
   <div className="jg-section-top">
-    <span><Fingerprint size={16}/> ARCHIVE / CLASSIFIED</span>
+    <span><Fingerprint size={16}/> TOHEŞAR / THE ARCHIVES</span>
     <h2>이 시험에는<br/><em>역사가 있다.</em></h2>
-    <p>수능은 처음부터 지금 모습이 아니었어. 기밀 문서처럼 시대를 하나씩 열어봐. 마지막 파일은 네가 치를 시험이야.</p>
+    <p>지식을 쌓는 일은 역사를 이해하는 데서 시작돼. 시대별 기밀 파일을 열어봐. 마지막 파일은 네가 직접 참여할 2028년이야.</p>
   </div>
   <div className="jg-archive-ruler" aria-label="수능 역사 작전 파일">
    {FILES.map((entry,i)=><button type="button" key={entry.year} aria-current={open===i?'step':undefined}
