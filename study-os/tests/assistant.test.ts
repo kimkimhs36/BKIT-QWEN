@@ -12,6 +12,8 @@ describe('offline multifunction assistant', () => {
     const s = newState();
     const reply = localAssistant('내일 화학 학습지 3장 추가해줘', s, Date.parse('2026-10-15T05:00:00Z'));
     expect(reply.action?.kind).toBe('add');
+    expect(reply.answer).toContain('화학');
+    expect(reply.answer).toContain('2026-10-16');
     if (reply.action?.kind === 'add') {
       expect(reply.action.task.subject).toBe('화학');
       expect(reply.action.task.deadline?.date).toBe('2026-10-16');
