@@ -848,7 +848,7 @@ export default function App() {
                 {
                   (
                     {
-                      today: '오늘도, 나의 속도로.',
+                      today: '오늘',
                       school: '시간표',
                       tasks: '할 일',
                       study: '집중',
@@ -862,7 +862,7 @@ export default function App() {
                 {
                   (
                     {
-                      today: '작은 몰입이 모여, 나다운 하루가 돼요.',
+                      today: '오늘도, 나의 속도로. 작은 몰입이 모이는 하루.',
                       school: '학교부터 학원까지, 준비할 시간도 함께 챙겨요.',
                       tasks: '기억하는 대신 여기에 내려놓으세요.',
                       study: '시간을 채우기보다, 한 문제를 이해하는 시간.',
