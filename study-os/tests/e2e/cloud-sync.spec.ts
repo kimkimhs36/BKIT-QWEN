@@ -1,10 +1,14 @@
 import {test,expect} from '@playwright/test';
+
 test('Cloud Sync settings remain private until explicit Google consent',async({page})=>{
  await page.clock.install({time:new Date('2026-10-15T05:00:00Z')});
- await page.route('https://accounts.google.com/gsi/client',route=>route.fulfill({
-  status:200,contentType:'application/javascript',
-  body:'window.google={accounts:{oauth2:{initTokenClient(){return {requestAccessToken(){}}}}}};',
- }));
+ await page.addInitScript(()=>{
+  // Never fetch the real Google script in an E2E test: Safari can cache
+  // external identity scripts and bypass network-route mocks.
+  (window as any).google={accounts:{oauth2:{initTokenClient(){
+   return {requestAccessToken(){}};
+  }}}};
+ });
  const sheetId='BKIT_TEST_SHEET_ID_SAMPLE_1234567890';
  await page.goto('./?bkit_sheet='+sheetId);
  await expect(page.getByRole('navigation',{name:'주 메뉴'})).toBeVisible();
@@ -20,16 +24,15 @@ test('Cloud Sync settings remain private until explicit Google consent',async({p
  await expect(cloud.getByRole('button',{name:'Google 계정 연결'})).toBeEnabled();
 });
 
-
 test('closing the Google consent popup produces a retryable error',async({page})=>{
- // Inject a deterministic identity-provider double before the page loads.
- // Unlike network routing, this behaves consistently in Chromium and WebKit.
  await page.addInitScript(()=>{
-  Object.assign(window,{google:{accounts:{oauth2:{
-   initTokenClient:(config:{error_callback:(event:{type:string})=>void})=>({
-    requestAccessToken:()=>{queueMicrotask(()=>config.error_callback({type:'popup_closed'}));},
-   }),
-  }}}});
+  (window as any).google={accounts:{oauth2:{initTokenClient(
+    config:{error_callback:(error:{type:string})=>void},
+   ){
+    return {requestAccessToken(){
+     setTimeout(()=>config.error_callback({type:'popup_closed'}),0);
+    }};
+   }}}};
  });
  await page.goto('./?bkit_sheet=BKIT_TEST_SHEET_ID_SAMPLE_1234567890');
  await page.getByRole('button',{name:'설정 열기'}).click();
