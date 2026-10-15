@@ -33,7 +33,8 @@ export function JuggernautOpening({onComplete}:{onComplete:()=>void}){
     <div className="jg-op-crosshair"><span/><span/></div>
   </div>
   {phase==='signal'&&<div className="jg-op-signal" aria-live="polite">
-    <span className="jg-op-code">TOHEŞAR / PRIVATE MOTION PICTURE</span>
+    <span className="jg-op-wordmark">TOHEŞAR</span>
+    <span className="jg-op-code">A PRIVATE MOTION PICTURE</span>
     <i className="jg-op-radar"/>
     <strong>J</strong>
     <p>JUGGERNAUT <span>MMXXVIII</span></p>

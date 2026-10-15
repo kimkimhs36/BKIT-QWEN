@@ -909,7 +909,7 @@ export default function App() {
           {tab === 'today' && (
             <>
               <button className="jg-home-entry" type="button" onClick={() => setTab('juggernaut')} aria-label="2028 수능 저거너트 입장">
-                <span className="jg-home-copy"><small>TOHEŞAR / A PRIVATE STUDY EXPERIENCE</small><strong>JUGGERNAUT <span aria-hidden="true">↗</span></strong><em>당당하게 준비하는 사람의 2028 수능 작전</em></span>
+                <span className="jg-home-copy"><span className="jg-home-house">TOHEŞAR</span><small>A PRIVATE STUDY EXPERIENCE / 2028</small><strong>JUGGERNAUT <span aria-hidden="true">↗</span></strong><em>당당하게 준비하는 사람의 2028 수능 작전</em></span>
                 <ArrowUpRight size={23} aria-hidden="true" />
               </button>
               <section className="command-stage">

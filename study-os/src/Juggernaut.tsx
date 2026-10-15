@@ -70,7 +70,7 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
   {stage==='intro' ? <JuggernautOpening onComplete={finishIntro}/> : <div className="jg-scroll" id="jg-scroll">
    <header className="jg-header">
     <button className="jg-back" onClick={onExit} type="button"><ArrowLeft size={17}/> BKIT</button>
-    <div className="jg-masthead"><span className="jg-house-mark">TOHEŞAR</span><strong>JUGGERNAUT <span>/ MMXXVIII</span></strong></div>
+    <div className="jg-masthead"><span className="jg-house-mark" aria-label="토헤샤">TOHEŞAR</span><strong>JUGGERNAUT <span>/ MMXXVIII</span></strong></div>
     <span className="jg-live"><i/> PRIVATE EDITION</span>
    </header>
    <nav className="jg-steps" aria-label="저거너트 탐험 단계">

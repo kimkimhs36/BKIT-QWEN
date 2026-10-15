@@ -267,3 +267,32 @@
 }
 @media(max-width:370px){.jg-heritage .jg-chapter-line>span:last-child{display:none}.jg-heritage .jg-masthead>strong span{display:none}}
 @media(prefers-reduced-motion:reduce){.jg-heritage .jg-heraldic-seal,.jg-heritage .jg-file,.jg-heritage .jg-world,.jg-home-entry{animation:none!important;transition:none!important}}
+
+/* Brand legibility pass — the TOHEŞAR signature must be unmistakable on iPhone. */
+.jg-home-entry .jg-home-copy{gap:5px}
+.jg-home-entry .jg-home-house{
+  color:#f6dfb2;display:block;
+  font:700 clamp(18px,4.8vw,24px)/1.1 'Iowan Old Style','Baskerville',Georgia,serif;
+  letter-spacing:.2em;text-shadow:0 1px 24px #e6c48a5b;margin-bottom:3px;
+}
+.jg-home-entry .jg-home-copy small{font-size:9px;letter-spacing:.16em;color:#bfb092!important}
+.jg-heritage .jg-house-mark{
+  font-size:clamp(17px,4.1vw,23px)!important;letter-spacing:.18em!important;
+  text-shadow:0 1px 24px #e7c68a57;
+}
+.jg-heritage .jg-masthead{gap:4px}
+.jg-heritage .jg-masthead>strong{letter-spacing:.12em}
+.jg-heritage .jg-op-wordmark{
+  color:#f7dfb6;
+  font:700 clamp(24px,7vw,48px)/1.1 'Iowan Old Style','Baskerville',Georgia,serif;
+  letter-spacing:.19em;padding-left:.19em;
+  text-shadow:0 0 50px #e5c08b77,0 0 18px #a57c4855;
+  margin-bottom:9px;z-index:2;
+}
+.jg-heritage .jg-op-signal>strong{font-size:clamp(80px,19vw,175px)}
+@media(max-width:550px){
+  .jg-heritage .jg-masthead>strong{font-size:9px}
+  .jg-heritage .jg-header{gap:4px}
+  .jg-heritage .jg-back{padding-inline:9px}
+  .jg-home-entry{padding:21px 16px;min-height:126px}
+}
