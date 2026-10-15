@@ -35,7 +35,7 @@ export function JuggernautOpening({onComplete}:{onComplete:()=>void}){
   {phase==='signal'&&<div className="jg-op-signal" aria-live="polite">
     <span className="jg-op-code">BKIT / CLASSIFIED OPERATION</span>
     <i className="jg-op-radar"/>
-    <strong>00<span>/</span>7</strong>
+    <strong>007</strong>
     <p>JUGGERNAUT <span>2028</span></p>
     <small>ESTABLISHING CONNECTION</small>
   </div>}

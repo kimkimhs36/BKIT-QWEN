@@ -69,7 +69,7 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
   {stage==='intro' ? <JuggernautOpening onComplete={finishIntro}/> : <div className="jg-scroll" id="jg-scroll">
    <header className="jg-header">
     <button className="jg-back" onClick={onExit} type="button"><ArrowLeft size={17}/> BKIT</button>
-    <strong>00/7 JUGGERNAUT <span>/ 2028</span></strong>
+    <strong>007 JUGGERNAUT <span>/ 2028</span></strong>
     <span className="jg-live"><i/> 2028 CSAT</span>
    </header>
    <nav className="jg-steps" aria-label="저거너트 탐험 단계">
@@ -79,7 +79,7 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
    </nav>
    <div className="jg-content">
    {stage==='arrival'&&<div className="jg-arrival">
-    <div className="jg-kicker"><span className="jg-pulse"/> OPERATION 00/7 · THE FIRST INTEGRATED CSAT</div>
+    <div className="jg-kicker"><span className="jg-pulse"/> OPERATION 007 · THE FIRST INTEGRATED CSAT</div>
     <h1>아직, <em>뒤집을</em><br/>시간이 있다.</h1>
     <p className="jg-lede">시간은 자동으로 줄어든다.<br/>실력은, 오늘부터 바꿀 수 있다.</p>
     <button type="button" className="jg-world" aria-label="3D 코어를 터치하여 2028 수능 알아보기" onClick={()=>change('archive')}
