@@ -28,7 +28,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
     try {
       const offline = localAssistant(question, state);
       // Explicit, structured local changes never rely on a remote model's guess.
-      if (offline.action || offline.navigate || !apiEnabled || !navigator.onLine) {
+      if (offline.action || !apiEnabled || !navigator.onLine || !getAccessToken()) {
         setMessages(old => [...old, { role: 'assistant', text: offline.answer, action: offline.action, navigate: offline.navigate }]);
       } else {
         try {
@@ -37,7 +37,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
           }, getAccessToken()) as { answer?: string; mode?: string };
           const answer = typeof response.answer === 'string' && response.answer.trim().length <= 2000
             ? response.answer.trim() : offline.answer;
-          setMessages(old => [...old, { role: 'assistant', text: answer }]);
+          setMessages(old => [...old, { role: 'assistant', text: answer, navigate: offline.navigate }]);
         } catch {
           setMessages(old => [...old, { role: 'assistant', text: offline.answer + '\nAI 서버 응답이 없어 로컬 안내로 전환했어.' }]);
         }
