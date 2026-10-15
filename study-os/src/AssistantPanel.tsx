@@ -3,6 +3,7 @@ import { ArrowUpRight, CheckCircle2, Send, Sparkles, XCircle } from 'lucide-reac
 import type { State } from './model';
 import { assistantContext, localAssistant, type AssistantAction } from './assistantLogic';
 import { apiEnabled, requestAI } from './ai';
+import { WaterDrop } from './WaterDrop';
 
 type Message = { role: 'user' | 'assistant'; text: string; action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress'; saved?: boolean };
 const SUGGESTIONS = ['오늘 뭐부터 공부해?', '공부 기록 피드백해줘', '내일 화학 학습지 3장 추가해줘', '시간표 보여줘'];
@@ -58,6 +59,10 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
   }
   return (
     <section className="assistant-panel" aria-label="BKIT 멀티 비서">
+      <div className={'assistant-presence' + (busy ? ' is-listening' : '')}>
+        <WaterDrop />
+        <div><span>YOUR STUDY COMPANION</span><h3>복잡한 하루에, 작은 여유.</h3><p>계획부터 복습까지, 함께 풀어가요.</p></div>
+      </div>
       <p className="assistant-intro">하나의 대화창에서 과제·일정·계획·복습을 관리해. {apiEnabled ? 'AI 서버 설정 시 자유로운 질문도 지원해.' : '현재는 로컬 비서 모드야. 외부 AI 요청은 하지 않아.'}</p>
       <div className="assistant-messages" role="log" aria-label="비서 대화" aria-live="polite">
         {messages.map((message, i) => (

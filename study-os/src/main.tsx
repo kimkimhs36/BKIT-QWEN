@@ -29,3 +29,4 @@ import './dock-viewport-fix.css';
 import './cloud-sync.css';
 
 import './assistant.css';
+import './nature.css';

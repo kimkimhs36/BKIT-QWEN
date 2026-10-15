@@ -14,6 +14,7 @@ import { buildReviewQueue, recordReviewOutcome, type ReviewOutcome } from './rev
 import { shouldAutoHideFocusUi } from './focusQuiet';
 import { FocusHalo } from './FocusHalo';
 import { LiquidOptics } from './LiquidOptics';
+import { WaterDrop } from './WaterDrop';
 import { DayTimeline } from './DayTimeline';
 import { DayOrbit } from './DayOrbit';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type FormEvent } from 'react';
@@ -792,7 +793,7 @@ export default function App() {
           setTab('today');
         }}
       >
-        
+        <WaterDrop className="water-object--brand" />
         <strong>
           BKIT<small>STUDY OS</small>
         </strong>
@@ -817,7 +818,7 @@ export default function App() {
               title="BKIT 비서"
               onClick={() => open('assistant')}
             >
-              <Sparkles size={20} />
+              <WaterDrop className="water-object--mini" />
             </button>
             <button
               type="button"
@@ -842,12 +843,12 @@ export default function App() {
         <main id="main" tabIndex={-1} key={tab}>
           <div className="page-head">
             <div>
-              <p className="eyebrow">{NAV.find((n) => n.id === tab)?.en} / MAKE TIME MATTER</p>
+              <p className="eyebrow">{NAV.find((n) => n.id === tab)?.en} / ROOM TO GROW</p>
               <h1>
                 {
                   (
                     {
-                      today: '오늘',
+                      today: '오늘도, 나의 속도로.',
                       school: '시간표',
                       tasks: '할 일',
                       study: '집중',
@@ -861,11 +862,11 @@ export default function App() {
                 {
                   (
                     {
-                      today: '지금의 선택이, 오늘의 방향이 됩니다.',
+                      today: '작은 몰입이 모여, 나다운 하루가 돼요.',
                       school: '학교부터 학원까지, 준비할 시간도 함께 챙겨요.',
                       tasks: '기억하는 대신 여기에 내려놓으세요.',
                       study: '시간을 채우기보다, 한 문제를 이해하는 시간.',
-                      progress: '기록한 만큼만 보여드려요. 변화는 데이터로 확인해요.',
+                      progress: '차곡차곡 쌓인 시간, 조금씩 자라는 나.',
                       settings: '이 기기의 기록과 생활 리듬을 관리하세요.',
                     } as Record<string, string>
                   )[tab]
@@ -977,6 +978,11 @@ export default function App() {
                 </button>
               )}
               <DeadlinePulse tasks={s.tasks} now={now} onTasks={() => setTab('tasks')} onAdd={() => taskEditor()} />
+              <button className="nature-assistant-entry" type="button" onClick={() => open('assistant')}>
+                <WaterDrop className="water-object--companion" />
+                <span><small>ALWAYS BY YOUR SIDE</small><strong>생각이 많을 땐, 함께 정리해요.</strong><span>나의 BKIT 비서와 이야기하기</span></span>
+                <ArrowUpRight size={20} aria-hidden="true" />
+              </button>
               <details ref={todayDetailsRef} className="today-more">
                 <summary>
                   <span>오늘 일정과 기록</span>
@@ -1854,8 +1860,8 @@ export default function App() {
             </>
           )}
           <footer className="page-footer">
-            <span>BKIT / TIME WELL SPENT.</span>
-            <span>ASIA / SEOUL · LOCAL FIRST</span>
+            <span>BKIT / A LITTLE FOCUS, A LITTLE GROWTH.</span>
+            <span>나의 속도로, 나의 흐름으로.</span>
           </footer>
         </main>
       </div>
