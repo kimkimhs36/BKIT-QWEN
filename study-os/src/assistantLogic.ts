@@ -83,7 +83,7 @@ export function localAssistant(question: string, state: State, now = Date.now())
       priority: 2, status: 'todo', submitted: false, optional: false, notes: '', link: '',
     };
     return {
-      answer: `과제 초안을 만들었어. '\${t.title}' · \${t.subject} · \${formatTaskDeadline(t)} · \${t.minutes}분. 내용 확인 후 등록을 눌러줘.`,
+      answer: `과제 초안을 만들었어. '${t.title}' · ${t.subject} · ${formatTaskDeadline(t)} · ${t.minutes}분. 내용 확인 후 등록을 눌러줘.`,
       action: { kind: 'add', task: t },
     };
   }
