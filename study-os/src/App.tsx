@@ -1,5 +1,6 @@
 import { QuickCapture } from './QuickCapture';
 import { AssistantPanel } from './AssistantPanel';
+import { Juggernaut } from './Juggernaut';
 import type { AssistantAction } from './assistantLogic';
 import { CloudSyncPanel } from './CloudSyncPanel';
 import {useStudyCloud} from './useStudyCloud';
@@ -907,6 +908,10 @@ export default function App() {
           )}
           {tab === 'today' && (
             <>
+              <button className="jg-home-entry" type="button" onClick={() => setTab('juggernaut')} aria-label="2028 수능 저거너트 입장">
+                <span className="jg-home-copy"><small>2028 CSAT / ENTER THE UNKNOWN</small><strong>JUGGERNAUT <span aria-hidden="true">↗</span></strong><em>3D 수능 세계 · 달라진 시험 · 오늘의 첫 미션</em></span>
+                <ArrowUpRight size={23} aria-hidden="true" />
+              </button>
               <section className="command-stage">
                 <div className="command-left">
                   <div className="today-timebar">
@@ -1865,6 +1870,10 @@ export default function App() {
           </footer>
         </main>
       </div>
+      {tab === 'juggernaut' && createPortal(
+        <Juggernaut onExit={() => setTab('today')} onStart={() => setTab('study')} />,
+        document.body,
+      )}
       {createPortal(
         <nav
           className={'orbit-nav' + (tab === 'study' && s.active ? ' orbit-nav--hidden' : '')}
