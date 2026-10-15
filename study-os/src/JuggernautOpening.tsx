@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {ArrowRight, FastForward, RotateCcw} from 'lucide-react';
+import {ArrowRight, FastForward} from 'lucide-react';
 import './juggernaut-opening.css';
 
 const DREAMS=[

@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {ArrowRight, Clock3, FileSearch2, Fingerprint, LockKeyhole, ScrollText, ShieldAlert, ExternalLink} from 'lucide-react';
+import {ArrowRight, Clock3, FileSearch2, Fingerprint, LockKeyhole, ShieldAlert, ExternalLink} from 'lucide-react';
 import './juggernaut-archive.css';
 
 const FILES=[

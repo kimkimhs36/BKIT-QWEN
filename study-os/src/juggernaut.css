@@ -159,3 +159,8 @@
  .juggernaut .jg-core,.juggernaut button{transition:none!important}
  .juggernaut *{scroll-behavior:auto!important}
 }
+
+.juggernaut .jg-steps{grid-template-columns:repeat(5,minmax(0,1fr))}
+.juggernaut .jg-steps button{font-size:11px;gap:3px}
+.juggernaut .jg-replay{margin:13px auto 0;background:transparent;border:1px solid #b2dedb3a;border-radius:999px;min-height:44px;padding:10px 19px;color:#c0dcd8;font-size:12px;letter-spacing:.04em}
+@media(max-width:390px){.juggernaut .jg-steps{gap:1px;padding-inline:10px}.juggernaut .jg-steps button{font-size:10px}.juggernaut .jg-steps button small{font-size:8px}}

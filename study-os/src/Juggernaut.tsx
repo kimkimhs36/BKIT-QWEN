@@ -1,8 +1,10 @@
-import {useEffect, useState, type CSSProperties} from 'react';
+import {useCallback, useEffect, useState, type CSSProperties} from 'react';
+import {JuggernautOpening} from './JuggernautOpening';
+import {JuggernautArchive} from './JuggernautArchive';
 import {ArrowLeft, ArrowRight, CalendarDays, ChevronDown, Compass, ExternalLink, Flame, Focus, GraduationCap, Layers3, Target, TimerReset, Zap} from 'lucide-react';
 import './juggernaut.css';
 
-type Stage='arrival'|'system'|'strategy'|'launch';
+type Stage='intro'|'arrival'|'archive'|'system'|'strategy'|'launch';
 type Subject={name:string;time:string;questions:string;scope:string;note:string;doNow:string;tag:string};
 const SUBJECTS:Subject[]=[
  {name:'국어',time:'80분',questions:'45문항',scope:'화법과 언어 · 독서와 작문 · 문학',note:'기존 선택과목 없이 전원 공통. 지문을 읽는 속도보다 근거를 확인하는 훈련이 중요해.',doNow:'독서 지문 하나를 읽고 문단별 핵심을 적어 보기',tag:'공통'},
@@ -38,11 +40,11 @@ function kstDate(now:number){
 }
 function remaining(now:number){return Math.max(0,Math.round((Date.UTC(2027,10,18)-kstDate(now))/86400000));}
 const STAGES:{key:Stage;label:string;num:string}[]=[
- {key:'arrival',label:'각성',num:'01'},{key:'system',label:'2028 수능',num:'02'},
- {key:'strategy',label:'전략',num:'03'},{key:'launch',label:'실행',num:'04'},
+ {key:'arrival',label:'각성',num:'01'},{key:'archive',label:'수능 역사',num:'02'},
+ {key:'system',label:'2028 수능',num:'03'},{key:'strategy',label:'전략',num:'04'},{key:'launch',label:'실행',num:'05'},
 ];
 export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
- const [stage,setStage]=useState<Stage>('arrival');
+ const [stage,setStage]=useState<Stage>('intro');
  const [selected,setSelected]=useState(1);
  const [now,setNow]=useState(()=>Date.now());
  const [tilt,setTilt]=useState({x:0,y:0});
@@ -58,15 +60,16 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
   document.body.style.overflow='hidden';
   return()=>{window.removeEventListener('keydown',escape);document.body.style.overflow=bodyOverflow;};
  },[onExit]);
- function change(next:Stage){
+ const change=useCallback((next:Stage)=>{
   setStage(next);
   document.getElementById('jg-scroll')?.scrollTo({top:0,behavior:'smooth'});
- }
- return <section className="juggernaut" aria-label="2028 수능 JUGGERNAUT">
-  <div className="jg-scroll" id="jg-scroll">
+ },[]);
+ const finishIntro=useCallback(()=>change('arrival'),[change]);
+ return <section className="juggernaut" aria-label="007 JUGGERNAUT — 2028 수능 작전">
+  {stage==='intro' ? <JuggernautOpening onComplete={finishIntro}/> : <div className="jg-scroll" id="jg-scroll">
    <header className="jg-header">
     <button className="jg-back" onClick={onExit} type="button"><ArrowLeft size={17}/> BKIT</button>
-    <strong>JUGGERNAUT <span>/ 2028</span></strong>
+    <strong>00/7 JUGGERNAUT <span>/ 2028</span></strong>
     <span className="jg-live"><i/> 2028 CSAT</span>
    </header>
    <nav className="jg-steps" aria-label="저거너트 탐험 단계">
@@ -76,10 +79,10 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
    </nav>
    <div className="jg-content">
    {stage==='arrival'&&<div className="jg-arrival">
-    <div className="jg-kicker"><span className="jg-pulse"/> THE FIRST INTEGRATED CSAT · 2028</div>
+    <div className="jg-kicker"><span className="jg-pulse"/> OPERATION 00/7 · THE FIRST INTEGRATED CSAT</div>
     <h1>아직, <em>뒤집을</em><br/>시간이 있다.</h1>
     <p className="jg-lede">시간은 자동으로 줄어든다.<br/>실력은, 오늘부터 바꿀 수 있다.</p>
-    <button type="button" className="jg-world" aria-label="3D 코어를 터치하여 2028 수능 알아보기" onClick={()=>change('system')}
+    <button type="button" className="jg-world" aria-label="3D 코어를 터치하여 2028 수능 알아보기" onClick={()=>change('archive')}
        onPointerMove={e=>{if(e.pointerType==='touch')return;const r=e.currentTarget.getBoundingClientRect();setTilt({x:((e.clientY-r.top)/r.height-.5)*-22,y:((e.clientX-r.left)/r.width-.5)*22});}}
        onPointerLeave={()=>setTilt({x:0,y:0})}
        style={{'--jx':tilt.x+'deg','--jy':tilt.y+'deg'} as CSSProperties}>
@@ -95,9 +98,11 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
       <div><small>D</small><strong>{days===0?'DAY':'−'+days}</strong></div>
       <p>2028학년도 대학수학능력시험까지</p>
     </div>
-    <p className="jg-human">위기감을 느끼기 위해 들어와도 좋아. 하지만 나갈 때는 첫 공부를 정하고 나가자.</p>
-    <button className="jg-primary" type="button" onClick={()=>change('system')}>2028 수능의 현실 확인하기 <ArrowRight size={18}/></button>
+    <p className="jg-human">꿈이 있는 건 좋다. 그 장면이 진짜가 될지는 오늘 무엇을 하느냐에 달려 있어.</p>
+    <button className="jg-primary" type="button" onClick={()=>change('archive')}>기밀 파일 · 수능의 역사 열기 <ArrowRight size={18}/></button>
+    <button className="jg-replay" type="button" onClick={()=>change('intro')}>오프닝 다시 보기</button>
    </div>}
+   {stage==='archive'&&<JuggernautArchive onNext={()=>change('system')}/>}
    {stage==='system'&&<div className="jg-system">
     <div className="jg-section-top"><span>THE RULES HAVE CHANGED</span><h2>네가 치를 시험은<br/><em>이전과 다르다.</em></h2>
      <p>2028학년도는 첫 통합형 수능. 아래는 교육부 확정 사항이며, 대학별 전형 방식과 구별해야 해.</p></div>
@@ -151,6 +156,6 @@ export function Juggernaut({onExit,onStart}:{onExit:()=>void;onStart:()=>void}){
     </details>
    </footer>
    </div>
-  </div>
+  </div>}
  </section>;
 }
