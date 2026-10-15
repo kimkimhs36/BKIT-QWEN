@@ -71,6 +71,9 @@ jobs:
         run: |
           set -euo pipefail
           cp -a study-os/dist/. teambkit-site/
+          # Keep the independent Safari-safe entry synced to every successful build.
+          # This URL never points to an old fingerprinted JS/CSS bundle.
+          cp study-os/dist/index.html teambkit-site/tohesar-juggernaut-20261016.html
           printf 'teambkit.com\n' > teambkit-site/CNAME
           touch teambkit-site/.nojekyll
 
