@@ -1,0 +1,32 @@
+
+/* Mission dossiers — separate archive page, 3D archival treatment */
+.juggernaut .jg-archive .jg-section-top>span{display:flex;align-items:center;gap:9px}
+.juggernaut .jg-archive-ruler{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:8px 0 18px}
+.juggernaut .jg-archive-ruler button{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;min-height:74px;text-align:left;padding:13px 10px;background:linear-gradient(145deg,#10222c,#0a141a);border:1px solid #a4dddd24;border-radius:12px;color:#8eafb4;transition:background .3s,border .3s,transform .3s}
+.juggernaut .jg-archive-ruler button span{font-size:24px;letter-spacing:-.06em;font-weight:800}
+.juggernaut .jg-archive-ruler button small{font-size:8px;letter-spacing:.12em;font-weight:750;color:#739ca4}
+.juggernaut .jg-archive-ruler button.active{background:linear-gradient(145deg,#1c4952,#12212a);border-color:#b8eae97c;color:#e8fcf8;transform:translateY(-3px)}
+.juggernaut .jg-file{position:relative;isolation:isolate;overflow:hidden;min-height:470px;border:1px solid #a4ebde48;border-radius:21px;background:radial-gradient(circle at 80% 21%,#7bbcb638,transparent 42%),linear-gradient(141deg,#1a3641,#0a151d 61%,#09151d);padding:clamp(20px,5vw,37px);box-shadow:0 25px 65px #0005;animation:jg-enter .45s both}
+.juggernaut .jg-file::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(160deg,transparent 0 41px,#c3ecda05 42px 43px,transparent 44px 85px);pointer-events:none;z-index:-1}
+.juggernaut .jg-file-stamp{font-size:10px;letter-spacing:.17em;color:#a1d8d6;display:flex;gap:9px;align-items:center}
+.juggernaut .jg-file-graphic{height:150px;position:relative;display:grid;place-items:center;perspective:750px}
+.juggernaut .jg-file-graphic>span{font-size:clamp(86px,18vw,130px);line-height:1;font-weight:830;letter-spacing:-.13em;color:transparent;-webkit-text-stroke:1px #a8f2ecaa;text-shadow:0 0 48px #b3ffff33;transform:translateX(-4px)}
+.juggernaut .jg-file-orbits{position:absolute;inset:16px 0;margin:auto;width:140px;height:140px;border:1px solid #acf1d572;border-radius:50%;box-shadow:inset 0 0 24px #a1efe524,0 0 40px #72ead233;transform:rotateX(66deg) rotate(-26deg);animation:jg-orbit-three 19s linear infinite}
+.juggernaut .jg-file-meta{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #c6e9e236;padding:16px 0 13px;color:#98c5c7;font-size:10px;letter-spacing:.1em}
+.juggernaut .jg-file h3{font-size:clamp(32px,7vw,55px);line-height:1.2;font-weight:800;letter-spacing:-.065em}
+.juggernaut .jg-file-sub{display:block;color:#bbf3e2;font-size:12px;font-weight:700;letter-spacing:.07em;margin:14px 0}
+.juggernaut .jg-file>p{color:#bfd3d6;font-size:14px;line-height:1.85;margin:0;max-width:670px}
+.juggernaut .jg-file-twist{display:flex;align-items:flex-start;gap:11px;background:#accfc714;border:1px solid #b5e0d22f;border-radius:13px;padding:15px 13px;margin-top:22px}
+.juggernaut .jg-file-twist>svg{color:#bcf4dc;flex:none;margin-top:3px}
+.juggernaut .jg-file-twist span{color:#89baba;font-size:10px;letter-spacing:.07em}
+.juggernaut .jg-file-twist strong{display:block;color:#e1f2ee;font-size:13px;line-height:1.65;letter-spacing:0;margin-top:5px;font-weight:620}
+.juggernaut .jg-file>a{display:flex;align-items:center;gap:7px;color:#aed8d7;font-size:12px;text-decoration:underline;text-underline-offset:4px;margin-top:18px}
+.juggernaut .jg-archive-compare{display:flex;align-items:flex-start;gap:12px;border-radius:14px;padding:17px 16px;border:1px solid #c4e9e42b;background:#d8ffff07;margin-top:18px}
+.juggernaut .jg-archive-compare>svg{color:#c3e9e6;flex:none;margin-top:2px}
+.juggernaut .jg-archive-compare>div{display:flex;flex-direction:column;gap:5px}
+.juggernaut .jg-archive-compare strong{font-size:15px;color:#ecfffc}
+.juggernaut .jg-archive-compare span{font-size:13px;line-height:1.7;color:#9ebcc1}
+.juggernaut .jg-archive-disclaimer{display:flex;gap:8px;align-items:flex-start;color:#91b1b5;font-size:12px;line-height:1.65;margin:16px auto 0}
+.juggernaut .jg-archive-disclaimer svg{flex:none;margin-top:2px}
+@media(max-width:390px){.juggernaut .jg-archive-ruler button{padding:10px 7px;min-height:66px}.juggernaut .jg-archive-ruler button span{font-size:22px}.juggernaut .jg-archive-ruler button small{font-size:7px}.juggernaut .jg-file-meta{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.juggernaut .jg-file-orbits,.juggernaut .jg-file{animation:none!important}}
