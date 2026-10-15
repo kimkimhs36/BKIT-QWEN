@@ -1,4 +1,6 @@
 import { QuickCapture } from './QuickCapture';
+import { AssistantPanel } from './AssistantPanel';
+import type { AssistantAction } from './assistantLogic';
 import { CloudSyncPanel } from './CloudSyncPanel';
 import {useStudyCloud} from './useStudyCloud';
 import { ProblemWorkspace } from './ProblemWorkspace';
@@ -155,6 +157,7 @@ export default function App() {
     [modal, setModal] = useState<
       | null
       | 'capture'
+      | 'assistant'
       | 'task'
       | 'schedule'
       | 'finish'
@@ -312,6 +315,25 @@ export default function App() {
     undo: null,
     settings: { ...v.settings, goal: incoming.goal },
   })));
+  function applyAssistantAction(action: AssistantAction): boolean {
+    if (action.kind === 'add') {
+      if (s.tasks.some(t => t.id === action.task.id)) return false;
+      return commit(v => ({ ...v, tasks: [...v.tasks, action.task] }));
+    }
+    const existing = s.tasks.find(t => t.id === action.taskId && t.title === action.title);
+    if (!existing) return false;
+    if (action.kind === 'complete') {
+      if (existing.status === 'done') return false;
+      return commit(v => ({ ...v, tasks: v.tasks.map(t =>
+        t.id === action.taskId ? { ...t, status: 'done' as const } : t) }));
+    }
+    if (existing.status === 'done') return false;
+    return commit(v => ({ ...v, tasks: v.tasks.map(t =>
+      t.id === action.taskId ? {
+        ...t, minutes: action.minutes, remaining: Math.min(t.remaining, action.minutes),
+        estimate: { minMinutes: action.minutes, maxMinutes: action.minutes, source: 'user' as const },
+      } : t) }));
+  }
   function open(kind: NonNullable<typeof modal>) {
     setFormError('');
     setModal(kind);
@@ -788,6 +810,15 @@ export default function App() {
           <div className="top-meta">
             <span className={'status-dot ' + (!online ? 'offline' : '')} />
             <span>{online ? '로컬 저장 모드' : '오프라인 모드'}</span>
+            <button
+              type="button"
+              className="icon-button topbar-assistant-action"
+              aria-label="BKIT 비서 열기"
+              title="BKIT 비서"
+              onClick={() => open('assistant')}
+            >
+              <Sparkles size={20} />
+            </button>
             <button
               type="button"
               className="icon-button topbar-add-action"
@@ -1852,6 +1883,7 @@ export default function App() {
           title={
             {
               capture: '무엇부터 해야 할까요?',
+              assistant: 'BKIT 멀티 비서',
               task: editTask ? '과제 수정' : '새 과제',
               schedule: editSchedule ? '일정 수정' : '고정 일정 등록',
               finish: '집중을 기록으로 남기기',
@@ -1868,6 +1900,10 @@ export default function App() {
             <p role="alert" className="warning form-error">
               {formError}
             </p>
+          )}
+          {modal === 'assistant' && (
+            <AssistantPanel state={s} onAction={applyAssistantAction}
+              onNavigate={next => { setModal(null); setTab(next); }} />
           )}
           {modal === 'capture' && (
             <QuickCapture

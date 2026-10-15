@@ -1,6 +1,6 @@
 // Static previews send nothing to an AI server. Explicitly enable only after setup.
 export const apiEnabled = import.meta.env.VITE_AI_API_ENABLED === 'true';
-export async function requestAI(path: 'plan' | 'coach', body: unknown) {
+export async function requestAI(path: 'plan' | 'coach' | 'assistant', body: unknown) {
   if (!apiEnabled || !navigator.onLine) throw new Error('AI unavailable');
   const res = await fetch('/api/' + path, {
     method: 'POST',

@@ -27,3 +27,5 @@ import './capture-v2.css';
 import './quality-v10.css';
 import './dock-viewport-fix.css';
 import './cloud-sync.css';
+
+import './assistant.css';
