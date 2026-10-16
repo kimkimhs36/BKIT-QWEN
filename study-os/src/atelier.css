@@ -1,0 +1,1150 @@
+/* TOHEŞAR Private Study Atelier — cinematic entrance, a quiet working desk. */
+:root {
+  --atelier-black: #11130f;
+  --atelier-paper: #f2ece0;
+  --atelier-gold: #d1b783;
+  --atelier-line: #c6a57136;
+}
+html {
+  background: var(--atelier-black);
+}
+body {
+  background: radial-gradient(ellipse at 90% 0, #54433130, transparent 60%), #11130f;
+  background-attachment: fixed;
+}
+::selection {
+  background: #d1b783;
+  color: #151710;
+}
+.atelier-os .topbar {
+  background: #11130fe8;
+  border-bottom: 1px solid var(--atelier-line);
+}
+.atelier-os .v2-brand strong,
+.atelier-os .mobile-brand {
+  color: var(--atelier-paper);
+}
+.atelier-os .v2-brand small,
+.atelier-os .breadcrumb,
+.atelier-os .top-meta > span:not(.status-dot) {
+  color: #c2b39b;
+}
+.atelier-os .v2-brand .water-object {
+  display: none;
+}
+.atelier-os .topbar .icon-button {
+  background: #25251e;
+  border: 1px solid #ad926348;
+  color: var(--atelier-gold);
+  box-shadow: none;
+}
+.atelier-os .page-head {
+  color: var(--atelier-paper);
+}
+.atelier-os .page-head .eyebrow {
+  color: var(--atelier-gold);
+  letter-spacing: 0.18em;
+}
+.atelier-os .page-head .subtitle {
+  color: #bdb6a8;
+}
+.atelier-os .date-box {
+  background: #25251d;
+  color: #ded1b7;
+  border: 1px solid var(--atelier-line);
+  box-shadow: none;
+}
+.atelier-os .date-box strong,
+.atelier-os .date-box small {
+  color: #ded1b7;
+}
+.atelier-os .page-footer {
+  color: #bdb6a8;
+  border-color: var(--atelier-line);
+}
+body > .orbit-nav {
+  background: #1b1e19ed;
+  border-color: #ae92634f;
+  box-shadow:
+    0 10px 38px #0006,
+    inset 0 1px #f5e3bc0d;
+}
+body > .orbit-nav button {
+  color: #c4bba9;
+}
+body > .orbit-nav button.active {
+  background: #d6bd8a;
+  color: #212319;
+  box-shadow: 0 2px 14px #0003;
+}
+.atelier-os .command-stage {
+  background: var(--atelier-paper);
+  padding: 24px;
+  border: 1px solid #d9cbb2;
+  border-radius: 8px;
+  margin-top: 28px;
+  box-shadow: 0 18px 70px #0003;
+}
+.atelier-os .command-left {
+  min-width: 0;
+}
+.atelier-os .today-more {
+  background: var(--atelier-paper);
+  border-color: #d9cbb2;
+  border-radius: 8px;
+}
+.atelier-os .nature-assistant-entry,
+.atelier-os .research-quick-capture {
+  background: #e8dfcd;
+  border-color: #cbbb9b;
+  border-radius: 8px;
+}
+.atelier-os .toast {
+  background: #eee4cf;
+  border: 1px solid #c3a66c;
+  color: #34382b;
+}
+.atelier-os .page-head h1 {
+  font-family: Georgia, 'Songti SC', 'Batang', serif;
+}
+.atelier-os .study-layout,
+.atelier-os .task-layout,
+.atelier-os .settings-grid,
+.atelier-os .progress-layout {
+  color: #303c35;
+}
+.atelier-os .now-focus-primary,
+.atelier-os .primary {
+  background: #51472e;
+  border-color: #51472e;
+  color: #fffaef;
+}
+.atelier-os .page-today,
+.atelier-os .empty {
+  color: #414334;
+}
+.atelier-os .now-focus {
+  border-radius: 8px;
+}
+.atelier-desk-entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  min-height: 325px;
+  align-items: center;
+  overflow: hidden;
+  padding: 30px 34px;
+  border: 1px solid var(--atelier-line);
+  background: linear-gradient(120deg, #24251d, #171a14);
+  border-radius: 8px;
+}
+.atelier-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--atelier-gold);
+  font-weight: 600;
+}
+.atelier-desk-copy {
+  position: relative;
+  z-index: 1;
+}
+.atelier-desk-copy h2 {
+  color: var(--atelier-paper);
+  font:
+    400 clamp(24px, 3.5vw, 38px)/1.5 Georgia,
+    'Batang',
+    serif;
+  letter-spacing: -0.06em;
+  margin: 18px 0 8px;
+}
+.atelier-desk-copy h2 em {
+  color: #d9bc83;
+  font-style: normal;
+}
+.atelier-desk-copy p {
+  color: #bcb6a7;
+  font-size: 12px;
+  margin-bottom: 23px;
+}
+.atelier-desk-entry .atelier-scene {
+  width: 120%;
+  height: auto;
+  margin-left: -10%;
+}
+.atelier-archive-link {
+  display: block;
+  padding: 9px 0 0;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: #c5b395;
+  text-align: left;
+}
+.atelier-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 52px;
+  padding: 15px 24px;
+  background: #d3ba88;
+  color: #1b2117;
+  border: 1px solid #e3cca1;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 650;
+  box-shadow: 0 6px 30px #0002;
+}
+.atelier-primary:hover:not(:disabled) {
+  background: #e4cca0;
+}
+.atelier-primary:disabled {
+  opacity: 0.45;
+}
+.atelier-today-missions {
+  margin: 30px 0;
+  color: #eee7d9;
+}
+.atelier-shelf-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+.atelier-shelf-head h2 {
+  font:
+    400 22px/1.5 Georgia,
+    'Batang',
+    serif;
+  letter-spacing: -0.05em;
+  margin-top: 7px;
+}
+.atelier-shelf-head > span {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: #baaa8d;
+  white-space: nowrap;
+}
+.atelier-task-list {
+  border-top: 1px solid var(--atelier-line);
+}
+.atelier-task {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 23px 3px;
+  border-bottom: 1px solid var(--atelier-line);
+}
+.atelier-task-number {
+  align-self: flex-start;
+  font:
+    italic 25px Georgia,
+    serif;
+  color: #9d875c;
+  padding-top: 4px;
+}
+.atelier-task-content {
+  flex: 1;
+  min-width: 0;
+}
+.atelier-task-content > span {
+  color: #d3b986;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+}
+.atelier-task-content > span i {
+  display: block;
+  width: 2px;
+  height: 2px;
+  background: #a08d68;
+}
+.atelier-task .atelier-task-title {
+  display: block;
+  padding: 6px 0;
+  min-height: 44px;
+  color: #eee7d9;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: left;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.atelier-task-content p {
+  color: #b6b0a1;
+  font-size: 10px;
+  margin: 0;
+}
+.atelier-task-start {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 13px;
+  border: 1px solid #b2986452;
+  color: #d7bd89;
+  border-radius: 3px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.atelier-task-photos {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 44px;
+  font-size: 11px;
+  padding: 6px 0;
+  color: #d7bd89;
+}
+/* Native modal gives keyboard focus containment and makes the app underneath inert. */
+dialog.atelier {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: radial-gradient(ellipse at 12% 35%, #54433120, transparent 65%), #11130f;
+  color: var(--atelier-paper);
+  box-shadow: none;
+  -webkit-overflow-scrolling: touch;
+  font-family:
+    'DM Sans',
+    -apple-system,
+    'Apple SD Gothic Neo',
+    sans-serif;
+}
+dialog.atelier::backdrop {
+  background: #11130f;
+}
+.atelier * {
+  box-sizing: border-box;
+}
+.atelier button:focus-visible,
+.atelier a:focus-visible,
+.atelier input:focus-visible,
+.atelier textarea:focus-visible,
+.atelier select:focus-visible,
+.atelier summary:focus-visible,
+.atelier-os button:focus-visible {
+  outline: 2px solid #d3ba88;
+  outline-offset: 4px;
+}
+.atelier-opening.juggernaut {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  z-index: auto;
+}
+.atelier-header {
+  min-height: 103px;
+  margin: auto;
+  padding: 24px clamp(22px, 5vw, 80px);
+  padding-top: max(24px, env(safe-area-inset-top));
+  border-bottom: 1px solid var(--atelier-line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+.atelier-wordmark {
+  font:
+    400 28px/1.1 Georgia,
+    serif;
+  letter-spacing: 0.2em;
+  color: #dfc592;
+}
+.atelier-wordmark small {
+  display: block;
+  font:
+    500 8px/1.6 'DM Sans',
+    sans-serif;
+  letter-spacing: 0.26em;
+  margin-top: 8px;
+  color: #bcb29e;
+}
+.atelier-header > button {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: #d6c9b0;
+  font-size: 11px;
+  padding: 10px 0 10px 14px;
+}
+.atelier-steps {
+  display: flex;
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 28px clamp(22px, 5vw, 70px);
+  gap: 22px;
+}
+.atelier-steps > span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #a69e8b;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+.atelier-steps > span[aria-current] {
+  color: #e2c994;
+}
+.atelier-steps b {
+  font:
+    italic 16px Georgia,
+    serif;
+  font-weight: 400;
+}
+.atelier-steps i {
+  width: 55px;
+  height: 1px;
+  background: #b2976338;
+  margin-left: 10px;
+}
+.atelier-layout {
+  max-width: 1260px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 0.9fr 1fr;
+  gap: 8%;
+  padding: 36px clamp(22px, 5vw, 70px) 70px;
+  align-items: start;
+}
+.atelier-aside {
+  position: sticky;
+  top: 50px;
+  padding-top: 25px;
+}
+.atelier-aside h2 {
+  font:
+    400 clamp(28px, 3.5vw, 48px)/1.5 Georgia,
+    'Batang',
+    serif;
+  letter-spacing: -0.06em;
+  margin: 24px 0 0;
+}
+.atelier-aside em {
+  color: #d7bd89;
+  font-style: normal;
+}
+.atelier-aside .atelier-scene {
+  width: 115%;
+  height: auto;
+  margin: 0 -7%;
+}
+.atelier-aside-note {
+  padding-top: 24px;
+  border-top: 1px solid var(--atelier-line);
+}
+.atelier-aside-note > span {
+  font-size: 9px;
+  letter-spacing: 0.23em;
+  color: #c7af7e;
+}
+.atelier-aside-note p {
+  font-size: 12px;
+  line-height: 1.9;
+  color: #b6af9f;
+  margin-top: 14px;
+}
+.atelier-workspace {
+  min-width: 0;
+}
+.atelier-chapter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #baa580;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+.atelier-chapter > span:last-child {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 8px;
+  color: #b0aa9a;
+}
+.atelier-workspace h1 {
+  font:
+    400 clamp(30px, 3.3vw, 44px)/1.5 Georgia,
+    'Batang',
+    serif;
+  letter-spacing: -0.06em;
+  color: #f0e9dd;
+  margin: 22px 0 18px;
+  outline: none;
+}
+.atelier-workspace h1 em {
+  color: #d6bb84;
+  font-style: normal;
+}
+.atelier-lede {
+  font-size: 13px;
+  line-height: 1.9;
+  color: #bdb7a8;
+  max-width: 430px;
+  margin: 0 0 30px;
+  word-break: keep-all;
+}
+.atelier label {
+  display: block;
+  color: #bcb29f;
+  font-size: 11px;
+  letter-spacing: 0;
+}
+.atelier input:not([type='checkbox']),
+.atelier textarea,
+.atelier select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid #b59e6d45;
+  border-radius: 3px;
+  background: #22241d;
+  color: #f0e9dd;
+  font-size: 16px;
+  margin: 8px 0 0;
+  box-shadow: none;
+  color-scheme: dark;
+}
+.atelier input:disabled {
+  opacity: 0.45;
+}
+.atelier input::placeholder,
+.atelier textarea::placeholder {
+  color: #a59d8d;
+  opacity: 1;
+}
+.atelier-brief {
+  padding: 20px;
+  border: 1px solid #b59e6d55;
+  border-radius: 3px;
+  background: #24251d;
+}
+.atelier-brief > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #d9bd88;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+.atelier-brief small {
+  font-size: 10px;
+  letter-spacing: 0;
+  color: #aaa28e;
+}
+.atelier .atelier-brief textarea {
+  border: 0;
+  padding: 18px 0;
+  margin: 0;
+  line-height: 2;
+  resize: vertical;
+  min-height: 200px;
+  background: transparent;
+}
+.atelier-brief > small {
+  display: block;
+  text-align: right;
+}
+.atelier-note {
+  color: #b5ad9a;
+  font-size: 11px;
+  line-height: 1.8;
+  margin: 14px 0;
+}
+.atelier-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 30px;
+}
+.atelier-actions .atelier-primary {
+  flex: 1;
+}
+.atelier-back {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: #bfb49b;
+  padding-left: 0;
+}
+.atelier-save-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #bfb49b;
+  font-size: 10px;
+  text-align: center;
+  margin-top: 16px;
+}
+.atelier-local-note {
+  text-align: center;
+  font-size: 9px;
+  color: #a39c8c;
+}
+.atelier-capture-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.atelier-capture-buttons > button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: #24261e;
+  border: 1px solid #b59e6d55;
+  border-radius: 3px;
+  padding: 27px 8px;
+  color: #d9bd88;
+}
+.atelier-capture-buttons strong {
+  font-size: 12px;
+  color: #ece2ce;
+  font-weight: 500;
+}
+.atelier-capture-buttons span {
+  font-size: 10px;
+  color: #b6ad98;
+}
+.atelier-photo-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: #c5b18c;
+  margin: 28px 0 15px;
+}
+.atelier-photo-heading strong {
+  font-weight: 500;
+}
+.atelier-no-photos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 160px;
+  color: #aca28b;
+  border: 1px dashed #9d885846;
+  font-size: 11px;
+}
+.atelier-photos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 10px 0;
+}
+.atelier-photo {
+  position: relative;
+  margin: 0;
+  padding: 5px;
+  border: 1px solid #9e865244;
+  background: #25261e;
+  color: #d9cdaf;
+  min-width: 0;
+}
+.atelier-photo > a {
+  display: block;
+}
+.atelier-photo img {
+  width: 100%;
+  height: 135px;
+  object-fit: contain;
+  display: block;
+  background: #151710;
+}
+.atelier-photo figcaption {
+  font-size: 10px;
+  overflow-wrap: anywhere;
+  padding: 9px 3px 5px;
+}
+.atelier-photo > small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.6;
+  padding: 5px;
+}
+.atelier-photo > button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  width: 44px;
+  color: #fff6e4;
+  background: #10120edb;
+  border: 1px solid #99825c66;
+  border-radius: 3px;
+}
+.atelier-photo-fallback {
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  text-align: center;
+}
+.atelier-photo--large img {
+  height: auto;
+  max-height: 70vh;
+}
+.atelier-privacy {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  color: #cab080;
+  padding: 15px 0;
+  border-top: 1px solid var(--atelier-line);
+}
+.atelier-privacy p {
+  font-size: 11px;
+  line-height: 1.8;
+  margin: 0;
+  color: #bfb6a1;
+}
+.atelier-prepare-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  color: #c2a97c;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+}
+.atelier-prepare-meta button {
+  color: #d3bd92;
+  font-size: 10px;
+  padding-right: 0;
+}
+.atelier-mission-fieldset {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+.atelier-mission {
+  padding: 22px;
+  background: #1d2019;
+  border: 1px solid #b59e6d4a;
+  border-radius: 3px;
+  margin: 16px 0;
+}
+.atelier-mission-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #d9bd88;
+  margin-bottom: 12px;
+  font-size: 10px;
+  letter-spacing: 0.13em;
+}
+.atelier-mission-top > button {
+  color: #bcb29a;
+  min-width: 44px;
+  margin-right: -10px;
+}
+.atelier-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px;
+  margin: 15px 0;
+}
+.atelier-fields--three {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.atelier .atelier-check {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #d7c9ad;
+  line-height: 1.7;
+  min-height: 44px;
+  padding: 10px 0 0;
+  cursor: pointer;
+}
+.atelier-check input {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: #d3ba88;
+}
+.atelier-source {
+  margin: 14px 0;
+  font-size: 11px;
+  color: #c7b896;
+}
+.atelier-source summary {
+  cursor: pointer;
+  padding: 12px 0;
+  min-height: 44px;
+}
+.atelier-add-mission {
+  width: 100%;
+  border: 1px dashed #b59e6d66;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #cdb58a;
+}
+.atelier-error {
+  padding: 14px;
+  border: 1px solid #c58b60;
+  border-radius: 3px;
+  color: #f4c7a8;
+  font-size: 12px;
+  background: #452c2233;
+}
+.atelier-footer {
+  border-top: 1px solid var(--atelier-line);
+  padding: 28px clamp(22px, 5vw, 80px) max(28px, env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: #a99b81;
+  font-size: 8px;
+  letter-spacing: 0.13em;
+}
+dialog.atelier-photo-dialog {
+  background: #1b1e18;
+  color: #eee3cf;
+  border: 1px solid #c6a57155;
+  border-radius: 4px;
+  max-width: 850px;
+  width: calc(100% - 32px);
+  max-height: 90dvh;
+  padding: 24px;
+}
+.atelier-photo-dialog > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+.atelier-photo-dialog h2 {
+  font-size: 19px;
+  overflow-wrap: anywhere;
+}
+.atelier-photo-dialog > p {
+  color: #beb29b;
+  font-size: 12px;
+}
+/* Keep the original cinematic sequences; warm their optical palette. */
+
+.atelier-opening .jg-op-wordmark {
+  font-family: Georgia, serif;
+}
+.atelier-opening .jg-op-reality h2 {
+  font-family: Georgia, 'Batang', serif;
+  font-weight: 400;
+}
+@media (min-width: 1200px) {
+  .atelier-os .main-shell main {
+    max-width: 1050px;
+  }
+}
+@media (max-width: 800px) {
+  .atelier-layout {
+    grid-template-columns: 1fr;
+    max-width: 620px;
+    padding-top: 22px;
+  }
+  .atelier-aside {
+    display: none;
+  }
+  .atelier-steps {
+    max-width: 620px;
+    gap: 14px;
+    padding-top: 23px;
+    padding-bottom: 18px;
+  }
+  .atelier-steps i {
+    width: 22px;
+    margin-left: 0;
+  }
+  .atelier-header {
+    min-height: 89px;
+  }
+  .atelier-footer > span:nth-child(2) {
+    display: none;
+  }
+  .atelier-workspace h1 {
+    font-size: 34px;
+  }
+  .atelier-desk-entry {
+    padding: 26px;
+    grid-template-columns: 1.45fr 1fr;
+    min-height: 295px;
+  }
+  .atelier-desk-entry .atelier-scene {
+    width: 170%;
+    margin-left: -40%;
+    opacity: 0.65;
+  }
+}
+@media (max-width: 480px) {
+  .atelier-os .command-stage {
+    padding: 18px 14px;
+  }
+  .atelier-desk-entry {
+    display: block;
+    padding: 25px 22px;
+    min-height: 290px;
+  }
+  .atelier-desk-entry .atelier-scene {
+    position: absolute;
+    width: 280px;
+    top: 5px;
+    right: -95px;
+    opacity: 0.38;
+    margin: 0;
+  }
+  .atelier-desk-copy h2 {
+    font-size: 27px;
+  }
+  .atelier-desk-copy p {
+    max-width: 205px;
+    line-height: 1.8;
+  }
+  .atelier-desk-copy .atelier-eyebrow {
+    font-size: 8px;
+    letter-spacing: 0.12em;
+  }
+  .atelier-desk-copy .atelier-primary {
+    justify-content: flex-start;
+    padding: 13px 17px;
+    min-height: 48px;
+    width: max-content;
+    font-size: 12px;
+  }
+  .atelier-task {
+    gap: 12px;
+  }
+  .atelier-task-number {
+    font-size: 20px;
+  }
+  .atelier-task-start {
+    padding: 7px 9px;
+    gap: 5px;
+  }
+  .atelier-task-start span {
+    max-width: 24px;
+    line-height: 1.6;
+  }
+  .atelier-task-content p span {
+    display: block;
+  }
+  .atelier-task-content .atelier-task-title {
+    font-size: 14px;
+  }
+  .atelier-shelf-head h2 {
+    font-size: 20px;
+  }
+  .atelier-wordmark {
+    font-size: 25px;
+  }
+  .atelier-header > button span {
+    font-size: 10px;
+  }
+  .atelier-steps {
+    gap: 10px;
+  }
+  .atelier-steps > span {
+    font-size: 8px;
+    gap: 6px;
+    letter-spacing: 0.03em;
+  }
+  .atelier-steps i {
+    width: 15px;
+  }
+  .atelier-chapter {
+    font-size: 8px;
+  }
+  .atelier-workspace h1 {
+    font-size: 31px;
+    margin-top: 20px;
+  }
+  .atelier-lede {
+    font-size: 12px;
+    margin-bottom: 24px;
+  }
+  .atelier-brief {
+    padding: 17px;
+  }
+  .atelier .atelier-brief textarea {
+    font-size: 16px;
+    line-height: 2;
+  }
+  .atelier-mission {
+    padding: 17px 14px;
+  }
+  .atelier-fields {
+    gap: 10px;
+  }
+  .atelier-fields--three {
+    grid-template-columns: 1fr 1fr;
+  }
+  .atelier-fields--three > label:last-child {
+    grid-column: 1/-1;
+  }
+  .atelier-photos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .atelier-photo-dialog .atelier-photos {
+    grid-template-columns: 1fr;
+  }
+  .atelier-actions {
+    gap: 10px;
+  }
+  .atelier-primary {
+    padding: 14px;
+    gap: 12px;
+    font-size: 12px;
+  }
+  .atelier-save-status {
+    font-size: 9px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .atelier-workspace {
+    animation: atelier-arrive 0.5s ease both;
+  }
+  .atelier-task {
+    animation: atelier-arrive 0.45s ease both;
+  }
+  @keyframes atelier-arrive {
+    from {
+      opacity: 0.75;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atelier *,
+  .atelier-os * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* Desktop/iOS legacy skin selectors are intentionally overridden at the shell. */
+.app-shell.atelier-os .main-shell .page-head h1 {
+  color: #f2ece0;
+}
+html[data-bkit-glass-engine] body > .orbit-nav {
+  background: #1b1e19ed;
+  border-color: #ae92634f;
+}
+body > .orbit-nav::before {
+  opacity: 0.15;
+  background: linear-gradient(125deg, #fff2, transparent);
+}
+body > .orbit-nav button:not(.nav-capture) {
+  color: #c4bba9;
+}
+body > .orbit-nav button.active,
+body > .orbit-nav button.active:hover {
+  background: #d6bd8a;
+  color: #212319;
+}
+body > .orbit-nav button.active::after {
+  background: #574c33;
+}
+dialog.atelier::before {
+  content: none;
+}
+.atelier-os .atelier-focus-scene {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 27px 0 22px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #cbbb9b;
+  color: #7c6845;
+}
+.atelier-focus-scene > span {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+}
+.atelier-focus-scene p {
+  font:
+    400 22px/1.5 Georgia,
+    'Batang',
+    serif;
+  width: 100%;
+  margin: 15px 0 0;
+  color: #474b37;
+}
+.atelier-os .now-focus.now-action {
+  border-radius: 8px;
+  background: #fbf7ee;
+  box-shadow: none;
+  border: 1px solid #c8b99a;
+}
+.atelier-os .now-focus.now-action h2 {
+  color: #383d2d;
+}
+.atelier-os .nature-assistant-entry {
+  color: #51472e;
+}
+.atelier-os .deadline-pulse {
+  background: #e5dece;
+  border-color: #c6b793;
+  border-radius: 8px;
+}
+
+/* Full-screen arrival must never inherit the legacy bottom-sheet transform. */
+dialog.atelier[open] {
+  animation: none;
+  transform: none;
+}
+.atelier-os .now-focus .now-focus-actions .now-focus-primary {
+  color: #fffaef;
+}
+/* Ivory work surfaces need stronger secondary text than the old pearl skin. */
+.atelier-os .live-label,
+.atelier-os .research-next-context > span,
+.atelier-os .now-focus-label,
+.atelier-os .now-focus-description,
+.atelier-os .research-quick-copy > small,
+.atelier-os .deadline-pulse-kicker,
+.atelier-os .deadline-pulse-intro > p,
+.atelier-os .nature-assistant-entry > span > small,
+.atelier-os .nature-assistant-entry > span > span,
+.atelier-os .today-more-count {
+  color: #555e4b;
+}
+.atelier-os .nature-assistant-entry > span > small {
+  font-size: 9px;
+}
+.atelier-os .command-stage .live-label {
+  color: #555e4b;
+}

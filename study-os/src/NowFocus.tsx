@@ -4,7 +4,7 @@ import type { State, Task } from './model';
 import { clock } from './time';
 import { canStartSprint } from './now';
 import {formatQuantity} from './capture';
-import { WaterDrop } from './WaterDrop';
+import { BookOpen } from 'lucide-react';
 
 type Props = {
   now: number;
@@ -74,14 +74,7 @@ export function NowFocus({
 
   return (
     <section className="now-action now-focus" aria-label="지금 할 일과 5분 집중">
-      <div className="nature-scene">
-        <div className="nature-scene-copy">
-          <span>YOUR QUIET SPACE</span>
-          <p>마음을 비우고,<br />하나에 머물러요.</p>
-          <small><span /> A little focus, a little growth.</small>
-        </div>
-        <WaterDrop />
-      </div>
+      <div className="atelier-focus-scene"><span>THE FIRST MOVE</span><BookOpen size={24}/><p>한 문제에 머무르는 시간.</p></div>
       <div className="now-focus-top">
         <span className="now-focus-label">지금, 하나의 몰입</span>
         <span className="now-focus-status">

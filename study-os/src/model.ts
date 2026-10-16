@@ -34,6 +34,8 @@ export const taskSchema = z
     title: text.min(1),
     kind: z.enum(['숙제', '수행평가', '시험공부', '개인 일정']),
     due: instant.nullable(),
+    // Device-local private photo references; bytes never enter shared study data.
+    attachmentIds: z.array(id).max(12).optional(),
     // Optional provenance preserves all existing v1 records.
     deadline: taskDeadlineSchema.optional(),
     quantity: taskQuantitySchema.optional(),
@@ -214,7 +216,7 @@ export const newState = (): State => ({
     mealStart: '18:00',
     mealMinutes: 45,
     breakMinutes: 5,
-    goal: '가천대학교 조기취업형 미래자동차 관련 학과 진학 — 공식 모집요강 확인 필요',
+    goal: '오늘의 작은 학습을 차분히 완성하기',
   },
 });
 export const uid = () => crypto.randomUUID();

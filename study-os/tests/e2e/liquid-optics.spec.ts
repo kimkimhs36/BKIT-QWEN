@@ -29,9 +29,9 @@ test('optical materials mount, remain readable and have a safe fallback', async 
   });
   expect(detail.engine).toBeTruthy();
   expect(detail.map).toBe(true);
-  expect(detail.buttonColor).toBe('rgb(255, 255, 255)');
+  expect(detail.buttonColor).toBe('rgb(255, 250, 239)');
   expect(detail.radius).toBeGreaterThan(23);
-  expect(detail.cardRadius).toBeGreaterThanOrEqual(20);
+  expect(detail.cardRadius).toBeGreaterThanOrEqual(8);
   expect(detail.width).toBeLessThanOrEqual(detail.screen+1);
   expect(detail.blurred).not.toBe('none');
   expect(detail.opticalFilter).toContain('bkit-liquid-dock');

@@ -14,12 +14,51 @@ export default defineConfig({
   use: {
     baseURL: process.env.BKIT_TEST_BASE_URL || 'http://127.0.0.1:4173/study-os/',
     trace: 'retain-on-failure',
+    // Regression suites exercise returning learners. Arrival tests override this
+    // with empty storage to cover the full first-visit cinematic path.
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: new URL(process.env.BKIT_TEST_BASE_URL || 'http://127.0.0.1:4173').origin,
+          localStorage: [{ name: 'bkit.atelier.visited.v1', value: '1' }],
+        },
+      ],
+    },
   },
   projects: [
-    { name: 'iphone', use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium', launchOptions: chromiumLaunchOptions } },
-    { name: 'ipad', use: { ...devices['iPad Pro 11'], defaultBrowserType: 'chromium', launchOptions: chromiumLaunchOptions } },
-    { name: 'desktop', use: { viewport: { width: 1440, height: 1000 }, browserName: 'chromium', launchOptions: chromiumLaunchOptions } },
-    { name: 'webkit-iphone', use: { ...devices['iPhone 13'], browserName: 'webkit', defaultBrowserType: 'webkit' } },
+    {
+      name: 'iphone',
+      use: {
+        ...devices['iPhone 13'],
+        defaultBrowserType: 'chromium',
+        launchOptions: chromiumLaunchOptions,
+      },
+    },
+    {
+      name: 'ipad',
+      use: {
+        ...devices['iPad Pro 11'],
+        defaultBrowserType: 'chromium',
+        launchOptions: chromiumLaunchOptions,
+      },
+    },
+    {
+      name: 'desktop',
+      use: {
+        viewport: { width: 1440, height: 1000 },
+        browserName: 'chromium',
+        launchOptions: chromiumLaunchOptions,
+      },
+    },
+    {
+      name: 'webkit-ipad',
+      use: { ...devices['iPad Pro 11'], browserName: 'webkit', defaultBrowserType: 'webkit' },
+    },
+    {
+      name: 'webkit-iphone',
+      use: { ...devices['iPhone 13'], browserName: 'webkit', defaultBrowserType: 'webkit' },
+    },
   ],
   webServer: {
     command: 'npm run preview -- --port ' + (process.env.BKIT_PREVIEW_PORT || '4173'),

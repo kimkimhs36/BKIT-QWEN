@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('the mobile dashboard is bright, soft and action-first without overflow', async ({ page }) => {
+test('the atelier desk is readable and action-first without overflow', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-14T06:00:00Z') });
   await page.goto('./');
   await expect(page.getByRole('button', { name: '5분만 시작' })).toBeVisible();
@@ -26,6 +26,6 @@ test('the mobile dashboard is bright, soft and action-first without overflow', a
   expect(state.scheme).toBe('light');
   expect(state.bg).toContain('gradient(');
   expect(state.focusBackground).toMatch(/^rgba?[(]/);
-  expect(state.startColor).toBe('rgb(255, 255, 255)');
+  expect(state.startColor).toBe('rgb(255, 250, 239)');
   expect(state.width).toBeLessThanOrEqual(state.viewport + 1);
 });

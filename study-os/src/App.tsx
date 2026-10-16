@@ -1,6 +1,8 @@
 import { QuickCapture } from './QuickCapture';
 import { AssistantPanel } from './AssistantPanel';
 import { Juggernaut } from './Juggernaut';
+import { AtelierScene, AtelierMissions, StudyAtelier, PrivatePhotoCard } from './StudyAtelier';
+import { hasVisited, mergeMissions, sameMission } from './atelier';
 import type { AssistantAction } from './assistantLogic';
 import { CloudSyncPanel } from './CloudSyncPanel';
 import {useStudyCloud} from './useStudyCloud';
@@ -152,6 +154,7 @@ export default function App() {
   const [s, setS] = useState<State>(initial.state),
     [storageError, setStorageError] = useState(initial.error),
     [readBlocked, setReadBlocked] = useState(!!initial.error);
+  const [atelierOpen, setAtelierOpen] = useState(() => !hasVisited() && !initial.state.tasks.length && !initial.state.active);
   const [tab, setTab] = useState('today'),
     [now, setNow] = useState(Date.now()),
     [online, setOnline] = useState(navigator.onLine),
@@ -310,7 +313,7 @@ export default function App() {
   }
   const cloud = useStudyCloud(s, (incoming) => commit((v) => ({
     ...v,
-    tasks: incoming.tasks,
+    tasks: incoming.tasks.map(t => ({ ...t, attachmentIds: v.tasks.find(local => local.id === t.id)?.attachmentIds })),
     schedules: incoming.schedules,
     // Remote changes may remove/move tasks; never retain orphaned plan blocks.
     plan: [],
@@ -319,7 +322,7 @@ export default function App() {
   })));
   function applyAssistantAction(action: AssistantAction): boolean {
     if (action.kind === 'add') {
-      if (s.tasks.some(t => t.id === action.task.id)) return false;
+      if (s.tasks.some(t => sameMission(t, action.task))) return false;
       return commit(v => ({ ...v, tasks: [...v.tasks, action.task] }));
     }
     const existing = s.tasks.find(t => t.id === action.taskId && t.title === action.title);
@@ -547,6 +550,7 @@ export default function App() {
       const duration=Number(f.get('minutes'));
       const t = taskSchema.parse({
         id: editTask?.id || uid(),
+        attachmentIds: editTask?.attachmentIds,
         subject: f.get('subject'),
         title: f.get('title'),
         kind: f.get('kind'),
@@ -562,6 +566,10 @@ export default function App() {
         notes: f.get('notes'),
         link: f.get('link'),
       });
+      if (s.tasks.some(existing => existing.id !== t.id && sameMission(existing, t))) {
+        setFormError('같은 과제가 이미 있습니다. 기존 과제를 수정해 주세요.');
+        return;
+      }
       if (s.active?.taskId === t.id && t.status === 'done') {
         setFormError('진행 중인 공부를 먼저 종료하고 학습 완료를 기록하세요.');
         return;
@@ -774,7 +782,7 @@ export default function App() {
   return (
     <div
       className={
-        'app-shell visual-v2 page-' + tab +
+        'app-shell visual-v2 atelier-os page-' + tab +
         (tab === 'study' && s.active ? ' is-focusing' : '') +
         (tab === 'study' && s.active?.workspace ? ' focus-learning' : '') +
         (tab === 'study' && s.active?.segmentStart && !s.active.workspace && seconds < s.active.target * 60 && !focusUiVisible && !modal
@@ -819,7 +827,7 @@ export default function App() {
               title="BKIT 비서"
               onClick={() => open('assistant')}
             >
-              <WaterDrop className="water-object--mini" />
+              <BookOpen size={19} />
             </button>
             <button
               type="button"
@@ -908,10 +916,11 @@ export default function App() {
           )}
           {tab === 'today' && (
             <>
-              <button className="jg-home-entry" type="button" onClick={() => setTab('juggernaut')} aria-label="2028 수능 저거너트 입장">
-                <span className="jg-home-copy"><span className="jg-home-house">TOHEŞAR</span><small>A PRIVATE STUDY EXPERIENCE / 2028</small><strong>JUGGERNAUT <span aria-hidden="true">↗</span></strong><em>당당하게 준비하는 사람의 2028 수능 작전</em></span>
-                <ArrowUpRight size={23} aria-hidden="true" />
-              </button>
+              <section className="atelier-desk-entry" aria-label="TOHEŞAR 프라이빗 스터디 아틀리에">
+                <div className="atelier-desk-copy"><span className="atelier-eyebrow">TOHEŞAR / PRIVATE STUDY ATELIER</span><h2>오늘을 준비하는 곳.<br/><em>미래를 시작하는 곳.</em></h2><p>해야 할 일을 내려놓고, 한 가지에 몰입하세요.</p><button className="atelier-primary" onClick={() => setAtelierOpen(true)}>오늘의 브리핑 열기 <ArrowRight size={17}/></button><button className="atelier-archive-link" onClick={() => setTab('juggernaut')}>JUGGERNAUT · 수능 아카이브 ↗</button></div>
+                <AtelierScene/>
+              </section>
+              <AtelierMissions tasks={ordered} onStart={id => start(5, id)} onEdit={taskEditor}/>
               <section className="command-stage">
                 <div className="command-left">
                   <div className="today-timebar">
@@ -957,7 +966,7 @@ export default function App() {
 
               </section>
               <button type="button" className="research-quick-capture"
-                onClick={() => taskEditor()}>
+                onClick={() => setAtelierOpen(true)}>
                 <span className="research-quick-icon" aria-hidden="true"><Plus size={18} /></span>
                 <span className="research-quick-copy">
                   <strong>빠르게 추가</strong>
@@ -984,7 +993,7 @@ export default function App() {
               )}
               <DeadlinePulse tasks={s.tasks} now={now} onTasks={() => setTab('tasks')} onAdd={() => taskEditor()} />
               <button className="nature-assistant-entry" type="button" onClick={() => open('assistant')}>
-                <WaterDrop className="water-object--companion" />
+                <BookOpen size={26} />
                 <span><small>ALWAYS BY YOUR SIDE</small><strong>생각이 많을 땐, 함께 정리해요.</strong><span>나의 BKIT 비서와 이야기하기</span></span>
                 <ArrowUpRight size={20} aria-hidden="true" />
               </button>
@@ -1870,6 +1879,15 @@ export default function App() {
           </footer>
         </main>
       </div>
+      {atelierOpen && createPortal(
+        <StudyAtelier onClose={() => setAtelierOpen(false)} onSave={tasks => {
+          const merged = mergeMissions(memory.current.tasks, tasks);
+          if (!commit(v => ({ ...v, tasks: merged.tasks }))) return null;
+          setTab('today');
+          setNotice(merged.duplicates ? `BKIT에 정리했습니다. 같은 과제 ${merged.duplicates}개는 기존 항목에 연결했어요.` : `${merged.ids.length}개 과제를 BKIT에 저장했습니다. 첫 5분을 골라 시작해 보세요.`);
+          return { duplicates: merged.duplicates };
+        }}/>, document.body,
+      )}
       {tab === 'juggernaut' && createPortal(
         <Juggernaut onExit={() => setTab('today')} onStart={() => setTab('study')} />,
         document.body,
@@ -1927,7 +1945,7 @@ export default function App() {
                 open('task');
               }}
               onSave={(task) => {
-                if (commit((v) => ({ ...v, tasks: [...v.tasks, task] }))) {
+                if (commit((v) => ({ ...v, tasks: mergeMissions(v.tasks, [task]).tasks }))) {
                   setModal(null);
                   setNotice('오늘에 담았습니다. 다음 행동이 준비됐습니다.');
                   return true;
@@ -1938,6 +1956,7 @@ export default function App() {
           )}
           {modal === 'task' && (
             <form onSubmit={saveTask}>
+              {!!editTask?.attachmentIds?.length && <details className="atelier-source"><summary>이 과제의 비공개 학습 자료 ({editTask.attachmentIds.length})</summary><div className="atelier-photos">{editTask.attachmentIds.map(id => <PrivatePhotoCard key={id} id={id}/>)}</div></details>}
               <div className="form-grid">
                 <Field label="과목">
                   <input

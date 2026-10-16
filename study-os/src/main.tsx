@@ -30,3 +30,5 @@ import './cloud-sync.css';
 
 import './assistant.css';
 import './nature.css';
+
+import './atelier.css';

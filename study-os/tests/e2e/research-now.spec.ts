@@ -27,5 +27,5 @@ test('2026 research NOW: small fixed event, first action and quick capture befor
   expect(details.overflow).toBe(false);
   await quick.click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.getByRole('dialog').getByRole('heading',{name:'무엇부터 해야 할까요?'})).toBeVisible();
+  await expect(page.getByLabel('오늘 해야 할 일')).toBeVisible();
 });
