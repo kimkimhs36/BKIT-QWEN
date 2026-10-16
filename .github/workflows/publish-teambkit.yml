@@ -126,7 +126,12 @@ jobs:
         run: |
           set -euo pipefail
           site_sha=$(git rev-parse HEAD)
-          gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds" > /tmp/bkit-pages-request.json
+          gh api "repos/${GITHUB_REPOSITORY}/pages/builds/latest" > /tmp/bkit-pages-build.json
+          # Reuse an automatic build when already visible. Explicit requests can
+          # race with Pages' own queue; a canceled duplicate is not final failure.
+          if ! jq -e --arg commit "$site_sha" '.commit == $commit and (.status == "built" or .status == "building" or .status == "queued")' /tmp/bkit-pages-build.json; then
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds" > /tmp/bkit-pages-request.json
+          fi
           for attempt in $(seq 1 36); do
             gh api "repos/${GITHUB_REPOSITORY}/pages/builds/latest" > /tmp/bkit-pages-build.json
             status=$(jq -r '.status' /tmp/bkit-pages-build.json)
@@ -134,12 +139,9 @@ jobs:
             if [[ "$status" == "built" && "$built_sha" == "$site_sha" ]]; then
               break
             fi
-            if [[ "$status" == "errored" && "$built_sha" == "$site_sha" ]]; then
-              jq '.error' /tmp/bkit-pages-build.json
-              exit 1
-            fi
             if [[ "$attempt" == "36" ]]; then
               echo 'Timed out waiting for the exact GitHub Pages commit.'
+              jq '{status, commit, error}' /tmp/bkit-pages-build.json
               exit 1
             fi
             sleep 10
