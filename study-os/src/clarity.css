@@ -648,10 +648,13 @@ body > .orbit-nav button:not(.active):hover {
 .app-shell.atelier-os .now-task-options {
   margin: 0;
 }
+.app-shell.atelier-os .now-focus-ready {
+  position: static;
+}
 .app-shell.atelier-os .now-task-options > summary {
   position: absolute;
-  right: 0;
-  top: -12px;
+  right: 22px;
+  top: 10px;
   padding-block: 12px;
   min-height: 44px;
 }
