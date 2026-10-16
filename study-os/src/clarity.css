@@ -1,0 +1,736 @@
+/* BKIT: a clear working space. TOHEŞAR retains its isolated cinematic palette. */
+:root {
+  --ink: #29362f;
+  --muted: #606b63;
+  --line: #e0e5dd;
+  --green: #344e40;
+  --paper: #fff;
+  color: #29362f;
+  background: #f6f7f2;
+}
+html {
+  background: #f6f7f2;
+}
+body {
+  background: #f6f7f2;
+  color: #29362f;
+}
+.app-shell.atelier-os .topbar {
+  background: #f6f7f2f2;
+  border-bottom: 0;
+  box-shadow: none;
+}
+.app-shell.atelier-os .v2-brand strong,
+.app-shell.atelier-os .mobile-brand {
+  color: #29362f;
+}
+.app-shell.atelier-os .v2-brand small {
+  color: #606b63;
+  letter-spacing: 0.13em;
+}
+.app-shell.atelier-os .breadcrumb,
+.app-shell.atelier-os .top-meta > span:not(.status-dot) {
+  color: #606b63;
+}
+.app-shell.atelier-os .topbar .icon-button {
+  background: transparent;
+  border: 0;
+  border-radius: 14px;
+  color: #344a3c;
+  box-shadow: none;
+  min-width: 48px;
+  min-height: 48px;
+}
+.home-top-tools {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-left: auto;
+}
+.home-top-tools > span {
+  color: #606b63;
+  font-size: 14px;
+}
+.app-shell.atelier-os .main-shell .page-head {
+  color: #29362f;
+}
+.app-shell.atelier-os .main-shell .page-head h1 {
+  color: #29362f;
+  font-family: inherit;
+  font-weight: 650;
+  letter-spacing: -0.05em;
+}
+.app-shell.atelier-os .main-shell .page-head .subtitle {
+  color: #606b63;
+  font-size: 15px;
+  line-height: 1.7;
+}
+.app-shell.atelier-os .main-shell .page-head .eyebrow {
+  color: #606b63;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+.app-shell.atelier-os .date-box {
+  background: white;
+  color: #536050;
+  border-color: #e0e5dd;
+}
+.app-shell.atelier-os .date-box strong,
+.app-shell.atelier-os .date-box small {
+  color: #536050;
+}
+.app-shell.atelier-os .primary {
+  background: #344e40;
+  color: #fff;
+  border-color: #344e40;
+  box-shadow: none;
+}
+.app-shell.atelier-os .toast {
+  background: #edf4e9;
+  border-color: #cad8c5;
+  color: #293e2d;
+  box-shadow: 0 4px 20px #24332512;
+  font-size: 14px;
+  border-radius: 14px;
+}
+body > .orbit-nav,
+html[data-bkit-glass-engine] body > .orbit-nav {
+  background: #fffffff5;
+  border: 1px solid #e0e5dd;
+  border-radius: 22px;
+  padding: 6px;
+  box-shadow: 0 5px 24px #2433250d;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+body > .orbit-nav::before,
+body > .orbit-nav::after {
+  display: none;
+}
+body > .orbit-nav button:not(.nav-capture) {
+  color: #58665b;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 16px;
+}
+body > .orbit-nav button.active,
+body > .orbit-nav button.active:hover {
+  color: #2f4a39;
+  background: #eaf0e5;
+  box-shadow: none;
+  font-weight: 650;
+}
+body > .orbit-nav button.active::after {
+  display: none;
+}
+body > .orbit-nav button:not(.active):hover {
+  background: #f2f5ef;
+  color: #344e40;
+}
+.app-shell.atelier-os.page-today main {
+  max-width: 720px;
+  padding-top: 25px;
+}
+.app-shell.atelier-os.page-today .page-head {
+  margin-bottom: 26px;
+}
+.app-shell.atelier-os.page-today .page-head h1 {
+  font-size: 34px;
+  line-height: 1.3;
+}
+.app-shell.atelier-os.page-today .date-box {
+  display: none;
+}
+.app-shell.atelier-os.page-today .page-head .eyebrow {
+  margin: 0 0 9px;
+}
+.app-shell.atelier-os.page-today .page-head .subtitle {
+  margin-top: 10px;
+}
+.home-entry {
+  background: #fff;
+  border: 1px solid #e0e5dd;
+  border-radius: 20px;
+  padding: 0 22px;
+}
+.home-entry-action {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  width: 100%;
+  text-align: left;
+  padding: 22px 0;
+  min-height: 94px;
+  color: #29362f;
+}
+.home-entry-action + .home-entry-action {
+  border-top: 1px solid #e8ebe5;
+}
+.home-entry-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: #49664c;
+  flex-shrink: 0;
+}
+.home-entry-action > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.home-entry-action strong {
+  display: block;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+.home-entry-action small {
+  display: block;
+  font-size: 14px;
+  color: #606b63;
+  margin-top: 3px;
+  line-height: 1.65;
+}
+.home-entry-action > svg {
+  color: #71806e;
+}
+.home-entry-action:hover {
+  color: #344e40;
+}
+.app-shell.atelier-os.page-today .command-stage {
+  display: block;
+  background: #fff;
+  border: 1px solid #e0e5dd;
+  box-shadow: none;
+  border-radius: 20px;
+  margin-top: 18px;
+  padding: 26px 24px;
+}
+.app-shell.atelier-os.page-today .command-left {
+  width: 100%;
+}
+.app-shell.atelier-os.page-today .now-focus.now-action {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 0;
+  overflow: visible;
+}
+.app-shell.atelier-os .now-focus.now-action::before,
+.app-shell.atelier-os .now-focus.now-action::after {
+  display: none;
+}
+.app-shell.atelier-os .now-focus-top {
+  margin-bottom: 18px;
+}
+.app-shell.atelier-os .now-focus-label {
+  color: #53624f;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.app-shell.atelier-os .now-focus.now-action h2 {
+  color: #29362f;
+  font-size: 25px;
+  line-height: 1.5;
+  letter-spacing: -0.045em;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.app-shell.atelier-os .now-focus-description {
+  color: #606b63;
+  font-size: 15px;
+  line-height: 1.75;
+  margin: 9px 0 0;
+}
+.app-shell.atelier-os .now-focus-status {
+  font-size: 13px;
+  color: #4d6547;
+  background: #eef3e9;
+  border: 0;
+  box-shadow: none;
+}
+.app-shell.atelier-os .now-focus .now-focus-actions {
+  margin-top: 24px;
+  gap: 12px;
+}
+.app-shell.atelier-os .now-focus .now-focus-actions .now-focus-primary {
+  flex: 1;
+  width: 100%;
+  min-height: 54px;
+  background: #344e40;
+  color: #fff;
+  border-radius: 14px;
+  border: 0;
+  box-shadow: none;
+  font-size: 16px;
+  font-weight: 600;
+}
+.app-shell.atelier-os .now-focus .now-focus-actions .now-focus-primary::before,
+.app-shell.atelier-os .now-focus .now-focus-actions .now-focus-primary::after {
+  display: none;
+}
+.app-shell.atelier-os .now-focus .now-focus-actions .now-focus-primary:disabled {
+  color: #56624f;
+  background: #e4e9de;
+  opacity: 1;
+}
+.app-shell.atelier-os .now-task-options {
+  margin: 16px 0 0;
+}
+.app-shell.atelier-os .now-task-options summary {
+  color: #52634d;
+  min-height: 44px;
+  padding-block: 10px;
+  font-size: 14px;
+}
+.app-shell.atelier-os .now-focus-guard {
+  padding: 14px;
+  margin: 16px 0 0;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.app-shell.atelier-os .today-more {
+  border: 0;
+  border-top: 1px solid #dde3d7;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  margin-top: 27px;
+  padding: 0;
+}
+.app-shell.atelier-os .today-more > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+  padding: 18px 0;
+  color: #52634d;
+  font-size: 15px;
+  font-weight: 500;
+}
+.app-shell.atelier-os .today-more-count {
+  color: #606b63;
+  font-size: 13px;
+}
+.app-shell.atelier-os .today-more-content {
+  padding-top: 12px;
+}
+.app-shell.atelier-os .page-footer {
+  color: #66705f;
+  border-color: #e0e5dd;
+  box-shadow: none;
+}
+.app-shell.atelier-os.page-today .page-footer {
+  margin: 25px 0 32px;
+  padding-top: 0;
+  border: 0;
+}
+.page-today .page-footer > span:first-child {
+  display: none;
+}
+.app-shell.atelier-os.page-today .page-footer > span {
+  font-size: 13px;
+  color: #66705f;
+}
+/* Deferred content uses the same plain readable surfaces. */
+.app-shell.atelier-os .atelier-today-missions {
+  margin: 12px 0 24px;
+  color: #29362f;
+}
+.app-shell.atelier-os .atelier-shelf-head h2 {
+  color: #29362f;
+  font-family: inherit;
+  font-size: 19px;
+}
+.app-shell.atelier-os .atelier-shelf-head .atelier-eyebrow {
+  display: none;
+}
+.app-shell.atelier-os .atelier-shelf-head > span {
+  color: #606b63;
+  font-size: 12px;
+}
+.app-shell.atelier-os .atelier-task-list,
+.app-shell.atelier-os .atelier-task {
+  border-color: #dce3d6;
+}
+.app-shell.atelier-os .atelier-task-number {
+  display: none;
+}
+.app-shell.atelier-os .atelier-task .atelier-task-title {
+  color: #29362f;
+  font-size: 16px;
+}
+.app-shell.atelier-os .atelier-task-content > span,
+.app-shell.atelier-os .atelier-task-content p {
+  color: #606b63;
+  font-size: 13px;
+}
+.app-shell.atelier-os .atelier-task-start {
+  color: #344e40;
+  border-color: #c5d2bb;
+  font-size: 13px;
+  border-radius: 10px;
+}
+.app-shell.atelier-os .atelier-task-photos {
+  color: #425c3d;
+  font-size: 14px;
+}
+.home-tools-list {
+  display: grid;
+  gap: 4px;
+}
+.home-tools-list > button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 68px;
+  padding: 13px 4px;
+  text-align: left;
+  color: #344c3a;
+  font-size: 16px;
+  border-bottom: 1px solid #e0e5dd;
+}
+.home-tools-list > button > span {
+  flex: 1;
+}
+.home-tools-list > button:last-child {
+  border-bottom: 0;
+}
+/* Briefing stays interactive while the existing film plays in its own panel. */
+.atelier-layout.is-cinematic .atelier-aside {
+  padding: 0;
+}
+.atelier-inline-opening.juggernaut {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 520px;
+  border: 1px solid #b59e6d45;
+  border-radius: 8px;
+  z-index: auto;
+}
+.atelier-inline-opening .jg-op-topline {
+  display: none;
+}
+.atelier-inline-opening .jg-op-bottomline {
+  bottom: 14px;
+  left: 16px;
+  right: 16px;
+  gap: 12px;
+}
+.atelier-inline-opening .jg-op-wordmark {
+  font-size: 30px;
+  letter-spacing: 0.17em;
+}
+.atelier-inline-opening .jg-op-signal > strong {
+  font-size: 96px;
+}
+.atelier-inline-opening .jg-op-dream-copy h2 {
+  font-size: 31px;
+  line-height: 1.4;
+}
+.atelier-inline-opening .jg-op-reality h2 {
+  font-size: 34px;
+  margin: 20px 0;
+}
+.atelier .atelier-steps {
+  padding-top: 22px;
+  padding-bottom: 16px;
+}
+.atelier .atelier-steps > span {
+  font-size: 13px;
+  letter-spacing: 0;
+}
+.atelier .atelier-steps b {
+  font-size: 14px;
+}
+.atelier .atelier-steps i {
+  width: 30px;
+}
+.atelier .atelier-layout {
+  padding-top: 24px;
+}
+.atelier .atelier-workspace h1 {
+  margin-top: 0;
+  font-size: 32px;
+}
+.atelier .atelier-brief textarea {
+  min-height: 146px;
+  padding: 14px 0;
+  line-height: 1.9;
+}
+.atelier .atelier-lede {
+  font-size: 14px;
+  line-height: 1.8;
+}
+.atelier .atelier-note,
+.atelier .atelier-privacy p {
+  font-size: 13px;
+}
+.atelier .atelier-mission label {
+  font-size: 13px;
+}
+.atelier .atelier-save-status,
+.atelier .atelier-local-note {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.atelier .atelier-brief > span {
+  font-size: 13px;
+  letter-spacing: 0;
+}
+.atelier .atelier-brief small {
+  font-size: 12px;
+}
+.atelier .atelier-primary {
+  font-size: 15px;
+  min-height: 54px;
+}
+@media (max-width: 800px) {
+  .atelier-layout.is-cinematic .atelier-aside {
+    display: block;
+    position: relative;
+    top: auto;
+  }
+  .atelier-layout.is-cinematic {
+    gap: 24px;
+  }
+  .atelier-inline-opening.juggernaut {
+    height: 180px;
+  }
+  .atelier-inline-opening .jg-op-signal > strong,
+  .atelier-inline-opening .jg-op-signal > .jg-op-code,
+  .atelier-inline-opening .jg-op-signal > small,
+  .atelier-inline-opening .jg-op-signal > .jg-op-radar {
+    display: none;
+  }
+  .atelier-inline-opening .jg-op-signal {
+    justify-content: flex-start;
+    padding-top: 26px;
+    gap: 10px;
+  }
+  .atelier-inline-opening .jg-op-signal > p {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+  }
+  .atelier-inline-opening .jg-op-bottomline {
+    bottom: 8px;
+  }
+  .atelier-inline-opening .jg-op-bottomline button {
+    padding: 8px 12px;
+    font-size: 10px;
+  }
+  .atelier-inline-opening .jg-op-dream-copy {
+    padding: 0 16px 40px;
+  }
+  .atelier-inline-opening .jg-op-dream-copy h2 {
+    font-size: 21px;
+    line-height: 1.35;
+    margin: 0;
+  }
+  .atelier-inline-opening .jg-op-dream-copy .jg-op-code,
+  .atelier-inline-opening .jg-op-dream-copy p {
+    display: none;
+  }
+  .atelier-inline-opening .jg-op-reality {
+    padding: 10px 12px 45px;
+  }
+  .atelier-inline-opening .jg-op-reality h2,
+  .atelier-inline-opening .jg-op-breach strong {
+    font-size: 22px;
+    line-height: 1.2;
+    margin: 0;
+  }
+  .atelier-inline-opening .jg-op-reality > .jg-op-code,
+  .atelier-inline-opening .jg-op-reality > p,
+  .atelier-inline-opening .jg-op-reality > small,
+  .atelier-inline-opening .jg-op-reality .jg-op-line,
+  .atelier-inline-opening .jg-op-breach > small,
+  .atelier-inline-opening .jg-op-breach > span {
+    display: none;
+  }
+  .atelier-inline-opening .jg-op-reality .jg-op-finish {
+    display: none;
+  }
+}
+@media (max-width: 480px) {
+  .app-shell.atelier-os.page-today main {
+    padding-inline: 22px;
+  }
+  .home-entry {
+    padding-inline: 15px;
+  }
+  .home-entry-action {
+    padding-block: 18px;
+    gap: 10px;
+    min-height: 91px;
+  }
+  .home-entry-action strong {
+    font-size: 17px;
+  }
+  .home-entry-action small {
+    font-size: 13px;
+  }
+  .home-entry-icon {
+    width: 34px;
+  }
+  .app-shell.atelier-os.page-today .command-stage {
+    padding: 23px 21px;
+  }
+  .app-shell.atelier-os .now-focus.now-action h2 {
+    font-size: 24px;
+  }
+  .app-shell.atelier-os .today-more > summary {
+    font-size: 14px;
+  }
+  .app-shell.atelier-os .today-more-count {
+    font-size: 12px;
+  }
+  .atelier .atelier-steps > span {
+    font-size: 12px;
+  }
+  .atelier .atelier-steps i {
+    width: 16px;
+  }
+  .atelier .atelier-workspace h1 {
+    font-size: 29px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .home-entry-action:hover .home-entry-icon {
+    transform: translateX(2px);
+  }
+  .home-entry-icon {
+    transition: transform 0.2s ease;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  body > .orbit-nav,
+  html[data-bkit-glass-engine] body > .orbit-nav {
+    background: #fff;
+  }
+}
+/* Keep all three actions clear of iPhone browser chrome and the bottom tabs. */
+.app-shell.atelier-os.page-today main {
+  padding-top: 18px;
+}
+.app-shell.atelier-os.page-today .page-head {
+  margin-bottom: 20px;
+}
+.app-shell.atelier-os.page-today .page-head h1 {
+  font-size: 32px;
+}
+.app-shell.atelier-os.page-today .command-stage {
+  padding: 22px 21px;
+}
+.app-shell.atelier-os .now-focus.now-action {
+  position: relative;
+}
+.app-shell.atelier-os .now-focus.now-action h2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.app-shell.atelier-os .now-focus-top {
+  margin-bottom: 12px;
+}
+.app-shell.atelier-os .now-focus .now-focus-actions {
+  margin-top: 18px;
+}
+.app-shell.atelier-os .now-task-options {
+  margin: 0;
+}
+.app-shell.atelier-os .now-task-options > summary {
+  position: absolute;
+  right: 0;
+  top: -12px;
+  padding-block: 12px;
+  min-height: 44px;
+}
+.app-shell.atelier-os .now-task-options[open] {
+  margin-top: 16px;
+}
+.atelier-prelude-still {
+  height: 520px;
+  border: 1px solid #b59e6d45;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  background: #141710;
+  display: grid;
+  place-items: center;
+}
+.atelier-prelude-still .atelier-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.45;
+  margin: 0;
+}
+.atelier-prelude-still > span {
+  position: relative;
+  font:
+    30px Georgia,
+    serif;
+  letter-spacing: 0.18em;
+  color: #dfc592;
+  text-align: center;
+  text-shadow: 0 2px 15px #000;
+}
+.atelier-prelude-still small {
+  display: block;
+  font:
+    10px/1.7 'DM Sans',
+    sans-serif;
+  letter-spacing: 0.1em;
+  margin-top: 14px;
+}
+@media (max-width: 800px) {
+  .atelier-prelude-still {
+    height: 180px;
+  }
+}
+@media (max-width: 480px) {
+  .home-entry-action {
+    min-height: 82px;
+    padding-block: 14px;
+  }
+}
+.home-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.app-shell.atelier-os.page-today .home-primary .command-stage {
+  margin-top: 0;
+}
+/* Interactive skip is outside the animated optical surface, including on WebKit. */
+.atelier-inline-opening .atelier-inline-skip {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 15px;
+  background: #29261deb;
+  border: 1px solid #d4bb8c66;
+  border-radius: 999px;
+  color: #eddbc0;
+  font-size: 13px;
+}
+.atelier-inline-opening .jg-op-bottomline {
+  right: 145px;
+  bottom: 32px;
+}

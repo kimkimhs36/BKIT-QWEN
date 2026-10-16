@@ -1,10 +1,9 @@
-import { ArrowUpRight, Clock3, LockKeyhole, Play, Plus } from 'lucide-react';
+import { ArrowUpRight, Clock3, LockKeyhole, Play } from 'lucide-react';
 import type { Fixed } from './engine';
 import type { State, Task } from './model';
 import { clock } from './time';
 import { canStartSprint } from './now';
-import {formatQuantity} from './capture';
-import { BookOpen } from 'lucide-react';
+import { formatQuantity } from './capture';
 
 type Props = {
   now: number;
@@ -18,7 +17,6 @@ type Props = {
   onSelectionChange: (id: string) => void;
   onStart: (taskId: string | null) => void;
   onFocus: () => void;
-  onAddTask: () => void;
   onSchedule: () => void;
 };
 
@@ -34,14 +32,13 @@ export function NowFocus({
   onSelectionChange,
   onStart,
   onFocus,
-  onAddTask,
   onSchedule,
 }: Props) {
   const ready = canStartSprint(now, Boolean(current), nextFixed?.start ?? null);
   const chosen =
     selection === '__free__'
       ? undefined
-      : tasks.find((task) => task.id === selection) ?? recommended;
+      : (tasks.find((task) => task.id === selection) ?? recommended);
   const secondsLeft = active ? Math.max(0, Math.ceil(active.target * 60 - seconds)) : 300;
   const progress = active ? Math.min(100, (seconds / (active.target * 60)) * 100) : 0;
   const stateLabel = active
@@ -61,7 +58,7 @@ export function NowFocus({
         : current.title + ' 시간이에요.'
       : !ready
         ? '다음 일정까지, 잠시 준비해요.'
-        : chosen?.title ?? '5분부터 시작해 보자.';
+        : (chosen?.title ?? '5분만, 가볍게.');
   const explanation = active
     ? active.subject + ' · 타이머 기록 중'
     : current
@@ -69,17 +66,22 @@ export function NowFocus({
       : !ready
         ? '곧 ' + (nextFixed?.title ?? '고정 일정') + '이 시작돼.'
         : chosen
-          ? chosen.subject + (chosen.quantity?' · '+formatQuantity(chosen.quantity):'')+' · 예상 '+chosen.remaining+'분'
-          : '과제 없이 자율 학습도 가능해.';
+          ? chosen.subject +
+            (chosen.quantity ? ' · ' + formatQuantity(chosen.quantity) : '') +
+            ' · 예상 ' +
+            chosen.remaining +
+            '분'
+          : '과제 없이도 가볍게 시작해요.';
 
   return (
     <section className="now-action now-focus" aria-label="지금 할 일과 5분 집중">
-      <div className="atelier-focus-scene"><span>THE FIRST MOVE</span><BookOpen size={24}/><p>한 문제에 머무르는 시간.</p></div>
       <div className="now-focus-top">
-        <span className="now-focus-label">지금, 하나의 몰입</span>
-        <span className="now-focus-status">
-          <span className="now-focus-dot" aria-hidden="true" /> {stateLabel}
-        </span>
+        <span className="now-focus-label">집중 시작</span>
+        {(active || !ready) && (
+          <span className="now-focus-status">
+            <span className="now-focus-dot" aria-hidden="true" /> {stateLabel}
+          </span>
+        )}
       </div>
       <h2>{headline}</h2>
       <p className="now-focus-description">{explanation}</p>
@@ -92,7 +94,14 @@ export function NowFocus({
               {String(secondsLeft % 60).padStart(2, '0')}
             </strong>
           </div>
-          <div className="now-focus-track" role="progressbar" aria-label="목표 집중 시간" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}>
+          <div
+            className="now-focus-track"
+            role="progressbar"
+            aria-label="목표 집중 시간"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(progress)}
+          >
             <span style={{ width: progress + '%' }} />
           </div>
         </div>
@@ -100,10 +109,14 @@ export function NowFocus({
         <div className="now-focus-ready">
           {tasks.length > 0 ? (
             <details className="now-task-options">
-              <summary>다른 과제로 바꾸기</summary>
+              <summary>과제 바꾸기</summary>
               <label className="now-focus-picker">
                 <span>시작할 과제</span>
-                <select value={selection} onChange={(e) => onSelectionChange(e.target.value)}>
+                <select
+                  aria-label="시작할 과제"
+                  value={selection}
+                  onChange={(e) => onSelectionChange(e.target.value)}
+                >
                   <option value="">추천 · {recommended?.title ?? '자율 학습'}</option>
                   {tasks.map((task) => (
                     <option key={task.id} value={task.id}>
@@ -142,20 +155,11 @@ export function NowFocus({
             <Play size={17} fill="currentColor" /> 5분만 시작
           </button>
         )}
-        <button
-          className="text-button"
-          onClick={current || !ready ? onSchedule : onAddTask}
-        >
-          {current || !ready ? (
-            <>
-              <Clock3 size={15} /> 일정 보기
-            </>
-          ) : (
-            <>
-              <Plus size={15} /> 과제 추가
-            </>
-          )}
-        </button>
+        {(current || !ready) && (
+          <button className="text-button" onClick={onSchedule}>
+            <Clock3 size={16} /> 일정 보기
+          </button>
+        )}
       </div>
     </section>
   );

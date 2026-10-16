@@ -1,8 +1,9 @@
 import { QuickCapture } from './QuickCapture';
+import { HomeEntry } from './HomeEntry';
 import { AssistantPanel } from './AssistantPanel';
 import { Juggernaut } from './Juggernaut';
-import { AtelierScene, AtelierMissions, StudyAtelier, PrivatePhotoCard } from './StudyAtelier';
-import { hasVisited, mergeMissions, sameMission } from './atelier';
+import { AtelierMissions, StudyAtelier, PrivatePhotoCard } from './StudyAtelier';
+import { mergeMissions, sameMission } from './atelier';
 import type { AssistantAction } from './assistantLogic';
 import { CloudSyncPanel } from './CloudSyncPanel';
 import {useStudyCloud} from './useStudyCloud';
@@ -154,7 +155,9 @@ export default function App() {
   const [s, setS] = useState<State>(initial.state),
     [storageError, setStorageError] = useState(initial.error),
     [readBlocked, setReadBlocked] = useState(!!initial.error);
-  const [atelierOpen, setAtelierOpen] = useState(() => !hasVisited() && !initial.state.tasks.length && !initial.state.active);
+  const [atelierOpen, setAtelierOpen] = useState(false);
+  const [atelierStep, setAtelierStep] = useState<'capture' | undefined>();
+  function openAtelier(step?: 'capture') { setAtelierStep(step); setAtelierOpen(true); }
   const [tab, setTab] = useState('today'),
     [now, setNow] = useState(Date.now()),
     [online, setOnline] = useState(navigator.onLine),
@@ -163,6 +166,7 @@ export default function App() {
       | null
       | 'capture'
       | 'assistant'
+      | 'tools'
       | 'task'
       | 'schedule'
       | 'finish'
@@ -399,6 +403,7 @@ export default function App() {
     )
       setNotice(boundary.title + '에 맞춰 타이머를 멈췄습니다. 실제 공부한 양만 기록하세요.');
   }, [now, s.active]);
+  const hasHomeTask = pending.length > 0 || s.active !== null;
   const canStudy = !current;
   const seconds = s.active ? elapsed(s.active, now) : 0;
   const late = delayMinutes(s, now);
@@ -817,7 +822,10 @@ export default function App() {
               BKIT <ChevronRight size={13} /> {NAV.find((n) => n.id === tab)?.label}
             </span>
           </div>
-          <div className="top-meta">
+          {tab === 'today' ? <div className="home-top-tools">
+            {!online && <span>오프라인</span>}
+            <button type="button" className="icon-button home-tools-button" aria-label="더 보기" onClick={() => open('tools')}><Menu size={22}/></button>
+          </div> :           <div className="top-meta">
             <span className={'status-dot ' + (!online ? 'offline' : '')} />
             <span>{online ? '로컬 저장 모드' : '오프라인 모드'}</span>
             <button
@@ -847,12 +855,12 @@ export default function App() {
             >
               <SlidersHorizontal size={19} />
             </button>
-          </div>
+          </div>}
         </header>
         <main id="main" tabIndex={-1} key={tab}>
           <div className="page-head">
             <div>
-              <p className="eyebrow">{NAV.find((n) => n.id === tab)?.en} / ROOM TO GROW</p>
+              <p className="eyebrow">{tab === 'today' ? fullDate(now) : NAV.find((n) => n.id === tab)?.en}</p>
               <h1>
                 {
                   (
@@ -867,11 +875,11 @@ export default function App() {
                   )[tab]
                 }
               </h1>
-              <p className="subtitle">
+              {tab !== 'today' && <p className="subtitle">
                 {
                   (
                     {
-                      today: '오늘도, 나의 속도로. 작은 몰입이 모이는 하루.',
+                      today: '할 일을 정리하고, 한 가지에 집중해요.',
                       school: '학교부터 학원까지, 준비할 시간도 함께 챙겨요.',
                       tasks: '기억하는 대신 여기에 내려놓으세요.',
                       study: '시간을 채우기보다, 한 문제를 이해하는 시간.',
@@ -880,7 +888,7 @@ export default function App() {
                     } as Record<string, string>
                   )[tab]
                 }
-              </p>
+              </p>}
             </div>
             <div className="date-box">
               <CalendarDays size={16} />
@@ -916,37 +924,10 @@ export default function App() {
           )}
           {tab === 'today' && (
             <>
-              <section className="atelier-desk-entry" aria-label="TOHEŞAR 프라이빗 스터디 아틀리에">
-                <div className="atelier-desk-copy"><span className="atelier-eyebrow">TOHEŞAR / PRIVATE STUDY ATELIER</span><h2>오늘을 준비하는 곳.<br/><em>미래를 시작하는 곳.</em></h2><p>해야 할 일을 내려놓고, 한 가지에 몰입하세요.</p><button className="atelier-primary" onClick={() => setAtelierOpen(true)}>오늘의 브리핑 열기 <ArrowRight size={17}/></button><button className="atelier-archive-link" onClick={() => setTab('juggernaut')}>JUGGERNAUT · 수능 아카이브 ↗</button></div>
-                <AtelierScene/>
-              </section>
-              <AtelierMissions tasks={ordered} onStart={id => start(5, id)} onEdit={taskEditor}/>
+              <div className="home-primary">
+                {!hasHomeTask && <HomeEntry onBriefing={() => openAtelier()} onMaterials={() => openAtelier('capture')}/>}
               <section className="command-stage">
                 <div className="command-left">
-                  <div className="today-timebar">
-                    <div className="live-label">
-                      <span className="status-dot" /> {fullDate(now)}
-                      <span>현재 시각</span>
-                    </div>
-                    <div className="live-clock" aria-label={`현재 ${clock(now)}`}>
-                      <span>{clock(now).split(':')[0]}</span>
-                      <i>:</i>
-                      <span>{clock(now).split(':')[1]}</span>
-                    </div>
-                  </div>
-                  <div className="day-progress">
-                    <span style={{ width: `${(now - at(today, '00:00')) / 864000}%` }} />
-                  </div>
-                  <button type="button" className="research-next-context"
-                    aria-label="다음 고정 일정 확인" onClick={() => setTab('school')}>
-                    <Clock size={15} aria-hidden="true" />
-                    <span>{current && current.kind !== 'sleep' && current.kind !== 'meal'
-                      ? `진행 중 · ${current.title} · ${clock(current.end)}까지`
-                      : next
-                        ? `다음 일정 · ${dayKey(next.start) === today ? '오늘' : fullDate(next.start)} ${clock(next.start)} 준비 · ${next.title}`
-                        : '다음 일정 미등록 · 시간표에서 확인'}</span>
-                    <ChevronRight size={16} aria-hidden="true" />
-                  </button>
                   <NowFocus
                     now={now}
                     current={current}
@@ -959,21 +940,20 @@ export default function App() {
                     onSelectionChange={setSelected}
                     onStart={(taskId) => start(5, taskId)}
                     onFocus={() => setTab('study')}
-                    onAddTask={() => taskEditor()}
                     onSchedule={() => setTab('school')}
                   />
                 </div>
 
               </section>
-              <button type="button" className="research-quick-capture"
-                onClick={() => setAtelierOpen(true)}>
-                <span className="research-quick-icon" aria-hidden="true"><Plus size={18} /></span>
-                <span className="research-quick-copy">
-                  <strong>빠르게 추가</strong>
-                  <small>예: 금요일까지 경제 수행평가 제출</small>
-                </span>
-                <ChevronRight size={17} aria-hidden="true" />
-              </button>
+                {hasHomeTask && <HomeEntry onBriefing={() => openAtelier()} onMaterials={() => openAtelier('capture')}/>}
+              </div>
+              <details ref={todayDetailsRef} className="today-more">
+                <summary>
+                  <span>오늘 일정과 기록</span>
+                  <span className="today-more-count">남은 과제 {attention.length}개 <ChevronRight size={16} /></span>
+                </summary>
+                <div className="today-more-content">
+                  <AtelierMissions tasks={ordered} onStart={id => start(5, id)} onEdit={taskEditor}/>
               {reviewQueue.due.length > 0 && (
                 <button className="review-today-nudge" onClick={() => {
                   if (todayDetailsRef.current) todayDetailsRef.current.open = true;
@@ -991,18 +971,11 @@ export default function App() {
                   <span className="review-today-link">복습하기 <ArrowRight size={16} /></span>
                 </button>
               )}
-              <DeadlinePulse tasks={s.tasks} now={now} onTasks={() => setTab('tasks')} onAdd={() => taskEditor()} />
-              <button className="nature-assistant-entry" type="button" onClick={() => open('assistant')}>
-                <BookOpen size={26} />
-                <span><small>ALWAYS BY YOUR SIDE</small><strong>생각이 많을 땐, 함께 정리해요.</strong><span>나의 BKIT 비서와 이야기하기</span></span>
-                <ArrowUpRight size={20} aria-hidden="true" />
-              </button>
-              <details ref={todayDetailsRef} className="today-more">
-                <summary>
-                  <span>오늘 일정과 기록</span>
-                  <span className="today-more-count">남은 과제 {attention.length}개 <ChevronRight size={16} /></span>
-                </summary>
-                <div className="today-more-content">
+              <DeadlinePulse tasks={s.tasks} now={now} onTasks={() => setTab('tasks')} onAdd={() => openAtelier()} />
+                  <button type="button" className="research-next-context" aria-label="다음 고정 일정 확인" onClick={() => setTab('school')}>
+                    <Clock size={17}/><span>{next ? `${clock(next.start)} ${next.title}` : '학교·학원 시간표 확인'}</span><ChevronRight size={17}/>
+                  </button>
+
                   <div className="day-strip">
                 <button className="strip-next" onClick={() => setTab('school')}>
                   <span className="section-number">
@@ -1880,7 +1853,7 @@ export default function App() {
         </main>
       </div>
       {atelierOpen && createPortal(
-        <StudyAtelier onClose={() => setAtelierOpen(false)} onSave={tasks => {
+        <StudyAtelier startAt={atelierStep} onClose={() => setAtelierOpen(false)} onSave={tasks => {
           const merged = mergeMissions(memory.current.tasks, tasks);
           if (!commit(v => ({ ...v, tasks: merged.tasks }))) return null;
           setTab('today');
@@ -1922,6 +1895,7 @@ export default function App() {
           title={
             {
               capture: '무엇부터 해야 할까요?',
+              tools: '도구와 설정',
               assistant: 'BKIT 멀티 비서',
               task: editTask ? '과제 수정' : '새 과제',
               schedule: editSchedule ? '일정 수정' : '고정 일정 등록',
@@ -1940,6 +1914,12 @@ export default function App() {
               {formError}
             </p>
           )}
+          {modal === 'tools' && <div className="home-tools-list">
+            <button className="topbar-add-action" onClick={() => open('capture')}><Plus size={21}/><span>빠른 한 줄 입력</span><ChevronRight size={18}/></button>
+            <button aria-label="BKIT 비서 열기" onClick={() => open('assistant')}><BookOpen size={21}/><span>BKIT 비서</span><ChevronRight size={18}/></button>
+            <button aria-label="설정 열기" onClick={() => {setModal(null);setTab('settings');}}><Settings size={21}/><span>설정</span><ChevronRight size={18}/></button>
+            <button onClick={() => {setModal(null);setTab('juggernaut');}}><Sparkles size={21}/><span>JUGGERNAUT · 시네마틱 아카이브</span><ChevronRight size={18}/></button>
+          </div>}
           {modal === 'assistant' && (
             <AssistantPanel state={s} getAccessToken={cloud.getAccessToken} onAction={applyAssistantAction}
               onNavigate={next => { setModal(null); setTab(next); }} />

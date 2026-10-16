@@ -8,7 +8,9 @@ const png = Buffer.from(
 async function arrive(page: Page) {
   await page.clock.install({ time: new Date('2026-10-16T06:00:00Z') });
   await page.goto('./');
-  await page.getByRole('button', { name: '오프닝 건너뛰기' }).click();
+  await page.getByRole('button', { name: '오늘 할 일 정리' }).click();
+  const skip = page.getByRole('button', { name: '오프닝 건너뛰기' });
+  if (await skip.isVisible()) await skip.click();
 }
 async function prepare(page: Page, text = '내일 수학 학습지 20문제') {
   await page.getByLabel('오늘 해야 할 일').fill(text);
@@ -24,7 +26,10 @@ test('first visit is cinematic and skippable; returning visit goes directly to T
   page,
 }) => {
   await page.goto('./');
+  await expect(page.getByRole('heading', { name: '오늘', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '오늘 할 일 정리' }).click();
   const skip = page.getByRole('button', { name: '오프닝 건너뛰기' });
+  await expect(page.getByLabel('오늘 해야 할 일')).toBeVisible();
   await expect(skip).toBeVisible();
   await skip.click();
   await expect(page.getByLabel('오늘 해야 할 일')).toBeVisible();
@@ -72,7 +77,7 @@ test('briefing, multi-photo picker, persisted review, real TODAY save, duplicate
   await page.getByLabel('과제 2 확인', { exact: true }).check();
   const replay = await page.evaluate(() => localStorage.getItem('bkit.atelier.draft.v1'));
   await page.reload();
-  await page.getByRole('button', { name: '오늘의 브리핑 열기' }).click();
+  await page.getByRole('button', { name: '오늘 할 일 정리' }).click();
   await expect(page.getByLabel('과제 1 예상 시간', { exact: true })).toHaveValue('35');
   await expect(page.getByLabel('과제 1 확인', { exact: true })).toBeChecked();
   await page.getByRole('button', { name: '확인하고 BKIT에 저장' }).click();
@@ -85,6 +90,7 @@ test('briefing, multi-photo picker, persisted review, real TODAY save, duplicate
   });
   expect(saved.tasks[0].attachmentIds).toHaveLength(2);
   expect(saved.tasks[1].due).toBeNull();
+  await page.locator('.today-more > summary').click();
   await expect(page.getByRole('region', { name: '오늘 실행할 과제' })).toContainText(
     '수학 학습지 20문제',
   );
@@ -93,13 +99,14 @@ test('briefing, multi-photo picker, persisted review, real TODAY save, duplicate
     page.getByRole('dialog', { name: '과제의 비공개 학습 자료' }).locator('img'),
   ).toHaveCount(2);
   await page.getByRole('button', { name: '자료 닫기' }).click();
+  await page.locator('.today-more > summary').click();
   await page.evaluate((raw) => localStorage.setItem('bkit.atelier.draft.v1', raw!), replay);
-  await page.locator('.research-quick-capture').click();
+  await page.getByRole('button', { name: '오늘 할 일 정리' }).click();
   await page.getByRole('button', { name: '확인하고 BKIT에 저장' }).click();
   await expect(page.getByRole('dialog', { name: 'TOHEŞAR 학습 준비실' })).toHaveCount(0);
   expect((await state(page)).tasks).toHaveLength(2);
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
-  await page.getByRole('button', { name: '내일 수학 학습지 20문제 첫 5분 시작' }).click();
+  await page.getByRole('button', { name: '5분만 시작' }).click();
   await expect(page.locator('.app-shell')).toHaveClass(/is-focusing/);
   expect((await state(page)).active).toMatchObject({
     taskId: saved.tasks[0].id,
@@ -156,7 +163,7 @@ test('draft survives dismissal and refresh; changed fields reset confirmation', 
   await expect(page.getByRole('button', { name: '확인하고 BKIT에 저장' })).toBeDisabled();
   await page.getByRole('button', { name: '작성 보관하고 BKIT으로' }).click();
   await page.reload();
-  await page.getByRole('button', { name: '오늘의 브리핑 열기' }).click();
+  await page.getByRole('button', { name: '오늘 할 일 정리' }).click();
   await expect(page.getByLabel('과제 1 예상 시간', { exact: true })).toHaveValue('40');
   expect((await state(page)).tasks).toHaveLength(0);
 });

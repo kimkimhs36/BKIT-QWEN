@@ -1,7 +1,8 @@
 import {test,expect} from '@playwright/test';
 test('assistant drafts new task and only commits after confirmation', async ({page}) => {
   await page.goto('./');
-  await page.getByRole('button',{name:'BKIT 비서 열기'}).click();
+  await page.getByRole('button',{name:'더 보기'}).click();
+ await page.getByRole('button',{name:'BKIT 비서 열기'}).click();
   const assistant=page.getByRole('region',{name:'BKIT 멀티 비서'});
   await expect(assistant).toBeVisible();
   await assistant.getByLabel('비서에게 질문하기').fill('내일 화학 학습지 3장 추가해줘');

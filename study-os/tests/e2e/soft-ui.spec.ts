@@ -24,8 +24,8 @@ test('the atelier desk is readable and action-first without overflow', async ({ 
     };
   });
   expect(state.scheme).toBe('light');
-  expect(state.bg).toContain('gradient(');
+  expect(state.bg).toBe('none');
   expect(state.focusBackground).toMatch(/^rgba?[(]/);
-  expect(state.startColor).toBe('rgb(255, 250, 239)');
+  expect(state.startColor).toBe('rgb(255, 255, 255)');
   expect(state.width).toBeLessThanOrEqual(state.viewport + 1);
 });

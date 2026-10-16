@@ -146,15 +146,21 @@ export function PrivatePhotoCard({
 export function StudyAtelier({
   onClose,
   onSave,
+  startAt,
 }: {
   onClose: () => void;
+  startAt?: 'capture';
   onSave: (tasks: Task[]) => { duplicates: number } | null;
 }) {
-  const [initial] = useState(readDraft);
+  const [initial] = useState(() => {
+    const saved = readDraft();
+    return startAt ? { ...saved, draft: { ...saved.draft, step: startAt } } : saved;
+  });
   const [draft, setDraft] = useState(initial.draft);
   const draftRef = useRef(draft);
   const blocked = useRef(!!initial.error);
-  const [intro, setIntro] = useState(() => !hasVisited());
+  const prelude = useRef(!hasVisited() && initial.draft.step === 'briefing');
+  const [intro, setIntro] = useState(prelude.current);
   const [error, setError] = useState(initial.error);
   const [savedDraft, setSavedDraft] = useState(!initial.error);
   const [busy, setBusy] = useState(false);
@@ -190,11 +196,10 @@ export function StudyAtelier({
     };
   }, []);
   useEffect(() => {
-    if (!intro) {
-      dialog.current?.scrollTo(0, 0);
-      heading.current?.focus();
-    }
-  }, [draft.step, intro]);
+    dialog.current?.scrollTo(0, 0);
+    heading.current?.focus({ preventScroll: true });
+    // Film completion must not move focus away while the learner is typing.
+  }, [draft.step]);
   function update(next: AtelierDraft) {
     draftRef.current = next;
     setDraft(next);
@@ -337,40 +342,61 @@ export function StudyAtelier({
         }
       }}
     >
-      {intro ? (
-        <div className="juggernaut jg-heritage atelier-opening">
-          <JuggernautOpening onComplete={finishIntro} />
+      <header className="atelier-header">
+        <div className="atelier-wordmark">
+          TOHEŞAR<small>PRIVATE STUDY ATELIER</small>
         </div>
-      ) : (
-        <>
-          <header className="atelier-header">
-            <div className="atelier-wordmark">
-              TOHEŞAR<small>PRIVATE STUDY ATELIER</small>
-            </div>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => {
-                rememberVisit();
-                onClose();
-              }}
-              aria-label="작성 보관하고 BKIT으로"
-            >
-              <span>BKIT으로</span>
-              <X size={18} />
-            </button>
-          </header>
-          <nav className="atelier-steps" aria-label="학습 준비 단계">
-            {steps.map((s, i) => (
-              <span key={s} aria-current={draft.step === s ? 'step' : undefined}>
-                <b>0{i + 1}</b>
-                {['BRIEFING', 'DOCUMENTS', 'PREPARATION'][i]}
-                {i < 2 && <i />}
-              </span>
-            ))}
-          </nav>
-          <div className="atelier-layout">
-            <aside className="atelier-aside">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => {
+            rememberVisit();
+            onClose();
+          }}
+          aria-label="작성 보관하고 BKIT으로"
+        >
+          <span>BKIT으로</span>
+          <X size={18} />
+        </button>
+      </header>
+      <nav className="atelier-steps" aria-label="학습 준비 단계">
+        {steps.map((s, i) => (
+          <span key={s} aria-current={draft.step === s ? 'step' : undefined}>
+            <b>0{i + 1}</b>
+            {['오늘 할 일', '자료 추가', '최종 확인'][i]}
+            {i < 2 && <i />}
+          </span>
+        ))}
+      </nav>
+      <div
+        className={
+          'atelier-layout' + (prelude.current && draft.step === 'briefing' ? ' is-cinematic' : '')
+        }
+      >
+        <aside className="atelier-aside">
+          {prelude.current && draft.step === 'briefing' ? (
+            intro ? (
+              <div className="juggernaut jg-heritage atelier-inline-opening">
+                <JuggernautOpening embedded onComplete={finishIntro} />
+                <button
+                  className="atelier-inline-skip"
+                  type="button"
+                  onClick={finishIntro}
+                  aria-label="오프닝 건너뛰기"
+                >
+                  건너뛰기 <ArrowRight size={16} />
+                </button>
+              </div>
+            ) : (
+              <div className="atelier-prelude-still" aria-label="TOHEŞAR JUGGERNAUT">
+                <AtelierScene />
+                <span>
+                  TOHEŞAR<small>JUGGERNAUT · THE NEXT CHAPTER</small>
+                </span>
+              </div>
+            )
+          ) : (
+            <>
               <span className="atelier-eyebrow">THE ART OF GETTING READY</span>
               <h2>
                 큰 미래를 위한,
@@ -386,429 +412,420 @@ export function StudyAtelier({
                   시작할 한 가지가 선명해집니다.
                 </p>
               </div>
-            </aside>
-            <section key={draft.step} className="atelier-workspace" aria-label="오늘의 학습 준비">
-              <div className="atelier-chapter">
-                <span>CHAPTER 0{steps.indexOf(draft.step) + 1}</span>
+            </>
+          )}
+        </aside>
+        <section key={draft.step} className="atelier-workspace" aria-label="오늘의 학습 준비">
+          <h1 ref={heading} tabIndex={-1}>
+            {draft.step === 'briefing' ? (
+              <>
+                오늘의 이야기를
+                <br />
+                <em>들려주세요.</em>
+              </>
+            ) : draft.step === 'capture' ? (
+              <>
+                책상 위의 자료를
+                <br />
+                <em>여기에 모으세요.</em>
+              </>
+            ) : (
+              <>
+                시작하기 전에,
+                <br />
+                <em>한 번만 확인해요.</em>
+              </>
+            )}
+          </h1>
+          <p className="atelier-lede">
+            {draft.step === 'briefing'
+              ? '숙제와 수행평가를 과제마다 한 줄씩 적어주세요.'
+              : draft.step === 'capture'
+                ? '학습지나 안내문을 촬영하거나 골라주세요. 사진 없이도 다음 단계로 갈 수 있어요.'
+                : '기본 규칙으로 나눈 초안입니다. 실제 과제와 사진을 보며 내용을 다듬어 주세요.'}
+          </p>
+          {draft.step === 'briefing' && (
+            <>
+              <label className="atelier-brief">
                 <span>
-                  <LockKeyhole size={12} /> ON THIS DEVICE
+                  오늘 해야 할 일 <small>과제마다 한 줄씩</small>
                 </span>
-              </div>
-              <h1 ref={heading} tabIndex={-1}>
-                {draft.step === 'briefing' ? (
-                  <>
-                    오늘의 이야기를
-                    <br />
-                    <em>들려주세요.</em>
-                  </>
-                ) : draft.step === 'capture' ? (
-                  <>
-                    책상 위의 자료를
-                    <br />
-                    <em>여기에 모으세요.</em>
-                  </>
-                ) : (
-                  <>
-                    시작하기 전에,
-                    <br />
-                    <em>한 번만 확인해요.</em>
-                  </>
-                )}
-              </h1>
-              <p className="atelier-lede">
-                {draft.step === 'briefing'
-                  ? '숙제, 수행평가, 아직 정리하지 못한 할 일까지. 편하게 적어두면 첫걸음이 됩니다.'
-                  : draft.step === 'capture'
-                    ? '학습지나 안내문을 촬영하거나 골라주세요. 사진 없이도 다음 단계로 갈 수 있어요.'
-                    : '기본 규칙으로 나눈 초안입니다. 실제 과제와 사진을 보며 내용을 다듬어 주세요.'}
-              </p>
-              {draft.step === 'briefing' && (
-                <>
-                  <label className="atelier-brief">
-                    <span>
-                      TODAY’S BRIEFING <small>과제마다 한 줄씩</small>
-                    </span>
-                    <textarea
-                      aria-label="오늘 해야 할 일"
-                      rows={6}
-                      maxLength={3000}
-                      placeholder={
-                        '수학 학습지 20문제 풀기\n영어 수행평가 발표 준비\n마감은 확인한 다음 적어도 괜찮아요.'
-                      }
-                      value={draft.text}
-                      onChange={(e) => update({ ...draftRef.current, text: e.target.value })}
-                    />
-                    <small>{draft.text.length.toLocaleString()} / 3,000</small>
-                  </label>
-                  <p className="atelier-note">사진만 있다면, 바로 다음 단계로 가도 좋아요.</p>
-                  {draft.missions.length > 0 && (
-                    <p className="atelier-note">
-                      확인 중인 과제 {draft.missions.length}개가 보관돼 있어요. 다음 단계에서 이어서
-                      수정할 수 있습니다.
-                    </p>
-                  )}
-                </>
-              )}
-              {draft.step === 'capture' && (
-                <>
-                  <input
-                    ref={camera}
-                    hidden
-                    tabIndex={-1}
-                    aria-label="카메라 사진"
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={attach}
-                  />
-                  <input
-                    ref={gallery}
-                    hidden
-                    tabIndex={-1}
-                    aria-label="갤러리 사진"
-                    type="file"
-                    accept="image/*,.heic,.heif"
-                    multiple
-                    onChange={attach}
-                  />
-                  <div className="atelier-capture-buttons">
-                    <button
-                      type="button"
-                      disabled={busy || locked}
-                      onClick={() => camera.current?.click()}
-                    >
-                      <Camera size={27} />
-                      <strong>카메라로 촬영</strong>
-                      <span>지금 책상 위의 자료</span>
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busy || locked}
-                      onClick={() => gallery.current?.click()}
-                    >
-                      <ImagePlus size={27} />
-                      <strong>갤러리에서 선택</strong>
-                      <span>여러 장 함께 첨부</span>
-                    </button>
-                  </div>
-                  <div className="atelier-photo-heading">
-                    <strong>MY DOCUMENTS</strong>
-                    <span>{draft.attachmentIds.length} / 12</span>
-                  </div>
-                  {draft.attachmentIds.length ? (
-                    <div className="atelier-photos">
-                      {draft.attachmentIds.map((id) => (
-                        <PrivatePhotoCard
-                          key={id}
-                          id={id}
-                          onRemove={!busy && !locked ? () => void removePhoto(id) : undefined}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="atelier-no-photos">
-                      <FileImage size={26} />
-                      <span>오늘의 자료를 기다리고 있어요.</span>
-                    </div>
-                  )}
-                  <p className="atelier-note">
-                    사진 속 글자는 자동으로 읽지 않습니다. 다음 단계에서 직접 입력해 주세요. 장당
-                    20MB · 합계 60MB까지.
-                  </p>
-                  <div className="atelier-privacy">
-                    <LockKeyhole size={17} />
-                    <p>
-                      사진은 이 기기의 브라우저에만 보관됩니다.
-                      <br />
-                      공개 페이지나 서버로 업로드하지 않아요.
-                    </p>
-                  </div>
-                </>
-              )}
-              {draft.step === 'prepare' && (
-                <form
-                  id="atelier-confirm"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    void save();
-                  }}
-                >
-                  <div className="atelier-prepare-meta">
-                    <span>
-                      {draft.missions.length} MISSIONS / {draft.attachmentIds.length} DOCUMENTS
-                    </span>
-                    <button type="button" disabled={busy || locked} onClick={() => prepare(true)}>
-                      브리핑으로 다시 구성
-                    </button>
-                  </div>
-                  <p className="atelier-note">
-                    다시 구성하면 아래 수정 내용 대신 브리핑 입력으로 초안을 새로 만듭니다. 25분은
-                    수정 가능한 기본값입니다. 마감을 모르면 비워두세요.
-                  </p>
-                  {draft.attachmentIds.length > 0 && (
-                    <details className="atelier-source">
-                      <summary>첨부 자료 펼쳐보기 ({draft.attachmentIds.length})</summary>
-                      <div className="atelier-photos">
-                        {draft.attachmentIds.map((id) => (
-                          <PrivatePhotoCard id={id} key={id} />
-                        ))}
-                      </div>
-                    </details>
-                  )}
-                  <fieldset disabled={busy || locked} className="atelier-mission-fieldset">
-                    {draft.missions.map((m, index) => (
-                      <article className="atelier-mission" key={m.id}>
-                        <div className="atelier-mission-top">
-                          <span>MISSION {String(index + 1).padStart(2, '0')}</span>
-                          <button
-                            type="button"
-                            aria-label={`과제 ${index + 1} 삭제`}
-                            onClick={() =>
-                              update({
-                                ...draftRef.current,
-                                missions: draftRef.current.missions.filter((v) => v.id !== m.id),
-                              })
-                            }
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                        <div className="atelier-fields">
-                          <label>
-                            과목
-                            <input
-                              required
-                              maxLength={200}
-                              aria-label={`과제 ${index + 1} 과목`}
-                              value={m.subject}
-                              placeholder="예: 수학"
-                              onChange={(e) => changeMission(m.id, { subject: e.target.value })}
-                            />
-                          </label>
-                          <label>
-                            종류
-                            <select
-                              aria-label={`과제 ${index + 1} 종류`}
-                              value={m.kind}
-                              onChange={(e) =>
-                                changeMission(m.id, { kind: e.target.value as Mission['kind'] })
-                              }
-                            >
-                              {['숙제', '수행평가', '시험공부', '개인 일정'].map((k) => (
-                                <option key={k}>{k}</option>
-                              ))}
-                            </select>
-                          </label>
-                        </div>
-                        <label>
-                          과제 내용
-                          <input
-                            required
-                            aria-label={`과제 ${index + 1} 내용`}
-                            maxLength={200}
-                            value={m.title}
-                            placeholder="사진을 보며 할 일을 적어주세요"
-                            onChange={(e) => changeMission(m.id, { title: e.target.value })}
-                          />
-                        </label>
-                        <div className="atelier-fields">
-                          <label>
-                            마감일 · 모르면 비우기
-                            <input
-                              type="date"
-                              aria-label={`과제 ${index + 1} 마감일`}
-                              value={m.due}
-                              onChange={(e) =>
-                                changeMission(m.id, {
-                                  due: e.target.value,
-                                  dueTime: e.target.value ? m.dueTime : '',
-                                })
-                              }
-                            />
-                          </label>
-                          <label>
-                            마감 시각 · 선택 (KST)
-                            <input
-                              type="time"
-                              aria-label={`과제 ${index + 1} 마감 시각`}
-                              disabled={!m.due}
-                              value={m.dueTime}
-                              onChange={(e) => changeMission(m.id, { dueTime: e.target.value })}
-                            />
-                          </label>
-                        </div>
-                        <div className="atelier-fields atelier-fields--three">
-                          <label>
-                            분량 단위
-                            <select
-                              aria-label={`과제 ${index + 1} 분량 단위`}
-                              value={m.quantityUnit}
-                              onChange={(e) =>
-                                changeMission(m.id, {
-                                  quantityUnit: e.target.value as Mission['quantityUnit'],
-                                })
-                              }
-                            >
-                              <option value="">미확인</option>
-                              <option value="problems">문제</option>
-                              <option value="pages">쪽</option>
-                              <option value="passages">지문</option>
-                              <option value="chapters">단원</option>
-                            </select>
-                          </label>
-                          <label>
-                            전체 분량
-                            <input
-                              type="number"
-                              min={1}
-                              max={10000}
-                              required={!!m.quantityUnit}
-                              disabled={!m.quantityUnit}
-                              aria-label={`과제 ${index + 1} 분량`}
-                              value={m.quantityTotal}
-                              onChange={(e) =>
-                                changeMission(m.id, { quantityTotal: e.target.value })
-                              }
-                            />
-                          </label>
-                          <label>
-                            예상 시간 · 분
-                            <input
-                              type="number"
-                              required
-                              min={1}
-                              max={480}
-                              aria-label={`과제 ${index + 1} 예상 시간`}
-                              value={m.minutes}
-                              onChange={(e) => changeMission(m.id, { minutes: e.target.value })}
-                            />
-                          </label>
-                        </div>
-                        {!!draft.attachmentIds.length && (
-                          <details className="atelier-source">
-                            <summary>이 과제에 연결할 사진 ({m.attachmentIds.length})</summary>
-                            {draft.attachmentIds.map((id, i) => (
-                              <label className="atelier-check" key={id}>
-                                <input
-                                  type="checkbox"
-                                  checked={m.attachmentIds.includes(id)}
-                                  onChange={(e) =>
-                                    changeMission(m.id, {
-                                      attachmentIds: e.target.checked
-                                        ? [...m.attachmentIds, id]
-                                        : m.attachmentIds.filter((v) => v !== id),
-                                    })
-                                  }
-                                />
-                                자료 {i + 1}
-                              </label>
-                            ))}
-                          </details>
-                        )}
-                        <label className="atelier-check">
-                          <input
-                            required
-                            type="checkbox"
-                            aria-label={`과제 ${index + 1} 확인`}
-                            checked={m.checked}
-                            onChange={(e) => changeMission(m.id, { checked: e.target.checked })}
-                          />
-                          <span>
-                            {m.due
-                              ? `${m.due}${m.dueTime ? ' ' + m.dueTime : ' · 시각 미확인'}`
-                              : '마감 미확인'}{' '}
-                            — 내용과 마감을 확인했어요.
-                          </span>
-                        </label>
-                      </article>
-                    ))}
-                    <button
-                      type="button"
-                      className="atelier-add-mission"
-                      disabled={draft.missions.length >= 20}
-                      onClick={() =>
-                        update({
-                          ...draftRef.current,
-                          missions: [
-                            ...draftRef.current.missions,
-                            createMission('', [...draftRef.current.attachmentIds]),
-                          ],
-                        })
-                      }
-                    >
-                      <Plus size={17} /> 과제 하나 더
-                    </button>
-                  </fieldset>
-                </form>
-              )}
-              {error && (
-                <p className="atelier-error" role="alert">
-                  {error}
+                <textarea
+                  aria-label="오늘 해야 할 일"
+                  rows={4}
+                  maxLength={3000}
+                  placeholder={
+                    '수학 학습지 20문제 풀기\n영어 수행평가 발표 준비\n마감은 확인한 다음 적어도 괜찮아요.'
+                  }
+                  value={draft.text}
+                  onChange={(e) => update({ ...draftRef.current, text: e.target.value })}
+                />
+                <small>{draft.text.length.toLocaleString()} / 3,000</small>
+              </label>
+              <p className="atelier-note">사진만 있다면, 바로 다음 단계로 가도 좋아요.</p>
+              {draft.missions.length > 0 && (
+                <p className="atelier-note">
+                  확인 중인 과제 {draft.missions.length}개가 보관돼 있어요. 다음 단계에서 이어서
+                  수정할 수 있습니다.
                 </p>
               )}
-              <div className="atelier-actions">
-                {draft.step !== 'briefing' && (
-                  <button
-                    className="atelier-back"
-                    type="button"
-                    disabled={busy || locked}
-                    onClick={() => step(draft.step === 'prepare' ? 'capture' : 'briefing')}
-                  >
-                    <ArrowLeft size={16} /> 이전
-                  </button>
-                )}
+            </>
+          )}
+          {draft.step === 'capture' && (
+            <>
+              <input
+                ref={camera}
+                hidden
+                tabIndex={-1}
+                aria-label="카메라 사진"
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={attach}
+              />
+              <input
+                ref={gallery}
+                hidden
+                tabIndex={-1}
+                aria-label="갤러리 사진"
+                type="file"
+                accept="image/*,.heic,.heif"
+                multiple
+                onChange={attach}
+              />
+              <div className="atelier-capture-buttons">
                 <button
-                  className="atelier-primary"
-                  type={draft.step === 'prepare' ? 'submit' : 'button'}
-                  form={draft.step === 'prepare' ? 'atelier-confirm' : undefined}
-                  disabled={
-                    busy ||
-                    locked ||
-                    (draft.step === 'prepare' &&
-                      (!draft.missions.length || draft.missions.some((m) => !m.checked)))
-                  }
-                  onClick={
-                    draft.step === 'briefing'
-                      ? () => step('capture')
-                      : draft.step === 'capture'
-                        ? () => prepare()
-                        : undefined
-                  }
+                  type="button"
+                  disabled={busy || locked}
+                  onClick={() => camera.current?.click()}
                 >
-                  {busy
-                    ? '이 기기에 저장하는 중…'
-                    : draft.step === 'briefing'
-                      ? '오늘의 자료 모으기'
-                      : draft.step === 'capture'
-                        ? '과제 준비하기'
-                        : '확인하고 BKIT에 저장'}
-                  <ArrowRight size={18} />
+                  <Camera size={27} />
+                  <strong>카메라로 촬영</strong>
+                  <span>지금 책상 위의 자료</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={busy || locked}
+                  onClick={() => gallery.current?.click()}
+                >
+                  <ImagePlus size={27} />
+                  <strong>갤러리에서 선택</strong>
+                  <span>여러 장 함께 첨부</span>
                 </button>
               </div>
-              <p className="atelier-save-status" role="status">
-                {busy ? (
-                  '사진을 안전하게 보관하고 있어요.'
-                ) : savedDraft ? (
-                  <>
-                    <Check size={12} /> 초안이 이 기기에 보관돼요. 나중에 이어 써도 괜찮아요.
-                  </>
-                ) : (
-                  '현재 초안이 저장되지 않았습니다. 화면을 닫기 전에 내용을 복사해 주세요.'
-                )}
+              <div className="atelier-photo-heading">
+                <strong>MY DOCUMENTS</strong>
+                <span>{draft.attachmentIds.length} / 12</span>
+              </div>
+              {draft.attachmentIds.length ? (
+                <div className="atelier-photos">
+                  {draft.attachmentIds.map((id) => (
+                    <PrivatePhotoCard
+                      key={id}
+                      id={id}
+                      onRemove={!busy && !locked ? () => void removePhoto(id) : undefined}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="atelier-no-photos">
+                  <FileImage size={26} />
+                  <span>오늘의 자료를 기다리고 있어요.</span>
+                </div>
+              )}
+              <p className="atelier-note">
+                사진 속 글자는 자동으로 읽지 않습니다. 다음 단계에서 직접 입력해 주세요. 장당 20MB ·
+                합계 60MB까지.
               </p>
-              <p className="atelier-local-note">
-                Safari 데이터 삭제 시 사진과 기록도 삭제될 수 있어요. 원본 사진을 함께 보관해
-                주세요.
+              <div className="atelier-privacy">
+                <LockKeyhole size={17} />
+                <p>
+                  사진은 이 기기의 브라우저에만 보관됩니다.
+                  <br />
+                  공개 페이지나 서버로 업로드하지 않아요.
+                </p>
+              </div>
+            </>
+          )}
+          {draft.step === 'prepare' && (
+            <form
+              id="atelier-confirm"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void save();
+              }}
+            >
+              <div className="atelier-prepare-meta">
+                <span>
+                  {draft.missions.length} MISSIONS / {draft.attachmentIds.length} DOCUMENTS
+                </span>
+                <button type="button" disabled={busy || locked} onClick={() => prepare(true)}>
+                  브리핑으로 다시 구성
+                </button>
+              </div>
+              <p className="atelier-note">
+                다시 구성하면 아래 수정 내용 대신 브리핑 입력으로 초안을 새로 만듭니다. 25분은 수정
+                가능한 기본값입니다. 마감을 모르면 비워두세요.
               </p>
-            </section>
+              {draft.attachmentIds.length > 0 && (
+                <details className="atelier-source">
+                  <summary>첨부 자료 펼쳐보기 ({draft.attachmentIds.length})</summary>
+                  <div className="atelier-photos">
+                    {draft.attachmentIds.map((id) => (
+                      <PrivatePhotoCard id={id} key={id} />
+                    ))}
+                  </div>
+                </details>
+              )}
+              <fieldset disabled={busy || locked} className="atelier-mission-fieldset">
+                {draft.missions.map((m, index) => (
+                  <article className="atelier-mission" key={m.id}>
+                    <div className="atelier-mission-top">
+                      <span>MISSION {String(index + 1).padStart(2, '0')}</span>
+                      <button
+                        type="button"
+                        aria-label={`과제 ${index + 1} 삭제`}
+                        onClick={() =>
+                          update({
+                            ...draftRef.current,
+                            missions: draftRef.current.missions.filter((v) => v.id !== m.id),
+                          })
+                        }
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                    <div className="atelier-fields">
+                      <label>
+                        과목
+                        <input
+                          required
+                          maxLength={200}
+                          aria-label={`과제 ${index + 1} 과목`}
+                          value={m.subject}
+                          placeholder="예: 수학"
+                          onChange={(e) => changeMission(m.id, { subject: e.target.value })}
+                        />
+                      </label>
+                      <label>
+                        종류
+                        <select
+                          aria-label={`과제 ${index + 1} 종류`}
+                          value={m.kind}
+                          onChange={(e) =>
+                            changeMission(m.id, { kind: e.target.value as Mission['kind'] })
+                          }
+                        >
+                          {['숙제', '수행평가', '시험공부', '개인 일정'].map((k) => (
+                            <option key={k}>{k}</option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                    <label>
+                      과제 내용
+                      <input
+                        required
+                        aria-label={`과제 ${index + 1} 내용`}
+                        maxLength={200}
+                        value={m.title}
+                        placeholder="사진을 보며 할 일을 적어주세요"
+                        onChange={(e) => changeMission(m.id, { title: e.target.value })}
+                      />
+                    </label>
+                    <div className="atelier-fields">
+                      <label>
+                        마감일 · 모르면 비우기
+                        <input
+                          type="date"
+                          aria-label={`과제 ${index + 1} 마감일`}
+                          value={m.due}
+                          onChange={(e) =>
+                            changeMission(m.id, {
+                              due: e.target.value,
+                              dueTime: e.target.value ? m.dueTime : '',
+                            })
+                          }
+                        />
+                      </label>
+                      <label>
+                        마감 시각 · 선택 (KST)
+                        <input
+                          type="time"
+                          aria-label={`과제 ${index + 1} 마감 시각`}
+                          disabled={!m.due}
+                          value={m.dueTime}
+                          onChange={(e) => changeMission(m.id, { dueTime: e.target.value })}
+                        />
+                      </label>
+                    </div>
+                    <div className="atelier-fields atelier-fields--three">
+                      <label>
+                        분량 단위
+                        <select
+                          aria-label={`과제 ${index + 1} 분량 단위`}
+                          value={m.quantityUnit}
+                          onChange={(e) =>
+                            changeMission(m.id, {
+                              quantityUnit: e.target.value as Mission['quantityUnit'],
+                            })
+                          }
+                        >
+                          <option value="">미확인</option>
+                          <option value="problems">문제</option>
+                          <option value="pages">쪽</option>
+                          <option value="passages">지문</option>
+                          <option value="chapters">단원</option>
+                        </select>
+                      </label>
+                      <label>
+                        전체 분량
+                        <input
+                          type="number"
+                          min={1}
+                          max={10000}
+                          required={!!m.quantityUnit}
+                          disabled={!m.quantityUnit}
+                          aria-label={`과제 ${index + 1} 분량`}
+                          value={m.quantityTotal}
+                          onChange={(e) => changeMission(m.id, { quantityTotal: e.target.value })}
+                        />
+                      </label>
+                      <label>
+                        예상 시간 · 분
+                        <input
+                          type="number"
+                          required
+                          min={1}
+                          max={480}
+                          aria-label={`과제 ${index + 1} 예상 시간`}
+                          value={m.minutes}
+                          onChange={(e) => changeMission(m.id, { minutes: e.target.value })}
+                        />
+                      </label>
+                    </div>
+                    {!!draft.attachmentIds.length && (
+                      <details className="atelier-source">
+                        <summary>이 과제에 연결할 사진 ({m.attachmentIds.length})</summary>
+                        {draft.attachmentIds.map((id, i) => (
+                          <label className="atelier-check" key={id}>
+                            <input
+                              type="checkbox"
+                              checked={m.attachmentIds.includes(id)}
+                              onChange={(e) =>
+                                changeMission(m.id, {
+                                  attachmentIds: e.target.checked
+                                    ? [...m.attachmentIds, id]
+                                    : m.attachmentIds.filter((v) => v !== id),
+                                })
+                              }
+                            />
+                            자료 {i + 1}
+                          </label>
+                        ))}
+                      </details>
+                    )}
+                    <label className="atelier-check">
+                      <input
+                        required
+                        type="checkbox"
+                        aria-label={`과제 ${index + 1} 확인`}
+                        checked={m.checked}
+                        onChange={(e) => changeMission(m.id, { checked: e.target.checked })}
+                      />
+                      <span>
+                        {m.due
+                          ? `${m.due}${m.dueTime ? ' ' + m.dueTime : ' · 시각 미확인'}`
+                          : '마감 미확인'}{' '}
+                        — 내용과 마감을 확인했어요.
+                      </span>
+                    </label>
+                  </article>
+                ))}
+                <button
+                  type="button"
+                  className="atelier-add-mission"
+                  disabled={draft.missions.length >= 20}
+                  onClick={() =>
+                    update({
+                      ...draftRef.current,
+                      missions: [
+                        ...draftRef.current.missions,
+                        createMission('', [...draftRef.current.attachmentIds]),
+                      ],
+                    })
+                  }
+                >
+                  <Plus size={17} /> 과제 하나 더
+                </button>
+              </fieldset>
+            </form>
+          )}
+          {error && (
+            <p className="atelier-error" role="alert">
+              {error}
+            </p>
+          )}
+          <div className="atelier-actions">
+            {draft.step !== 'briefing' && (
+              <button
+                className="atelier-back"
+                type="button"
+                disabled={busy || locked}
+                onClick={() => step(draft.step === 'prepare' ? 'capture' : 'briefing')}
+              >
+                <ArrowLeft size={16} /> 이전
+              </button>
+            )}
+            <button
+              className="atelier-primary"
+              type={draft.step === 'prepare' ? 'submit' : 'button'}
+              form={draft.step === 'prepare' ? 'atelier-confirm' : undefined}
+              disabled={
+                busy ||
+                locked ||
+                (draft.step === 'prepare' &&
+                  (!draft.missions.length || draft.missions.some((m) => !m.checked)))
+              }
+              onClick={
+                draft.step === 'briefing'
+                  ? () => step('capture')
+                  : draft.step === 'capture'
+                    ? () => prepare()
+                    : undefined
+              }
+            >
+              {busy
+                ? '이 기기에 저장하는 중…'
+                : draft.step === 'briefing'
+                  ? '오늘의 자료 모으기'
+                  : draft.step === 'capture'
+                    ? '과제 준비하기'
+                    : '확인하고 BKIT에 저장'}
+              <ArrowRight size={18} />
+            </button>
           </div>
-          <footer className="atelier-footer">
-            <span>TOHEŞAR / JUGGERNAUT</span>
-            <span>PREPARE WITH INTENTION. BEGIN WITH ONE.</span>
-            <span>BKIT STUDY OS</span>
-          </footer>
-        </>
-      )}
+          <p className="atelier-save-status" role="status">
+            {busy ? (
+              '사진을 안전하게 보관하고 있어요.'
+            ) : savedDraft ? (
+              <>
+                <Check size={12} /> 초안이 이 기기에 보관돼요. 나중에 이어 써도 괜찮아요.
+              </>
+            ) : (
+              '현재 초안이 저장되지 않았습니다. 화면을 닫기 전에 내용을 복사해 주세요.'
+            )}
+          </p>
+          <p className="atelier-local-note">
+            Safari 데이터 삭제 시 사진과 기록도 삭제될 수 있어요. 원본 사진을 함께 보관해 주세요.
+          </p>
+        </section>
+      </div>
+      <footer className="atelier-footer">
+        <span>TOHEŞAR / JUGGERNAUT</span>
+        <span>PREPARE WITH INTENTION. BEGIN WITH ONE.</span>
+        <span>BKIT STUDY OS</span>
+      </footer>
     </dialog>
   );
 }

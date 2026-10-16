@@ -2,6 +2,7 @@ import {test,expect} from '@playwright/test';
 test('Capture v2: date-only deadline and number of problems survive restart and edit',async({page})=>{
  await page.clock.install({time:new Date('2026-10-15T05:00:00Z')});
  await page.goto('./');
+ await page.getByRole('button',{name:'더 보기'}).click();
  await page.locator('.topbar-add-action').click();
  const dialog=page.getByRole('dialog');
  await dialog.getByRole('textbox',{name:'할 일을 한 문장으로'}).fill('금요일까지 수학 숙제 20문제');
@@ -35,6 +36,7 @@ test('Capture v2: date-only deadline and number of problems survive restart and 
 test('Capture v2: the confirmed 4 PM deadline stays exact',async({page})=>{
  await page.clock.install({time:new Date('2026-10-15T05:00:00Z')});
  await page.goto('./');
+ await page.getByRole('button',{name:'더 보기'}).click();
  await page.locator('.topbar-add-action').click();
  const modal=page.getByRole('dialog');
  await modal.getByRole('textbox',{name:'할 일을 한 문장으로'}).fill('금요일 오후 4시까지 경제 수행평가 제출');

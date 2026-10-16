@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('optical materials mount, remain readable and have a safe fallback', async ({page}) => {
+test('plain mobile controls stay readable and focus starts', async ({page}) => {
   await page.clock.install({time:new Date('2026-10-14T06:00:00Z')});
   await page.goto('./');
   const dock = page.locator('.orbit-nav');
@@ -20,21 +20,21 @@ test('optical materials mount, remain readable and have a safe fallback', async 
       map: lens?.getAttribute('href')?.startsWith('data:image/png') || false,
       buttonColor:getComputedStyle(button).color,
       radius:parseFloat(getComputedStyle(dock).borderRadius),
-      cardRadius:parseFloat(getComputedStyle(card).borderRadius),
+      cardRadius:parseFloat(getComputedStyle(document.querySelector('.command-stage')!).borderRadius),
       width:document.documentElement.scrollWidth,
       screen:innerWidth,
       blurred:getComputedStyle(dock).backdropFilter,
-      opticalFilter:getComputedStyle(dock,'::before').filter,
+      opticalOverlay:getComputedStyle(dock,'::before').display,
     };
   });
   expect(detail.engine).toBeTruthy();
   expect(detail.map).toBe(true);
-  expect(detail.buttonColor).toBe('rgb(255, 250, 239)');
-  expect(detail.radius).toBeGreaterThan(23);
-  expect(detail.cardRadius).toBeGreaterThanOrEqual(8);
+  expect(detail.buttonColor).toBe('rgb(255, 255, 255)');
+  expect(detail.radius).toBeGreaterThanOrEqual(20);
+  expect(detail.cardRadius).toBeGreaterThanOrEqual(18);
   expect(detail.width).toBeLessThanOrEqual(detail.screen+1);
   expect(detail.blurred).not.toBe('none');
-  expect(detail.opticalFilter).toContain('bkit-liquid-dock');
+  expect(detail.opticalOverlay).toBe('none');
   await primary.click();
   await expect(page.locator('.app-shell')).toHaveClass(/is-focusing/);
   await expect(page.locator('.focus-readout .timer')).toBeVisible();
