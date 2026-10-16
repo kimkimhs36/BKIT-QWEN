@@ -94,10 +94,11 @@ test('briefing, multi-photo picker, persisted review, real TODAY save, duplicate
   ).toHaveCount(2);
   await page.getByRole('button', { name: '자료 닫기' }).click();
   await page.evaluate((raw) => localStorage.setItem('bkit.atelier.draft.v1', raw!), replay);
-  await page.getByRole('button', { name: '오늘의 브리핑 열기' }).click();
+  await page.locator('.research-quick-capture').click();
   await page.getByRole('button', { name: '확인하고 BKIT에 저장' }).click();
   await expect(page.getByRole('dialog', { name: 'TOHEŞAR 학습 준비실' })).toHaveCount(0);
   expect((await state(page)).tasks).toHaveLength(2);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
   await page.getByRole('button', { name: '내일 수학 학습지 20문제 첫 5분 시작' }).click();
   await expect(page.locator('.app-shell')).toHaveClass(/is-focusing/);
   expect((await state(page)).active).toMatchObject({

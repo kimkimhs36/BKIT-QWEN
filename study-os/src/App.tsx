@@ -1884,6 +1884,12 @@ export default function App() {
           const merged = mergeMissions(memory.current.tasks, tasks);
           if (!commit(v => ({ ...v, tasks: merged.tasks }))) return null;
           setTab('today');
+          // A successful arrival returns to the mission desk even when briefing
+          // was opened from a button far down TODAY. Run after dialog focus restore.
+          requestAnimationFrame(() => {
+            window.scrollTo(0, 0);
+            document.getElementById('main')?.focus({ preventScroll: true });
+          });
           setNotice(merged.duplicates ? `BKIT에 정리했습니다. 같은 과제 ${merged.duplicates}개는 기존 항목에 연결했어요.` : `${merged.ids.length}개 과제를 BKIT에 저장했습니다. 첫 5분을 골라 시작해 보세요.`);
           return { duplicates: merged.duplicates };
         }}/>, document.body,
