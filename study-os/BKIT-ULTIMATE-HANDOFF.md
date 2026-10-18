@@ -1,6 +1,6 @@
-# BKIT ULTIMATE — active development handoff
+# BKIT ULTIMATE — final implementation and deployment handoff
 
-This document supersedes deployment suggestions in older handoffs. **No production deployment or merge is authorized in this mission.** Preserve main, feat/study-os-visual-v2, API backend, credentials and teambkit.com.
+Initial instructions excluded production deployment. The user explicitly superseded that restriction at wrap-up and requested immediate deployment. Source development is frozen at `36ca2aca3e289fc0375f82da8381a60e24f4aea4`. Existing `publish-teambkit.yml` was dispatched from the development branch (run 39158913560); it publishes tested static assets to main/GitHub Pages. No API backend, credentials, OAuth or paid infrastructure changes are authorized. Final deployment outcome is recorded below.
 
 ## Recovery and starting point
 
@@ -71,7 +71,7 @@ Latest completed integrated local checks before this checkpoint: 111/111 unit te
 - Recovery success rates, dated submission/completion histories and objective sleep protection trend metrics are not yet fully instrumented.
 - Original Sleep Guard JSON includes photo IDs, not original image bytes. Clearing browser storage can still remove local media; no automatic device sync claim.
 - Real iPhone/iPad/Samsung hardware, native keyboard/pickers, notifications/PWA permissions, S Pen/DeX and real frame-rate checks remain unverified. CSS/engine automation is not physical-device validation.
-- External AI APIs, paid resources, OAuth/key/backend changes and production deployment intentionally excluded.
+- External AI APIs, paid resources and OAuth/key/backend changes intentionally excluded. Static frontend deployment was explicitly authorized by the user at wrap-up.
 
 ## Integration checkpoint update — four-area shell and release verification
 
@@ -94,3 +94,52 @@ Latest completed integrated local checks before this checkpoint: 111/111 unit te
 - Superseded local four-area sweep: 26 passed, 1 interrupted, 7 not run. Superseded iPad full sweep: 21 passed, 1 interrupted, 45 not run. These were deliberately stopped before rebuilding the shared preview; they are not reported as complete passes.
 - Verification CI now runs the **entire suite** in six projects (adds Chromium iPad), instead of only selected files. Markdown-only handoff commits do not rerun unchanged source tests; final reports must link the exact verified source commit, not imply a new run for a docs-only commit.
 - Final full matrix result and exact commits will be appended after completion.
+
+## Final source freeze — 2026-10-18
+
+- Tested source: `36ca2aca3e289fc0375f82da8381a60e24f4aea4`, pushed on `feat/bkit-3-sleep-guard`. Subsequent handoff-only commits do not alter deployed code.
+- Local TypeScript check, all 117 unit tests (20 files), and final production build passed. Logs: `/workspace/scratch/unit-source-freeze.log`, `/workspace/scratch/build-36ca2ac.log`.
+- Final focused local browser checks: 36/36 passed across Chromium iPhone, WebKit iPhone and desktop (home clarity, restore, optics, navigation, learning loop, sleep integration). Earlier integrated core sweep: 45/45.
+- Full exact-source CI: https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/39158791549 (six browser/CSS projects, 68 scenarios each). **Success: all six projects passed.**
+- Superseded run 39158760652 was deliberately cancelled after the MORE accessibility coverage update; do not classify cancellation as a test failure or success.
+- Deployment run: https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/39158913560 . It runs its existing publication checks before copying static assets to main and verifying the live release.
+
+### Next session priorities
+
+1. Add a stable multi-problem/resource library and multi-problem sessions while preserving existing problem/retest IDs and photo references.
+2. Add subject-specific active recall templates using real user materials; keep grading explicitly manual.
+3. Add exam-aware review intervals, concept-level evidence and dated completion/submission/recovery metrics without inferring mastery from time.
+4. Verify actual Apple/Samsung hardware, PWA permissions, keyboard/pickers, rotation and DeX; automated CSS results do not establish these.
+5. Provide photo-complete export/restore; current JSON retains photo references, not image bytes.
+
+No additional features should be added during this wrap-up. Preserve older handoffs and both recovery checkpoints.
+
+### Acceptance status and preservation
+
+| Area | Status | Remaining limit |
+| --- | --- | --- |
+| NOW, deterministic start, capture, four-area navigation | Implemented; local automated checks passed | Final matrix recorded below; real-device check remains |
+| Answer-first attempts, errors, retests, evidence receipts | Implemented and local learning-loop verified | One problem per focus session; manual self-check |
+| Review intelligence and subject modes | Partial | Concept evidence, subject templates and exam compression remain |
+| Manual exam/scope and independent submission state | Implemented with automated coverage | No invented scope or automated submission |
+| Sleep Guard and JUGGERNAUT integration | Implemented with automated coverage | No OS app control or physical-device certification |
+| Existing data and restore safety | Additive schema; backup, stale-write and quota guards unit-tested | Photo-byte export and physical-device restore remain |
+| API/provider integration | Intentionally excluded | Existing code preserved; no real AI response claim |
+
+New recovery checkpoint `checkpoint/ultimate-local-learning-20261018` points to the frozen source `36ca2ac` and is pushed. Older checkpoints remain untouched. The base branch `feat/study-os-visual-v2` was not changed. Production main may change only through the explicitly authorized static publishing workflow. Original handoff/release documents remain intact.
+
+### Exact-source final CI
+
+Run 39158791549 completed successfully on `36ca2ac`: iphone, ipad, desktop, webkit-iphone, webkit-ipad and galaxy-css, **68 tests each / 408 total**. No tests were deleted or skipped to obtain this result. Full logs are retained at `/workspace/scratch/final-ci-36ca2ac.log`. Publication is independently gated by its existing checks.
+
+## Final deployment outcome — verified
+
+- User's final instruction explicitly authorized immediate production deployment and requested wrap-up; no further feature development was performed afterward.
+- Existing publication workflow **39158913560 succeeded**, including its unit/build/browser/Sleep Guard checks and live verification.
+- Live `https://teambkit.com/release.json` independently returned source `36ca2aca3e289fc0375f82da8381a60e24f4aea4`, published at `2026-10-18T19:39:35.234Z`.
+- GitHub Pages build status is **built** at production main commit `d1bb50934b3ec23384e0b5e9648f0f8683d957c2`. Main was updated only by the existing authorized static publication workflow; no source merge, force push or history replacement.
+- Full verification CI 39158791549: **408/408 E2E passed across six projects**. Local typecheck, 117 unit tests and production build passed. Publication workflow separately passed its selected regression suite.
+- Runtime HTML/release retrieval and exact Pages/source commit are verified. Real hardware and every interactive production flow remain unverified; local/CI browser flows are the evidence, not real-device certification.
+- Data protections and additive compatibility have unit/fixture coverage; no production user data was accessed, cleared or migrated remotely. Source changes remain browser-local on subsequent app use. Photo-byte backup remains incomplete as documented.
+- Development branch is `feat/bkit-3-sleep-guard`; final handoff-only commit follows the deployed source. Its SHA is available from `git log -1`; it changes documentation only. All development and checkpoint branches are pushed, with no uncommitted files after the final commit.
+- Publication log: `/workspace/scratch/final-publication.log`. No known blocking automated test failure remains. Partial product capabilities and next priorities are listed above.
