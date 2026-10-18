@@ -29,6 +29,10 @@ test('iPad portrait and landscape keep Settings, cloud status and action buttons
       const title=box('.bkit-cloud-panel .section-head h2');
       const status=box('.bkit-cloud-panel .bkit-cloud-state');
       const firstField=box('.settings-layout .field input');
+      const timeInputs=[...document.querySelectorAll('.settings-layout .form-grid input[type="time"]')].map(el=>el.getBoundingClientRect());
+      const allInputs=[...document.querySelectorAll('.settings-layout .form-grid input')].map(el=>el.getBoundingClientRect());
+      const dock=box('body > .orbit-nav');
+      const heading=box('.page-head');
       const firstButton=box('.bkit-cloud-panel .button-stack > button');
       const section=box('.settings-layout');
       const viewportOverflow=document.documentElement.scrollWidth>innerWidth+2;
@@ -38,12 +42,17 @@ test('iPad portrait and landscape keep Settings, cloud status and action buttons
         cloudClipped: cloud.left<0 || cloud.right>innerWidth+2,
         fieldClipped:firstField.left<section.left-2 || firstField.right>section.right+2,
         buttonClipped:firstButton.left<cloud.left-2 || firstButton.right>cloud.right+2,
+        formInputsOverlap: allInputs.some((a,i)=>allInputs.slice(i+1).some(b=>intersects(a,b))),
+        clockInputsOverlap: timeInputs.some((a,i)=>timeInputs.slice(i+1).some(b=>intersects(a,b))),
+        dockOverHeading:intersects(dock,heading),
+        dockAtBottom:dock.top>innerHeight/2,
         viewportOverflow,
       };
     });
     expect(result, 'width='+width).toEqual({
       overlapsColumns:false,overlapsHeader:false,cloudClipped:false,
-      fieldClipped:false,buttonClipped:false,viewportOverflow:false,
+      fieldClipped:false,buttonClipped:false,formInputsOverlap:false,
+      clockInputsOverlap:false,dockOverHeading:false,dockAtBottom:false,viewportOverflow:false,
     });
   }
 });
