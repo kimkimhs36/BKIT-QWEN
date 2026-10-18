@@ -227,6 +227,21 @@ describe('owner-only multi-device study snapshots', () => {
       (root) => perform(root, () => current),
     );
   };
+  it('permits browser PUT preflight only for the BKIT origin', async () => {
+    const fetcher = vi.fn();
+    await withServer(createPrivateApi(env, {fetcher, verify: async () => true}), async root => {
+      const allowed = await fetch(root+'/api/sync',{
+        method:'OPTIONS',
+        headers:{Origin:'https://teambkit.com','Access-Control-Request-Method':'PUT',
+          'Access-Control-Request-Headers':'Authorization,Content-Type'},
+      });
+      expect(allowed.status).toBe(204);
+      expect(allowed.headers.get('access-control-allow-methods')).toContain('PUT');
+      const blocked = await fetch(root+'/api/sync',{method:'OPTIONS',headers:{Origin:'https://other.example'}});
+      expect(blocked.status).toBe(403);
+      expect(fetcher).not.toHaveBeenCalled();
+    });
+  });
   it('keeps records behind authentication and origin checks', async () => {
     const fetcher = vi.fn();
     await withServer(createPrivateApi(env, { fetcher, verify: async () => false }), async (root) => {
