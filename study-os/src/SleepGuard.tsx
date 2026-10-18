@@ -114,7 +114,7 @@ export function SleepGuard() {
           ><Moon size={17} aria-hidden="true" /> 수면</button>
           {settings.enabled && status.windingDown && (
             <div className="bkit-sleep-notice" role="status">
-              <span>화면 내려놓기 목표 {status.screenOffAt} · 취침 {status.bedtime}</span>
+              <span>이제 화면을 내려놓고 취침 준비 · {status.bedtime} 목표</span>
               <button type="button" onClick={() => setShowRoutine(true)}>마무리하기</button>
             </div>
           )}
