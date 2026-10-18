@@ -178,8 +178,7 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
     }).strict().safeParse(req.body);
     if (!body.success) return void res.status(400).json({error:'동기화 자료를 확인해 주세요.'});
     const record = body.data.state;
-    if (record.active || record.plan.length || record.undo ||
-        record.tasks.some(t => (t.attachmentIds?.length || 0) > 0))
+    if (record.active || record.plan.length || record.undo)
       return void res.status(400).json({error:'진행 중인 타이머나 기기 전용 사진은 서버에 보낼 수 없어요.'});
     try {
       const result = await redisCommand([
