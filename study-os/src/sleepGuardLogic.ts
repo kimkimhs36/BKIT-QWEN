@@ -5,6 +5,7 @@ export type SleepSettings = {
   weekendWake: string;
   targetMinutes: number;
   postponeUntil: number;
+  restUntil: number;
 };
 
 export const SLEEP_STORAGE_KEY = 'bkit.sleep-guard.v1';
@@ -14,6 +15,7 @@ export const DEFAULT_SLEEP_SETTINGS: SleepSettings = {
   weekendWake: '08:00',
   targetMinutes: 510, // 8h 30m; configurable within teen 8–10h range.
   postponeUntil: 0,
+  restUntil: 0,
 };
 
 const VALID_TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -30,6 +32,7 @@ export function readSleepSettings(): SleepSettings {
       weekendWake: typeof parsed.weekendWake === 'string' && VALID_TIME.test(parsed.weekendWake) ? parsed.weekendWake : DEFAULT_SLEEP_SETTINGS.weekendWake,
       targetMinutes: typeof parsed.targetMinutes === 'number' && DURATION_OPTIONS.includes(parsed.targetMinutes) ? parsed.targetMinutes : DEFAULT_SLEEP_SETTINGS.targetMinutes,
       postponeUntil: typeof parsed.postponeUntil === 'number' && Number.isFinite(parsed.postponeUntil) ? parsed.postponeUntil : 0,
+      restUntil: typeof parsed.restUntil === 'number' && Number.isFinite(parsed.restUntil) ? parsed.restUntil : 0,
     };
   } catch {
     return { ...DEFAULT_SLEEP_SETTINGS };
@@ -59,16 +62,22 @@ export function sleepStatus(date: Date, settings: SleepSettings) {
   // Bedtime is assigned to the day before the target wake-up.
   const bedtimeTonight = (wakeTomorrow - settings.targetMinutes + 1440) % 1440;
   const inSleepWindow = nowMinutes >= bedtimeTonight || nowMinutes < wakeToday;
+  // Turn screens off one hour before the time-in-bed target. This is a recommendation,
+  // not a claim that a browser can configure iOS Screen Time on its own.
+  const windDownStart = (bedtimeTonight - 60 + 1440) % 1440;
   const minutesToBed = (bedtimeTonight - nowMinutes + 1440) % 1440;
   const windingDown = !inSleepWindow && minutesToBed > 0 && minutesToBed <= 60;
   const postponed = settings.postponeUntil > date.getTime();
+  const manualRest = settings.restUntil > date.getTime();
   return {
     bedtime: formatMinutes(bedtimeTonight),
+    screenOffAt: formatMinutes(windDownStart),
     wakeTomorrow: formatMinutes(wakeTomorrow),
     inSleepWindow,
     windingDown,
     minutesToBed,
-    showGuard: settings.enabled && inSleepWindow && !postponed,
+    manualRest,
+    showGuard: settings.enabled && (inSleepWindow || manualRest) && !postponed,
     postponed,
   };
 }
