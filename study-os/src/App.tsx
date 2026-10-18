@@ -316,6 +316,38 @@ export default function App() {
       return false;
     }
   }
+  // When the optional Sleep Guard activates, cap live study time at the real
+  // bedtime boundary. A sleeping background tab may awaken much later.
+  useEffect(() => {
+    const pauseForSleepGuard = (event?: Event) => {
+      if (document.documentElement.dataset.bkitSleepGuardActive !== 'true') return;
+      const current = memory.current.active;
+      if (!current?.segmentStart) return;
+      const boundaryAt = event instanceof CustomEvent && typeof event.detail?.boundaryAt === 'number'
+        ? event.detail.boundaryAt as number : Date.now();
+      const pauseAt = Math.max(
+        +new Date(current.segmentStart),
+        Math.min(Date.now(), boundaryAt),
+      );
+      const saved = commit((v) => {
+        if (!v.active?.segmentStart) return v;
+        return {
+          ...v,
+          active: {
+            ...closeSegment(v.active, pauseAt),
+            pauses: [...v.active.pauses, {
+              at: iso(pauseAt), reason: '수면 가드 활성화 · 자동 일시정지',
+            }],
+          },
+        };
+      });
+      if (saved) setNotice('수면 가드가 공부 타이머를 멈췄어. 내일 이어서 해도 돼.');
+    };
+    window.addEventListener('bkit:sleep-guard-state', pauseForSleepGuard);
+    pauseForSleepGuard();
+    return () => window.removeEventListener('bkit:sleep-guard-state', pauseForSleepGuard);
+  }, [readBlocked]);
+
   const privateSync = usePrivateStudySync(s, (incoming) => commit((v) => ({
     ...incoming,
     // Device-only active timer and private photos never leave the device.
@@ -421,6 +453,10 @@ export default function App() {
   const seconds = s.active ? elapsed(s.active, now) : 0;
   const late = delayMinutes(s, now);
   function start(minutes: number, task = selected || actionTask?.id || null) {
+    if (document.documentElement.dataset.bkitSleepGuardActive === 'true') {
+      setNotice('수면 가드가 켜져 있어. 취침을 먼저 지키고 내일 공부를 이어가자.');
+      return;
+    }
     if (s.active) {
       setTab('study');
       return;
