@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import { Moon, Settings2, X, Check, Coffee, Sun, Smartphone, Wind } from 'lucide-react';
+import { Moon, Settings2, X, Check, Smartphone } from 'lucide-react';
+import { BedtimeRoutine } from './BedtimeRoutine';
 import {
   SLEEP_STORAGE_KEY, readSleepSettings,
   sleepStatus, type SleepSettings,
@@ -179,14 +180,7 @@ export function SleepGuard() {
           <section className="bkit-sleep-sheet" role="dialog" aria-modal="true" tabIndex={-1} aria-labelledby="bkit-sleep-routine-heading">
             <div className="bkit-sleep-head"><h2 id="bkit-sleep-routine-heading">자기 전 3분 정리</h2>
               <button type="button" className="bkit-sleep-icon" aria-label="닫기" onClick={() => setShowRoutine(false)}><X size={20}/></button></div>
-            <ul className="bkit-sleep-checklist">
-              <li><Check size={16} /> 공부·개발 작업 마무리하기</li>
-              <li><Smartphone size={16} /> iPhone과 iPad는 침대 밖에 두고 화면 끄기</li>
-              <li><Wind size={16} /> 조명 낮추고 편안하게 호흡하기</li>
-              <li><Sun size={16} /> 내일 아침 자연광 쬐기</li>
-            </ul>
-            <p className="bkit-sleep-detail">카페인은 오후·저녁에 피하는 게 좋아. 브라우저 화면을 오래 볼 필요는 없어.</p>
-            <button type="button" className="bkit-sleep-primary" onClick={() => setShowRoutine(false)}>마무리했어</button>
+            <BedtimeRoutine nightMode={false} onFinish={startRestNow} />
           </section>
         </div>
       )}
@@ -200,13 +194,7 @@ export function SleepGuard() {
             <p>내일도 공부할 수 있도록, iPhone과 iPad를 내려놓자.</p>
             <p className="bkit-sleep-night-muted">{status.manualRest ? '스스로 선택한 휴식 시간이야.' : '오늘의 공부가 끝났다면 더 이상 화면을 볼 필요 없어.'} 잠을 빨리 청하려고 애쓰지 않아도 괜찮아.</p>
             <button type="button" className="bkit-sleep-primary" onClick={() => setShowRoutine(true)}>잠들 준비하기</button>
-            {showRoutine && (
-              <div className="bkit-sleep-night-routine" role="status">
-                <p><Check size={15} /> 작업을 마무리하고 기기를 멀리 두기</p>
-                <p><Wind size={15} /> 편안하게 숨을 들이쉬고 천천히 내쉬기</p>
-                <p><Coffee size={15} /> 늦은 카페인·강한 조명 피하기</p>
-              </div>
-            )}
+            {showRoutine && <BedtimeRoutine nightMode onFinish={() => setShowRoutine(false)} />}
             <button type="button" className="bkit-sleep-muted-button" onClick={postpone}>꼭 필요한 일이 있어 · 30분만 연장</button>
             <button type="button" className="bkit-sleep-muted-button" onClick={() => { change({ enabled: false, postponeUntil: 0 }); setEditing(true); }}>수면 가드 설정 변경</button>
           </div>
