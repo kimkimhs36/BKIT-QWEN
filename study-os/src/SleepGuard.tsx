@@ -13,6 +13,7 @@ export function SleepGuard() {
   const [now, setNow] = useState(() => new Date());
   const [editing, setEditing] = useState(false);
   const [showRoutine, setShowRoutine] = useState(false);
+  const [showDeviceGuide, setShowDeviceGuide] = useState(false);
   const status = sleepStatus(now, settings);
 
   useEffect(() => {
@@ -72,7 +73,7 @@ export function SleepGuard() {
                 <h2 id="bkit-sleep-settings-heading"><Settings2 size={19} aria-hidden="true" /> 수면 보호 설정</h2></div>
               <button type="button" className="bkit-sleep-icon" aria-label="설정 닫기" onClick={() => setEditing(false)}><X size={20} /></button>
             </div>
-            <p>수면 가드는 실제로 잠들었는지 측정하지 않아. 설정한 시간에 공부 화면을 잠시 가려, 컴퓨터를 끄고 쉬기 쉽게 도와줘.</p>
+            <p>수면 가드는 실제로 잠들었는지 측정하지 않아. BKIT 화면을 보고 있을 때 취침 시간에 맞춰 안내해. 웹을 닫거나 다른 앱을 쓰고 있으면 기기를 잠그거나 사용 여부를 감지할 수 없어.</p>
             <label className="bkit-sleep-switch">
               <span>수면 가드 사용</span>
               <input type="checkbox" checked={settings.enabled} onChange={(e) => change({ enabled: e.target.checked, postponeUntil: 0 })} />
@@ -91,6 +92,20 @@ export function SleepGuard() {
               <span>오늘 밤 취침 목표 <strong>{status.bedtime}</strong> · 다음 날 기상 <strong>{status.wakeTomorrow}</strong></span>
             </div>
             <p className="bkit-sleep-detail">기본값은 07:00 기상 / 8시간 30분이야. 실제 잠드는 데 시간이 걸리므로 취침 준비는 1시간 전에 시작하는 것이 좋아.</p>
+            <div className="bkit-sleep-device">
+              <strong><Smartphone size={17} aria-hidden="true" /> iPhone · iPad가 우선</strong>
+              <p>BKIT 웹을 보고 있지 않은 밤에는 여기의 수면 화면이 나타나지 않아. 실제 앱 사용 중단은 Apple 스크린 타임으로 설정해야 해.</p>
+              <button type="button" className="bkit-sleep-guide-toggle" aria-expanded={showDeviceGuide} onClick={() => setShowDeviceGuide((prev) => !prev)}>
+                {showDeviceGuide ? '설정 방법 접기' : 'iPhone · iPad 취침 제한 설정 방법'}
+              </button>
+              {showDeviceGuide && <div className="bkit-sleep-device-steps">
+                <p><b>1.</b> 기기 설정 → 스크린 타임 → 다운타임(또는 시간 지정)에서 취침 시간을 정하기</p>
+                <p><b>2.</b> 다운타임 동안 차단 옵션과 항상 허용 앱을 확인하기. 전화·긴급 연락은 유지하기</p>
+                <p><b>3.</b> 설정 → 집중 모드 → 수면에서 알림을 줄이고, 건강 앱의 수면 일정을 확인하기</p>
+                <p><b>4.</b> 두 기기에서 동일하게 동작하도록 스크린 타임 기기 간 공유 설정을 확인하기</p>
+                <a href="https://support.apple.com/ko-kr/guide/iphone/iphbfa595995/ios" target="_blank" rel="noopener noreferrer">Apple 공식 스크린 타임 안내 ↗</a>
+              </div>}
+            </div>
             <button type="button" className="bkit-sleep-primary" onClick={() => setEditing(false)}><Check size={18} aria-hidden="true" /> 저장하고 닫기</button>
           </section>
         </div>
@@ -103,7 +118,7 @@ export function SleepGuard() {
               <button type="button" className="bkit-sleep-icon" aria-label="닫기" onClick={() => setShowRoutine(false)}><X size={20}/></button></div>
             <ul className="bkit-sleep-checklist">
               <li><Check size={16} /> 공부·개발 작업 마무리하기</li>
-              <li><Smartphone size={16} /> 휴대전화는 침대 밖에 놓기</li>
+              <li><Smartphone size={16} /> iPhone과 iPad는 침대 밖에 두고 화면 끄기</li>
               <li><Wind size={16} /> 조명 낮추고 편안하게 호흡하기</li>
               <li><Sun size={16} /> 내일 아침 자연광 쬐기</li>
             </ul>
@@ -119,7 +134,7 @@ export function SleepGuard() {
             <Moon size={31} strokeWidth={1.3} aria-hidden="true" />
             <span className="bkit-sleep-eyebrow">BKIT · GOOD NIGHT</span>
             <h2 id="bkit-sleep-night-title">오늘은 여기까지.</h2>
-            <p>내일도 공부할 수 있도록, 이제 화면을 내려놓자.</p>
+            <p>내일도 공부할 수 있도록, iPhone과 iPad를 내려놓자.</p>
             <p className="bkit-sleep-night-muted">일정한 수면이 우선이야. 빨리 잠들려고 애쓰지 않아도 괜찮아.</p>
             <button type="button" className="bkit-sleep-primary" onClick={() => setShowRoutine(true)}>잠들 준비하기</button>
             {showRoutine && (
