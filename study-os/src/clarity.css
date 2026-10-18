@@ -933,20 +933,74 @@ body > .orbit-nav button:not(.active):hover {
   }
 }
 
-/* iPad and desktop: keep the navigation away from study actions and form
-   controls. The floating bottom bar belongs to phone-sized viewports only. */
+/* The iPad/desktop navigation is a real document row, not a floating
+   overlay. Nothing can scroll behind it or be covered by a bottom dock. */
+.tablet-primary-nav { display: none; }
 @media (min-width: 768px) {
   body > .orbit-nav,
   html[data-bkit-glass-engine] body > .orbit-nav {
-    top: 89px;
-    bottom: auto;
-    left: 50%;
-    margin: 0;
+    display: none;
+  }
+  .app-shell.atelier-os .tablet-primary-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    width: min(565px, calc(100% - 32px));
+    min-height: 64px;
+    padding: 6px;
+    margin: 12px auto 0;
+    box-sizing: border-box;
+    border: 1px solid #e0e5dd;
+    border-radius: 22px;
+    background: #fffffff5;
+    box-shadow: 0 5px 24px #2433250d;
+  }
+  .app-shell.atelier-os .tablet-primary-nav button {
+    flex: 1 1 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 0;
+    min-height: 50px;
+    padding: 10px 6px;
+    border: 0;
+    border-radius: 15px;
+    background: transparent;
+    color: #58665b;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .app-shell.atelier-os .tablet-primary-nav button svg {
+    flex: 0 0 auto;
+  }
+  .app-shell.atelier-os .tablet-primary-nav button.active {
+    background: #eaf0e5;
+    color: #2f4a39;
+    font-weight: 650;
+  }
+  .app-shell.atelier-os .tablet-primary-nav button:hover:not(.active) {
+    background: #f2f5ef;
+  }
+  .app-shell.atelier-os .tablet-primary-nav button:focus-visible {
+    outline: 3px solid #567e5d;
+    outline-offset: 2px;
   }
   .app-shell.atelier-os:not(.is-focusing) main,
   .app-shell.atelier-os.page-today:not(.is-focusing) main {
-    padding-top: 123px;
+    padding-top: 30px;
   }
+  .app-shell.atelier-os.is-focusing .tablet-primary-nav {
+    display: none;
+  }
+}
+@media (max-width: 767px) {
+  .app-shell.atelier-os .tablet-primary-nav { display: none; }
 }
 /* Use full input tracks with real gutters instead of letting native iPad
    time controls expand past their grid cell. */
