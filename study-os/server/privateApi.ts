@@ -158,8 +158,22 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
         signal: AbortSignal.timeout(18000),
         cache: 'no-store',
       });
-      if (!response.ok)
-        throw new Error('AI가 응답하지 않았어요. 잠시 뒤 다시 시도하거나 직접 정리해 주세요.');
+      if (!response.ok) {
+        // Return only the status category, never provider bodies or credentials.
+        const failures: Record<number, string> = {
+          400: 'DeepSeek 요청 설정을 확인해야 해요. (400)',
+          401: 'DeepSeek 비밀키가 유효하지 않아요. 서버의 비밀 설정을 확인해야 해요. (401)',
+          402: 'DeepSeek 계정 잔액이 부족해요. 본인이 충전 여부를 결정해야 해요. (402)',
+          404: 'DeepSeek 모델 연결을 확인해야 해요. (404)',
+          429: 'DeepSeek 요청이 잠시 제한됐어요. 잠시 뒤 다시 시도해 주세요. (429)',
+        };
+        throw new Error(
+          failures[response.status] ||
+            'DeepSeek가 응답하지 않았어요. 잠시 뒤 다시 시도하거나 직접 정리해 주세요. (' +
+              response.status +
+              ')',
+        );
+      }
       const raw = z
         .object({
           choices: z
@@ -186,14 +200,12 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       }
       res.json({ mode: 'live', model: 'deepseek-flash', ...result, budget: reserved });
     } catch (error) {
-      res
-        .status(503)
-        .json({
-          error:
-            error instanceof Error && !['ZodError', 'SyntaxError'].includes(error.name)
-              ? error.message
-              : 'AI 초안을 확인하지 못했어요. 직접 정리해 주세요.',
-        });
+      res.status(503).json({
+        error:
+          error instanceof Error && !['ZodError', 'SyntaxError'].includes(error.name)
+            ? error.message
+            : 'AI 초안을 확인하지 못했어요. 직접 정리해 주세요.',
+      });
     }
   });
   app.use('/api', (_req, res) =>

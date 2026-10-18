@@ -130,6 +130,25 @@ describe('private production briefing', () => {
       },
     );
   });
+  it('reports actionable provider status without exposing its body or key', async () => {
+    for (const status of [400, 401, 402, 404, 429, 500]) {
+      await withServer(
+        createPrivateApi(env, {
+          verify: async () => true,
+          budget: { reserve: async () => ({ calls: 1, reservedKRW: 10 }) },
+          fetcher: async () => new Response('sensitive-provider-body', { status }),
+        }),
+        async (root) => {
+          const response = await fetch(root + '/api/briefing', { method: 'POST', headers, body });
+          expect(response.status).toBe(503);
+          const result = await response.json();
+          expect(result.error).toContain('(' + status + ')');
+          expect(JSON.stringify(result)).not.toContain('sensitive-provider-body');
+          expect(JSON.stringify(result)).not.toContain('synthetic-key');
+        },
+      );
+    }
+  });
   it('rejects invented evidence and impossible dates without returning usable missions', async () => {
     for (const bad of [
       { ...task, sourceText: 'not in input' },
