@@ -94,3 +94,10 @@ export function sleepStatus(date: Date, settings: SleepSettings) {
     postponed,
   };
 }
+
+/** Exact focus-stop boundary, excluding a deliberately granted 30-minute extension. */
+export function guardPauseBoundary(nowMs: number, activeStartedMs: number, settings: SleepSettings): number | null {
+  const status = sleepStatus(new Date(nowMs), settings);
+  if (!status.showGuard || status.guardStartedAt === null) return null;
+  return Math.min(nowMs, Math.max(activeStartedMs, status.guardStartedAt, settings.postponeUntil));
+}
