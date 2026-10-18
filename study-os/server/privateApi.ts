@@ -1,7 +1,7 @@
 import express from 'express';
 import { z } from 'zod';
-import { verifyBkitOwner } from './auth.ts';
-import { RedisBudget } from './redisBudget.ts';
+import { verifyBkitOwner } from './auth.js';
+import { RedisBudget } from './redisBudget.js';
 const taskSchema = z.object({
   title: z.string().trim().min(1).max(200),
   subject: z.string().trim().max(200),
