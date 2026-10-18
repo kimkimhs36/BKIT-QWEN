@@ -389,16 +389,31 @@ body > .orbit-nav button:not(.active):hover {
 .home-tools-list > button {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 14px;
+  width: 100%;
+  height: auto;
+  min-width: 0;
   min-height: 68px;
   padding: 13px 4px;
   text-align: left;
   color: #344c3a;
   font-size: 16px;
+  border: 0;
   border-bottom: 1px solid #e0e5dd;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.home-tools-list > button > svg {
+  flex: 0 0 auto;
 }
 .home-tools-list > button > span {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 .home-tools-list > button:last-child {
   border-bottom: 0;
@@ -813,3 +828,14 @@ body > .orbit-nav button:not(.active):hover {
   to { transform: translateY(0); }
 }
 .app-shell.atelier-os.page-today .page-footer > span { color: #596452; }
+
+/* Desktop companion layout: do not leave the compact TODAY column stuck left. */
+@media (min-width: 901px) {
+  .app-shell.atelier-os.page-today main {
+    margin-inline: auto;
+    width: 100%;
+  }
+  body > .orbit-nav {
+    bottom: max(24px, env(safe-area-inset-bottom));
+  }
+}
