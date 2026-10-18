@@ -1,10 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import '@fontsource/dm-sans/400.css';
-import '@fontsource/dm-sans/500.css';
-import '@fontsource/dm-sans/600.css';
-import '@fontsource/dm-sans/700.css';
+import '@fontsource/dm-sans/latin-400.css';
+import '@fontsource/dm-sans/latin-500.css';
+import '@fontsource/dm-sans/latin-600.css';
+import '@fontsource/dm-sans/latin-700.css';
 import './styles.css';
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -34,3 +34,6 @@ import './nature.css';
 import './atelier.css';
 
 import './clarity.css';
+
+import './sleep-guard.css';
+import './experience.css';

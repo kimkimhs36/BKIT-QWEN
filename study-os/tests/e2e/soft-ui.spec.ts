@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './local-fixture';
 
 test('the atelier desk is readable and action-first without overflow', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-14T06:00:00Z') });

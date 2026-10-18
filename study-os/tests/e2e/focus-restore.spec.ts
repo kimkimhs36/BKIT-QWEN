@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './local-fixture';
 
 test('focus can hide and reliably reveal its controls on a phone', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-14T06:00:00Z') });

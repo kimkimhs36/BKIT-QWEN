@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './local-fixture';
 
 test('Cloud Sync settings remain private until explicit Google consent',async({page})=>{
  await page.clock.install({time:new Date('2026-10-15T05:00:00Z')});

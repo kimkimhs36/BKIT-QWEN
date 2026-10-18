@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './local-fixture';
 import AxeBuilder from '@axe-core/playwright';
 import { resolve } from 'node:path';
 

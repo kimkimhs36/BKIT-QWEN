@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './local-fixture';
 test('Capture v2: date-only deadline and number of problems survive restart and edit',async({page})=>{
  await page.clock.install({time:new Date('2026-10-15T05:00:00Z')});
  await page.goto('./');

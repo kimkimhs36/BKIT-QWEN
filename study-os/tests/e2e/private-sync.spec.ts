@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './local-fixture';
 
 test('owner consent connects an empty first device without touching public study sessions', async ({page}) => {
   await page.addInitScript(() => {

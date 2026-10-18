@@ -68,10 +68,12 @@ export function PrivatePhotoCard({
   id,
   onRemove,
   large = false,
+  loadPhoto = getPhoto,
 }: {
   id: string;
   onRemove?: () => void;
   large?: boolean;
+  loadPhoto?: typeof getPhoto;
 }) {
   const [photo, setPhoto] = useState<{ url: string; name: string } | null>(null);
   const [failed, setFailed] = useState(false);
@@ -80,7 +82,7 @@ export function PrivatePhotoCard({
       url = '';
     setPhoto(null);
     setFailed(false);
-    getPhoto(id)
+    loadPhoto(id)
       .then((p) => {
         if (!live) return;
         if (!p) {
@@ -97,7 +99,7 @@ export function PrivatePhotoCard({
       live = false;
       if (url) URL.revokeObjectURL(url);
     };
-  }, [id]);
+  }, [id, loadPhoto]);
   return (
     <figure className={'atelier-photo' + (large ? ' atelier-photo--large' : '')}>
       {photo && !failed ? (

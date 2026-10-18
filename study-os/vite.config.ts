@@ -42,6 +42,7 @@ export default defineConfig(({ mode }) => ({
           'icon-512.png',
           'apple-touch-icon.png',
           'manifest.webmanifest',
+          'landscapes/forest.jpg',
           ...assets.map((x) => 'assets/' + x),
         ];
         const version = createHash('sha256')

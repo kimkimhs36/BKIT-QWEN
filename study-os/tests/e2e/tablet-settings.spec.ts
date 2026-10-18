@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './local-fixture';
 
 test('iPad portrait and landscape keep Settings, cloud status and action buttons separated', async ({page}) => {
   for (const width of [768, 820, 1024, 1180, 1366]) {

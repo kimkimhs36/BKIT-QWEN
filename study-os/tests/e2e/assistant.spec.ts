@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './local-fixture';
 test('assistant drafts new task and only commits after confirmation', async ({page}) => {
   await page.goto('./');
   await page.getByRole('button',{name:'더 보기'}).click();

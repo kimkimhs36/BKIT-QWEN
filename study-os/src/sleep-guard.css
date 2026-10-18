@@ -1,0 +1,337 @@
+/* Sleep Guard owns its layout and components; shared colors live in experience.css. */
+.sleep-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 20px 22px;
+  margin: 22px 0;
+  border: 1px solid var(--os-border);
+  border-radius: 20px;
+  background: var(--os-paper);
+  color: var(--os-ink);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;
+}
+.sleep-summary > span {
+  flex: 1;
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.sleep-summary strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.sleep-summary small {
+  color: var(--os-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.sleep-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  color: var(--os-ink);
+}
+.sleep-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 0 36px;
+}
+.sleep-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--os-muted);
+}
+.sleep-page .sleep-hero h2 {
+  font-size: clamp(30px, 4.6vw, 48px);
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.04em;
+  margin: 18px 0;
+}
+.sleep-hero p {
+  color: var(--os-muted);
+  line-height: 1.8;
+}
+.sleep-orb {
+  flex: 0 0 clamp(90px, 15vw, 160px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 28% 24%, #fefbf0, #e8eadb 65%, #d6dfcc);
+  color: #52674e;
+  box-shadow: inset -12px -10px 24px #66825f10;
+}
+.sleep-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.sleep-stack {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.sleep-card {
+  padding: 26px;
+  border: 1px solid var(--os-border);
+  border-radius: 24px;
+  background: var(--os-paper);
+  min-width: 0;
+}
+.sleep-page .sleep-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 0 0 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.sleep-card p {
+  font-size: 14px;
+  line-height: 1.85;
+  margin: 12px 0;
+}
+.sleep-muted {
+  color: var(--os-muted);
+}
+.sleep-card-head {
+  display: grid;
+  gap: 6px;
+}
+.sleep-toggle,
+.sleep-check {
+  display: flex !important;
+  align-items: center;
+  gap: 10px !important;
+  min-height: 44px;
+}
+.sleep-card label {
+  display: grid;
+  gap: 9px;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 14px 0;
+  min-width: 0;
+}
+.sleep-card input:not([type='checkbox']),
+.sleep-card select,
+.sleep-card textarea {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 11px 12px;
+  border: 1px solid var(--os-border);
+  border-radius: 12px;
+  background: var(--os-input);
+  color: var(--os-ink);
+  font: inherit;
+  font-size: 16px;
+  box-shadow: none;
+}
+.sleep-card textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+.sleep-card input[type='checkbox'] {
+  appearance: auto;
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  flex: 0 0 20px;
+  accent-color: var(--os-green);
+  margin: 0;
+}
+.sleep-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.sleep-window {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 12px;
+  padding: 24px 8px;
+  margin: 20px 0;
+  border-block: 1px solid var(--os-border);
+}
+.sleep-window > span {
+  display: grid;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--os-muted);
+}
+.sleep-window strong {
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--os-ink);
+  font-variant-numeric: tabular-nums;
+}
+.sleep-window small {
+  font-size: 12px;
+}
+.sleep-state {
+  padding: 12px 15px;
+  background: var(--os-tint);
+  border-radius: 12px;
+  color: var(--os-ink);
+}
+.sleep-card button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 11px 16px;
+  border: 1px solid var(--os-border);
+  border-radius: 12px;
+  background: var(--os-input);
+  color: var(--os-ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  cursor: pointer;
+  white-space: normal;
+}
+.sleep-card button.sleep-primary {
+  background: var(--os-green);
+  color: var(--os-on-green);
+  border-color: transparent;
+}
+.sleep-card button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.sleep-card button.sleep-danger {
+  color: var(--os-danger);
+  margin-top: 18px;
+}
+.sleep-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.sleep-card details {
+  border-top: 1px solid var(--os-border);
+  margin-top: 20px;
+  padding-top: 10px;
+}
+.sleep-card summary {
+  cursor: pointer;
+  min-height: 44px;
+  line-height: 1.7;
+  padding: 10px 0;
+  font-size: 14px;
+}
+.sleep-week ul {
+  padding: 0;
+  list-style: none;
+}
+.sleep-week li {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px;
+  border-bottom: 1px solid var(--os-border);
+  font-size: 14px;
+}
+.sleep-checklist {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+}
+.sleep-checklist label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border: 1px solid var(--os-border);
+  border-radius: 13px;
+  min-height: 54px;
+  margin: 0;
+  cursor: pointer;
+}
+.sleep-checklist small {
+  font-size: 11px;
+  color: var(--os-muted);
+}
+.sleep-photos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.sleep-upload {
+  padding-top: 8px;
+}
+.sleep-upload input {
+  font-size: 13px !important;
+}
+.sleep-card a {
+  color: var(--os-ink);
+  text-underline-offset: 4px;
+}
+.sleep-message,
+.sleep-error {
+  padding: 16px 20px;
+  border: 1px solid var(--os-border);
+  border-radius: 14px;
+  background: var(--os-paper);
+  line-height: 1.8;
+  font-size: 14px;
+}
+.sleep-error {
+  color: var(--os-danger);
+}
+@media (max-width: 1100px) {
+  .sleep-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sleep-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .sleep-card {
+    padding: 20px 17px;
+    border-radius: 20px;
+  }
+  .sleep-fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .sleep-window strong {
+    font-size: 28px;
+  }
+  .sleep-hero {
+    gap: 10px;
+  }
+  .sleep-hero p {
+    font-size: 13px;
+  }
+  .sleep-orb {
+    flex-basis: 76px;
+  }
+  .sleep-orb svg {
+    width: 32px;
+  }
+  .sleep-checklist small {
+    flex-basis: 100%;
+    padding-left: 32px;
+  }
+  .sleep-card input[type='datetime-local'] {
+    font-size: 15px;
+  }
+}

@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page } from './local-fixture';
 import AxeBuilder from '@axe-core/playwright';
 test.use({ storageState: { cookies: [], origins: [] } });
 const png = Buffer.from(

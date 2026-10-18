@@ -1,7 +1,12 @@
 import { QuickCapture } from './QuickCapture';
+import { LandscapeNote } from './LandscapeNote';
 import { HomeEntry } from './HomeEntry';
+import { SleepSummary } from './SleepSummary';
+import { useViewport } from './useViewport';
+import { useSleepGuard } from './useSleepGuard';
+import { applyStudyProgress } from './taskProgress';
 import { AssistantPanel } from './AssistantPanel';
-import { Juggernaut } from './Juggernaut';
+
 import { AtelierMissions, StudyAtelier, PrivatePhotoCard } from './StudyAtelier';
 import { mergeMissions, sameMission } from './atelier';
 import type { AssistantAction } from './assistantLogic';
@@ -22,7 +27,7 @@ import { LiquidOptics } from './LiquidOptics';
 import { WaterDrop } from './WaterDrop';
 import { DayTimeline } from './DayTimeline';
 import { DayOrbit } from './DayOrbit';
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type FormEvent } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import {
   ArrowUpRight,
@@ -49,6 +54,7 @@ import {
   Upload,
   X,
   Menu,
+  Moon,
   LockKeyhole,
   Pencil,
   CheckSquare,
@@ -83,6 +89,8 @@ import { inputError } from './input-error';
 import { apiEnabled, requestAI } from './ai';
 import { protectedBoundary, fixedConflicts } from './safety';
 import { KEY, readState, writeState, parseBackup } from './storage';
+const SleepGuard = lazy(() => import('./SleepGuard').then(m => ({default:m.SleepGuard})));
+const Juggernaut = lazy(() => import('./Juggernaut').then(m => ({default:m.Juggernaut})));
 const NAV = [
   { id: 'today', en: 'TODAY', label: '오늘', icon: Home },
   { id: 'school', en: 'SCHOOL', label: '시간표', icon: CalendarDays },
@@ -131,9 +139,18 @@ function Modal({
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
+    const element = ref.current;
+    const returnTo = nonModal ? document.querySelector<HTMLElement>('.home-tools-button') : document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    if (!nonModal) document.body.style.overflow = 'hidden';
     if (nonModal) ref.current?.show();
     else ref.current?.showModal();
-    return () => { if (ref.current?.open) ref.current.close(); };
+    return () => {
+      const restore = document.activeElement === document.body || !!element?.contains(document.activeElement);
+      if (element?.open) element.close();
+      if (!nonModal) document.body.style.overflow = previousOverflow;
+      if (restore && returnTo?.isConnected) returnTo.focus({preventScroll:true});
+    };
   }, [nonModal]);
   useEffect(() => {
     if (!nonModal) return;
@@ -166,7 +183,9 @@ function Modal({
       aria-modal={nonModal ? 'false' : undefined}
       onCancel={onClose}
       onClick={(e) => {
-        if (e.target === ref.current) onClose();
+        if (e.target !== ref.current || nonModal) return;
+        const bounds = ref.current.getBoundingClientRect();
+        if (e.clientX < bounds.left || e.clientX > bounds.right || e.clientY < bounds.top || e.clientY > bounds.bottom) onClose();
       }}
       aria-labelledby="modal-title"
     >
@@ -181,6 +200,7 @@ function Modal({
   );
 }
 export default function App() {
+  useViewport();
   const [initial] = useState(() => readState(localStorage));
   const [s, setS] = useState<State>(initial.state),
     [storageError, setStorageError] = useState(initial.error),
@@ -206,6 +226,7 @@ export default function App() {
       | 'block'
       | 'import'
     >(null);
+  const sleep = useSleepGuard(now, Boolean(s.active));
   const [editTask, setEditTask] = useState<Task | null>(null),
     [editSchedule, setEditSchedule] = useState<Schedule | null>(null),
     [day, setDay] = useState(dayKey()),
@@ -236,6 +257,7 @@ export default function App() {
   useEffect(() => {
     const shortcut = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        if (document.querySelector('dialog[open]')) return;
         e.preventDefault();
         setModal('capture');
         setFormError('');
@@ -527,7 +549,7 @@ export default function App() {
   }
   function finish(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const a = s.active;
+    const a = memory.current.active;
     if (!a) return;
     const f = new FormData(e.currentTarget),
       ended = Date.now(),
@@ -562,11 +584,7 @@ export default function App() {
         ],
         tasks: v.tasks.map((t) =>
           t.id === a.taskId
-            ? {
-                ...t,
-                status: complete ? 'done' : 'doing',
-                remaining: complete ? t.remaining : remaining,
-              }
+            ? applyStudyProgress(t, {complete, remainingMinutes:remaining, completedProblems:Number(f.get('problems')), quantityRemaining:f.get('quantityRemaining') ? Number(f.get('quantityRemaining')) : undefined})
             : t,
         ),
         plan: complete ? v.plan.filter((b) => b.taskId !== a.taskId) : v.plan,
@@ -592,7 +610,7 @@ export default function App() {
       const amount=Number(f.get('quantityTotal')||0);
       const quantity=unit&&amount>0 ? {
         unit,total:amount,
-        remaining:editTask?.quantity?.unit===unit ? Math.min(editTask.quantity.remaining,amount) : amount,
+        remaining: f.get('status') === 'done' ? 0 : f.get('quantityRemaining') !== '' ? Number(f.get('quantityRemaining') ?? amount) : amount,
       }:undefined;
       const duration=Number(f.get('minutes'));
       const t = taskSchema.parse({
@@ -780,7 +798,7 @@ export default function App() {
         onClick={() =>
           commit((v) => ({
             ...v,
-            tasks: v.tasks.map((x) => (x.id === t.id ? { ...x, status: 'done' } : x)),
+            tasks: v.tasks.map((x) => (x.id === t.id ? { ...x, status: 'done', quantity: x.quantity ? {...x.quantity, remaining:0} : undefined } : x)),
             plan: v.plan.filter((b) => b.taskId !== t.id),
             undo: null,
           }))
@@ -851,23 +869,25 @@ export default function App() {
       >
         <WaterDrop className="water-object--brand" />
         <strong>
-          BKIT<small>STUDY OS</small>
+          BKIT<small>STUDY OS 3.0</small>
         </strong>
       </a>
       <div className="main-shell">
         <header className="topbar">
           <div>
             <span className="mobile-brand">
-              BKIT <small>STUDY OS</small>
+              BKIT <small>STUDY OS 3.0</small>
             </span>
             <span className="breadcrumb">
-              BKIT <ChevronRight size={13} /> {NAV.find((n) => n.id === tab)?.label}
+              BKIT <ChevronRight size={13} /> {(tab === 'sleep' ? 'Sleep Guard' : NAV.find((n) => n.id === tab)?.label)}
             </span>
           </div>
           {tab === 'today' ? <div className="home-top-tools">
+            <button className="icon-button" aria-label="Sleep Guard 열기" onClick={() => setTab('sleep')}><Moon size={20}/></button>
             {!online && <span>오프라인</span>}
             <button type="button" className="icon-button home-tools-button" aria-label="더 보기" aria-expanded={modal === 'tools'} aria-controls="bkit-tools-menu" onClick={() => modal === 'tools' ? setModal(null) : open('tools')}><Menu size={22}/></button>
           </div> :           <div className="top-meta">
+            <button className="icon-button" aria-label="Sleep Guard 열기" onClick={() => setTab('sleep')}><Moon size={20}/></button>
             <span className={'status-dot ' + (!online ? 'offline' : '')} />
             <span>{online ? '로컬 저장 모드' : '오프라인 모드'}</span>
             <button
@@ -916,7 +936,7 @@ export default function App() {
         <main id="main" tabIndex={-1} key={tab}>
           <div className="page-head">
             <div>
-              <p className="eyebrow">{tab === 'today' ? fullDate(now) : NAV.find((n) => n.id === tab)?.en}</p>
+              <p className="eyebrow">{tab === 'today' ? fullDate(now) : (tab === 'sleep' ? 'REST & RECOVER' : NAV.find((n) => n.id === tab)?.en)}</p>
               <h1>
                 {
                   (
@@ -927,6 +947,7 @@ export default function App() {
                       study: '집중',
                       progress: '공부 기록',
                       settings: '설정',
+                      sleep: 'Sleep Guard',
                     } as Record<string, string>
                   )[tab]
                 }
@@ -1003,6 +1024,8 @@ export default function App() {
               </section>
                 {hasHomeTask && <HomeEntry onBriefing={() => openAtelier()} onMaterials={() => openAtelier('capture')}/>}
               </div>
+              <LandscapeNote/>
+              <SleepSummary guard={sleep} onOpen={() => setTab('sleep')}/>
               <details ref={todayDetailsRef} className="today-more">
                 <summary>
                   <span>오늘 일정과 기록</span>
@@ -1915,6 +1938,7 @@ export default function App() {
               </div>
             </>
           )}
+          {tab === 'sleep' && <Suspense fallback={<p role="status">수면 루틴을 여는 중…</p>}><SleepGuard guard={sleep} now={now} onStudy={() => setTab('study')}/></Suspense>}
           <footer className="page-footer">
             <span>BKIT / A LITTLE FOCUS, A LITTLE GROWTH.</span>
             <span>나의 속도로, 나의 흐름으로.</span>
@@ -1938,7 +1962,7 @@ export default function App() {
         }}/>, document.body,
       )}
       {tab === 'juggernaut' && createPortal(
-        <Juggernaut onExit={() => setTab('today')} onStart={() => setTab('study')} />,
+        <Suspense fallback={<p role="status">JUGGERNAUT를 여는 중…</p>}><Juggernaut onExit={() => setTab('today')} onStart={() => setTab('study')} /></Suspense>,
         document.body,
       )}
       {createPortal(
@@ -1986,6 +2010,7 @@ export default function App() {
             </p>
           )}
           {modal === 'tools' && <div className="home-tools-list">
+            <button onClick={() => {setModal(null);setTab('sleep');}}><Moon size={21}/><span>Sleep Guard · 수면 루틴</span><ChevronRight size={18}/></button>
             <button onClick={() => open('capture')}><Plus size={21}/><span>빠른 한 줄 입력</span><ChevronRight size={18}/></button>
             <button aria-label="BKIT 비서 열기" onClick={() => open('assistant')}><BookOpen size={21}/><span>BKIT 비서</span><ChevronRight size={18}/></button>
             <button aria-label="설정 열기" onClick={() => {setModal(null);setTab('settings');}}><Settings size={21}/><span>설정</span><ChevronRight size={18}/></button>
@@ -2067,6 +2092,9 @@ export default function App() {
                     <option value="passages">지문</option>
                     <option value="chapters">단원</option>
                   </select>
+                </Field>
+                <Field label="남은 실제 분량">
+                  <input name="quantityRemaining" type="number" min="0" max="10000" defaultValue={editTask?.quantity?.remaining ?? ''}/>
                 </Field>
                 <Field label="총 분량">
                   <input name="quantityTotal" type="number" min="0" max="10000"
@@ -2350,6 +2378,9 @@ export default function App() {
                   defaultValue="0"
                 />
               </Field>
+              {s.tasks.find(t => t.id === s.active?.taskId)?.quantity && <Field label="남은 실제 분량 (비우면 문제 수에서 차감)">
+                <input type="number" name="quantityRemaining" min="0" max={s.tasks.find(t => t.id === s.active?.taskId)?.quantity?.total} placeholder="쪽·지문·단원은 직접 입력"/>
+              </Field>}
               <Field label="떠올리거나 이해한 개념">
                 <input name="concepts" maxLength={200} placeholder="빈칸이어도 괜찮아요" />
               </Field>

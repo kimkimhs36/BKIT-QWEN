@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './local-fixture';
 
 test('desktop TODAY centers its content and quick-entry label stays horizontal', async ({ page }) => {
   for (const width of [1440, 1050]) {

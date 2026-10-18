@@ -1,0 +1,402 @@
+/* BKIT 3.0 shared tokens and interaction layout. No device physical-pixel assumptions. */
+:root {
+  --os-canvas: #f7f7ef;
+  --os-paper: #fffef9;
+  --os-ink: #293e32;
+  --os-muted: #5e6c60;
+  --os-green: #365b43;
+  --os-on-green: #fff;
+  --os-border: #dce2d6;
+  --os-input: #fffefb;
+  --os-tint: #edf1e7;
+  --os-danger: #9c3232;
+  color-scheme: light;
+}
+html {
+  scroll-padding-bottom: 110px;
+}
+body {
+  background: var(--os-canvas);
+}
+button,
+a,
+input,
+select,
+textarea,
+summary {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+:focus-visible {
+  outline: 3px solid #577c5e;
+  outline-offset: 3px;
+}
+dialog:not(.tools-dialog) {
+  max-height: calc(
+    var(--os-viewport-height, 100dvh) - 32px - env(safe-area-inset-top) -
+      env(safe-area-inset-bottom)
+  );
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+dialog input,
+dialog select,
+dialog textarea {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+dialog .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 20px;
+}
+dialog .field {
+  min-width: 0;
+}
+@media (max-width: 540px) {
+  dialog .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-height: 520px) {
+  dialog:not(.tools-dialog) {
+    margin-block: 10px;
+    max-height: calc(var(--os-viewport-height, 100dvh) - 20px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* Use full input tracks with real gutters instead of letting native iPad
+   time controls expand past their grid cell. */
+.app-shell.atelier-os.page-settings .form-grid {
+  column-gap: 20px;
+  row-gap: 4px;
+}
+.app-shell.atelier-os.page-settings .form-grid > .field,
+.app-shell.atelier-os.page-settings .form-grid input[type='time'] {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* The hamburger is a reversible non-modal menu: tapping the SAME trigger
+   closes it. Never use a blocking showModal() sheet for this control. */
+dialog.tools-dialog,
+dialog.tools-dialog[open] {
+  position: fixed;
+  inset: 88px max(16px, 4vw) auto auto;
+  margin: 0;
+  width: min(560px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(570px, calc(var(--os-viewport-height, 100dvh) - 104px));
+  box-sizing: border-box;
+  padding: 22px 25px 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid #dce3d7;
+  border-radius: 22px;
+  color: #29362f;
+  background: #ffffff;
+  box-shadow: 0 24px 75px #263f3530;
+  transform: none;
+  animation: none;
+  z-index: 100;
+}
+dialog.tools-dialog .modal-head {
+  margin-bottom: 10px;
+}
+dialog.tools-dialog .modal-head h2 {
+  font-size: 21px;
+  color: #29362f;
+}
+dialog.tools-dialog .home-tools-list > button {
+  width: 100%;
+  min-height: 60px;
+}
+@media (max-width: 767px) {
+  dialog.tools-dialog,
+  dialog.tools-dialog[open] {
+    inset: calc(70px + env(safe-area-inset-top, 0px)) 12px auto auto;
+    width: min(440px, calc(100vw - 24px));
+    max-height: min(570px, calc(var(--os-viewport-height, 100dvh) - 90px));
+    padding: 15px 18px 12px;
+    border-radius: 19px;
+  }
+  dialog.tools-dialog .home-tools-list > button {
+    min-height: 55px;
+    font-size: 15px;
+  }
+}
+/* Even with platform-specific intrinsic time-input sizes, form controls
+   on iPad need real breathing room instead of nearly touching borders. */
+.app-shell.atelier-os.page-settings .settings-layout .form-grid > .field {
+  min-width: 0;
+  box-sizing: border-box;
+  padding-inline: 8px;
+}
+.app-shell.atelier-os.page-settings .settings-layout .form-grid {
+  column-gap: 12px;
+  row-gap: 7px;
+}
+@media (min-width: 768px) and (max-width: 1279px) {
+  .app-shell.atelier-os.page-settings .settings-layout .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .app-shell.atelier-os.page-settings .settings-layout .form-grid > .field {
+    padding-inline: 0;
+  }
+}
+/* An opt-in quiet palette applies without an overlay, focus trap or timer interruption. */
+html[data-sleep-night='true'] {
+  --os-canvas: #131f28;
+  --os-paper: #1b2c33;
+  --os-ink: #e1e8dc;
+  --os-muted: #afbeb5;
+  --os-green: #b0c6a4;
+  --os-on-green: #182a22;
+  --os-border: #42565a;
+  --os-input: #20353b;
+  --os-tint: #233a3d;
+  --os-danger: #ffc0b5;
+  color-scheme: dark;
+}
+html[data-sleep-night='true'] body,
+html[data-sleep-night='true'] .app-shell.atelier-os {
+  background: var(--os-canvas);
+  color: var(--os-ink);
+}
+html[data-sleep-night='true'] .app-shell.atelier-os::before,
+html[data-sleep-night='true'] .app-shell.atelier-os::after {
+  display: none;
+}
+html[data-sleep-night='true']
+  .app-shell.atelier-os
+  :is(
+    .topbar,
+    .tablet-primary-nav,
+    .panel,
+    .command-stage,
+    .today-more,
+    .now-focus,
+    .home-entry-action,
+    .atelier-task-card,
+    .now-focus__body,
+    .now-empty,
+    .rhythm-card,
+    .note-card
+  ) {
+  background: var(--os-paper);
+  border-color: var(--os-border);
+  color: var(--os-ink);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+html[data-sleep-night='true']
+  .app-shell.atelier-os
+  :is(
+    h1,
+    h2,
+    h3,
+    p,
+    strong,
+    .eyebrow,
+    .breadcrumb,
+    .v2-brand,
+    .icon-button,
+    .mobile-brand,
+    .page-footer
+  ) {
+  color: var(--os-ink);
+}
+html[data-sleep-night='true']
+  .app-shell.atelier-os
+  :is(.tablet-primary-nav button, .home-entry-action small) {
+  color: var(--os-muted);
+}
+html[data-sleep-night='true'] .app-shell.atelier-os .tablet-primary-nav button.active {
+  background: var(--os-tint);
+  color: var(--os-ink);
+}
+html[data-sleep-night='true'] body > .orbit-nav {
+  background: var(--os-paper);
+  border-color: var(--os-border);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+html[data-sleep-night='true'] body > .orbit-nav::before {
+  display: none;
+}
+html[data-sleep-night='true'] body > .orbit-nav button {
+  color: var(--os-muted);
+}
+html[data-sleep-night='true'] body > .orbit-nav button.active {
+  background: var(--os-tint);
+  color: var(--os-ink);
+}
+html[data-sleep-night='true'] .sleep-orb {
+  background: radial-gradient(circle at 30% 25%, #49625c, #253d42 70%);
+  color: #ccd8be;
+  box-shadow: none;
+}
+html[data-sleep-night='true'] .sleep-page .atelier-photo {
+  background: var(--os-input);
+  color: var(--os-ink);
+}
+/* A single local photograph gives the desk a sense of place without dominating it. */
+.landscape-note {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 26px;
+  max-width: 720px;
+  margin: 30px 0;
+  color: var(--os-ink);
+}
+.landscape-note figure {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  aspect-ratio: 1.65;
+  background: var(--os-tint);
+}
+.landscape-note img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.landscape-note figcaption {
+  position: absolute;
+  inset: auto 10px 10px;
+  color: #fff;
+  font-size: 8px;
+  letter-spacing: 0.13em;
+  text-shadow: 0 1px 4px #000;
+}
+.landscape-kicker {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--os-muted);
+}
+.landscape-note p {
+  font-size: clamp(17px, 2.5vw, 24px);
+  font-weight: 500;
+  line-height: 1.5;
+  margin: 10px 0;
+  letter-spacing: -0.03em;
+}
+.landscape-note small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.8;
+  color: var(--os-muted);
+  margin-top: 6px;
+}
+.landscape-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  min-height: 44px;
+  color: var(--os-ink);
+  font-size: 11px;
+  cursor: pointer;
+}
+.landscape-upload input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.landscape-upload:focus-within {
+  outline: 3px solid #577c5e;
+  outline-offset: 3px;
+  border-radius: 5px;
+}
+.landscape-note button {
+  display: block;
+  border: 0;
+  background: none;
+  padding: 8px 0;
+  min-height: 36px;
+  color: var(--os-muted);
+  text-decoration: underline;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+@media (max-width: 480px) {
+  .landscape-note {
+    gap: 18px;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+  }
+  .landscape-note figure {
+    aspect-ratio: 0.95;
+  }
+  .landscape-note p {
+    font-size: 19px;
+  }
+  .landscape-note small {
+    font-size: 9px;
+  }
+}
+
+html[data-os-keyboard='true'] body > .orbit-nav {
+  display: none;
+}
+html[data-os-keyboard='true'] dialog:not(.tools-dialog) {
+  margin-block: 12px;
+}
+/* The new module uses opaque surfaces; avoid a GPU filter layer below its controls. */
+body:has(.page-sleep) > .orbit-nav {
+  background: var(--os-paper);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 5px 24px #2433250d;
+}
+body:has(.page-sleep) > .orbit-nav::before {
+  display: none;
+}
+html[data-sleep-night='true']
+  .app-shell.atelier-os
+  :is(.now-focus-guard, .now-focus-status, .now-task-options, .now-focus-track, .subject, .tag) {
+  background: var(--os-tint);
+  color: var(--os-ink);
+  border-color: var(--os-border);
+}
+html[data-sleep-night='true'] .app-shell.atelier-os .primary {
+  background: var(--os-green);
+  color: var(--os-on-green);
+  box-shadow: none;
+}
+html[data-sleep-night='true'] dialog {
+  background: var(--os-paper);
+  color: var(--os-ink);
+  border-color: var(--os-border);
+  box-shadow: 0 20px 60px #0003;
+}
+html[data-sleep-night='true'] dialog :is(input, select, textarea) {
+  background: var(--os-input);
+  color: var(--os-ink);
+  border-color: var(--os-border);
+}
+html[data-sleep-night='true'] dialog::backdrop {
+  background: #0d171ddd;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}

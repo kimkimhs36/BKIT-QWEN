@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page } from './local-fixture';
 import { newState } from '../../src/model';
 import { KEY } from '../../src/storage';
 const fixedTime = new Date('2026-10-12T06:00:00Z');

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './local-fixture';
 
 test('the same three-line button opens and closes tools on phone and tablet', async ({ page }) => {
   await page.goto('./');

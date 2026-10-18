@@ -44,6 +44,16 @@ export default defineConfig({
       },
     },
     {
+      name: 'galaxy-css',
+      use: {
+        viewport: { width: 1280, height: 800 },
+        deviceScaleFactor: 2,
+        hasTouch: true,
+        browserName: 'chromium',
+        launchOptions: chromiumLaunchOptions,
+      },
+    },
+    {
       name: 'desktop',
       use: {
         viewport: { width: 1440, height: 1000 },
