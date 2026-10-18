@@ -130,6 +130,8 @@ test('automatic night starts at bedtime, stays optional, and never interrupts ac
     localStorage.setItem('bkit.sleep-guard.v3', JSON.stringify(state));
     window.dispatchEvent(new StorageEvent('storage', { key: 'bkit.sleep-guard.v3' }));
   });
+  await page.getByLabel('집중 타이머', { exact: true }).click();
+  await page.getByRole('button', { name: '오늘로 · 타이머 유지', exact: true }).click();
   await openSleep(page);
   await expect(page.locator('.sleep-state')).toContainText('공부 중');
   await expect(page.getByRole('button', { name: '야간 화면 시작', exact: true })).toBeDisabled();
