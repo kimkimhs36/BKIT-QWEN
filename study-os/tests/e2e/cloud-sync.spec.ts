@@ -14,6 +14,7 @@ test('Cloud Sync settings remain private until explicit Google consent',async({p
  await expect(page.getByRole('navigation',{name:'주 메뉴'})).toBeVisible();
  await page.getByRole('button',{name:'더 보기'}).click();
  await page.getByRole('button',{name:'설정 열기'}).click();
+ await page.getByText('Google Sheets 연동 (이전 방식 · 별도 설정)').click();
  const cloud=page.getByRole('region',{name:'BKIT 클라우드 동기화'});
  await expect(cloud).toContainText('Google 계정 연결');
  await expect(cloud).toContainText('연결 전');
@@ -38,6 +39,7 @@ test('closing the Google consent popup produces a retryable error',async({page})
  await page.goto('./?bkit_sheet=BKIT_TEST_SHEET_ID_SAMPLE_1234567890');
  await page.getByRole('button',{name:'더 보기'}).click();
  await page.getByRole('button',{name:'설정 열기'}).click();
+ await page.getByText('Google Sheets 연동 (이전 방식 · 별도 설정)').click();
  const cloud=page.getByRole('region',{name:'BKIT 클라우드 동기화'});
  await cloud.getByRole('button',{name:'연결 설정 / 처음 사용하는 방법'}).click();
  await cloud.getByLabel('Google OAuth 웹 클라이언트 ID (비밀번호 아님)')
