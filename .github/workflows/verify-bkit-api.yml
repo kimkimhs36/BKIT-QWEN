@@ -39,8 +39,12 @@ jobs:
           for i in $(seq 1 24); do
             code=$(curl --silent --show-error --location --max-time 8 --output /tmp/bkit-health.json --write-out '%{http_code}' https://bkit-api.vercel.app/api/health || true)
             echo "Attempt $i: HTTP $code"
-            if [[ "$code" == "200" ]] && grep -q '"service":"bkit-api"' /tmp/bkit-health.json; then
+            if [[ "$code" == "200" ]] && jq -e --arg sha "$GITHUB_SHA" '.service == "bkit-api" and .sourceCommit == $sha and .authConfigured and .budgetConfigured' /tmp/bkit-health.json; then
               cat /tmp/bkit-health.json
+              status=$(curl --silent --output /dev/null --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' --data '{"text":"synthetic probe"}' https://bkit-api.vercel.app/api/briefing)
+              test "$status" = "401"
+              status=$(curl --silent --output /dev/null --write-out '%{http_code}' -H 'Origin: https://other.example' https://bkit-api.vercel.app/api/health)
+              test "$status" = "403"
               exit 0
             fi
             if [[ -f /tmp/bkit-health.json ]]; then head -c 400 /tmp/bkit-health.json; echo; fi

@@ -81,6 +81,7 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
   app.get('/api/health', (_req, res) =>
     res.json({
       service: 'bkit-api',
+      sourceCommit: env.VERCEL_GIT_COMMIT_SHA || null,
       stage: 'private-briefing-v1',
       mode: live ? 'configured' : 'demo',
       push: false,
