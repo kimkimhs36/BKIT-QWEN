@@ -2,6 +2,23 @@ import express from 'express';
 import { z } from 'zod';
 import { verifyBkitOwner } from './auth.js';
 import { RedisBudget } from './redisBudget.js';
+import { createHash } from 'node:crypto';
+import { stateSchema } from '../src/model.js';
+
+const syncScript = `
+local current = redis.call('GET', KEYS[1])
+local actual = 0
+if current then
+  local ok, decoded = pcall(cjson.decode, current)
+  if not ok or type(decoded) ~= 'table' then return {-3, 0} end
+  actual = tonumber(decoded.version) or -1
+end
+if actual ~= tonumber(ARGV[1]) then return {0, actual} end
+local next = actual + 1
+redis.call('SET', KEYS[1], cjson.encode({version=next, data=cjson.decode(ARGV[2])}))
+return {1, next}
+`;
+
 const taskSchema = z.object({
   title: z.string().trim().min(1).max(200),
   subject: z.string().trim().max(200),
@@ -116,6 +133,71 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
     next();
   });
   app.get('/api/auth-check', (_req, res) => res.json({ authenticated: true }));
+
+  // Private owner-only snapshots. Redis uses an isolated key and optimistic version checks.
+  // No public image storage: task photo IDs and live timers are intentionally excluded.
+  const syncKey = 'bkit:private-study:v1:' +
+    createHash('sha256').update((env.BKIT_OWNER_EMAIL || '').trim().toLowerCase()).digest('hex');
+  async function redisCommand(command: string[]) {
+    if (!budgetReady || !redisURL?.startsWith('https://'))
+      throw new Error('비공개 동기화 저장소가 준비되지 않았어요.');
+    const reply = await fetcher(redisURL, {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + redisToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(command),
+      signal: AbortSignal.timeout(8000),
+      cache: 'no-store',
+    });
+    if (!reply.ok) throw new Error('비공개 저장소에 연결하지 못했어요.');
+    const data: unknown = await reply.json();
+    if (!data || typeof data !== 'object' || !('result' in data))
+      throw new Error('비공개 저장소 응답이 올바르지 않아요.');
+    return (data as {result: unknown}).result;
+  }
+  app.get('/api/sync', async (_req, res) => {
+    try {
+      const raw = await redisCommand(['GET', syncKey]);
+      if (raw === null) return void res.json({ version: 0, state: null });
+      if (typeof raw !== 'string') throw new Error('동기화 기록이 올바르지 않아요.');
+      const record = z.object({
+        version: z.number().int().nonnegative(),
+        data: stateSchema,
+      }).parse(JSON.parse(raw));
+      res.json({version: record.version, state: record.data});
+    } catch {
+      res.status(503).json({error:'비공개 동기화 내용을 불러오지 못했어요.'});
+    }
+  });
+  app.put('/api/sync', express.json({limit:'650kb'}), async (req, res) => {
+    const body = z.object({
+      expectedVersion: z.number().int().min(0).max(1000000),
+      state: stateSchema,
+    }).strict().safeParse(req.body);
+    if (!body.success) return void res.status(400).json({error:'동기화 자료를 확인해 주세요.'});
+    const record = body.data.state;
+    if (record.active || record.plan.length || record.undo ||
+        record.tasks.some(t => (t.attachmentIds?.length || 0) > 0))
+      return void res.status(400).json({error:'진행 중인 타이머나 기기 전용 사진은 서버에 보낼 수 없어요.'});
+    try {
+      const result = await redisCommand([
+        'EVAL', syncScript, '1', syncKey,
+        String(body.data.expectedVersion), JSON.stringify(record),
+      ]);
+      if (!Array.isArray(result) || result.length !== 2 ||
+          result.some(n => typeof n !== 'number' || !Number.isSafeInteger(n)))
+        throw new Error('동기화 버전을 확인하지 못했어요.');
+      if (result[0] === 0)
+        return void res.status(409).json({error:'다른 기기에서 이미 수정했어요. 확인 후 다시 동기화해 주세요.',version:result[1]});
+      if (result[0] !== 1) throw new Error('동기화 기록 오류');
+      res.json({version:result[1]});
+    } catch {
+      res.status(503).json({error:'비공개 동기화를 저장하지 못했어요. 이 기기의 기록은 유지돼요.'});
+    }
+  });
+
   app.use(express.json({ limit: '16kb' }));
   app.post('/api/briefing', async (req, res) => {
     const input = z
