@@ -15,11 +15,14 @@
     "format:check": "prettier --check src server tests *.ts *.json *.md public/*.webmanifest public/*.js"
   },
   "dependencies": {
+    "@tesseract.js-data/eng": "1.0.0",
+    "@tesseract.js-data/kor": "1.0.0",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "lucide-react": "^0.468.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "tesseract.js": "7.0.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {

@@ -380,6 +380,7 @@ export default function App() {
       b.priority - a.priority,
   );
   const visibleTasks = filteredTasks(s.tasks, filter);
+  const activeMaterials = s.tasks.find(t => t.id === s.active?.taskId)?.attachmentIds || [];
   const current = fixed.find((f) => f.start <= now && f.end > now),
     nextBlock = todayBlocks.find((b) => +new Date(b.end) > now),
     actionTask = s.tasks.find((t) => t.id === nextBlock?.taskId) || ordered[0];
@@ -1296,6 +1297,14 @@ export default function App() {
                   <span className="eyebrow">ONE THING AT A TIME</span>
                   <h2>{s.active ? s.active.action : '딱 한 문제부터.'}</h2>
                   <p>{s.active ? s.active.subject : '개념을 떠올리고, 풀고, 다시 확인하세요.'}</p>
+                  {s.active && activeMaterials.length > 0 && (
+                    <details className="focus-materials">
+                      <summary>공부할 자료 펼치기 ({activeMaterials.length}장)</summary>
+                      <div className="atelier-photos">
+                        {activeMaterials.map(id => <PrivatePhotoCard key={id} id={id} large />)}
+                      </div>
+                    </details>
+                  )}
                   {s.active && (
                     <ProblemWorkspace
                       active={s.active}
@@ -1856,6 +1865,7 @@ export default function App() {
         <StudyAtelier startAt={atelierStep} onClose={() => setAtelierOpen(false)} onSave={tasks => {
           const merged = mergeMissions(memory.current.tasks, tasks);
           if (!commit(v => ({ ...v, tasks: merged.tasks }))) return null;
+          setSelected(merged.ids[0] || '');
           setTab('today');
           // A successful arrival returns to the mission desk even when briefing
           // was opened from a button far down TODAY. Run after dialog focus restore.

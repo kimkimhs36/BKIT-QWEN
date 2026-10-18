@@ -90,7 +90,7 @@ export function CloudSyncPanel({cloud}:{cloud:StudyCloudBridge}){
             placeholder="xxxx.apps.googleusercontent.com"/>
         </label>
         <p className="hint">
-          별도의 AI API 키는 필요 없어. Google Cloud Console에서 Sheets API를 사용 설정하고
+          과제·시간표 동기화에는 AI API 키가 필요 없어. Google Cloud Console에서 Sheets API를 사용 설정하고
           웹 OAuth 클라이언트를 만들어 승인된 JavaScript 원본에 https://teambkit.com 을 등록한 뒤,
           공개 클라이언트 ID만 입력하면 돼. Google에서 별도의 접근 동의를 요청해.
         </p>

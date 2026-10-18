@@ -1,6 +1,6 @@
 // Client-side feature flags; never embed provider credentials here.
 export const apiEnabled = import.meta.env.VITE_AI_API_ENABLED === 'true';
-const API_URL = 'https://bkit-api.vercel.app';
+const API_URL = (import.meta.env.VITE_AI_API_BASE_URL || 'https://bkit-api.vercel.app').replace(/\/$/, '');
 export async function requestAI(path: 'plan' | 'coach' | 'assistant', body: unknown, googleToken: string) {
   if (!apiEnabled || !navigator.onLine) throw new Error('AI unavailable');
   if (!googleToken) throw new Error('Google 계정을 연결해야 BKIT 멀티 비서를 사용할 수 있어.');

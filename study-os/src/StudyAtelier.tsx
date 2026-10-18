@@ -26,6 +26,7 @@ import {
   type Mission,
 } from './atelier';
 import { getPhoto, storePhoto } from './atelierMedia';
+import { PhotoText } from './PhotoText';
 import { formatQuantity, formatTaskDeadline } from './capture';
 
 export function AtelierScene() {
@@ -463,6 +464,14 @@ export function StudyAtelier({
                 <small>{draft.text.length.toLocaleString()} / 3,000</small>
               </label>
               <p className="atelier-note">사진만 있다면, 바로 다음 단계로 가도 좋아요.</p>
+              <button
+                type="button"
+                className="atelier-text-shortcut"
+                disabled={busy || locked || !draft.text.trim()}
+                onClick={() => prepare()}
+              >
+                사진 없이 과제 확인하기 <ArrowRight size={16} />
+              </button>
               {draft.missions.length > 0 && (
                 <p className="atelier-note">
                   확인 중인 과제 {draft.missions.length}개가 보관돼 있어요. 다음 단계에서 이어서
@@ -534,9 +543,26 @@ export function StudyAtelier({
                 </div>
               )}
               <p className="atelier-note">
-                사진 속 글자는 자동으로 읽지 않습니다. 다음 단계에서 직접 입력해 주세요. 장당 20MB ·
-                합계 60MB까지.
+                장당 20MB · 합계 60MB까지. 사진을 첨부한 뒤 필요한 글자만 가져올 수도 있어요.
               </p>
+              {!!draft.attachmentIds.length && (
+                <PhotoText
+                  photoIds={draft.attachmentIds}
+                  disabled={busy || locked}
+                  onUse={(text, photoId) => {
+                    const current = draftRef.current;
+                    const combined = [current.text, text].filter(Boolean).join('\n');
+                    if (combined.length > 3000) throw new Error('브리핑은 합계 3,000자까지입니다. 필요한 과제만 남겨 주세요.');
+                    const added = prepareMissions({ ...emptyDraft(), text, attachmentIds: [photoId] });
+                    const missions = current.missions.length
+                      ? [...current.missions, ...added]
+                      : [...(current.text.trim() ? prepareMissions(current) : []), ...added];
+                    if (missions.length > 20) throw new Error('한 번에 최대 20개 과제까지 준비할 수 있습니다.');
+                    update({ ...current, text: combined, missions, step: 'prepare' });
+                    setError('');
+                  }}
+                />
+              )}
               <div className="atelier-privacy">
                 <LockKeyhole size={17} />
                 <p>

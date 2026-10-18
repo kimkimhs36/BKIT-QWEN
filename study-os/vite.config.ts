@@ -1,7 +1,8 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile, mkdir, copyFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { OCR_ASSET_DIR } from './src/ocrAssets';
 export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
@@ -9,6 +10,30 @@ export default defineConfig(({ mode }) => ({
       name: 'bkit-offline-shell',
       apply: 'build',
       async closeBundle() {
+        // Keep OCR out of the initial app shell. Only a user tap downloads the
+        // engine/languages; the existing same-origin worker caches fetched assets.
+        const ocr = 'dist/' + OCR_ASSET_DIR;
+        await mkdir(ocr + '/core', { recursive: true });
+        await mkdir(ocr + '/lang', { recursive: true });
+        await copyFile('node_modules/tesseract.js/dist/worker.min.js', ocr + '/worker.min.js');
+        const cores = (await readdir('node_modules/tesseract.js-core')).filter((x) =>
+          x.endsWith('.wasm.js'),
+        );
+        await Promise.all(
+          cores.map((x) => copyFile('node_modules/tesseract.js-core/' + x, ocr + '/core/' + x)),
+        );
+        for (const lang of ['kor', 'eng']) {
+          await copyFile(
+            `node_modules/@tesseract.js-data/${lang}/4.0.0_best_int/${lang}.traineddata.gz`,
+            `${ocr}/lang/${lang}.traineddata.gz`,
+          );
+        }
+        await copyFile('node_modules/tesseract.js/LICENSE.md', ocr + '/LICENSE-tesseract-js');
+        await copyFile('node_modules/tesseract.js-core/LICENSE', ocr + '/LICENSE-core');
+        await writeFile(
+          ocr + '/LANGUAGE-NOTICE.txt',
+          'Korean and English traineddata: @tesseract.js-data/kor and @tesseract.js-data/eng 1.0.0.\nSource: https://github.com/naptha/tessdata\nPackage authors: Balearica and Jerome Wu. Package license: MIT.\nUnderlying Tesseract language models: https://github.com/tesseract-ocr/tessdata (Apache-2.0; see LICENSE-core).\n',
+        );
         const assets = await readdir('dist/assets');
         const shell = [
           'index.html',

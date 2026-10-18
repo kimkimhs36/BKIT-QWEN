@@ -4,7 +4,9 @@
 
 기존 CRASH//WEEK와 분리된 `study-os/` 앱입니다. 루트 `index.html`, `styles.css`, `app.js`, `README.md`, `CNAME`은 수정하지 않았습니다. 기존 `crashweek.v3` 저장 키도 읽거나 삭제하지 않습니다.
 
-배포된 개인용 앱: [BKIT STUDY OS](https://bkit-study-os.jazzymoth5.chatgpt.site). 본인 ChatGPT 계정으로 접근합니다. 배포·검증 정보는 [DEPLOYMENT.md](DEPLOYMENT.md)에 있습니다.
+현재 공개 앱: [TOHEŞAR × BKIT](https://teambkit.com/). 개발 원본은 `feat/study-os-visual-v2` 브랜치의 `study-os/`입니다. 아래 v1 Sites 배포 관련 설명과 [DEPLOYMENT.md](DEPLOYMENT.md)는 초기 개발 이력입니다. 현재 공개 배포는 `.github/workflows/publish-teambkit.yml`이 검증한 정적 파일을 `main`에 게시하고, 별도 Pages 성공 및 `release.json`의 원본 커밋 일치까지 확인합니다.
+
+2026-10-18 재개 버전: ‘오늘 할 일 정리 → 사진 없이 과제 확인 → 확인 후 저장 → 5분 시작’. 사진을 첨부했다면 무료 기기 내 한글·영어 글자 추출을 선택할 수 있으며, 공부 화면에서도 연결된 사진을 펼쳐볼 수 있습니다. 외부 AI 서버는 현재 demo 상태입니다. API 키·결제 없이 기본 학습과 OCR을 사용할 수 있습니다. 정확한 연동 현황·비밀 설정·남은 사용자 행동은 [API-SETUP.md](API-SETUP.md)를 확인하세요.
 
 ## 바로 실행
 
@@ -96,7 +98,7 @@ npm run server
 ## WHAT IS NOT IMPLEMENTED
 
 - 앱 내부 다중 사용자 DB·인증, 기기 간 동기화, 서버 푸시·예약 작업. 배포 페이지의 본인 계정 접근은 Sites 인증으로 제공하며 기록 동기화와는 별개입니다.
-- 실제 iPhone/iPad Safari 기기 검증. 현재 자동 브라우저 검증은 Chromium을 사용합니다.
+- 실제 iPhone/iPad Safari 기기 검증. 자동 검증은 iPhone Chromium 및 iPhone/iPad WebKit을 사용하며, 실제 카메라·HEIC·소프트웨어 키보드 검증과 구분합니다.
 - 실제 유료 AI API 종단 테스트, 공급자별 모델 비교, 제공업체 청구 금액 조회.
 - 기초 진단 문제은행, 답 입력·정답 자동 채점, 적응형 난이도, 개인 이해도에 따른 자동 간격 복습. 현재 오답의 첫 복습 날짜는 다음 날입니다.
 - 학교 시간표 자동 수집, 외부 캘린더 양방향 동기화, CRASH//WEEK 데이터 자동 가져오기.
@@ -142,6 +144,8 @@ public/sw.js       빌드에서 버전·자산 목록을 주입하는 PWA 셸
 구체적인 실행 결과와 한계는 [TEST-REPORT.md](TEST-REPORT.md)를 참고하세요. 의미 있는 일정 안전 규칙은 Vitest로 검사하고 실제 UI 저장 흐름·좁은 화면·오프라인 재실행은 Playwright로 검증합니다. axe 자동 검사만으로 전체 WCAG 준수나 실제 VoiceOver 사용성을 보장하지 않습니다.
 
 ## HOW TO DEPLOY SAFELY
+
+**아래는 v1 초기 배포 이력입니다.** 현재 승인된 teambkit.com 게시 절차는 위의 GitHub Pages 워크플로를 따릅니다. `main`은 배포 파일, `feat/study-os-visual-v2`의 `study-os/`는 개발 원본이며, 이전 사이트와 원본은 Git 이력·복구 태그로 보존되어 있습니다.
 
 기존 공개 사이트 교체·main 병합·DNS 변경은 하지 않았습니다. 사용자의 추가 배포 요청으로 독립 Sites 배포를 완료했습니다. Vercel은 teambkit 팀 접근 403과 CLI 미인증, 별도 GitHub 저장소 생성은 통합 권한 부족으로 사용할 수 없었습니다. 배포 기록은 DEPLOYMENT.md를 확인하세요. API 결제·키 등록은 별도 설정입니다.
 
