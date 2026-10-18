@@ -54,3 +54,19 @@ test('sleep window stops running focus at the 22:30 boundary, not 02:00', async 
     return { elapsed: stored.active.elapsed, segmentStart: stored.active.segmentStart };
   })).toEqual({ elapsed: 600, segmentStart: null });
 });
+
+test('photo proof is optional and never uploaded or saved', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-19T12:45:00Z') });
+  await page.addInitScript(s => localStorage.setItem('bkit.sleep-guard.v1', JSON.stringify(s)), sleep);
+  await page.goto('./');
+  await page.getByRole('button', { name: '마무리하기' }).click();
+  const dialog = page.getByRole('dialog', { name: '자기 전 3분 정리' });
+  await expect(dialog).toBeVisible();
+  await expect(page.getByLabel('씻고 나와서 준비했어')).toBeVisible();
+  const file = page.getByLabel('비어 있는 침대 사진 선택 또는 촬영');
+  await file.setInputFiles({ name: 'empty-bed.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('fake-image-data') });
+  await expect(dialog).toContainText('업로드·저장하지 않았고');
+  expect(await page.evaluate(() => Object.keys(localStorage).filter(key => key.includes('photo')))).toEqual([]);
+  await page.getByRole('button', { name: '확인 끝 · 화면 내려놓기' }).click();
+  await expect(page.getByRole('dialog', { name: '오늘은 여기까지.' })).toBeVisible();
+});
