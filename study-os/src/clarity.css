@@ -733,9 +733,7 @@ body > .orbit-nav button:not(.active):hover {
   position: static;
 }
 .app-shell.atelier-os .now-task-options > summary {
-  position: absolute;
-  right: 22px;
-  top: 10px;
+  position: static;
   padding-block: 12px;
   min-height: 44px;
 }
@@ -788,6 +786,20 @@ body > .orbit-nav button:not(.active):hover {
     min-height: 82px;
     padding-block: 14px;
   }
+}
+/* Compact capture shortcuts keep the first learning action above the phone
+   dock at narrow widths, without reducing touch targets or hiding the action. */
+@media (max-width: 360px) {
+  .home-entry { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); padding:8px; }
+  .home-entry-action { min-height:56px; padding:8px 4px; justify-content:center; }
+  .home-entry-action strong { font-size:15px; }
+  .home-entry-action small, .home-entry-action .home-entry-icon, .home-entry-action > svg { display:none; }
+  .home-entry-action + .home-entry-action { border-top:0; border-left:1px solid #e8ebe5; }
+}
+@media (max-height:650px) and (max-width:480px) {
+  .app-shell.atelier-os .instant-action small { display:none; }
+  .app-shell.atelier-os.page-today .command-stage { padding:16px; }
+  .app-shell.atelier-os.page-today .page-head { margin-bottom:12px; }
 }
 .home-primary {
   display: flex;

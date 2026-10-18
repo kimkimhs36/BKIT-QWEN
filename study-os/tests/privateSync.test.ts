@@ -13,11 +13,17 @@ describe('private multi-device portable state',()=>{
     const input=newState();
     input.tasks=[task];
     input.settings.goal='매일 공부';
+    input.learningEvents=[{id:'private-event',type:'FirstLearningAttempt',at:'2026-10-19T00:00:00.000Z',foregroundAt:'2026-10-19T00:00:00.000Z',taskId:task.id,sessionId:'private-session',action:'나의 로컬 첫 답변'}];
+    input.problemRetests=[{id:'private-retest',sessionId:'private-session',answer:'나만의 재시험 답',submittedAt:'2026-10-19T00:00:00.000Z',selfCheck:'unreviewed'}];
     const portable=portableStudyState(input);
     expect(portable.tasks).toEqual([expect.not.objectContaining({attachmentIds:expect.anything()})]);
     expect(portable.tasks[0].title).toBe('학습지 3장');
     expect(portable.settings.goal).toBe('매일 공부');
     expect(portable.active).toBeNull();
+    expect(portable.learningEvents).toBeUndefined();
+    expect(portable.problemRetests).toBeUndefined();
+    expect(JSON.stringify(portable)).not.toContain('나만의 재시험 답');
+    expect(input.problemRetests[0].answer).toBe('나만의 재시험 답');
     expect(portable.plan).toEqual([]);
     expect(portable.undo).toBeNull();
     expect(portable.revision).toBe(0);

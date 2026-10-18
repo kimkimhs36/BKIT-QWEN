@@ -7,7 +7,7 @@ test('iOS navigation is readable and advanced tools remain available below one m
   await page.clock.install({ time: new Date('2026-10-14T06:00:00Z') });
   await page.goto('./');
   const nav = page.getByRole('navigation', { name: '주 메뉴' });
-  await expect(nav.getByRole('button')).toHaveCount(5);
+  await expect(nav.getByRole('button')).toHaveCount(4);
   const more = page.getByRole('button', { name: '더 보기' });
   await expect(more).toBeVisible();
   const geometry = await page.evaluate(() => ({
@@ -26,6 +26,13 @@ test('iOS navigation is readable and advanced tools remain available below one m
     page.getByRole('dialog').getByRole('heading', { name: '무엇부터 해야 할까요?' }),
   ).toBeVisible();
   await page.getByRole('button', { name: '닫기' }).click();
-  await nav.getByRole('button', { name: '시간표' }).click();
-  await expect(nav.getByRole('button', { name: '시간표' })).toHaveAttribute('aria-current', 'page');
+  await nav.getByRole('button', { name: '더보기', exact: true }).click();
+  await page
+    .getByRole('navigation', { name: '추가 도구', exact: true })
+    .getByRole('button', { name: '시간표', exact: true })
+    .click();
+  await expect(nav.getByRole('button', { name: '더보기', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
 });

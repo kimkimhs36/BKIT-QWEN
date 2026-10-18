@@ -25,7 +25,7 @@ export function ProblemWorkspace({
 }) {
   const [draft, setDraft] = useState('');
   const [hintUsed, setHintUsed] = useState(false);
-  const [confidence, setConfidence] = useState<'low' | 'medium' | 'high'>('medium');
+  const [confidence, setConfidence] = useState<'' | 'low' | 'medium' | 'high'>('');
   const [errorTag, setErrorTag] = useState<ErrorTag>('unknown');
   const workspace = active.workspace;
   const attempts = workspace?.attempts || [];
@@ -46,10 +46,10 @@ export function ProblemWorkspace({
     e.preventDefault();
     const value = draft.trim();
     if (!value || attempts.length >= 20) return;
-    if (onRecordAttempt(value, { hintUsed, confidence })) {
+    if (onRecordAttempt(value, { hintUsed, confidence: confidence || undefined })) {
       setDraft('');
       setHintUsed(false);
-      setConfidence('medium');
+      setConfidence('');
     }
   }
   return (
@@ -199,6 +199,7 @@ export function ProblemWorkspace({
                   value={confidence}
                   onChange={(e) => setConfidence(e.target.value as typeof confidence)}
                 >
+                  <option value="">선택 안 함</option>
                   <option value="low">낮음</option>
                   <option value="medium">보통</option>
                   <option value="high">높음</option>

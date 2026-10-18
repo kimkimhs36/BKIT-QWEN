@@ -18,7 +18,17 @@ export function useSleepGuard(now: number, studying: boolean) {
         setError('다른 탭에서 수면 기록이 바뀌었습니다. 새로고침하여 최신 기록을 확인해 주세요.');
         return false;
       }
-      const next = sleepSchema.parse(change(memory.current));
+      const candidate = change(memory.current);
+      const previous = memory.current;
+      const protectionChanged =
+        candidate.enabled !== previous.enabled ||
+        candidate.pausedUntil !== previous.pausedUntil ||
+        JSON.stringify(candidate.schedule) !== JSON.stringify(previous.schedule) ||
+        JSON.stringify(candidate.skipped) !== JSON.stringify(previous.skipped);
+      const next = sleepSchema.parse({
+        ...candidate,
+        protectionChangedAt: protectionChanged ? Date.now() : previous.protectionChangedAt,
+      });
       const serialized = JSON.stringify(next);
       localStorage.setItem(SLEEP_KEY, serialized);
       raw.current = serialized;
@@ -37,7 +47,7 @@ export function useSleepGuard(now: number, studying: boolean) {
   }
   function restore(incoming: SleepState) {
     try {
-      const validated = sleepSchema.parse(incoming);
+      const validated = sleepSchema.parse({ ...incoming, protectionChangedAt: Date.now() });
       const previous = localStorage.getItem(SLEEP_KEY);
       // Recovery is explicit. Keep the exact previous bytes even when parsing failed.
       if (previous !== null) localStorage.setItem(SLEEP_KEY + '.recovery.' + Date.now(), previous);

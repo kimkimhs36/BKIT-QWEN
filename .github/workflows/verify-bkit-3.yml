@@ -2,6 +2,7 @@ name: Verify BKIT STUDY OS 3.0
 on:
   push:
     branches: [feat/bkit-3-sleep-guard]
+    paths-ignore: ['**/*.md']
   pull_request:
     branches: [feat/study-os-visual-v2]
 permissions:
@@ -13,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [iphone, desktop, webkit-iphone, webkit-ipad, galaxy-css]
+        project: [iphone, ipad, desktop, webkit-iphone, webkit-ipad, galaxy-css]
     defaults:
       run:
         working-directory: study-os

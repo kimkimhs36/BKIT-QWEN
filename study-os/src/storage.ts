@@ -24,13 +24,22 @@ export function readState(storage: StoragePort): {
     };
   }
 }
-export function writeState(storage: StoragePort, state: State, expectedRaw?: string | null) {
+export function writeState(
+  storage: StoragePort,
+  state: State,
+  expectedRaw?: string | null,
+  recoveryKey?: string,
+) {
   const serialized = JSON.stringify(stateSchema.parse(state));
   const previous = storage.getItem(KEY);
   if (expectedRaw !== undefined && previous !== expectedRaw)
     throw new StorageConflict(
       '다른 탭에서 데이터가 변경되었습니다. 새로고침 전에 현재 기록을 내보내세요.',
     );
+  if (previous !== null && recoveryKey) {
+    if (storage.getItem(recoveryKey) !== null) throw new Error('복구 백업 키가 중복되었습니다.');
+    storage.setItem(recoveryKey, previous);
+  }
   // Preserve exact pre-upgrade bytes once; failure leaves the original untouched.
   if (previous !== null && storage.getItem(LEARNING_BACKUP_KEY) === null)
     storage.setItem(LEARNING_BACKUP_KEY, previous);

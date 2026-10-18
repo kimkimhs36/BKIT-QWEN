@@ -1,12 +1,13 @@
+import { useMemo } from 'react';
 import type { State } from './model';
 import { weeklyLearningEvidence } from './learningEvidence';
 import { needsSubmission } from './tasks';
 import { buildProblemReviews } from './problemReview';
 
 export function LearningEvidence({ state, today }: { state: State; today: string }) {
-  const e = weeklyLearningEvidence(state, today);
+  const e = useMemo(() => weeklyLearningEvidence(state, today), [state, today]);
   const last = state.sessions[state.sessions.length - 1];
-  const queue = buildProblemReviews(state, today);
+  const queue = useMemo(() => buildProblemReviews(state, today), [state, today]);
   const next = last
     ? [...queue.overdue, ...queue.today, ...queue.upcoming].find((c) => c.sessionId === last.id)
     : null;
@@ -17,6 +18,12 @@ export function LearningEvidence({ state, today }: { state: State; today: string
           <h2>이번 주, 실제로 남긴 증거</h2>
           <span className="chip">최근 7일</span>
         </div>
+        {(state.learningEvents?.length ?? 0) >= 5000 && (
+          <p role="status">
+            시작 이벤트 저장 한도에 도달했습니다. 기존 기록은 유지하며 새 시작 통계는 누적하지
+            않습니다. 답변과 세션 저장은 별개입니다.
+          </p>
+        )}
         <dl className="evidence-grid">
           <div>
             <dt>공부 시작</dt>
@@ -74,11 +81,7 @@ export function LearningEvidence({ state, today }: { state: State; today: string
           </p>
           <p>
             남은 학습 과제 {state.tasks.filter((t) => t.status !== 'done').length}개 · 완료 후 제출
-            미확인{' '}
-            {
-              state.tasks.filter(needsSubmission).length
-            }
-            개
+            미확인 {state.tasks.filter(needsSubmission).length}개
           </p>
         </section>
       )}

@@ -11,7 +11,7 @@ export function sleepConstraints(state: SleepState, from: number, until: number)
   for (let i = 0; i < 512; i++) {
     const w = sleepWindow(cursor, state.schedule);
     if (w.bed > until) break;
-    const start = Math.max(w.bed, state.pausedUntil);
+    const start = Math.max(w.bed, state.pausedUntil, state.protectionChangedAt ?? 0);
     if (!state.skipped.includes(w.key) && start < w.wake && w.wake > from)
       result.push({
         id: 'sleep-guard:' + w.key,

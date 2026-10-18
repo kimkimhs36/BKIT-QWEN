@@ -464,8 +464,11 @@ html[data-sleep-night='true'] dialog::backdrop {
   border-block: 1px solid var(--os-border);
   line-height: 1.75;
 }
-.instant-action strong { font-size: 16px; font-weight: 600; }
+.instant-action strong { display: block; font-size: 16px; font-weight: 600; }
 .instant-action p, .instant-action small { color: var(--os-muted); font-size: 13px; }
+.instant-action small { display: block; margin-top: 7px; }
+.now-energy-options { margin-top: 10px; }
+.now-energy-options > summary { cursor: pointer; min-height: 44px; padding-block: 10px; font-size: 13px; color: var(--os-muted); }
 .problem-review-card { padding: 22px 0; border-top: 1px solid var(--os-border); overflow-wrap: anywhere; }
 .problem-review-card label { display: grid; gap: 10px; margin-block: 14px; }
 .problem-review-card textarea { width: 100%; min-height: 110px; font: inherit; font-size: 16px; padding: 12px; border: 1px solid var(--os-border); border-radius: 12px; background: var(--os-input); color: var(--os-ink); }
@@ -486,3 +489,9 @@ html[data-sleep-night='true'] dialog::backdrop {
 .exam-form label { display:grid; gap:8px; margin-block:14px; }
 .exam-form :is(input,textarea) { width:100%; min-width:0; max-width:100%; font:inherit; font-size:16px; min-height:46px; padding:12px; border:1px solid var(--os-border); border-radius:12px; background:var(--os-input); color:var(--os-ink); }
 @media (max-width:600px) { .exam-form .form-grid {grid-template-columns:minmax(0,1fr);} }
+.nav-section-label { display:block; font-size:8px; line-height:1.4; letter-spacing:.08em; margin-top:2px; }
+.more-hub nav {display:grid;gap:10px;margin-bottom:24px;}
+.more-hub-link {display:flex;gap:16px;align-items:center;width:100%;min-height:76px;padding:18px;border:1px solid var(--os-border);border-radius:16px;background:var(--os-paper);color:var(--os-ink);text-align:left;}
+.more-hub-link > span {display:grid;gap:6px;flex:1;min-width:0;}
+.more-hub-link strong {font-size:16px;font-weight:600;}
+.more-hub-link small {font-size:13px;color:var(--os-muted);line-height:1.6;}

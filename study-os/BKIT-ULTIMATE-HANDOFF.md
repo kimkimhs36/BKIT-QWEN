@@ -72,3 +72,25 @@ Latest completed integrated local checks before this checkpoint: 111/111 unit te
 - Original Sleep Guard JSON includes photo IDs, not original image bytes. Clearing browser storage can still remove local media; no automatic device sync claim.
 - Real iPhone/iPad/Samsung hardware, native keyboard/pickers, notifications/PWA permissions, S Pen/DeX and real frame-rate checks remain unverified. CSS/engine automation is not physical-device validation.
 - External AI APIs, paid resources, OAuth/key/backend changes and production deployment intentionally excluded.
+
+## Integration checkpoint update — four-area shell and release verification
+
+- NOW / LEARN / TASKS / MORE primary navigation is now implemented. Korean route names remain accessible; timetable and evidence live under MORE. The separate MoreHub is lazy loaded. Header capture/tools remain reachable; legacy route data is retained.
+- The primary NOW action now precedes capture shortcuts even for a new learner. At 320px the two capture shortcuts use a compact two-column layout with 56px touch targets. The first action remains above the dock. Fatigue is optional and is placed after the start action; the original absolutely positioned task chooser was changed to normal flow after an actual overlap was measured.
+- A due problem retest now has a direct NOW entry into the real answer-first review queue. Zero reported remaining quantity routes to manual completion/submission confirmation, rather than inventing another problem.
+- Explicit submission intent and text/photo/manual capture confirmation are additive task metadata. Legacy tasks keep their prior submission behavior. New local metadata is retained across old sync formats; no OAuth/backend changes.
+- Confidence is unknown unless selected. An immediate correct retry does not cancel next-day review after an error/hint/low confidence. Successful delayed retests extend intervals; new errors reset them.
+- Focus restore is portaled outside transformed study content and pointer/keyboard activation no longer removes the button before its click. Phone-specific dock/touch scenarios explicitly set phone viewport/touch while still running in each browser engine; assertions/scenarios are preserved.
+- Sleep Guard's optional protectionChangedAt makes new/edited protection effective from confirmation time. Enabling an earlier bedtime while already studying cannot retroactively trim real study. Old sleep v3 JSON remains valid; manual sleep records/photos are retained.
+- Original import replacements now additionally retain exact current bytes at bkit.study-os.v1.before-restore.<timestamp>.<uuid>. Settings can export the initial retained original and latest pre-restore original. No writes occur after stale-state or backup quota failure.
+- New telemetry accumulation stops at 5,000 events without deleting old events; the evidence screen explicitly states this limit. Actual answers/session saves remain separate. Existing larger validated arrays are preserved.
+- Reusable immutable KST Intl formatters eliminate repeated ICU allocations in recovery and timer renders. New evidence/exam/review/MORE UI loads by screen; stable React/schema vendor chunks can stay cached between source updates. Entry chunk is about 246kB plus 277kB shared vendors: **do not claim that total first-load JavaScript halved**. The >500kB single-chunk warning is gone.
+
+### Additional verification history (not final sign-off)
+
+- 117 unit tests passed before the final shell styling; TypeScript and candidate production builds passed.
+- Original full-source CI 39157083250 failed (not cancelled): overlapping energy/task summaries, 320px action/dock clearance, phone-only dock/touch assumptions, and a WebKit focus-restore click failure. Each root cause was traced; none of the failing assertions was removed or skipped.
+- Focus restore, actual task selection, JUGGERNAUT integration and timer preservation after enabling an earlier bedtime passed in local Chromium/WebKit follow-up. A blocker sweep was 27/30 with only the 320px layout still failing; measured shortcut bottoms were 739px vs a dock at 656px. The compact fix then measured 639px with 56px targets, while start was at 533px.
+- Superseded local four-area sweep: 26 passed, 1 interrupted, 7 not run. Superseded iPad full sweep: 21 passed, 1 interrupted, 45 not run. These were deliberately stopped before rebuilding the shared preview; they are not reported as complete passes.
+- Verification CI now runs the **entire suite** in six projects (adds Chromium iPad), instead of only selected files. Markdown-only handoff commits do not rerun unchanged source tests; final reports must link the exact verified source commit, not imply a new run for a docs-only commit.
+- Final full matrix result and exact commits will be appended after completion.

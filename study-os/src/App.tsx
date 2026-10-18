@@ -1,8 +1,5 @@
 import { sleepConstraints, studyFixedNow } from './sleepConstraints';
-import { ExamPanel } from './ExamPanel';
-import { LearningEvidence } from './LearningEvidence';
-import { ProblemReviewQueue } from './ProblemReviewQueue';
-import { addProblemRetest, type AttemptMeta, type ErrorTag, type ProblemSourceMeta } from './problemReview';
+import { addProblemRetest, buildProblemReviews, type AttemptMeta, type ErrorTag, type ProblemSourceMeta } from './problemReview';
 import { appendLearningEvent, firstLearningAction, rankInstantTasks, canStartSprint } from './now';
 import { QuickCapture } from './QuickCapture';
 import { TaskCheckIn } from './TaskCheckIn';
@@ -34,7 +31,7 @@ import { LiquidOptics } from './LiquidOptics';
 import { WaterDrop } from './WaterDrop';
 import { DayTimeline } from './DayTimeline';
 import { DayOrbit } from './DayOrbit';
-import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type FormEvent } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, useMemo, type ReactNode, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import {
   ArrowUpRight,
@@ -95,17 +92,24 @@ import { needsSubmission, needsAttention, filteredTasks } from './tasks';
 import { inputError } from './input-error';
 import { apiEnabled, requestAI } from './ai';
 import { protectedBoundary, fixedConflicts } from './safety';
-import { KEY, readState, writeState, parseBackup, StorageConflict } from './storage';
+import { KEY, readState, writeState, parseBackup, StorageConflict, LEARNING_BACKUP_KEY } from './storage';
 const SleepGuard = lazy(() => import('./SleepGuard').then(m => ({default:m.SleepGuard})));
+const MoreHub = lazy(()=>import('./MoreHub').then(m=>({default:m.MoreHub})));
+const ExamPanel = lazy(()=>import('./ExamPanel').then(m=>({default:m.ExamPanel})));
+const LearningEvidence = lazy(()=>import('./LearningEvidence').then(m=>({default:m.LearningEvidence})));
+const ProblemReviewQueue = lazy(()=>import('./ProblemReviewQueue').then(m=>({default:m.ProblemReviewQueue})));
 const Juggernaut = lazy(() => import('./Juggernaut').then(m => ({default:m.Juggernaut})));
 const NAV = [
-  { id: 'today', en: 'TODAY', label: '오늘', icon: Home },
+  { id: 'today', en: 'NOW', label: '오늘', icon: Home },
   { id: 'school', en: 'SCHOOL', label: '시간표', icon: CalendarDays },
   { id: 'tasks', en: 'TASKS', label: '과제', icon: CheckSquare },
-  { id: 'study', en: 'STUDY', label: '집중', icon: Focus },
+  { id: 'study', en: 'LEARN', label: '집중', icon: Focus },
   { id: 'progress', en: 'PROGRESS', label: '기록', icon: Target },
   { id: 'settings', en: 'SETTINGS', label: '설정', icon: Settings },
+  { id: 'more', en: 'MORE', label: '더보기', icon: Menu },
 ];
+const PRIMARY_NAV = ['today','study','tasks','more'].map(id=>NAV.find(n=>n.id===id)!);
+const MORE_ROUTES = ['school','progress','settings','sleep','juggernaut'];
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 function Empty({ title, children }: { title: string; children: ReactNode }) {
@@ -291,12 +295,15 @@ export default function App() {
         }
       }, 5000);
     };
-    const reveal = () => {
+    const reveal = (event?: Event) => {
+      // Let the dedicated restore button receive its click/keyboard activation
+      // before removing it; hover/pointerdown must not detach the target.
+      if (event?.target instanceof Element && event.target.closest('.focus-reveal-control')) return;
       setFocusUiVisible(true);
       scheduleHide();
     };
     const mouseMove = (e: PointerEvent) => {
-      if (e.pointerType === 'mouse') reveal();
+      if (e.pointerType === 'mouse') reveal(e);
     };
     window.addEventListener('pointerdown', reveal, { passive: true });
     window.addEventListener('touchstart', reveal, { passive: true });
@@ -370,9 +377,11 @@ export default function App() {
       return false;
     }
     try {
-      const previous = memory.current,
-        next = stateSchema.parse({ ...change(previous), revision: previous.revision + 1 });
-      storedRaw.current = writeState(localStorage, next, force ? undefined : storedRaw.current);
+      const previous = memory.current;
+      const changed = change(previous);
+      if (changed === previous) return false;
+      const next = stateSchema.parse({ ...changed, revision: previous.revision + 1 });
+      storedRaw.current = writeState(localStorage, next, force ? undefined : storedRaw.current, force ? KEY+'.before-restore.'+Date.now()+'.'+uid() : undefined);
       memory.current = next;
       setS(next);
       setStorageError('');
@@ -462,6 +471,8 @@ export default function App() {
       )
       .sort((a, b) => a.start.localeCompare(b.start));
   const reviewQueue = buildReviewQueue(s, today);
+  const problemQueue = useMemo(()=>buildProblemReviews(s,today),[s,today]);
+  const dueProblems = problemQueue.overdue.length + problemQueue.today.length;
   const ordered = [...pending].sort(
     (a, b) =>
       (a.due ? +new Date(a.due) : Infinity) - (b.due ? +new Date(b.due) : Infinity) ||
@@ -508,7 +519,6 @@ export default function App() {
     )
       setNotice(boundary.title + '에 맞춰 타이머를 멈췄습니다. 실제 공부한 양만 기록하세요.');
   }, [now, s.active, sleep.state]);
-  const hasHomeTask = pending.length > 0 || s.active !== null;
   const canStudy = !current;
   const seconds = s.active ? elapsed(s.active, now) : 0;
   const late = delayMinutes(s, now);
@@ -531,6 +541,7 @@ export default function App() {
       return;
     }
     const t = s.tasks.find((t) => t.id === task && t.status !== 'done');
+    if(t?.quantity?.remaining===0){setFilter('pending');setTab('tasks');setNotice('기록한 남은 분량은 0입니다. 학습 완료와 제출 여부를 직접 확인해 주세요.');return;}
     const sessionId = uid();
     if (
       commit((v) => ({
@@ -984,16 +995,16 @@ export default function App() {
           </div>}
         </header>
         <nav className="tablet-primary-nav" aria-label="태블릿 및 데스크톱 주 메뉴">
-          {NAV.filter((n) => n.id !== 'settings').map((n) => (
+          {PRIMARY_NAV.map((n) => (
             <button
               key={n.id}
               type="button"
-              className={tab === n.id ? 'active' : ''}
-              aria-current={tab === n.id ? 'page' : undefined}
+              className={tab === n.id || (n.id==='more'&&MORE_ROUTES.includes(tab)) ? 'active' : ''}
+              aria-current={tab === n.id || (n.id==='more'&&MORE_ROUTES.includes(tab)) ? 'page' : undefined}
               onClick={() => setTab(n.id)}
             >
               <n.icon size={20} strokeWidth={tab === n.id ? 2.3 : 1.9} aria-hidden="true" />
-              <span>{n.label}</span>
+              <span>{n.label}<small className="nav-section-label" aria-hidden="true">{n.en}</small></span>
             </button>
           ))}
         </nav>
@@ -1012,6 +1023,7 @@ export default function App() {
                       progress: '공부 기록',
                       settings: '설정',
                       sleep: 'Sleep Guard',
+                      more: '더보기',
                     } as Record<string, string>
                   )[tab]
                 }
@@ -1024,7 +1036,8 @@ export default function App() {
                       school: '학교부터 학원까지, 준비할 시간도 함께 챙겨요.',
                       tasks: '기억하는 대신 여기에 내려놓으세요.',
                       study: '시간을 채우기보다, 한 문제를 이해하는 시간.',
-                      progress: '차곡차곡 쌓인 시간, 조금씩 자라는 나.',
+                      progress: '직접 답한 문제와 지연 복습 기록을 확인해요.',
+                      more: '시간표, 학습 증거, 수면과 데이터 관리를 한곳에서.',
                       settings: '이 기기의 기록과 생활 리듬을 관리하세요.',
                     } as Record<string, string>
                   )[tab]
@@ -1063,10 +1076,11 @@ export default function App() {
               </button>
             </div>
           )}
+          {tab === 'more' && <Suspense fallback={<p role="status">학습 도구를 여는 중…</p>}><MoreHub onNavigate={setTab} onCapture={()=>taskEditor()}/></Suspense>}
           {tab === 'today' && (
             <>
               <div className="home-primary">
-                {!hasHomeTask && <HomeEntry onBriefing={() => openAtelier()} onMaterials={() => openAtelier('capture')}/>}
+
               <section className="command-stage">
                 <div className="command-left">
                   <NowFocus
@@ -1088,10 +1102,11 @@ export default function App() {
                 </div>
 
               </section>
-                {hasHomeTask && <HomeEntry onBriefing={() => openAtelier()} onMaterials={() => openAtelier('capture')}/>}
+                <HomeEntry onBriefing={() => openAtelier()} onMaterials={() => openAtelier('capture')}/>
               </div>
               <TaskCheckIn pending={pending.length} awaiting={awaiting.length} total={s.tasks.length}
                 onSubmission={() => {setFilter('submission');setTab('tasks');}} onAdd={() => openAtelier()}/>
+              {!s.active&&dueProblems>0&&<section className="task-check-in" aria-label="오늘 문제 복습"><BookOpen size={22} aria-hidden="true"/><div><h2>오늘 다시 풀 문제 {dueProblems}개</h2><p>직접 등록한 문제를 답을 가리고 다시 풀어봐요.</p></div><button onClick={()=>{setTab('study');requestAnimationFrame(()=>document.getElementById('learn-problem-reviews')?.scrollIntoView({block:'start',behavior:'auto'}));}}>답을 가리고 다시 풀기 <ArrowRight size={16}/></button></section>}
               <LandscapeNote/>
               <SleepSummary guard={sleep} onOpen={() => setTab('sleep')}/>
               <details ref={todayDetailsRef} className="today-more">
@@ -1420,7 +1435,7 @@ export default function App() {
                   </Empty>
                 )}
               </section>
-              <ExamPanel state={s} today={today} onStart={id=>start(5,id)} onSave={exam=>commit(v=>({...v,exams:[...(v.exams??[]).filter(e=>e.id!==exam.id),exam]}))}/>
+              <Suspense fallback={<p role="status">시험 정보를 여는 중…</p>}><ExamPanel state={s} today={today} onStart={id=>start(5,id)} onSave={exam=>commit(v=>({...v,exams:[...(v.exams??[]).filter(e=>e.id!==exam.id),exam]}))}/></Suspense>
               <p className="hint">
                 학습 완료와 제출 완료는 별개입니다. 과제를 열어 제출 상태를 확인하세요.
               </p>
@@ -1487,16 +1502,6 @@ export default function App() {
                       </small>
                     </div>
                   </div>
-                  {s.active?.segmentStart && !focusUiVisible && !modal && seconds < s.active.target * 60 && (
-                    <button
-                      className="focus-reveal-control"
-                      type="button"
-                      aria-label="조작 표시"
-                      onClick={() => setFocusUiVisible(true)}
-                    >
-                      <Eye size={16} /> 조작 표시
-                    </button>
-                  )}
                   {s.active?.segmentStart && (
                     <div className="focus-quiet-tools" aria-label="몰입 화면 옵션">
                       <button type="button" className="text-button quiet-now" onClick={() => setFocusUiVisible(false)}>
@@ -1618,14 +1623,14 @@ export default function App() {
                     <span>잠깐 막혔다면 기초 예제 하나로 돌아가세요.</span>
                   </div>
                 </section>
-                <div><ProblemReviewQueue state={s} today={today} onAttempt={recordProblemRetest} onCheck={checkProblemRetest}/><ReviewDeck queue={reviewQueue} onReview={handleReview} /></div>
+                <div className="study-review-sidebar" id="learn-problem-reviews"><Suspense fallback={<p role="status">복습 문제를 여는 중…</p>}><ProblemReviewQueue state={s} today={today} onAttempt={recordProblemRetest} onCheck={checkProblemRetest}/></Suspense><ReviewDeck queue={reviewQueue} onReview={handleReview} /></div>
               </div>
             </>
           )}
           {tab === 'progress' && (
             <>
-              <LearningEvidence state={s} today={today}/>
-              <ProblemReviewQueue state={s} today={today} onAttempt={recordProblemRetest} onCheck={checkProblemRetest}/>
+              <Suspense fallback={<p role="status">학습 증거를 여는 중…</p>}><LearningEvidence state={s} today={today}/></Suspense>
+              <Suspense fallback={<p role="status">복습 문제를 여는 중…</p>}><ProblemReviewQueue state={s} today={today} onAttempt={recordProblemRetest} onCheck={checkProblemRetest}/></Suspense>
               {s.sessions.some(entry=>entry.workspace?.attempts.length) && (
                 <section className="panel problem-history">
                   <div className="section-head"><h2>내가 실제로 답한 문제</h2><span className="muted">이 기기에만 저장</span></div>
@@ -1926,6 +1931,15 @@ export default function App() {
                       >
                         <Download size={17} /> JSON 백업 내보내기
                       </button>
+                      <button className="secondary" onClick={()=>{
+                        try{const raw=localStorage.getItem(LEARNING_BACKUP_KEY);if(raw)download('bkit-before-learning-v3.json',raw);else setNotice('별도로 보관된 최초 원본이 없습니다. 현재 JSON 백업을 이용해 주세요.');}
+                        catch{setNotice('원본 백업을 읽지 못했습니다. 현재 화면의 JSON 백업을 보관해 주세요.');}
+                      }}><Download size={17}/>최초 보관 원본 백업 내보내기</button>
+                      <button className="secondary" onClick={()=>{
+                        try{const key=Object.keys(localStorage).filter(k=>k.startsWith(KEY+'.before-restore.')).sort().at(-1);
+                          if(key)download('bkit-before-last-restore.json',localStorage.getItem(key)!);else setNotice('아직 백업으로 교체한 기록이 없습니다.');}
+                        catch{setNotice('복구 전 원본을 읽지 못했습니다. 현재 JSON 백업을 보관해 주세요.');}
+                      }}><Download size={17}/>최근 복구 전 원본 내보내기</button>
                       <label className="secondary upload-button">
                         <Upload size={17} /> 백업 가져오기
                         <input
@@ -2041,19 +2055,22 @@ export default function App() {
           className={'orbit-nav' + (tab === 'study' && s.active ? ' orbit-nav--hidden' : '')}
           aria-label="주 메뉴"
         >
-          {NAV.filter((n) => n.id !== 'settings').map((n) => (
+          {PRIMARY_NAV.map((n) => (
             <button
               key={n.id}
-              className={tab === n.id ? 'active' : ''}
-              aria-current={tab === n.id ? 'page' : undefined}
+              className={tab === n.id || (n.id==='more'&&MORE_ROUTES.includes(tab)) ? 'active' : ''}
+              aria-current={tab === n.id || (n.id==='more'&&MORE_ROUTES.includes(tab)) ? 'page' : undefined}
               onClick={() => setTab(n.id)}
             >
               <n.icon size={20} strokeWidth={tab === n.id ? 2.3 : 1.9} aria-hidden="true" />
-              <span>{n.label}</span>
+              <span>{n.label}<small className="nav-section-label" aria-hidden="true">{n.en}</small></span>
             </button>
           ))}
         </nav>,
         document.body,
+      )}
+      {tab==='study' && s.active?.segmentStart && !s.active.workspace && !focusUiVisible && !modal && seconds<s.active.target*60 && createPortal(
+        <button className="focus-reveal-control focus-reveal-control--visible" type="button" aria-label="조작 표시" onClick={()=>setFocusUiVisible(true)}><Eye size={16}/>조작 표시</button>,document.body,
       )}
       {modal && (
         <Modal

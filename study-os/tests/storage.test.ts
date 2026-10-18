@@ -183,3 +183,16 @@ describe('learning upgrade preservation and concurrent writes', () => {
     expect(value).toBe(legacy);
   });
 });
+
+describe('explicit restore recovery', () => {
+  it('keeps the latest exact original separately from the initial upgrade backup', () => {
+    const store = memory(),
+      original = JSON.stringify({ ...newState(), revision: 17 }, null, 2);
+    store.setItem(KEY, original);
+    store.setItem(KEY + '.before-learning-v3', 'older-checkpoint');
+    writeState(store, newState(), undefined, KEY + '.before-restore.test');
+    expect(store.getItem(KEY + '.before-restore.test')).toBe(original);
+    expect(store.getItem(KEY + '.before-learning-v3')).toBe('older-checkpoint');
+    expect(parseBackup(store.getItem(KEY + '.before-restore.test')!).revision).toBe(17);
+  });
+});

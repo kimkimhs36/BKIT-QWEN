@@ -5,6 +5,11 @@ import { KEY } from '../../src/storage';
 test.setTimeout(90000);
 const fixedTime = new Date('2026-10-12T06:00:00Z');
 async function nav(p: Page, name: string) {
+  if (name==='시간표'||name==='기록') {
+    await p.getByRole('navigation').getByRole('button',{name:'더보기',exact:true}).filter({visible:true}).first().click();
+    await p.getByRole('navigation',{name:'추가 도구',exact:true}).getByRole('button',{name,exact:true}).click();
+    return;
+  }
   if (name === '설정') {
     const settings = p.getByRole('button', { name: '설정 열기', exact: true });
     if (!(await settings.isVisible()))

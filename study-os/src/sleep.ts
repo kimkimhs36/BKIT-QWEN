@@ -31,6 +31,7 @@ export const sleepSchema = z
   .object({
     version: z.literal(3),
     enabled: z.boolean(),
+    protectionChangedAt: z.number().finite().min(0).optional(),
     schedule: z.array(sleepDaySchema).length(7),
     pausedUntil: z.number().finite().min(0),
     skipped: z.array(date).max(366),

@@ -85,4 +85,6 @@ html, body { overscroll-behavior-x: none; }
 }
 @media (prefers-reduced-motion:reduce) {
  .problem-workspace *, .is-focusing .focus-card { transition:none!important; animation:none!important; }
-}
+}/* A running learning session keeps the review queue available after exit,
+   without placing another exercise below the active problem. */
+.is-focusing .study-review-sidebar { display: none; }

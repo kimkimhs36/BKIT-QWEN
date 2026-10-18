@@ -38,15 +38,23 @@ export function buildProblemReviews(s: State, today: string) {
       const retests = bySession.get(session.id) ?? [];
       const all = [...w.attempts, ...retests];
       const last = all[all.length - 1];
+      let lastReset = -1;
+      all.forEach((attempt, index) => {
+        if (attempt.selfCheck === 'retry' || attempt.hintUsed || attempt.confidence === 'low')
+          lastReset = index;
+      });
+      const afterReset = retests.slice(Math.max(0, lastReset - w.attempts.length + 1));
       const independentSuccesses = new Set(
-        retests
-          .filter((a) => a.selfCheck === 'remembered' && a.hintUsed === false)
+        afterReset
+          .filter(
+            (a) => a.selfCheck === 'remembered' && a.hintUsed === false && a.confidence !== 'low',
+          )
           .map((a) => dayKey(a.submittedAt)),
       ).size;
+      const step = Math.max(0, independentSuccesses - (lastReset >= 0 ? 1 : 0));
+      const interval = !retests.length && lastReset >= 0 ? 1 : reviewInterval(last, step);
       const due =
-        last.selfCheck === 'unreviewed'
-          ? today
-          : addDays(dayKey(last.submittedAt), reviewInterval(last, independentSuccesses));
+        last.selfCheck === 'unreviewed' ? today : addDays(dayKey(last.submittedAt), interval);
       return [
         {
           sessionId: session.id,

@@ -19,6 +19,8 @@ export function firstLearningAction(task?: Task, tired = false): string {
   if (!task) return '공부할 자료에서 질문 하나를 골라, 기억나는 답을 먼저 써보기';
   const q = task.quantity;
   const prefix = task.title.slice(0, 120);
+  if (q?.remaining === 0)
+    return `${prefix} · 남은 분량이 0으로 기록되어 있어요. 과제에서 학습 완료와 제출 여부를 확인해요.`;
   if (q?.unit === 'problems')
     return `${prefix} · 남은 ${q.remaining}문제 중 하나를 골라 ${tired ? '첫 식 한 줄만' : '풀이 또는 답을'} 써보기`;
   if (q?.unit === 'passages') return `${prefix} · 지문 하나의 첫 문장을 가리고 직접 해석해 보기`;
@@ -41,7 +43,7 @@ export function rankInstantTasks(
       : Date.parse(t.due);
   };
   return tasks
-    .filter((t) => t.status !== 'done')
+    .filter((t) => t.status !== 'done' && t.quantity?.remaining !== 0)
     .sort(
       (a, b) =>
         urgency(a) - urgency(b) ||
@@ -70,7 +72,7 @@ export function appendLearningEvent(
 ): State {
   const events = s.learningEvents ?? [];
   if (
-    events.length >= 50000 ||
+    events.length >= 5000 ||
     events.some(
       (e) =>
         e.id === event.id ||

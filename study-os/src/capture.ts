@@ -107,6 +107,8 @@ export function captureDeadline(
   if (!input.due || input.precision === 'unknown') return { due: null, deadline: undefined };
   if (input.precision === 'exact-time' && !/^([01]\d|2[0-3]):[0-5]\d$/.test(input.dueTime))
     throw new Error('정확한 마감 시각을 입력해주세요.');
+  // The legacy scheduler requires an instant; precision/date remain the stored fact.
+  // 23:59 is only a date-only planning bound and must never be shown as confirmed.
   return {
     due: iso(at(input.due, input.precision === 'date-only' ? '23:59' : input.dueTime)),
     deadline: { date: input.due, precision: input.precision, provenance: input.provenance },

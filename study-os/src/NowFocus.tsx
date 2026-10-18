@@ -19,7 +19,7 @@ type Props = {
   onFocus: () => void;
   onSchedule: () => void;
   energy: 'low' | 'normal';
-  onEnergyChange: (value:'low'|'normal')=>void;
+  onEnergyChange: (value: 'low' | 'normal') => void;
 };
 
 export function NowFocus({
@@ -91,7 +91,7 @@ export function NowFocus({
       <p className="now-focus-description">{explanation}</p>
       {!active && ready && (
         <div className="instant-action">
-          <strong>{firstLearningAction(chosen, energy==='low')}</strong>
+          <strong>{firstLearningAction(chosen, energy === 'low')}</strong>
           {chosen && <p>{recommendationReason(chosen, now)}</p>}
           <small>문제 번호와 자료 내용은 직접 확인해 주세요.</small>
         </div>
@@ -118,9 +118,6 @@ export function NowFocus({
         </div>
       ) : ready ? (
         <div className="now-focus-ready">
-          <details className="now-task-options"><summary>오늘 에너지 (선택)</summary>
-            <label className="now-focus-picker"><span>지금 에너지</span><select aria-label="지금 에너지" value={energy} onChange={e=>onEnergyChange(e.target.value as 'low'|'normal')}><option value="normal">괜찮아요</option><option value="low">피곤해요 · 첫 단계만</option></select></label>
-          </details>
           {tasks.length > 0 ? (
             <details className="now-task-options">
               <summary>과제 바꾸기</summary>
@@ -166,7 +163,8 @@ export function NowFocus({
             disabled={!ready}
             onClick={() => onStart(chosen?.id ?? null)}
           >
-            <Play size={17} fill="currentColor" /> 5분만 시작
+            <Play size={17} fill="currentColor" />{' '}
+            {chosen?.quantity?.remaining === 0 ? '완료·제출 확인' : '5분만 시작'}
           </button>
         )}
         {(current || !ready) && (
@@ -175,6 +173,22 @@ export function NowFocus({
           </button>
         )}
       </div>
+      {!active && ready && !!chosen && (
+        <details className="now-energy-options">
+          <summary>오늘 에너지 (선택)</summary>
+          <label className="now-focus-picker">
+            <span>지금 에너지</span>
+            <select
+              aria-label="지금 에너지"
+              value={energy}
+              onChange={(e) => onEnergyChange(e.target.value as 'low' | 'normal')}
+            >
+              <option value="normal">괜찮아요</option>
+              <option value="low">피곤해요 · 첫 단계만</option>
+            </select>
+          </label>
+        </details>
+      )}
     </section>
   );
 }

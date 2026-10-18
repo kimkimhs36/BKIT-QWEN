@@ -175,12 +175,96 @@ describe('local learning loop', () => {
   });
 });
 
-describe('capture confirmation and submission intent',()=>{
- it('distinguishes an explicit assignment from private recall without inventing a deadline',async()=>{
-  const {needsSubmission}=await import('../src/tasks');
-  expect(parseCapture('금요일 경제 수행평가 제출',now).submissionRequired).toBe(true);
-  expect(parseCapture('영어 지문 3개 외우기',now)).toMatchObject({submissionRequired:false,due:''});
-  expect(needsSubmission({...task,status:'done',submissionRequired:false})).toBe(false);
-  expect(needsSubmission({...task,status:'done'})).toBe(true);
- });
+describe('capture confirmation and submission intent', () => {
+  it('distinguishes an explicit assignment from private recall without inventing a deadline', async () => {
+    const { needsSubmission } = await import('../src/tasks');
+    expect(parseCapture('금요일 경제 수행평가 제출', now).submissionRequired).toBe(true);
+    expect(parseCapture('영어 지문 3개 외우기', now)).toMatchObject({
+      submissionRequired: false,
+      due: '',
+    });
+    expect(needsSubmission({ ...task, status: 'done', submissionRequired: false })).toBe(false);
+    expect(needsSubmission({ ...task, status: 'done' })).toBe(true);
+  });
+});
+
+describe('bounded telemetry preserves evidence', () => {
+  it('stops adding events at capacity without pruning any recorded event', () => {
+    const s = newState();
+    s.learningEvents = Array.from({ length: 5000 }, (_, i) => ({
+      id: String(i),
+      type: 'RecommendationShown' as const,
+      at: iso(now),
+      foregroundAt: iso(now),
+      taskId: null,
+      sessionId: null,
+      action: '질문 하나',
+    }));
+    const next = appendLearningEvent(s, { ...s.learningEvents[0], id: 'new' });
+    expect(next).toBe(s);
+    expect(next.learningEvents).toHaveLength(5000);
+    expect(next.learningEvents?.[0].id).toBe('0');
+  });
+});
+
+describe('error closure requires delayed evidence', () => {
+  it('still schedules tomorrow after an immediate successful retry, then expands and resets after another error', () => {
+    const s = newState();
+    s.sessions = [
+      {
+        ...session,
+        workspace: {
+          ...session.workspace!,
+          attempts: [
+            attempt,
+            {
+              ...attempt,
+              id: 'immediate',
+              selfCheck: 'remembered',
+              confidence: 'high',
+              submittedAt: iso(now + 60000),
+            },
+          ],
+        },
+      },
+    ];
+    expect(buildProblemReviews(s, '2026-10-19').upcoming[0].due).toBe('2026-10-20');
+    s.problemRetests = [
+      {
+        ...attempt,
+        id: 'r1',
+        sessionId: 's1',
+        selfCheck: 'remembered',
+        confidence: 'high',
+        submittedAt: iso(now + 86400000),
+      },
+    ];
+    expect(buildProblemReviews(s, '2026-10-20').upcoming[0].due).toBe('2026-10-23');
+    s.problemRetests.push({
+      ...attempt,
+      id: 'r2',
+      sessionId: 's1',
+      submittedAt: iso(now + 4 * 86400000),
+    });
+    expect(buildProblemReviews(s, '2026-10-23').upcoming[0].due).toBe('2026-10-24');
+    s.problemRetests.push({
+      ...attempt,
+      id: 'r3',
+      sessionId: 's1',
+      selfCheck: 'remembered',
+      confidence: 'high',
+      submittedAt: iso(now + 5 * 86400000),
+    });
+    expect(buildProblemReviews(s, '2026-10-24').upcoming[0].due).toBe('2026-10-27');
+  });
+});
+
+describe('zero remaining quantity is a confirmation task', () => {
+  it('never invents another problem when the learner has reported zero remaining', () => {
+    const zero = { ...task, quantity: { unit: 'problems' as const, total: 20, remaining: 0 } };
+    expect(firstLearningAction(zero)).toContain('학습 완료와 제출 여부');
+    expect(rankInstantTasks([zero], now, 5)).toEqual([]);
+    expect(zero.status).toBe('todo');
+    expect(zero.submitted).toBe(false);
+  });
 });

@@ -57,6 +57,17 @@ export default defineConfig(({ mode }) => ({
       },
     },
   ],
+  // Stable vendor chunks can stay cached when local learning screens change.
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (/\/node_modules\/(react|react-dom|scheduler)\//.test(id)) return 'react-vendor';
+          if (id.includes('/node_modules/zod/')) return 'schema-vendor';
+        },
+      },
+    },
+  },
   base: loadEnv(mode, process.cwd(), 'APP_').APP_BASE || '/study-os/',
   server: { proxy: { '/api': 'http://127.0.0.1:8787' } },
 }));

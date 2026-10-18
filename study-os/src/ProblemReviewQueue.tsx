@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { State } from './model';
 import { buildProblemReviews, type AttemptMeta } from './problemReview';
 
@@ -13,7 +13,7 @@ export function ProblemReviewQueue({
   onAttempt: (sessionId: string, answer: string, meta: AttemptMeta) => boolean;
   onCheck: (id: string, outcome: 'remembered' | 'retry') => void;
 }) {
-  const queue = buildProblemReviews(state, today);
+  const queue = useMemo(() => buildProblemReviews(state, today), [state, today]);
   const cards = [...queue.overdue, ...queue.today];
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [hints, setHints] = useState<Record<string, boolean>>({});

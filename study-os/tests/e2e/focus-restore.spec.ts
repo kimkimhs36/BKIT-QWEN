@@ -1,4 +1,6 @@
 import { test, expect } from './local-fixture';
+// This scenario verifies phone touch recovery in every browser engine.
+test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
 test('focus can hide and reliably reveal its controls on a phone', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-14T06:00:00Z') });

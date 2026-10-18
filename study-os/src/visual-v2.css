@@ -2200,7 +2200,7 @@ main {
 
 /* BKIT 03.1 — an explicit, accessible restore control */
 .focus-reveal-control { display: none; }
-.is-focusing.focus-quiet .focus-reveal-control {
+.focus-reveal-control--visible {
   position: fixed;
   z-index: 25;
   bottom: max(20px, env(safe-area-inset-bottom));

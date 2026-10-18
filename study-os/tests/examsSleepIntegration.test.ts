@@ -105,3 +105,15 @@ describe('source-confirmed exams and shared sleep constraints', () => {
     ]);
   });
 });
+
+describe('new sleep settings never trim legitimate earlier study', () => {
+  it('starts a newly enabled protection at the confirmation time, not a retroactive bedtime', () => {
+    const start = +new Date('2026-10-19T19:00:00'),
+      changed = start + 15 * 60000;
+    const state = { ...defaultSleep(), enabled: true, protectionChangedAt: changed };
+    state.schedule = state.schedule.map(() => ({ bed: '18:30', wake: '06:00' }));
+    const protectedBlocks = sleepConstraints(state, start, changed + 5 * 60000);
+    expect(protectedBlocks[0].start).toBe(changed);
+    expect(protectedBlocks[0].start - start).toBe(15 * 60000);
+  });
+});
