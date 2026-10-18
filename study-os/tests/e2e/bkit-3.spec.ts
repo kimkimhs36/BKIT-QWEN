@@ -270,6 +270,7 @@ test('local study flow edits quantities, saves one session, restores photos, and
   await menu.getByRole('button', { name: '오늘', exact: true }).click();
   await page.getByRole('button', { name: '5분만 시작', exact: true }).click();
   await page.clock.fastForward(60000);
+  await page.getByLabel('집중 타이머', { exact: true }).click();
   await page.getByRole('button', { name: '학습량 기록 · 종료', exact: true }).click();
   await page.getByLabel('완료한 문제 수', { exact: true }).fill('6');
   await page.getByRole('button', { name: '학습 기록 저장 · 종료', exact: true }).click();
