@@ -22,7 +22,7 @@ test('the same three-line button opens and closes tools on phone and tablet', as
   await expect(menu).toHaveCount(0);
 
   await toggle.click();
-  await page.locator('main .page-head').click({position:{x:10,y:10}});
+  await page.locator('.v2-brand').click();
   await expect(menu).toHaveCount(0);
 
   await toggle.click();
