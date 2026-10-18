@@ -32,7 +32,9 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
   const app = express();
   app.disable('x-powered-by');
   const authReady = !!env.BKIT_OWNER_EMAIL && !!env.BKIT_GOOGLE_CLIENT_ID;
-  const budgetReady = !!env.UPSTASH_REDIS_REST_URL && !!env.UPSTASH_REDIS_REST_TOKEN;
+  const redisURL = env.UPSTASH_REDIS_REST_URL || env.KV_REST_API_URL;
+  const redisToken = env.UPSTASH_REDIS_REST_TOKEN || env.KV_REST_API_TOKEN;
+  const budgetReady = !!redisURL && !!redisToken;
   const dailyKRW = Number(env.AI_DAILY_KRW_LIMIT || 1000),
     maxCalls = Number(env.AI_DAILY_CALL_LIMIT || 60);
   const limitsReady =
@@ -49,8 +51,8 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
     (budgetReady && limitsReady
       ? new RedisBudget(
           {
-            url: env.UPSTASH_REDIS_REST_URL!,
-            token: env.UPSTASH_REDIS_REST_TOKEN!,
+            url: redisURL!,
+            token: redisToken!,
             dailyKRW,
             calls: maxCalls,
           },
