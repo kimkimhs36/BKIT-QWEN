@@ -77,6 +77,7 @@ jobs:
         run: |
           npx playwright install --with-deps chromium webkit
           npm run test:e2e -- tests/e2e/atelier.spec.ts tests/e2e/home-clarity.spec.ts tests/e2e/study-start.spec.ts tests/e2e/private-sync.spec.ts --project=iphone --project=webkit-iphone --project=webkit-ipad --retries=1
+          npm run test:e2e -- tests/e2e/desktop-layout.spec.ts --project=desktop --retries=1
           npm run test:e2e -- tests/e2e/focus-restore.spec.ts tests/e2e/home-simple.spec.ts tests/e2e/soft-ui.spec.ts tests/e2e/liquid-optics.spec.ts tests/e2e/ios-navigation.spec.ts tests/e2e/research-now.spec.ts tests/e2e/capture-v2.spec.ts tests/e2e/quality-v10.spec.ts tests/e2e/dock-fixed.spec.ts tests/e2e/cloud-sync.spec.ts tests/e2e/assistant.spec.ts --project=iphone --retries=1
           npm run test:e2e -- tests/e2e/liquid-optics.spec.ts tests/e2e/ios-navigation.spec.ts tests/e2e/research-now.spec.ts tests/e2e/capture-v2.spec.ts tests/e2e/quality-v10.spec.ts tests/e2e/dock-fixed.spec.ts tests/e2e/cloud-sync.spec.ts tests/e2e/assistant.spec.ts --project=webkit-iphone --retries=1
 
