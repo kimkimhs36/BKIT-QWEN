@@ -1942,7 +1942,7 @@ export default function App() {
             </p>
           )}
           {modal === 'tools' && <div className="home-tools-list">
-            <button className="topbar-add-action" onClick={() => open('capture')}><Plus size={21}/><span>빠른 한 줄 입력</span><ChevronRight size={18}/></button>
+            <button onClick={() => open('capture')}><Plus size={21}/><span>빠른 한 줄 입력</span><ChevronRight size={18}/></button>
             <button aria-label="BKIT 비서 열기" onClick={() => open('assistant')}><BookOpen size={21}/><span>BKIT 비서</span><ChevronRight size={18}/></button>
             <button aria-label="설정 열기" onClick={() => {setModal(null);setTab('settings');}}><Settings size={21}/><span>설정</span><ChevronRight size={18}/></button>
             <button onClick={() => {setModal(null);setTab('juggernaut');}}><Sparkles size={21}/><span>JUGGERNAUT · 시네마틱 아카이브</span><ChevronRight size={18}/></button>
