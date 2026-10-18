@@ -13,6 +13,8 @@ async function openSleep(page: Page) {
   await page.getByRole('button', { name: 'Sleep Guard 열기', exact: true }).click();
 }
 async function schedule(page: Page, bed = '23:00', wake = '07:00') {
+  if (!(await page.getByLabel('목표 취침 시각', { exact: true }).isVisible()))
+    await page.getByText('요일별 일정 변경', { exact: true }).click();
   await page.getByLabel('목표 취침 시각', { exact: true }).fill(bed);
   await page.getByLabel('목표 기상 시각', { exact: true }).fill(wake);
   await page.getByLabel('모든 요일에 적용', { exact: true }).check();
@@ -112,7 +114,7 @@ test('automatic night starts at bedtime, stays optional, and never interrupts ac
   await expect(page.locator('html')).toHaveAttribute('data-sleep-night', 'false');
   await page.getByRole('button', { name: '집중 화면으로 이동', exact: true }).click();
   await page.getByRole('button', { name: '과제 추가', exact: true }).click();
-  await page.getByLabel('한 줄로 입력', { exact: true }).fill('수학 20문제');
+  await page.getByLabel('할 일을 한 문장으로', { exact: true }).fill('수학 20문제');
   await page.getByRole('button', { name: '오늘에 담기', exact: true }).click();
   // Use the primary home action so the task is linked to the timer.
   const nav = page.getByRole('navigation', { name: '주 메뉴', exact: true });
@@ -122,6 +124,15 @@ test('automatic night starts at bedtime, stays optional, and never interrupts ac
     .click();
   await page.getByRole('button', { name: '5분만 시작', exact: true }).click();
   expect((await studyState(page)).active).toBeTruthy();
+  await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem('bkit.sleep-guard.v3')!);
+    state.dismissedNight = null;
+    localStorage.setItem('bkit.sleep-guard.v3', JSON.stringify(state));
+    window.dispatchEvent(new StorageEvent('storage', { key: 'bkit.sleep-guard.v3' }));
+  });
+  await openSleep(page);
+  await expect(page.locator('.sleep-state')).toContainText('공부 중');
+  await expect(page.getByRole('button', { name: '야간 화면 시작', exact: true })).toBeDisabled();
   await expect(page.locator('html')).toHaveAttribute('data-sleep-night', 'false');
 });
 
@@ -156,13 +167,11 @@ test('notification denial preserves all local controls and corrupt sleep data is
     '{broken-original',
   );
   page.once('dialog', (dialog) => dialog.accept());
-  await page
-    .getByLabel('수면 백업 복구', { exact: true })
-    .setInputFiles({
-      name: 'sleep.json',
-      mimeType: 'application/json',
-      buffer: Buffer.from(JSON.stringify(goodBackup)),
-    });
+  await page.getByLabel('수면 백업 복구', { exact: true }).setInputFiles({
+    name: 'sleep.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(goodBackup)),
+  });
   await expect(page.getByRole('checkbox', { name: '씻기', exact: true })).toBeChecked();
   expect(
     await page.evaluate(() =>
@@ -179,6 +188,7 @@ test('sleep screen fits phone, tablet rotation, DeX windows, and zoom-like CSS w
   page,
 }) => {
   await openSleep(page);
+  await page.getByText('요일별 일정 변경', { exact: true }).click();
   for (const [width, height] of [
     [320, 568],
     [390, 844],
@@ -294,4 +304,107 @@ test('study and sleep records remain usable offline after shell installation', a
   await page.getByRole('checkbox', { name: '공부 정리', exact: true }).check();
   expect((await sleepState(page)).records[0].checks.slice(0, 2)).toEqual([true, true]);
   await context.setOffline(false);
+});
+
+test('two tabs reconcile sleep checks without losing the other tab’s changes', async ({
+  page,
+  context,
+}) => {
+  await openSleep(page);
+  await page.getByRole('checkbox', { name: '씻기', exact: true }).check();
+  const other = await context.newPage();
+  await other.clock.install({ time: new Date('2026-10-18T13:15:00Z') });
+  await other.goto('./');
+  await openSleep(other);
+  await expect(other.getByRole('checkbox', { name: '씻기', exact: true })).toBeChecked();
+  await other.getByRole('checkbox', { name: '공부 정리', exact: true }).check();
+  await expect(page.getByRole('checkbox', { name: '공부 정리', exact: true })).toBeChecked();
+  expect((await sleepState(page)).records[0].checks.slice(0, 2)).toEqual([true, true]);
+  await other.close();
+});
+
+test('foreground reminder phases are opt-in and emit at most two synthetic notices per night', async ({
+  page,
+}) => {
+  await page.evaluate(() => {
+    const notices: string[] = [];
+    (window as typeof window & { sleepNotices?: string[] }).sleepNotices = notices;
+    Object.defineProperty(window, 'Notification', {
+      configurable: true,
+      value: class {
+        static permission = 'granted';
+        static async requestPermission() {
+          return 'granted';
+        }
+        constructor(title: string) {
+          notices.push(title);
+        }
+      },
+    });
+    if (navigator.serviceWorker)
+      navigator.serviceWorker.getRegistration = async () =>
+        ({
+          showNotification: async (title: string) => {
+            notices.push(title);
+          },
+        }) as ServiceWorkerRegistration;
+  });
+  await openSleep(page);
+  await page.getByLabel('Sleep Guard 사용', { exact: true }).check();
+  expect((await sleepState(page)).notified).toEqual([]);
+  await page.getByRole('button', { name: '브라우저 알림 켜기', exact: true }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window as typeof window & { sleepNotices?: string[] }).sleepNotices?.length,
+      ),
+    )
+    .toBe(1);
+  await page.clock.fastForward(30000);
+  expect((await sleepState(page)).notified).toHaveLength(1);
+  await page.clock.fastForward(45 * 60000);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window as typeof window & { sleepNotices?: string[] }).sleepNotices?.length,
+      ),
+    )
+    .toBe(2);
+  await page.clock.fastForward(20 * 60000);
+  expect((await sleepState(page)).notified).toHaveLength(2);
+});
+
+test('visual viewport resizing protects typing controls and does not mistake pinch zoom for a keyboard', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const viewport = Object.assign(new EventTarget(), {
+      height: innerHeight,
+      width: innerWidth,
+      scale: 1,
+      offsetTop: 0,
+      offsetLeft: 0,
+    });
+    Object.defineProperty(window, 'visualViewport', { configurable: true, value: viewport });
+  });
+  await page.reload();
+  await openSleep(page);
+  await page.getByText('요일별 일정 변경', { exact: true }).click();
+  await page.getByLabel('목표 취침 시각', { exact: true }).focus();
+  await page.evaluate(() => {
+    Object.assign(visualViewport!, { height: 300, scale: 1 });
+    visualViewport!.dispatchEvent(new Event('resize'));
+  });
+  await expect(page.locator('html')).toHaveAttribute('data-os-keyboard', 'true');
+  await expect(page.getByRole('navigation', { name: '주 메뉴', exact: true })).toBeHidden();
+  await page.evaluate(() => {
+    Object.assign(visualViewport!, { height: 300, scale: 2 });
+    visualViewport!.dispatchEvent(new Event('resize'));
+  });
+  await expect(page.locator('html')).toHaveAttribute('data-os-keyboard', 'false');
+  await page.evaluate(() => {
+    Object.assign(visualViewport!, { height: innerHeight, scale: 1 });
+    visualViewport!.dispatchEvent(new Event('resize'));
+  });
+  await expect(page.locator('html')).toHaveAttribute('data-os-keyboard', 'false');
 });

@@ -5,6 +5,7 @@ export function useSleepGuard(now: number, studying: boolean) {
   const [initial] = useState(() => readSleep(localStorage));
   const [state, setState] = useState(initial.state);
   const [error, setError] = useState(initial.error);
+  const [visible, setVisible] = useState(document.visibilityState === 'visible');
   const [blocked, setBlocked] = useState(!!initial.error);
   const memory = useRef(state),
     raw = useRef(initial.raw);
@@ -54,6 +55,11 @@ export function useSleepGuard(now: number, studying: boolean) {
     }
   }
   useEffect(() => {
+    const onVisibility = () => setVisible(document.visibilityState === 'visible');
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
+  useEffect(() => {
     const onStorage = (event: StorageEvent) => {
       if (event.key !== SLEEP_KEY) return;
       const next = readSleep(localStorage);
@@ -73,13 +79,7 @@ export function useSleepGuard(now: number, studying: boolean) {
     };
   }, [status.night]);
   useEffect(() => {
-    if (
-      !status.available ||
-      studying ||
-      !state.reminders ||
-      status.phase === 'day' ||
-      document.visibilityState !== 'visible'
-    )
+    if (!status.available || studying || !state.reminders || status.phase === 'day' || !visible)
       return;
     const id = status.key + ':' + status.phase;
     if (state.notified.includes(id)) return;
@@ -101,7 +101,15 @@ export function useSleepGuard(now: number, studying: boolean) {
         /* The in-app status remains usable if OS delivery fails. */
       }
     })();
-  }, [status.key, status.phase, status.available, studying, state.reminders, state.notified]);
+  }, [
+    status.key,
+    status.phase,
+    status.available,
+    studying,
+    state.reminders,
+    state.notified,
+    visible,
+  ]);
   return { state, status, commit, restore, error, blocked };
 }
 export type SleepController = ReturnType<typeof useSleepGuard>;

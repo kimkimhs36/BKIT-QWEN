@@ -240,51 +240,59 @@ export function SleepGuard({
               취침 날짜의 요일 기준 · 준비 시작 {dateLabel(status.prepare)}{' '}
               {timeLabel(status.prepare)} · 기기 현지 시간대
             </p>
-            <form onSubmit={saveSchedule} key={day + JSON.stringify(state.schedule[day])}>
-              <label>
-                변경할 요일
-                <select
-                  aria-label="변경할 요일"
-                  value={day}
-                  onChange={(e) => setDay(Number(e.target.value))}
-                >
-                  {DAYS.map((d, i) => (
-                    <option value={i} key={d}>
-                      {d}요일
-                    </option>
+            <details className="sleep-schedule-edit">
+              <summary>요일별 일정 변경</summary>
+              <form onSubmit={saveSchedule} key={day + JSON.stringify(state.schedule[day])}>
+                <label>
+                  변경할 요일
+                  <select
+                    aria-label="변경할 요일"
+                    value={day}
+                    onChange={(e) => setDay(Number(e.target.value))}
+                  >
+                    {DAYS.map((d, i) => (
+                      <option value={i} key={d}>
+                        {d}요일
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="sleep-fields">
+                  <label>
+                    목표 취침 시각
+                    <input type="time" name="bed" required defaultValue={state.schedule[day].bed} />
+                  </label>
+                  <label>
+                    목표 기상 시각
+                    <input
+                      type="time"
+                      name="wake"
+                      required
+                      defaultValue={state.schedule[day].wake}
+                    />
+                  </label>
+                </div>
+                <label className="sleep-check">
+                  <input type="checkbox" name="allDays" /> 모든 요일에 적용
+                </label>
+                <button className="sleep-primary" disabled={blocked}>
+                  수면 일정 저장
+                </button>
+              </form>
+              <details className="sleep-week">
+                <summary>요일별 일정 보기</summary>
+                <ul>
+                  {state.schedule.map((s, i) => (
+                    <li key={i}>
+                      <b>{DAYS[i]}</b>
+                      <span>
+                        {s.bed} → {s.wake}
+                        {s.wake <= s.bed ? ' (다음 날)' : ''}
+                      </span>
+                    </li>
                   ))}
-                </select>
-              </label>
-              <div className="sleep-fields">
-                <label>
-                  목표 취침 시각
-                  <input type="time" name="bed" required defaultValue={state.schedule[day].bed} />
-                </label>
-                <label>
-                  목표 기상 시각
-                  <input type="time" name="wake" required defaultValue={state.schedule[day].wake} />
-                </label>
-              </div>
-              <label className="sleep-check">
-                <input type="checkbox" name="allDays" /> 모든 요일에 적용
-              </label>
-              <button className="sleep-primary" disabled={blocked}>
-                수면 일정 저장
-              </button>
-            </form>
-            <details className="sleep-week">
-              <summary>요일별 일정 보기</summary>
-              <ul>
-                {state.schedule.map((s, i) => (
-                  <li key={i}>
-                    <b>{DAYS[i]}</b>
-                    <span>
-                      {s.bed} → {s.wake}
-                      {s.wake <= s.bed ? ' (다음 날)' : ''}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+                </ul>
+              </details>
             </details>
           </section>
           <section className="sleep-card">
