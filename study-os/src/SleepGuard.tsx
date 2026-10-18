@@ -80,18 +80,21 @@ export function SleepGuard() {
 
   useEffect(() => {
     document.documentElement.dataset.bkitSleepGuardActive = String(status.showGuard);
-    window.dispatchEvent(new Event('bkit:sleep-guard-state'));
+    window.dispatchEvent(new CustomEvent('bkit:sleep-guard-state', {
+      detail: { active: status.showGuard, boundaryAt: status.guardStartedAt },
+    }));
     return () => {
       document.documentElement.dataset.bkitSleepGuardActive = 'false';
       window.dispatchEvent(new Event('bkit:sleep-guard-state'));
     };
-  }, [status.showGuard]);
+  }, [status.showGuard, status.guardStartedAt]);
 
   const change = (patch: Partial<SleepSettings>) =>
     setSettings((prev) => ({ ...prev, ...patch }));
   const startRestNow = () => {
     // Explicit voluntary rest starts a quiet screen now; it does not report actual sleep.
-    change({ enabled: true, restUntil: Date.now() + 10 * 60 * 60_000, postponeUntil: 0 });
+    const started = Date.now();
+    change({ enabled: true, restStartedAt: started, restUntil: started + 10 * 60 * 60_000, postponeUntil: 0 });
     setEditing(false);
     setShowRoutine(false);
     setNow(new Date());
