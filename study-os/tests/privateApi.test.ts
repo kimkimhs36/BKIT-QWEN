@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { Express } from 'express';
 import { createPrivateApi } from '../server/privateApi';
 import { RedisBudget } from '../server/redisBudget';
+import { newState } from '../src/model';
 
 const env = {
   BKIT_OWNER_EMAIL: 'owner@example.com',
@@ -199,5 +200,74 @@ describe('shared daily reservation wire protocol', () => {
       );
       await expect(budget.reserve(0.005)).rejects.toThrow();
     }
+  });
+});
+
+describe('owner-only multi-device study snapshots', () => {
+  const trial = async (perform: (root: string, inspect: () => string | null) => Promise<void>) => {
+    let current: string | null = null;
+    const fetcher = (async (_url: string | URL | Request, options?: RequestInit) => {
+      const args = JSON.parse(String(options?.body)) as unknown[];
+      if (args[0] === 'GET')
+        return new Response(JSON.stringify({ result: current }), { status: 200 });
+      if (args[0] === 'EVAL') {
+        const expected = Number(args[4]);
+        const previous: { version: number; data: unknown } | null =
+          current ? JSON.parse(current) : null;
+        const version = previous?.version ?? 0;
+        if (expected !== version)
+          return new Response(JSON.stringify({ result: [0, version] }), { status: 200 });
+        current = JSON.stringify({ version: version + 1, data: JSON.parse(String(args[5])) });
+        return new Response(JSON.stringify({ result: [1, version + 1] }), { status: 200 });
+      }
+      throw new Error('Unexpected remote command');
+    }) as typeof fetch;
+    await withServer(
+      createPrivateApi(env, { fetcher, verify: async () => true }),
+      (root) => perform(root, () => current),
+    );
+  };
+  it('keeps records behind authentication and origin checks', async () => {
+    const fetcher = vi.fn();
+    await withServer(createPrivateApi(env, { fetcher, verify: async () => false }), async (root) => {
+      expect((await fetch(root + '/api/sync', {headers})).status).toBe(401);
+      expect((await fetch(root + '/api/sync', {headers: {...headers, Origin:'https://other.example'}})).status).toBe(403);
+      expect(fetcher).not.toHaveBeenCalled();
+    });
+  });
+  it('round-trips an owner snapshot and prevents stale device overwrites', async () => {
+    await trial(async (root, inspect) => {
+      const state = newState();
+      state.settings.goal = '매일 20분 공부';
+      const empty = await (await fetch(root + '/api/sync',{headers})).json();
+      expect(empty).toEqual({version: 0, state: null});
+      const first = await fetch(root + '/api/sync', {
+        method:'PUT',headers,body:JSON.stringify({expectedVersion:0,state}),
+      });
+      expect(first.status).toBe(200);
+      expect(await first.json()).toEqual({version:1});
+      expect(inspect()).toContain('매일 20분 공부');
+      const remote = await (await fetch(root+'/api/sync',{headers})).json();
+      expect(remote.version).toBe(1);
+      expect(remote.state.settings.goal).toBe('매일 20분 공부');
+      const stale = await fetch(root+'/api/sync',{
+        method:'PUT',headers,body:JSON.stringify({expectedVersion:0,state}),
+      });
+      expect(stale.status).toBe(409);
+      expect((await stale.json()).version).toBe(1);
+    });
+  });
+  it('rejects sync payloads that contain active timers, private photos or invalid state', async () => {
+    await trial(async (root) => {
+      const state = newState();
+      const invalid = await fetch(root+'/api/sync',{
+        method:'PUT',headers,body:JSON.stringify({expectedVersion:0,state:{...state,version:42}}),
+      });
+      expect(invalid.status).toBe(400);
+      const bad = await fetch(root+'/api/sync',{
+        method:'PUT',headers,body:JSON.stringify({expectedVersion:0,state:{...state,plan:[{id:'missing',taskId:'none',start:'2026-10-18T01:00:00Z',end:'2026-10-18T02:00:00Z',locked:false}]}}),
+      });
+      expect(bad.status).toBe(400);
+    });
   });
 });
