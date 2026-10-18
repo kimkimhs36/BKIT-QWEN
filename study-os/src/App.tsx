@@ -6,6 +6,7 @@ import { AtelierMissions, StudyAtelier, PrivatePhotoCard } from './StudyAtelier'
 import { mergeMissions, sameMission } from './atelier';
 import type { AssistantAction } from './assistantLogic';
 import { CloudSyncPanel } from './CloudSyncPanel';
+import { PrivateSyncPanel, usePrivateStudySync } from './PrivateSync';
 import {useStudyCloud} from './useStudyCloud';
 import { ProblemWorkspace } from './ProblemWorkspace';
 import {captureDeadline,formatTaskDeadline,formatQuantity} from './capture';
@@ -315,6 +316,17 @@ export default function App() {
       return false;
     }
   }
+  const privateSync = usePrivateStudySync(s, (incoming) => commit((v) => ({
+    ...incoming,
+    // Device-only active timer and private photos never leave the device.
+    active: v.active,
+    tasks: incoming.tasks.map(t => ({
+      ...t,
+      attachmentIds: v.tasks.find(local => local.id === t.id)?.attachmentIds,
+    })),
+    plan: [],
+    undo: null,
+  })));
   const cloud = useStudyCloud(s, (incoming) => commit((v) => ({
     ...v,
     tasks: incoming.tasks.map(t => ({ ...t, attachmentIds: v.tasks.find(local => local.id === t.id)?.attachmentIds })),
@@ -1754,16 +1766,21 @@ export default function App() {
                   </form>
                 </section>
                 <div>
-                  <CloudSyncPanel cloud={cloud}/>
+                  <PrivateSyncPanel sync={privateSync}/>
+                  <details className="panel">
+                    <summary>Google Sheets 연동 (이전 방식 · 별도 설정)</summary>
+                    <CloudSyncPanel cloud={cloud}/>
+                  </details>
                   <section className="panel">
                     <div className="section-head">
                       <h2>내 데이터</h2>
                       <LockKeyhole size={18} />
                     </div>
                     <p className="muted">
-                      이 기기의 브라우저에 오프라인 캐시가 남아. Google을 연결하면
-                      과제·시간표·목표만 공유 시트와 동기화하고, 문제 풀이·세션·성적은
-                      계속 이 기기에 저장해. 기기 변경 전에는 JSON 백업도 활용해.
+                      기록은 우선 이 기기에 저장돼요. BKIT Private Cloud를 연결하면
+                      과제·시간표·완료한 공부 세션 등을 본인 계정 아래에서 동기화할 수 있어요.
+                      학습지 사진과 진행 중 타이머는 아직 이 기기에만 있으므로 원본을 보관해 주세요.
+                      기기 변경 전에는 JSON 백업도 활용할 수 있어요.
                     </p>
                     <div className="button-stack">
                       <button
