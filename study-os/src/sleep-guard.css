@@ -204,6 +204,9 @@
   line-height: 1.6;
   cursor: pointer;
   white-space: normal;
+  /* Switch foreground and surface together. Interpolating opposite day/night
+     colors briefly loses contrast, especially with suspended browser clocks. */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .sleep-card button.sleep-primary {
   background: var(--os-green);
