@@ -829,12 +829,14 @@ body > .orbit-nav button:not(.active):hover {
 }
 .app-shell.atelier-os.page-today .page-footer > span { color: #596452; }
 
-/* Desktop companion layout: do not leave the compact TODAY column stuck left. */
-@media (min-width: 901px) {
+/* Center compact TODAY on iPad as well as PC; keep a comfortable dock offset on desktop. */
+@media (min-width: 721px) {
   .app-shell.atelier-os.page-today main {
     margin-inline: auto;
     width: 100%;
   }
+}
+@media (min-width: 901px) {
   body > .orbit-nav {
     bottom: max(24px, env(safe-area-inset-bottom));
   }
