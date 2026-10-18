@@ -6,6 +6,7 @@ export type SleepSettings = {
   targetMinutes: number;
   postponeUntil: number;
   restUntil: number;
+  restStartedAt: number;
 };
 
 export const SLEEP_STORAGE_KEY = 'bkit.sleep-guard.v1';
@@ -16,6 +17,7 @@ export const DEFAULT_SLEEP_SETTINGS: SleepSettings = {
   targetMinutes: 510, // 8h 30m; configurable within teen 8–10h range.
   postponeUntil: 0,
   restUntil: 0,
+  restStartedAt: 0,
 };
 
 const VALID_TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -33,6 +35,7 @@ export function readSleepSettings(): SleepSettings {
       targetMinutes: typeof parsed.targetMinutes === 'number' && DURATION_OPTIONS.includes(parsed.targetMinutes) ? parsed.targetMinutes : DEFAULT_SLEEP_SETTINGS.targetMinutes,
       postponeUntil: typeof parsed.postponeUntil === 'number' && Number.isFinite(parsed.postponeUntil) ? parsed.postponeUntil : 0,
       restUntil: typeof parsed.restUntil === 'number' && Number.isFinite(parsed.restUntil) ? parsed.restUntil : 0,
+      restStartedAt: typeof parsed.restStartedAt === 'number' && Number.isFinite(parsed.restStartedAt) ? parsed.restStartedAt : 0,
     };
   } catch {
     return { ...DEFAULT_SLEEP_SETTINGS };
@@ -46,37 +49,47 @@ export function formatMinutes(total: number) {
   const normalized = ((total % 1440) + 1440) % 1440;
   return `${String(Math.floor(normalized / 60)).padStart(2, '0')}:${String(normalized % 60).padStart(2, '0')}`;
 }
+/**
+ * Calculate two actual sleep windows anchored to their wake-up dates. Using
+ * absolute Korea timestamps also supports unusual schedules whose bedtime is
+ * after midnight, without covering the entire day by accident.
+ */
 export function sleepStatus(date: Date, settings: SleepSettings) {
   const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Seoul', weekday: 'short', hour: '2-digit',
-    minute: '2-digit', hour12: false,
+    timeZone: 'Asia/Seoul',
+    weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
   }).formatToParts(date);
-  const part = (type: string) => parts.find((value) => value.type === type)?.value || '';
-  const hour = Number(part('hour')) % 24;
-  const minute = Number(part('minute'));
+  const part = (type: string) => parts.find((item) => item.type === type)?.value || '';
   const weekday = WEEKDAYS.indexOf(part('weekday'));
-  const nowMinutes = hour * 60 + minute;
-  const isWeekend = (day: number) => day === 0 || day === 6;
-  const wakeToday = minutesOf(isWeekend(weekday) ? settings.weekendWake : settings.weekdayWake);
-  const wakeTomorrow = minutesOf(isWeekend((weekday + 1) % 7) ? settings.weekendWake : settings.weekdayWake);
-  // Bedtime is assigned to the day before the target wake-up.
-  const bedtimeTonight = (wakeTomorrow - settings.targetMinutes + 1440) % 1440;
-  const inSleepWindow = nowMinutes >= bedtimeTonight || nowMinutes < wakeToday;
-  // Turn screens off one hour before the time-in-bed target. This is a recommendation,
-  // not a claim that a browser can configure iOS Screen Time on its own.
-  const windDownStart = (bedtimeTonight - 60 + 1440) % 1440;
-  const minutesToBed = (bedtimeTonight - nowMinutes + 1440) % 1440;
-  const windingDown = !inSleepWindow && minutesToBed > 0 && minutesToBed <= 60;
+  const dayStart = Date.UTC(Number(part('year')), Number(part('month')) - 1, Number(part('day'))) - 9 * 60 * 60_000;
+  const weekend = (day: number) => day === 0 || day === 6;
+  const wakeToday = minutesOf(weekend(weekday) ? settings.weekendWake : settings.weekdayWake);
+  const wakeTomorrow = minutesOf(weekend((weekday + 1) % 7) ? settings.weekendWake : settings.weekdayWake);
+
+  const todayWakeAt = dayStart + wakeToday * 60_000;
+  const tomorrowWakeAt = dayStart + 24 * 60 * 60_000 + wakeTomorrow * 60_000;
+  const previousBedAt = todayWakeAt - settings.targetMinutes * 60_000;
+  const tonightBedAt = tomorrowWakeAt - settings.targetMinutes * 60_000;
+  const withinPrevious = date.getTime() >= previousBedAt && date.getTime() < todayWakeAt;
+  const withinTonight = date.getTime() >= tonightBedAt && date.getTime() < tomorrowWakeAt;
+  const inSleepWindow = withinPrevious || withinTonight;
+  const minutesToBed = Math.max(0, Math.ceil((tonightBedAt - date.getTime()) / 60_000));
+  const windingDown = !inSleepWindow && date.getTime() >= tonightBedAt - 60 * 60_000 && date.getTime() < tonightBedAt;
   const postponed = settings.postponeUntil > date.getTime();
-  const manualRest = settings.restUntil > date.getTime();
+  const manualRest = settings.restUntil > date.getTime() && settings.restStartedAt > 0;
+  const automaticStart = withinPrevious ? previousBedAt : withinTonight ? tonightBedAt : null;
+  const guardStartedAt = manualRest && automaticStart !== null
+    ? Math.min(settings.restStartedAt, automaticStart)
+    : manualRest ? settings.restStartedAt : automaticStart;
   return {
-    bedtime: formatMinutes(bedtimeTonight),
-    screenOffAt: formatMinutes(windDownStart),
+    bedtime: formatMinutes(wakeTomorrow - settings.targetMinutes),
+    screenOffAt: formatMinutes(wakeTomorrow - settings.targetMinutes - 60),
     wakeTomorrow: formatMinutes(wakeTomorrow),
     inSleepWindow,
     windingDown,
     minutesToBed,
     manualRest,
+    guardStartedAt,
     showGuard: settings.enabled && (inSleepWindow || manualRest) && !postponed,
     postponed,
   };
