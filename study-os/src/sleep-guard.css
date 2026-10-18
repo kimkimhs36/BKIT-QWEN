@@ -70,3 +70,20 @@ html[data-bkit-sleep-guard-active='true'] .app-shell,
 html[data-bkit-sleep-guard-active='true'] body > .orbit-nav {
   pointer-events: none;
 }
+
+/* Short, voluntary bedtime preparation — no streaks, punishments, or required photos. */
+.bkit-sleep-routine { width:100%; display:grid; gap:10px; text-align:left; }
+.bkit-sleep-routine-intro { font-size:13px !important; line-height:1.5; margin:7px 0 !important; }
+.bkit-sleep-routine-step { box-sizing:border-box; display:flex; align-items:center; gap:10px; min-height:48px; padding:10px 12px; border:1px solid #dbe4d9; background:#f2f6f1; border-radius:12px; color:#304b39; cursor:pointer; font-size:13px; }
+.bkit-sleep-routine-step span { flex:1; }
+.bkit-sleep-routine-step input { width:19px; height:19px; accent-color:#446e50; flex-shrink:0; }
+.bkit-sleep-photo { padding:11px; border:1px solid #dbe4d9; border-radius:12px; background:#f8faf7; }
+.bkit-sleep-photo-label { position:relative; display:flex; gap:8px; align-items:center; color:#304b39; font-size:13px; font-weight:650; cursor:pointer; min-height:40px; }
+.bkit-sleep-photo-label input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+.bkit-sleep-photo-note { font-size:12px !important; color:#65776b !important; margin:4px 0 0 !important; line-height:1.5; }
+.bkit-sleep-routine-foot { font-size:12px !important; color:#65776b !important; text-align:center; margin:2px 0 !important; }
+.bkit-sleep-night .bkit-sleep-routine-step { background:#1b2b27; color:#dce7df; border-color:#364943; }
+.bkit-sleep-night .bkit-sleep-routine-intro,
+.bkit-sleep-night .bkit-sleep-routine-foot { color:#c2d0c6 !important; }
+.bkit-sleep-night .bkit-sleep-routine .bkit-sleep-primary { margin-top:8px; }
+@media(max-width:360px) { .bkit-sleep-routine-step { font-size:12px; padding:9px 10px; } }
