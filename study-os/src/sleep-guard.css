@@ -49,3 +49,13 @@
 .bkit-sleep-guide-toggle { border:1px solid #bccfbe; border-radius:10px; background:#fff; color:#2c4937; font-size:13px; min-height:42px; padding:9px 10px; font-weight:650; cursor:pointer; width:100%; }
 .bkit-sleep-device-steps { display:grid; gap:3px; padding:7px 0 0; }
 .bkit-sleep-device-steps a { color:#285744; font-size:13px; font-weight:650; text-underline-offset:3px; padding:6px 0; }
+
+/* Screen Time handoff and explicit two-device acknowledgment. */
+.bkit-sleep-device-checks { display:grid; gap:8px; margin:12px 0; }
+.bkit-sleep-device-checks label { display:flex; align-items:center; gap:10px; min-height:44px; padding:7px 10px; background:#fff; border:1px solid #e0e9de; border-radius:10px; color:#344e40; font-size:13px; font-weight:600; }
+.bkit-sleep-device-checks input { width:19px; height:19px; accent-color:#385b43; flex-shrink:0; }
+.bkit-sleep-secondary { display:flex; align-items:center; justify-content:center; gap:8px; min-height:46px; width:100%; margin-top:14px; border:1px solid #90a595; border-radius:11px; color:#284334; background:#eef4ed; font-size:14px; font-weight:700; cursor:pointer; }
+.bkit-sleep-sheet:focus, .bkit-sleep-night:focus { outline:none; }
+@media (prefers-reduced-motion: reduce) {
+  .bkit-sleep-device, .bkit-sleep-secondary { animation:none !important; transition:none !important; }
+}
