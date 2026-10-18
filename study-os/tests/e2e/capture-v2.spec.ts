@@ -3,7 +3,7 @@ test('Capture v2: date-only deadline and number of problems survive restart and 
  await page.clock.install({time:new Date('2026-10-15T05:00:00Z')});
  await page.goto('./');
  await page.getByRole('button',{name:'더 보기'}).click();
- await page.locator('.topbar-add-action').click();
+ await page.getByRole('button',{name:'빠른 한 줄 입력'}).click();
  const dialog=page.getByRole('dialog');
  await dialog.getByRole('textbox',{name:'할 일을 한 문장으로'}).fill('금요일까지 수학 숙제 20문제');
  await expect(dialog.getByLabel('빠른 등록 과목')).toHaveValue('수학');
@@ -37,7 +37,7 @@ test('Capture v2: the confirmed 4 PM deadline stays exact',async({page})=>{
  await page.clock.install({time:new Date('2026-10-15T05:00:00Z')});
  await page.goto('./');
  await page.getByRole('button',{name:'더 보기'}).click();
- await page.locator('.topbar-add-action').click();
+ await page.getByRole('button',{name:'빠른 한 줄 입력'}).click();
  const modal=page.getByRole('dialog');
  await modal.getByRole('textbox',{name:'할 일을 한 문장으로'}).fill('금요일 오후 4시까지 경제 수행평가 제출');
  await expect(modal.getByLabel('마감 확실성')).toHaveValue('exact-time');
