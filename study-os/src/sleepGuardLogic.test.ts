@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_SLEEP_SETTINGS, formatMinutes, sleepStatus } from './sleepGuardLogic';
+import { DEFAULT_SLEEP_SETTINGS, formatMinutes, sleepStatus, guardPauseBoundary } from './sleepGuardLogic';
 
 const settings = { ...DEFAULT_SLEEP_SETTINGS, enabled: true };
 const kst = (iso: string) => sleepStatus(new Date(iso), settings);
@@ -48,6 +48,19 @@ describe('Sleep Guard KST schedule', () => {
     expect(sleepStatus(new Date('2026-10-19T11:00:00Z'), lateRiser).showGuard).toBe(false); // Mon 20:00
     expect(sleepStatus(new Date('2026-10-19T20:00:00Z'), lateRiser).showGuard).toBe(true); // Tue 05:00
     expect(sleepStatus(new Date('2026-10-20T04:00:00Z'), lateRiser).showGuard).toBe(false); // Tue 13:00
+  });
+  it('caps an overdue running timer at the earlier bedtime boundary', () => {
+    const start = new Date('2026-10-19T13:20:00Z').getTime(); // Mon 22:20 KST
+    const resumed = new Date('2026-10-19T17:15:00Z').getTime(); // Tue 02:15 KST
+    expect(guardPauseBoundary(resumed, start, settings))
+      .toBe(new Date('2026-10-19T13:30:00Z').getTime()); // Mon 22:30
+  });
+  it('preserves a legitimate 30-minute exception without counting overnight time', () => {
+    const began = new Date('2026-10-19T13:35:00Z').getTime();
+    const graceExpires = new Date('2026-10-19T14:00:00Z').getTime(); // 23:00
+    const resumed = new Date('2026-10-19T16:00:00Z').getTime();
+    expect(guardPauseBoundary(resumed, began, { ...settings, postponeUntil: graceExpires }))
+      .toBe(graceExpires);
   });
   it('defaults to disabled to preserve existing users and wraps time correctly', () => {
     expect(sleepStatus(new Date('2026-10-19T17:00:00Z'), DEFAULT_SLEEP_SETTINGS).showGuard).toBe(false);
