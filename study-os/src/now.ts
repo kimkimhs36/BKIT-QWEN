@@ -7,7 +7,78 @@ export function canStartSprint(
   nextFixedStart: number | null,
   minutes = 5,
 ): boolean {
-  if (!Number.isFinite(now) || !Number.isFinite(minutes) || minutes <= 0 || occupied)
-    return false;
+  if (!Number.isFinite(now) || !Number.isFinite(minutes) || minutes <= 0 || occupied) return false;
   return nextFixedStart === null || nextFixedStart - now >= minutes * MIN;
+}
+
+import type { Task, State } from './model';
+import { dayKey } from './time';
+
+/** An actionable instruction grounded only in the learner's actual task. */
+export function firstLearningAction(task?: Task, tired = false): string {
+  if (!task) return '공부할 자료에서 질문 하나를 골라, 기억나는 답을 먼저 써보기';
+  const q = task.quantity;
+  const prefix = task.title.slice(0, 120);
+  if (q?.unit === 'problems')
+    return `${prefix} · 남은 ${q.remaining}문제 중 하나를 골라 ${tired ? '첫 식 한 줄만' : '풀이 또는 답을'} 써보기`;
+  if (q?.unit === 'passages') return `${prefix} · 지문 하나의 첫 문장을 가리고 직접 해석해 보기`;
+  if (q?.unit === 'pages') return `${prefix} · 남은 ${q.remaining}쪽에서 핵심 질문 하나에 답하기`;
+  if (/오답/.test(task.title)) return `${prefix} · 해설을 가리고 오답 하나 다시 풀기`;
+  return `${prefix} · ${tired ? '질문 하나의 첫 단계만' : '첫 질문에 내 답을'} 적어보기`;
+}
+
+export function rankInstantTasks(
+  tasks: Task[],
+  now: number,
+  availableMinutes: number,
+  tired = false,
+): Task[] {
+  const urgency = (t: Task) => {
+    if (!t.due) return Infinity;
+    // A date-only deadline is a calendar fact, not a confirmed clock time.
+    return t.deadline?.precision === 'date-only'
+      ? Date.parse(t.deadline.date + 'T00:00:00+09:00')
+      : Date.parse(t.due);
+  };
+  return tasks
+    .filter((t) => t.status !== 'done')
+    .sort(
+      (a, b) =>
+        urgency(a) - urgency(b) ||
+        b.priority - a.priority ||
+        Number(b.remaining <= availableMinutes) - Number(a.remaining <= availableMinutes) ||
+        Number(b.status === 'doing') - Number(a.status === 'doing') ||
+        (tired ? a.remaining - b.remaining : 0) ||
+        a.id.localeCompare(b.id),
+    );
+}
+
+export function recommendationReason(task: Task, now: number): string {
+  const today = dayKey(now);
+  const dueDay = task.deadline?.date ?? (task.due ? dayKey(task.due) : null);
+  if (dueDay && dueDay < today) return '마감일이 지났어요. 제출 가능 여부도 확인해 주세요.';
+  if (dueDay === today) return '오늘 마감인 학습을 먼저 제안했어요.';
+  if (dueDay) return `${dueDay} 마감과 중요도를 먼저 고려했어요.`;
+  return task.status === 'doing'
+    ? '이미 시작한 과제의 흐름을 이어가요.'
+    : '확인된 중요도와 시작하기 쉬운 분량을 고려했어요. 마감은 확인이 필요해요.';
+}
+
+export function appendLearningEvent(
+  s: State,
+  event: NonNullable<State['learningEvents']>[number],
+): State {
+  const events = s.learningEvents ?? [];
+  if (
+    events.length >= 50000 ||
+    events.some(
+      (e) =>
+        e.id === event.id ||
+        (event.type === 'FirstLearningAttempt' &&
+          e.type === event.type &&
+          e.sessionId === event.sessionId),
+    )
+  )
+    return s;
+  return { ...s, learningEvents: [...events, event] };
 }

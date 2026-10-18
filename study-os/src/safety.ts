@@ -1,8 +1,17 @@
 import type { State } from './model';
 import { fixedForDay, overlap } from './engine';
 import { dayKey, addDays } from './time';
-export function protectedBoundary(s: State, start: number, now: number) {
-  const blocks = [...fixedForDay(s, dayKey(start)), ...fixedForDay(s, addDays(dayKey(start), 1))];
+export function protectedBoundary(
+  s: State,
+  start: number,
+  now: number,
+  extraFixed: { start: number; end: number; title: string }[] = [],
+) {
+  const blocks = [
+    ...fixedForDay(s, dayKey(start)),
+    ...fixedForDay(s, addDays(dayKey(start), 1)),
+    ...extraFixed,
+  ];
   return blocks
     .filter((b) => b.end > start && b.start <= now)
     .map((b) => ({ at: Math.max(start, b.start), title: b.title }))

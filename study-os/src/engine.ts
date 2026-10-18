@@ -123,9 +123,11 @@ function gap(
   wanted: number,
   occupied: Block[],
   deadline: number,
+  extraFixed: Pick<Fixed, 'start' | 'end'>[] = [],
 ) {
   const blocked = [
     ...fixedForDay(s, day),
+    ...extraFixed,
     ...occupied.map((b) => ({
       start: +new Date(b.start),
       end: +new Date(b.end) + s.settings.breakMinutes * MIN,
@@ -145,7 +147,11 @@ function gap(
     ? { start: cursor, end: cursor + Math.min(wanted * MIN, end - cursor) }
     : null;
 }
-export function recover(s: State, now: number): Recovery {
+export function recover(
+  s: State,
+  now: number,
+  extraFixed: Pick<Fixed, 'start' | 'end'>[] = [],
+): Recovery {
   const earliest = Math.ceil(now / MIN) * MIN + 2 * MIN;
   const decisions: Recovery['decisions'] = [],
     occupied = s.plan.filter((b) => b.locked && +new Date(b.end) > now);
@@ -179,6 +185,7 @@ export function recover(s: State, now: number): Recovery {
         Math.min(t.remaining, s.settings.focus),
         occupied,
         deadline,
+        extraFixed,
       );
       if (found) break;
     }
@@ -227,7 +234,12 @@ export function recover(s: State, now: number): Recovery {
       : '지금 가능한 과제를 확인하고, 첫 개념 하나를 고르세요. 수면·고정 일정 중에는 쉬거나 이동을 준비하세요.',
   };
 }
-export function validatePlan(s: State, blocks: Block[], now: number) {
+export function validatePlan(
+  s: State,
+  blocks: Block[],
+  now: number,
+  extraFixed: Pick<Fixed, 'start' | 'end'>[] = [],
+) {
   const errors: string[] = [];
   if (new Set(blocks.map((b) => b.id)).size !== blocks.length)
     errors.push('중복된 학습 구간 ID입니다.');
@@ -246,7 +258,7 @@ export function validatePlan(s: State, blocks: Block[], now: number) {
     )
       errors.push('학습 구간은 같은 날에 남은 분량에 맞게 배치해야 합니다.');
     if (t?.due && end > +new Date(t.due)) errors.push('마감 이후에는 배치할 수 없습니다.');
-    if (fixedForDay(s, dayKey(start)).some((f) => overlap({ start, end }, f)))
+    if ([...fixedForDay(s, dayKey(start)), ...extraFixed].some((f) => overlap({ start, end }, f)))
       errors.push('수업·준비·이동·식사·수면과 충돌합니다.');
     if (
       i > 0 &&
@@ -281,11 +293,17 @@ export function validatePlan(s: State, blocks: Block[], now: number) {
   }
   return [...new Set(errors)];
 }
-export function validateRecovery(s: State, r: Recovery, now: number) {
+export function validateRecovery(
+  s: State,
+  r: Recovery,
+  now: number,
+  extraFixed: Pick<Fixed, 'start' | 'end'>[] = [],
+) {
   const errors = validatePlan(
       s,
       r.decisions.flatMap((d) => d.blocks),
       now,
+      extraFixed,
     ),
     pending = s.tasks.filter((t) => t.status !== 'done');
   if (

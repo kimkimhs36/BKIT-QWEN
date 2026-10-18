@@ -1,19 +1,23 @@
 import { test, expect } from './local-fixture';
 
-test('desktop TODAY centers its content and quick-entry label stays horizontal', async ({ page }) => {
+test('desktop TODAY centers its content and quick-entry label stays horizontal', async ({
+  page,
+}) => {
   for (const width of [1440, 1050]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('./');
-    await expect(page.getByRole('heading', {name:'오늘',exact:true})).toBeVisible();
+    await expect(page.getByRole('heading', { name: '오늘', exact: true })).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
 
     const home = await page.locator('.app-shell.page-today main').boundingBox();
     expect(home).toBeTruthy();
     expect(Math.abs(home!.x + home!.width / 2 - width / 2)).toBeLessThan(15);
 
-    await page.getByRole('button', {name:'더 보기'}).click();
-    await expect(page.getByRole('heading', {name:'도구와 설정'})).toBeVisible();
-    const quick = page.locator('.home-tools-list > button').first();
+    await page.getByRole('button', { name: '더 보기' }).click();
+    await expect(page.getByRole('heading', { name: '도구와 설정' })).toBeVisible();
+    const quick = page
+      .locator('.home-tools-list')
+      .getByRole('button', { name: '빠른 한 줄 입력', exact: false });
     await expect(quick).toBeVisible();
     const geometry = await quick.evaluate((button) => {
       const label = button.querySelector('span')!;
@@ -36,6 +40,6 @@ test('desktop TODAY centers its content and quick-entry label stays horizontal',
     expect(geometry.overflowing).toBe(false);
 
     await quick.click();
-    await expect(page.getByRole('heading', {name:'무엇부터 해야 할까요?'})).toBeVisible();
+    await expect(page.getByRole('heading', { name: '무엇부터 해야 할까요?' })).toBeVisible();
   }
 });

@@ -28,7 +28,7 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npx playwright install --with-deps chromium webkit
-      - run: npm run test:e2e -- tests/e2e/bkit-3.spec.ts tests/e2e/tools-toggle.spec.ts tests/e2e/study-start.spec.ts tests/e2e/home-clarity.spec.ts --project=${{ matrix.project }}
+      - run: npm run test:e2e -- --project=${{ matrix.project }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

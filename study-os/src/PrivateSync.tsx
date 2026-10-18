@@ -9,6 +9,9 @@ import { stateSchema, type State } from './model';
 export function portableStudyState(state: State): State {
   return {
     ...state,
+    learningEvents: undefined,
+    problemRetests: undefined,
+    exams: undefined,
     revision: 0,
     tasks: state.tasks.map(({ attachmentIds: _privatePhotos, ...task }) => task),
     active: null,

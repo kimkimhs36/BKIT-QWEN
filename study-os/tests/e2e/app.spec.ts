@@ -1,6 +1,8 @@
 import { test, expect, type Page } from './local-fixture';
 import { newState } from '../../src/model';
 import { KEY } from '../../src/storage';
+// Combined CRUD / timer / backup flows take longer on WebKit software rendering.
+test.setTimeout(90000);
 const fixedTime = new Date('2026-10-12T06:00:00Z');
 async function nav(p: Page, name: string) {
   if (name === '설정') {
@@ -79,7 +81,7 @@ test('empty state, CRUD, timer pause, finish, submission and refresh persistence
   await expect(page.getByText(/제출 완료/).first()).toBeVisible();
   await page.reload();
   await nav(page, '기록');
-  await expect(page.getByRole('heading', { name: '테스트 · 학습지 극한 1–3번' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '테스트 · 학습지 극한 1–3번', level: 3 })).toBeVisible();
   await expect(page.getByText(/3문제 · 어려움/)).toBeVisible();
   const state = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY);
   expect(state.sessions[0].pauses).toHaveLength(1);

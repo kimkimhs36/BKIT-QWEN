@@ -17,16 +17,20 @@ export const taskDeadlineSchema = z.object({
   precision: z.enum(['date-only', 'exact-time']),
   provenance: z.enum(['explicit', 'inferred', 'user-confirmed']),
 });
-export const taskQuantitySchema = z.object({
-  unit: z.enum(['problems', 'pages', 'passages', 'chapters']),
-  total: z.number().int().min(1).max(10000),
-  remaining: z.number().int().min(0).max(10000),
-}).refine(q => q.remaining <= q.total, '남은 분량은 총량 이하여야 합니다');
-export const taskEstimateSchema = z.object({
-  minMinutes: minutes,
-  maxMinutes: minutes,
-  source: z.enum(['default', 'user', 'history']),
-}).refine(e => e.minMinutes <= e.maxMinutes);
+export const taskQuantitySchema = z
+  .object({
+    unit: z.enum(['problems', 'pages', 'passages', 'chapters']),
+    total: z.number().int().min(1).max(10000),
+    remaining: z.number().int().min(0).max(10000),
+  })
+  .refine((q) => q.remaining <= q.total, '남은 분량은 총량 이하여야 합니다');
+export const taskEstimateSchema = z
+  .object({
+    minMinutes: minutes,
+    maxMinutes: minutes,
+    source: z.enum(['default', 'user', 'history']),
+  })
+  .refine((e) => e.minMinutes <= e.maxMinutes);
 export const taskSchema = z
   .object({
     id,
@@ -45,6 +49,8 @@ export const taskSchema = z
     remaining: minutes,
     status: z.enum(['todo', 'doing', 'done']),
     submitted: z.boolean(),
+    submissionRequired: z.boolean().optional(),
+    capture: z.object({source:z.enum(['text','photo','manual']),confirmedByUser:z.boolean()}).optional(),
     optional: z.boolean(),
     notes: note,
     link: z
@@ -82,10 +88,28 @@ export const learningAttemptSchema = z.object({
   answer: note.min(1),
   submittedAt: instant,
   selfCheck: z.enum(['unreviewed', 'remembered', 'retry']),
+  hintUsed: z.boolean().optional(),
+  confidence: z.enum(['low', 'medium', 'high']).optional(),
+  errorTag: z
+    .enum([
+      'concept',
+      'procedure',
+      'calculation',
+      'interpretation',
+      'unit',
+      'vocabulary',
+      'attention',
+      'unknown',
+    ])
+    .optional(),
 });
 export const problemWorkspaceSchema = z.object({
   problem: note.min(1),
   source: text,
+  sourceType: z
+    .enum(['school-worksheet', 'textbook', 'academy-sheet', 'user-note', 'official-resource'])
+    .optional(),
+  problemNumber: text.optional(),
   attempts: z.array(learningAttemptSchema).max(20),
 });
 export const activeSchema = z.object({
@@ -140,6 +164,24 @@ export const gradeSchema = z.object({
   target: z.number().min(0).max(100).nullable(),
   score: z.number().min(0).max(100).nullable(),
 });
+export const examSchema = z
+  .object({
+    id,
+    subject: text.min(1),
+    title: text.min(1),
+    date: date.nullable(),
+    confirmedScope: note,
+    uncertainScope: note,
+    source: note,
+    availableMaterials: note,
+    missingMaterials: note,
+    weakConcepts: note,
+    updatedAt: instant,
+  })
+  .refine(
+    (e) => !e.confirmedScope.trim() || !!e.source.trim(),
+    '확인한 시험 범위의 출처를 적어 주세요.',
+  );
 export const stateSchema = z
   .object({
     version: z.literal(1),
@@ -152,7 +194,26 @@ export const stateSchema = z
     undo: z.array(blockSchema).max(500).nullable(),
     settings: settingsSchema,
     grades: z.array(gradeSchema).max(500),
+    exams: z.array(examSchema).max(500).optional(),
     reviewsDone: z.array(id).max(5000),
+    learningEvents: z
+      .array(
+        z.object({
+          id,
+          type: z.enum(['RecommendationShown', 'StudyStarted', 'FirstLearningAttempt']),
+          at: instant,
+          foregroundAt: instant,
+          taskId: id.nullable(),
+          sessionId: id.nullable(),
+          action: text,
+        }),
+      )
+      .max(50000)
+      .optional(),
+    problemRetests: z
+      .array(learningAttemptSchema.extend({ sessionId: id }))
+      .max(50000)
+      .optional(),
     // Optional to preserve existing v1 backups and local records.
     reviewProgress: z
       .array(

@@ -4,7 +4,7 @@
 .bkit-cloud-state {
   font-size: 11px; font-weight: 690; letter-spacing: -.1px;
   padding: 5px 10px; border-radius: 999px; background: #f0f3fb;
-  color: #677891; white-space: nowrap;
+  color: #536178; white-space: nowrap;
 }
 .bkit-cloud-state--connected { background: #e8f5ef; color: #2d7856; }
 .bkit-cloud-state--conflict { background: #fff2df; color: #906020; }
@@ -35,7 +35,7 @@
 .bkit-cloud-config .hint { color: #62738c; line-height: 1.65; font-size: 12px; }
 .bkit-cloud-privacy {
   display:flex; align-items: flex-start; gap:7px;
-  margin: 12px 0 0; color: #6a7992;
+  margin: 12px 0 0; color: #536178;
   font-size: 11px; line-height: 1.6;
 }
 .bkit-cloud-privacy svg { flex: 0 0 auto; margin-top: 2px; }

@@ -1,3 +1,9 @@
+import { sleepConstraints, studyFixedNow } from './sleepConstraints';
+import { ExamPanel } from './ExamPanel';
+import { LearningEvidence } from './LearningEvidence';
+import { ProblemReviewQueue } from './ProblemReviewQueue';
+import { addProblemRetest, type AttemptMeta, type ErrorTag, type ProblemSourceMeta } from './problemReview';
+import { appendLearningEvent, firstLearningAction, rankInstantTasks, canStartSprint } from './now';
 import { QuickCapture } from './QuickCapture';
 import { TaskCheckIn } from './TaskCheckIn';
 import { LandscapeNote } from './LandscapeNote';
@@ -89,7 +95,7 @@ import { needsSubmission, needsAttention, filteredTasks } from './tasks';
 import { inputError } from './input-error';
 import { apiEnabled, requestAI } from './ai';
 import { protectedBoundary, fixedConflicts } from './safety';
-import { KEY, readState, writeState, parseBackup } from './storage';
+import { KEY, readState, writeState, parseBackup, StorageConflict } from './storage';
 const SleepGuard = lazy(() => import('./SleepGuard').then(m => ({default:m.SleepGuard})));
 const Juggernaut = lazy(() => import('./Juggernaut').then(m => ({default:m.Juggernaut})));
 const NAV = [
@@ -228,6 +234,7 @@ export default function App() {
       | 'import'
     >(null);
   const sleep = useSleepGuard(now, Boolean(s.active));
+  const [energy,setEnergy] = useState<'low'|'normal'>('normal');
   const [editTask, setEditTask] = useState<Task | null>(null),
     [editSchedule, setEditSchedule] = useState<Schedule | null>(null),
     [day, setDay] = useState(dayKey()),
@@ -318,6 +325,17 @@ export default function App() {
     return () => navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
   }, []);
 
+  const [foregroundId,setForegroundId] = useState(0);
+  const foregroundAt = useRef(iso(Date.now()));
+  const shownRecommendations = useRef(new Set<string>());
+  useEffect(() => {
+    const visible = () => { if (document.visibilityState === 'visible') {
+      foregroundAt.current = iso(Date.now()); shownRecommendations.current.clear(); setForegroundId(i=>i+1);
+    }};
+    document.addEventListener('visibilitychange', visible);
+    return () => document.removeEventListener('visibilitychange', visible);
+  }, []);
+  const storedRaw = useRef(initial.raw);
   const memory = useRef(s);
   memory.current = s;
   useEffect(() => {
@@ -354,13 +372,16 @@ export default function App() {
     try {
       const previous = memory.current,
         next = stateSchema.parse({ ...change(previous), revision: previous.revision + 1 });
-      writeState(localStorage, next);
+      storedRaw.current = writeState(localStorage, next, force ? undefined : storedRaw.current);
       memory.current = next;
       setS(next);
       setStorageError('');
       if (force) setReadBlocked(false);
       return true;
     } catch (e) {
+      if (e instanceof StorageConflict) {
+        setReadBlocked(true); setStorageError(e.message); return false;
+      }
       setStorageError(
         '저장하지 못했습니다. 저장 공간과 입력값을 확인하세요. 화면의 기존 기록은 유지됩니다.',
       );
@@ -372,16 +393,23 @@ export default function App() {
     ...incoming,
     // Device-only active timer and private photos never leave the device.
     active: v.active,
+    learningEvents: v.learningEvents,
+    problemRetests: v.problemRetests,
+    exams: v.exams,
     tasks: incoming.tasks.map(t => ({
       ...t,
       attachmentIds: v.tasks.find(local => local.id === t.id)?.attachmentIds,
+      submissionRequired:t.submissionRequired??v.tasks.find(local=>local.id===t.id)?.submissionRequired,
+      capture:t.capture??v.tasks.find(local=>local.id===t.id)?.capture,
     })),
     plan: [],
     undo: null,
   })));
   const cloud = useStudyCloud(s, (incoming) => commit((v) => ({
     ...v,
-    tasks: incoming.tasks.map(t => ({ ...t, attachmentIds: v.tasks.find(local => local.id === t.id)?.attachmentIds })),
+    tasks: incoming.tasks.map(t => ({ ...t, attachmentIds: v.tasks.find(local => local.id === t.id)?.attachmentIds,
+      submissionRequired:t.submissionRequired??v.tasks.find(local=>local.id===t.id)?.submissionRequired,
+      capture:t.capture??v.tasks.find(local=>local.id===t.id)?.capture })),
     schedules: incoming.schedules,
     // Remote changes may remove/move tasks; never retain orphaned plan blocks.
     plan: [],
@@ -419,8 +447,9 @@ export default function App() {
     setEditSchedule(t);
     open('schedule');
   }
+  const sleepFixed = sleepConstraints(sleep.state, now-86400000, now+8*86400000);
   const today = dayKey(now),
-    fixed = fixedForDay(s, today),
+    fixed = studyFixedNow(s, sleep.state, now),
     next = nextSchedule(s, now),
     pending = s.tasks.filter((t) => t.status !== 'done'),
     awaiting = s.tasks.filter(needsSubmission),
@@ -447,12 +476,23 @@ export default function App() {
   const activeMaterials = s.tasks.find(t => t.id === s.active?.taskId)?.attachmentIds || [];
   const current = fixed.find((f) => f.start <= now && f.end > now),
     nextBlock = todayBlocks.find((b) => +new Date(b.end) > now),
-    actionTask = s.tasks.find((t) => t.id === nextBlock?.taskId) || ordered[0];
+    actionTask = rankInstantTasks(pending, now, Math.max(0,Math.floor(((fixed.find(f=>f.start>now)?.start??now+60*MIN)-now)/MIN)), energy==='low')[0];
+  const recommendationTask = selected === '__free__' ? undefined : pending.find(t => t.id === selected) ?? actionTask;
+  const recommendationReady = canStartSprint(now,!!current,fixed.find(f=>f.start>now)?.start??null);
+  useEffect(() => {
+    if (!recommendationReady || tab !== 'today' || s.active || current || document.visibilityState !== 'visible' || readBlocked) return;
+    const key = (recommendationTask?.id ?? '__free__')+'|'+firstLearningAction(recommendationTask,energy==='low');
+    if (shownRecommendations.current.has(key)) return;
+    shownRecommendations.current.add(key);
+    commit(v => appendLearningEvent(v, {id:uid(), type:'RecommendationShown', at:iso(Date.now()),
+      foregroundAt:foregroundAt.current, taskId:recommendationTask?.id ?? null, sessionId:null,
+      action:firstLearningAction(recommendationTask,energy==='low')}));
+  }, [tab, recommendationTask?.id, s.active?.id, current?.id, readBlocked,foregroundId,recommendationReady,energy,recommendationTask?.quantity?.remaining]);
   const conflicts = fixedConflicts(s, day);
   useEffect(() => {
     const a = s.active;
     if (!a?.segmentStart) return;
-    const boundary = protectedBoundary(s, +new Date(a.segmentStart), now);
+    const boundary = protectedBoundary(s, +new Date(a.segmentStart), now, sleepConstraints(sleep.state,+new Date(a.segmentStart),now));
     if (
       boundary &&
       commit((v) => ({
@@ -467,7 +507,7 @@ export default function App() {
       }))
     )
       setNotice(boundary.title + '에 맞춰 타이머를 멈췄습니다. 실제 공부한 양만 기록하세요.');
-  }, [now, s.active]);
+  }, [now, s.active, sleep.state]);
   const hasHomeTask = pending.length > 0 || s.active !== null;
   const canStudy = !current;
   const seconds = s.active ? elapsed(s.active, now) : 0;
@@ -478,24 +518,26 @@ export default function App() {
       return;
     }
     const currentTime = Date.now(),
-      block = fixedForDay(s, dayKey(currentTime)).find(
+      block = studyFixedNow(s,sleep.state,currentTime).find(
         (f) => f.start <= currentTime && f.end > currentTime,
       );
     if (block) {
       setNotice(`${block.title} 시간입니다. 고정 일정과 수면을 먼저 지켜주세요.`);
       return;
     }
-    const future = fixedForDay(s, dayKey(currentTime)).find((f) => f.start > currentTime);
+    const future = studyFixedNow(s,sleep.state,currentTime).find((f) => f.start > currentTime);
     if (future && future.start < currentTime + minutes * MIN) {
       setNotice(`${clock(future.start)} ${future.title} 전에 끝나는 짧은 세션을 선택하세요.`);
       return;
     }
     const t = s.tasks.find((t) => t.id === task && t.status !== 'done');
+    const sessionId = uid();
     if (
       commit((v) => ({
-        ...v,
+        ...appendLearningEvent(v, {id:uid(), type:'StudyStarted', at:iso(currentTime),
+          foregroundAt:foregroundAt.current, taskId:t?.id ?? null, sessionId, action:firstLearningAction(t,energy==='low')}),
         active: {
-          id: uid(),
+          id: sessionId,
           taskId: t?.id || null,
           subject: t?.subject || '자율 학습',
           action: t?.title || '첫 개념을 가리고 떠올린 뒤, 문제 하나 풀기',
@@ -519,34 +561,49 @@ export default function App() {
       setNotice(outcome === 'retry' ? '내일 다시 연습하도록 기록했어요.' : '다음 복습 날짜를 갱신했어요.');
     return saved;
   }
-  function setLearningProblem(problem: string, source: string) {
+  function setLearningProblem(problem: string, source: string, meta: ProblemSourceMeta) {
     if (!s.active || s.active.workspace) return;
     if (commit(v => v.active ? {
-      ...v, active: {...v.active, workspace:{problem,source,attempts:[]}},
+      ...v, active: {...v.active, workspace:{problem,source,...meta,attempts:[]}},
     } : v)) setNotice('문제를 준비했어. 이제 내 답을 먼저 적어봐.');
   }
-  function addLearningAttempt(answer: string) {
-    if (!s.active?.workspace || s.active.workspace.attempts.length >= 20) return;
-    if (commit(v => {
+  function addLearningAttempt(answer: string, meta: AttemptMeta) {
+    if (!s.active?.workspace || s.active.workspace.attempts.length >= 20) return false;
+    const saved = commit(v => {
       if (!v.active?.workspace) return v;
-      return {...v,active:{...v.active,workspace:{
+      return {...appendLearningEvent(v, {id:uid(), type:'FirstLearningAttempt', at:iso(Date.now()),
+        foregroundAt:foregroundAt.current,
+        taskId:v.active.taskId, sessionId:v.active.id, action:v.active.action}),active:{...v.active,workspace:{
         ...v.active.workspace,
         attempts:[...v.active.workspace.attempts,{
-          id:uid(), answer, submittedAt:iso(Date.now()), selfCheck:'unreviewed' as const,
+          id:uid(), answer, submittedAt:iso(Date.now()), selfCheck:'unreviewed' as const, ...meta,
         }],
       }}};
-    })) setNotice('내 답을 저장했어. 해설을 확인한 뒤 스스로 평가해.');
+    });
+    if (saved) setNotice('내 답을 저장했어. 해설을 확인한 뒤 스스로 평가해.');
+    return saved;
   }
-  function markLearningAttempt(attemptId:string, outcome:'remembered'|'retry') {
+  function markLearningAttempt(attemptId:string, outcome:'remembered'|'retry', errorTag?:ErrorTag) {
     if (!s.active?.workspace) return;
     if (commit(v => {
       if (!v.active?.workspace) return v;
       return {...v,active:{...v.active,workspace:{
         ...v.active.workspace,
         attempts:v.active.workspace.attempts.map(a=>a.id===attemptId&&a.selfCheck==='unreviewed'
-          ? {...a,selfCheck:outcome}:a),
+          ? {...a,selfCheck:outcome,errorTag:outcome==='retry' ? errorTag ?? 'unknown' : undefined}:a),
       }}};
     })) setNotice(outcome==='retry'?'재시도할 수 있어. 답을 다시 써봐.':'자가 확인을 기록했어.');
+  }
+  function recordProblemRetest(sessionId:string, answer:string, meta:AttemptMeta) {
+    if (!answer.trim()) return false;
+    return commit(v=>addProblemRetest(v,sessionId,{id:uid(),answer:answer.trim(),submittedAt:iso(Date.now()),selfCheck:'unreviewed',...meta},Date.now()));
+  }
+  function checkProblemRetest(id:string, outcome:'remembered'|'retry') {
+    commit(v=>({...v,
+      problemRetests:(v.problemRetests??[]).map(a=>a.id===id&&a.selfCheck==='unreviewed'?{...a,selfCheck:outcome}:a),
+      sessions:v.sessions.map(session=>session.workspace?{...session,workspace:{...session.workspace,
+        attempts:session.workspace.attempts.map(a=>a.id===id&&a.selfCheck==='unreviewed'?{...a,selfCheck:outcome}:a)}}:session),
+    }));
   }
   function finish(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -628,6 +685,8 @@ export default function App() {
         remaining: Number(f.get('remaining')),
         status: f.get('status'),
         submitted: f.has('submitted'),
+        submissionRequired:f.has('submissionRequired'),
+        capture:editTask?.capture??{source:'manual',confirmedByUser:true},
         optional: f.has('optional'),
         notes: f.get('notes'),
         link: f.get('link'),
@@ -708,12 +767,12 @@ export default function App() {
       time = Date.now();
     setProposalRevision(snapshot.revision);
     setMode('Demo AI Mode · 규칙 기반');
-    const fallback = recover(snapshot, time);
+    const fallback = recover(snapshot, time, sleepFixed);
     try {
       if (!online) throw new Error('offline');
       const payload = await requestAI('plan', { state: privateSnapshot(snapshot), now: time }, cloud.getAccessToken()),
         r = recoverySchema.parse(payload.result);
-      if (validateRecovery(snapshot, r, time).length) throw new Error('안전 규칙 위반');
+      if (validateRecovery(snapshot, r, time, sleepFixed).length) throw new Error('안전 규칙 위반');
       setProposal(r);
       setMode(payload.mode === 'live' ? '서버 AI · 검증 완료' : 'Demo AI Mode · 규칙 기반');
     } catch {
@@ -728,6 +787,9 @@ export default function App() {
       ...v,
       tasks: v.tasks.map((t) => ({ ...t, notes: '', link: '' })),
       sessions: [],
+      learningEvents: undefined,
+      problemRetests: undefined,
+      exams: undefined,
       active: null,
       grades: [],
       reviewsDone: [],
@@ -788,8 +850,9 @@ export default function App() {
     s,
     todayBlocks.filter((b) => +new Date(b.end) > now),
     now,
+    sleepFixed,
   );
-  const proposalErrors = proposal ? validateRecovery(s, proposal, now) : [];
+  const proposalErrors = proposal ? validateRecovery(s, proposal, now, sleepFixed) : [];
   const taskRow = (t: Task) => (
     <div className="task-row" key={t.id}>
       <button
@@ -1008,6 +1071,8 @@ export default function App() {
                 <div className="command-left">
                   <NowFocus
                     now={now}
+                    energy={energy}
+                    onEnergyChange={setEnergy}
                     current={current}
                     nextFixed={fixed.find((item) => item.start > now)}
                     active={s.active}
@@ -1355,6 +1420,7 @@ export default function App() {
                   </Empty>
                 )}
               </section>
+              <ExamPanel state={s} today={today} onStart={id=>start(5,id)} onSave={exam=>commit(v=>({...v,exams:[...(v.exams??[]).filter(e=>e.id!==exam.id),exam]}))}/>
               <p className="hint">
                 학습 완료와 제출 완료는 별개입니다. 과제를 열어 제출 상태를 확인하세요.
               </p>
@@ -1509,7 +1575,7 @@ export default function App() {
                           className="secondary"
                           onClick={() => {
                             const a = s.active!;
-                            const f = fixedForDay(s, dayKey(Date.now())).find(
+                            const f = studyFixedNow(s,sleep.state,Date.now()).find(
                               (x) => x.start <= Date.now() && x.end > Date.now(),
                             );
                             if (f) {
@@ -1552,12 +1618,14 @@ export default function App() {
                     <span>잠깐 막혔다면 기초 예제 하나로 돌아가세요.</span>
                   </div>
                 </section>
-                <ReviewDeck queue={reviewQueue} onReview={handleReview} />
+                <div><ProblemReviewQueue state={s} today={today} onAttempt={recordProblemRetest} onCheck={checkProblemRetest}/><ReviewDeck queue={reviewQueue} onReview={handleReview} /></div>
               </div>
             </>
           )}
           {tab === 'progress' && (
             <>
+              <LearningEvidence state={s} today={today}/>
+              <ProblemReviewQueue state={s} today={today} onAttempt={recordProblemRetest} onCheck={checkProblemRetest}/>
               {s.sessions.some(entry=>entry.workspace?.attempts.length) && (
                 <section className="panel problem-history">
                   <div className="section-head"><h2>내가 실제로 답한 문제</h2><span className="muted">이 기기에만 저장</span></div>
@@ -1950,7 +2018,7 @@ export default function App() {
       </div>
       {atelierOpen && createPortal(
         <StudyAtelier startAt={atelierStep} onClose={() => setAtelierOpen(false)} onSave={tasks => {
-          const merged = mergeMissions(memory.current.tasks, tasks);
+          const merged = mergeMissions(memory.current.tasks, tasks.map(t=>({...t,capture:{source:t.attachmentIds?.length?'photo' as const:'text' as const,confirmedByUser:true}})));
           if (!commit(v => ({ ...v, tasks: merged.tasks }))) return null;
           setSelected(merged.ids[0] || '');
           setTab('today');
@@ -1965,7 +2033,7 @@ export default function App() {
         }}/>, document.body,
       )}
       {tab === 'juggernaut' && createPortal(
-        <Suspense fallback={<p role="status">JUGGERNAUT를 여는 중…</p>}><Juggernaut onExit={() => setTab('today')} onStart={() => setTab('study')} /></Suspense>,
+        <Suspense fallback={<p role="status">JUGGERNAUT를 여는 중…</p>}><Juggernaut onExit={() => setTab('today')} tasks={ordered} recommended={actionTask} canStart={!!s.active||recommendationReady} protectedReason={current?.title??'다음 일정 준비'} onStart={id => start(5,id)} /></Suspense>,
         document.body,
       )}
       {createPortal(
@@ -2140,6 +2208,7 @@ export default function App() {
                   </select>
                 </Field>
               </div>
+              <label className="checkbox"><input type="checkbox" name="submissionRequired" defaultChecked={editTask?.submissionRequired??(!editTask||editTask.kind==='숙제'||editTask.kind==='수행평가')}/>완료 후 제출 확인이 필요한 과제</label>
               <label className="checkbox">
                 <input type="checkbox" name="submitted" defaultChecked={editTask?.submitted} /> 제출
                 완료 (학습 완료 상태에서 체크)
@@ -2493,7 +2562,7 @@ export default function App() {
                         className="primary"
                         disabled={!!proposalErrors.length || proposalRevision !== s.revision}
                         onClick={() => {
-                          const errors = validateRecovery(s, proposal, Date.now());
+                          const errors = validateRecovery(s, proposal, Date.now(), sleepFixed);
                           if (errors.length) {
                             setFormError(errors.join(' '));
                             return;

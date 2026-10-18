@@ -2,7 +2,7 @@ import { ArrowUpRight, Clock3, LockKeyhole, Play } from 'lucide-react';
 import type { Fixed } from './engine';
 import type { State, Task } from './model';
 import { clock } from './time';
-import { canStartSprint } from './now';
+import { canStartSprint, firstLearningAction, recommendationReason } from './now';
 import { formatQuantity } from './capture';
 
 type Props = {
@@ -18,6 +18,8 @@ type Props = {
   onStart: (taskId: string | null) => void;
   onFocus: () => void;
   onSchedule: () => void;
+  energy: 'low' | 'normal';
+  onEnergyChange: (value:'low'|'normal')=>void;
 };
 
 export function NowFocus({
@@ -33,6 +35,8 @@ export function NowFocus({
   onStart,
   onFocus,
   onSchedule,
+  energy,
+  onEnergyChange,
 }: Props) {
   const ready = canStartSprint(now, Boolean(current), nextFixed?.start ?? null);
   const chosen =
@@ -85,6 +89,13 @@ export function NowFocus({
       </div>
       <h2>{headline}</h2>
       <p className="now-focus-description">{explanation}</p>
+      {!active && ready && (
+        <div className="instant-action">
+          <strong>{firstLearningAction(chosen, energy==='low')}</strong>
+          {chosen && <p>{recommendationReason(chosen, now)}</p>}
+          <small>문제 번호와 자료 내용은 직접 확인해 주세요.</small>
+        </div>
+      )}
       {active ? (
         <div className="now-focus-running">
           <div className="now-focus-running-head">
@@ -107,6 +118,9 @@ export function NowFocus({
         </div>
       ) : ready ? (
         <div className="now-focus-ready">
+          <details className="now-task-options"><summary>오늘 에너지 (선택)</summary>
+            <label className="now-focus-picker"><span>지금 에너지</span><select aria-label="지금 에너지" value={energy} onChange={e=>onEnergyChange(e.target.value as 'low'|'normal')}><option value="normal">괜찮아요</option><option value="low">피곤해요 · 첫 단계만</option></select></label>
+          </details>
           {tasks.length > 0 ? (
             <details className="now-task-options">
               <summary>과제 바꾸기</summary>

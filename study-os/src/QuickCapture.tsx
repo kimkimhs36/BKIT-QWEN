@@ -41,6 +41,8 @@ export function QuickCapture({
             priority: 2,
             status: 'todo',
             submitted: false,
+            submissionRequired:parsed.submissionRequired,
+            capture:{source:'text',confirmedByUser:true},
             optional: false,
             notes: '',
             link: '',
@@ -74,6 +76,7 @@ export function QuickCapture({
           }}
         />
       </label>
+      <label className="checkbox"><input type="checkbox" checked={parsed.submissionRequired} onChange={e=>change('submissionRequired',e.target.checked)}/>완료 후 제출 확인이 필요한 과제</label>
       <div className="capture-v2-indicators" aria-live="polite">
         <span>{parsed.quantityUnit&&parsed.quantityTotal ? '분량 인식 완료' : '분량 확인 필요'}</span>
         <span>{!dated?'마감 미확인':parsed.precision==='date-only'?'날짜만 확인':'시각까지 확인'}</span>

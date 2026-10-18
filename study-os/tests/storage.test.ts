@@ -28,19 +28,39 @@ describe('durable data boundary', () => {
     store.setItem('crashweek.v3', 'do-not-delete');
     const s = newState();
     s.tasks.push({
-      id: 'homework', subject: '수학', title: '극한 학습지 1번', kind: '숙제',
-      due: null, priority: 2, minutes: 25, remaining: 15, status: 'doing',
-      submitted: false, optional: false, notes: '기존 메모', link: '',
+      id: 'homework',
+      subject: '수학',
+      title: '극한 학습지 1번',
+      kind: '숙제',
+      due: null,
+      priority: 2,
+      minutes: 25,
+      remaining: 15,
+      status: 'doing',
+      submitted: false,
+      optional: false,
+      notes: '기존 메모',
+      link: '',
     });
     s.active = {
-      id: 'active', taskId: 'homework', subject: '수학', action: '극한 학습지 1번',
-      target: 25, started: iso(at('2026-10-15','15:00')), segmentStart: null,
-      elapsed: 300, pauses: [],
+      id: 'active',
+      taskId: 'homework',
+      subject: '수학',
+      action: '극한 학습지 1번',
+      target: 25,
+      started: iso(at('2026-10-15', '15:00')),
+      segmentStart: null,
+      elapsed: 300,
+      pauses: [],
     };
-    s.reviewProgress = [{
-      sessionId: 'old-session', stage: 1, due: '2026-10-17',
-      updatedAt: iso(at('2026-10-15','15:01')),
-    }];
+    s.reviewProgress = [
+      {
+        sessionId: 'old-session',
+        stage: 1,
+        due: '2026-10-17',
+        updatedAt: iso(at('2026-10-15', '15:01')),
+      },
+    ];
     writeState(store, s);
     const raw = store.getItem(KEY)!;
     expect(readState(store).state).toEqual(s);
@@ -120,5 +140,46 @@ describe('durable data boundary', () => {
     expect(studySeconds([session], '2026-10-13')).toBe(600);
     expect(todayOutput([session], at('2026-10-12', '23:55'))).toBe(0);
     expect(todayOutput([session], at('2026-10-13', '00:11'))).toBe(3);
+  });
+});
+
+describe('learning upgrade preservation and concurrent writes', () => {
+  it('backs up exact original bytes once before writing additive learning data', async () => {
+    const { LEARNING_BACKUP_KEY } = await import('../src/storage');
+    const store = memory(),
+      legacy = JSON.stringify(newState(), null, 2);
+    store.setItem(KEY, legacy);
+    const s = newState();
+    s.learningEvents = [];
+    writeState(store, s, legacy);
+    expect(store.getItem(LEARNING_BACKUP_KEY)).toBe(legacy);
+    const raw = store.getItem(KEY)!;
+    s.settings.goal = '다음 목표';
+    writeState(store, s, raw);
+    expect(store.getItem(LEARNING_BACKUP_KEY)).toBe(legacy);
+    expect(parseBackup(store.getItem(LEARNING_BACKUP_KEY)!)).toEqual(newState());
+  });
+  it('rejects a stale tab even before the storage event is delivered', () => {
+    const store = memory(),
+      legacy = JSON.stringify(newState());
+    store.setItem(KEY, legacy);
+    const remote = { ...newState(), revision: 2 };
+    const newer = JSON.stringify(remote);
+    store.setItem(KEY, newer);
+    expect(() => writeState(store, newState(), legacy)).toThrow('다른 탭');
+    expect(store.getItem(KEY)).toBe(newer);
+  });
+  it('cannot replace original data when the safety backup write fails', () => {
+    const legacy = JSON.stringify(newState());
+    let value = legacy;
+    const store = {
+      getItem: (key: string) => (key === KEY ? value : null),
+      setItem: (key: string, v: string) => {
+        if (key !== KEY) throw new DOMException('full', 'QuotaExceededError');
+        value = v;
+      },
+    };
+    expect(() => writeState(store, { ...newState(), revision: 1 }, legacy)).toThrow();
+    expect(value).toBe(legacy);
   });
 });

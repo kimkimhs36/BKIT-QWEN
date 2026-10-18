@@ -164,3 +164,9 @@
 .juggernaut .jg-steps button{font-size:11px;gap:3px}
 .juggernaut .jg-replay{margin:13px auto 0;background:transparent;border:1px solid #b2dedb3a;border-radius:999px;min-height:44px;padding:10px 19px;color:#c0dcd8;font-size:12px;letter-spacing:.04em}
 @media(max-width:390px){.juggernaut .jg-steps{gap:1px;padding-inline:10px}.juggernaut .jg-steps button{font-size:10px}.juggernaut .jg-steps button small{font-size:8px}}
+.jg-task-picker {display:grid;gap:12px;max-width:640px;margin:28px auto;color:#e4e9df;font-size:15px;text-align:left;}
+.jg-task-picker select {width:100%;min-width:0;min-height:48px;padding:12px;font:inherit;background:#182920;color:#f4f5ed;border:1px solid #748a6f;border-radius:10px;}
+.jg-intro-setting {display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;color:#d5dfcf;font-size:14px;}
+.jg-intro-setting input {width:20px;height:20px;}
+.juggernaut button:disabled {opacity:.5;cursor:default;}
+html[data-sleep-night='true'] .juggernaut *, html[data-sleep-night='true'] .juggernaut *::before,html[data-sleep-night='true'] .juggernaut *::after {animation:none!important;transition:none!important;}

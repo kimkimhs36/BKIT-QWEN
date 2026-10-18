@@ -1,4 +1,6 @@
 import { test, expect } from './local-fixture';
+// These scenarios assert the phone dock; browser projects still exercise both engines.
+test.use({ viewport: { width: 390, height: 844 } });
 
 test('iPhone dock is visible at the top, middle, and bottom of a long page', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-14T06:00:00Z') });

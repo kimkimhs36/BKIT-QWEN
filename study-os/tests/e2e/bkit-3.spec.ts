@@ -112,6 +112,8 @@ test('automatic night starts at bedtime, stays optional, and never interrupts ac
   await expect(page.locator('html')).toHaveAttribute('data-sleep-night', 'true');
   await page.getByRole('button', { name: '야간 화면 종료', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-sleep-night', 'false');
+  // Finish the palette check, then start before the next protected bedtime.
+  await schedule(page, '22:30', '07:00');
   await page.getByRole('button', { name: '집중 화면으로 이동', exact: true }).click();
   await page.getByRole('button', { name: '과제 추가', exact: true }).click();
   await page.getByLabel('할 일을 한 문장으로', { exact: true }).fill('수학 20문제');
