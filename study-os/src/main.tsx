@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { SleepGuard } from './SleepGuard';
 import '@fontsource/dm-sans/400.css';
 import '@fontsource/dm-sans/500.css';
 import '@fontsource/dm-sans/600.css';
@@ -9,6 +10,7 @@ import './styles.css';
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
+    <SleepGuard />
   </React.StrictMode>,
 );
 if (import.meta.env.PROD && 'serviceWorker' in navigator)
@@ -34,3 +36,5 @@ import './nature.css';
 import './atelier.css';
 
 import './clarity.css';
+
+import './sleep-guard.css';
