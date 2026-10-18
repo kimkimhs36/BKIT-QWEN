@@ -181,7 +181,7 @@ test('production PWA shell reloads offline, keeps records and scope isolation', 
 test('all six screens fit narrow viewport with keyboard-accessible dialog', async ({
   page,
 }, info) => {
-  for (const name of ['오늘', '시간표', '과제', '집중', '기록', '설정']) {
+  for (const name of ['오늘', '시간표', '과제', '집중', '기록', '설정', '더보기']) {
     await nav(page, name);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
@@ -215,7 +215,7 @@ test('quota failure and corrupt data never silently reset stored data', async ({
 test('WCAG automated checks on primary screens', async ({ page }) => {
   const { default: AxeBuilder } = await import('@axe-core/playwright');
   const failures = [];
-  for (const name of ['오늘', '시간표', '과제', '집중', '기록', '설정']) {
+  for (const name of ['오늘', '시간표', '과제', '집중', '기록', '설정', '더보기']) {
     await nav(page, name);
     const result = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -293,7 +293,7 @@ test('static demo recovery makes no AI network request', async ({ page }) => {
 test('320px layout keeps actions and task filters within viewport', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 720 });
   await addTask(page);
-  for (const name of ['오늘', '시간표', '과제', '집중', '기록', '설정']) {
+  for (const name of ['오늘', '시간표', '과제', '집중', '기록', '설정', '더보기']) {
     await nav(page, name);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),

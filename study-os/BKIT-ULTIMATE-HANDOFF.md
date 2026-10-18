@@ -66,7 +66,7 @@ Latest completed integrated local checks before this checkpoint: 111/111 unit te
 
 - Core workspace currently holds one question per focus session with multiple attempts; it is not a full multi-problem resource library yet.
 - Review intervals are operating defaults. Same-day hinted retests, exam-date interval compression, concept transfer and calibrated mastery estimates remain incomplete. No mastery/grade improvement claim.
-- Four-area NOW/LEARN/TASKS/MORE primary navigation has not replaced the legacy routes; avoid breaking existing navigation/tests during a future IA slice.
+- Four-area NOW/LEARN/TASKS/MORE primary navigation is implemented; legacy timetable/evidence/settings routes remain reachable under MORE.
 - Exam management is manual; no inferred school scope, coverage percentage, automated extraction or exam outcome inference.
 - Recovery success rates, dated submission/completion histories and objective sleep protection trend metrics are not yet fully instrumented.
 - Original Sleep Guard JSON includes photo IDs, not original image bytes. Clearing browser storage can still remove local media; no automatic device sync claim.
