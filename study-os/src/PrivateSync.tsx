@@ -43,22 +43,25 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
   local.current = localState;
   apply.current = applyIncoming;
 
-  useEffect(() => {
-    let active = true;
-    void (async () => {
-      try {
-        const res = await fetch(API_URL + '/api/config', {signal: AbortSignal.timeout(10000)});
-        if (!res.ok) throw new Error('서버 연결을 확인하지 못했어요.');
-        const config = z.object({googleClientId:z.string()}).parse(await res.json());
-        if (!config.googleClientId) throw new Error('Google 계정 설정을 준비 중이에요.');
-        await prepareGoogleIdentity();
-        if (active) { setClientId(config.googleClientId); setPrepared(true); }
-      } catch (e) {
-        if (active) setMessage(e instanceof Error ? e.message : 'Google 연결 준비에 실패했어요.');
-      }
-    })();
-    return () => { active = false; token.current = ''; };
-  }, []);
+  const preparing = useRef(false);
+  // Load identity only when the learner visits the private cloud settings.
+  // Ordinary study and OCR must make no external requests.
+  async function prepare() {
+    if (preparing.current || prepared) return;
+    preparing.current = true;
+    try {
+      const res = await fetch(API_URL + '/api/config', {signal: AbortSignal.timeout(10000)});
+      if (!res.ok) throw new Error('서버 연결을 확인하지 못했어요.');
+      const config = z.object({googleClientId:z.string()}).parse(await res.json());
+      if (!config.googleClientId) throw new Error('Google 계정 설정을 준비 중이에요.');
+      await prepareGoogleIdentity();
+      setClientId(config.googleClientId);
+      setPrepared(true);
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : 'Google 연결 준비에 실패했어요.');
+    } finally { preparing.current = false; }
+  }
+  useEffect(() => () => { token.current=''; }, []);
 
   async function readCloud() {
     const res = await fetch(API_URL + '/api/sync', {
@@ -185,11 +188,12 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
     token.current='';baseline.current='';version.current=0;
     setStatus('disconnected');setMessage('연결을 끊었어요. 이 기기의 기록은 그대로 있어요.');
   }
-  return {status,message,lastSynced,prepared,busy,connect,sync,resolve,disconnect};
+  return {status,message,lastSynced,prepared,busy,prepare,connect,sync,resolve,disconnect};
 }
 type PrivateStudyBridge = ReturnType<typeof usePrivateStudySync>;
 export function PrivateSyncPanel({sync}:{sync:PrivateStudyBridge}) {
   const [advanced,setAdvanced] = useState(false);
+  useEffect(() => { void sync.prepare(); }, []);
   return <section className="panel bkit-cloud-panel" aria-label="BKIT 개인 클라우드">
     <div className="section-head"><h2><Cloud size={20}/> BKIT Private Cloud</h2>
       <span className={'bkit-cloud-state bkit-cloud-state--'+sync.status}>
