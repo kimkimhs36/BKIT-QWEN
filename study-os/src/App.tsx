@@ -14,6 +14,7 @@ import { NowFocus } from './NowFocus';
 import { DeadlinePulse } from './DeadlinePulse';
 import { StudyRhythm } from './StudyRhythm';
 import { FocusStayAwake } from './FocusStayAwake';
+import { guardPauseBoundary, readSleepSettings } from './sleepGuardLogic';
 import { ReviewDeck } from './ReviewDeck';
 import { buildReviewQueue, recordReviewOutcome, type ReviewOutcome } from './review';
 import { shouldAutoHideFocusUi } from './focusQuiet';
@@ -319,16 +320,15 @@ export default function App() {
   // When the optional Sleep Guard activates, cap live study time at the real
   // bedtime boundary. A sleeping background tab may awaken much later.
   useEffect(() => {
-    const pauseForSleepGuard = (event?: Event) => {
+    const pauseForSleepGuard = () => {
       if (document.documentElement.dataset.bkitSleepGuardActive !== 'true') return;
       const current = memory.current.active;
       if (!current?.segmentStart) return;
-      const boundaryAt = event instanceof CustomEvent && typeof event.detail?.boundaryAt === 'number'
-        ? event.detail.boundaryAt as number : Date.now();
-      const pauseAt = Math.max(
-        +new Date(current.segmentStart),
-        Math.min(Date.now(), boundaryAt),
+      // Read stored opt-in settings instead of trusting an event timestamp.
+      const pauseAt = guardPauseBoundary(
+        Date.now(), +new Date(current.segmentStart), readSleepSettings(),
       );
+      if (pauseAt === null) return;
       const saved = commit((v) => {
         if (!v.active?.segmentStart) return v;
         return {
@@ -432,7 +432,13 @@ export default function App() {
   useEffect(() => {
     const a = s.active;
     if (!a?.segmentStart) return;
-    const boundary = protectedBoundary(s, +new Date(a.segmentStart), now);
+    const existing = protectedBoundary(s, +new Date(a.segmentStart), now);
+    const sleepGuardAt = guardPauseBoundary(
+      now, +new Date(a.segmentStart), readSleepSettings(),
+    );
+    const boundary = sleepGuardAt !== null && (!existing || sleepGuardAt < existing.at)
+      ? { at: sleepGuardAt, title: '수면 가드' }
+      : existing;
     if (
       boundary &&
       commit((v) => ({
