@@ -122,19 +122,48 @@ function Modal({
   title,
   children,
   onClose,
+  nonModal = false,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
+  nonModal?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
-    ref.current?.showModal();
-    return () => ref.current?.close();
-  }, []);
+    if (nonModal) ref.current?.show();
+    else ref.current?.showModal();
+    return () => { if (ref.current?.open) ref.current.close(); };
+  }, [nonModal]);
+  useEffect(() => {
+    if (!nonModal) return;
+    const outside = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (ref.current?.contains(target)) return;
+      // The same menu trigger must receive the click so it can close itself.
+      if (target instanceof Element && target.closest('.home-tools-button')) return;
+      onClose();
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+      }
+    };
+    document.addEventListener('pointerdown', outside);
+    document.addEventListener('keydown', escape);
+    return () => {
+      document.removeEventListener('pointerdown', outside);
+      document.removeEventListener('keydown', escape);
+    };
+  }, [nonModal, onClose]);
   return (
     <dialog
       ref={ref}
+      id={nonModal ? 'bkit-tools-menu' : undefined}
+      className={nonModal ? 'tools-dialog' : undefined}
+      aria-modal={nonModal ? 'false' : undefined}
       onCancel={onClose}
       onClick={(e) => {
         if (e.target === ref.current) onClose();
@@ -837,7 +866,7 @@ export default function App() {
           </div>
           {tab === 'today' ? <div className="home-top-tools">
             {!online && <span>오프라인</span>}
-            <button type="button" className="icon-button home-tools-button" aria-label="더 보기" onClick={() => open('tools')}><Menu size={22}/></button>
+            <button type="button" className="icon-button home-tools-button" aria-label="더 보기" aria-expanded={modal === 'tools'} aria-controls="bkit-tools-menu" onClick={() => modal === 'tools' ? setModal(null) : open('tools')}><Menu size={22}/></button>
           </div> :           <div className="top-meta">
             <span className={'status-dot ' + (!online ? 'offline' : '')} />
             <span>{online ? '로컬 저장 모드' : '오프라인 모드'}</span>
@@ -1949,6 +1978,7 @@ export default function App() {
             }[modal]
           }
           onClose={() => setModal(null)}
+          nonModal={modal === 'tools'}
         >
           {formError && (
             <p role="alert" className="warning form-error">
