@@ -87,7 +87,7 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       res.set('Access-Control-Allow-Origin', origin);
       res.set('Vary', 'Origin');
     }
-    res.set('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.set('Access-Control-Allow-Methods', 'GET,POST,PUT,OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     if (req.method === 'OPTIONS') {
       res.status(204).end();
