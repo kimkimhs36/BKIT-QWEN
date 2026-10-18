@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Moon, Settings2, X, Check, Coffee, Sun, Smartphone, Wind } from 'lucide-react';
 import {
-  DEFAULT_SLEEP_SETTINGS, SLEEP_STORAGE_KEY, readSleepSettings,
+  SLEEP_STORAGE_KEY, readSleepSettings,
   sleepStatus, type SleepSettings,
 } from './sleepGuardLogic';
 
