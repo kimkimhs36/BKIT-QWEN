@@ -1014,3 +1014,73 @@ body > .orbit-nav button:not(.active):hover {
   max-width: 100%;
   box-sizing: border-box;
 }
+
+/* The hamburger is a reversible non-modal menu: tapping the SAME trigger
+   closes it. Never use a blocking showModal() sheet for this control. */
+dialog.tools-dialog,
+dialog.tools-dialog[open] {
+  position: fixed;
+  inset: 88px max(16px, 4vw) auto auto;
+  margin: 0;
+  width: min(560px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(570px, calc(100dvh - 104px));
+  box-sizing: border-box;
+  padding: 22px 25px 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid #dce3d7;
+  border-radius: 22px;
+  color: #29362f;
+  background: #ffffff;
+  box-shadow: 0 24px 75px #263f3530;
+  transform: none;
+  animation: none;
+  z-index: 100;
+}
+dialog.tools-dialog .modal-head {
+  margin-bottom: 10px;
+}
+dialog.tools-dialog .modal-head h2 {
+  font-size: 21px;
+  color: #29362f;
+}
+dialog.tools-dialog .home-tools-list > button {
+  width: 100%;
+  min-height: 60px;
+}
+@media (max-width: 767px) {
+  dialog.tools-dialog,
+  dialog.tools-dialog[open] {
+    inset: calc(70px + env(safe-area-inset-top, 0px)) 12px auto auto;
+    width: min(440px, calc(100vw - 24px));
+    max-height: min(570px, calc(100dvh - 90px));
+    padding: 15px 18px 12px;
+    border-radius: 19px;
+  }
+  dialog.tools-dialog .home-tools-list > button {
+    min-height: 55px;
+    font-size: 15px;
+  }
+}
+/* Even with platform-specific intrinsic time-input sizes, form controls
+   on iPad need real breathing room instead of nearly touching borders. */
+.app-shell.atelier-os.page-settings .settings-layout .form-grid > .field {
+  min-width: 0;
+  box-sizing: border-box;
+  padding-inline: 8px;
+}
+.app-shell.atelier-os.page-settings .settings-layout .form-grid {
+  column-gap: 12px;
+  row-gap: 7px;
+}
+@media (min-width: 768px) and (max-width: 1279px) {
+  .app-shell.atelier-os.page-settings .settings-layout .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .app-shell.atelier-os.page-settings .settings-layout .form-grid > .field {
+    padding-inline: 0;
+  }
+}
