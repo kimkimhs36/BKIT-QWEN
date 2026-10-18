@@ -41,3 +41,11 @@
   .bkit-sleep-sheet { border-radius:17px; }
 }
 @media(prefers-reduced-motion:reduce) { .bkit-sleep *, .bkit-sleep *::before, .bkit-sleep *::after { animation:none !important; transition:none !important; } }
+
+/* Device-first guard: the web cannot observe or lock other iOS apps. */
+.bkit-sleep-device { background:#f1f5f0; border:1px solid #dae5d8; border-radius:13px; padding:13px; margin-top:14px; }
+.bkit-sleep-device > strong { display:flex; align-items:center; gap:8px; color:#2d4936; font-size:14px; }
+.bkit-sleep-device p { font-size:12px; line-height:1.55; margin:9px 0; }
+.bkit-sleep-guide-toggle { border:1px solid #bccfbe; border-radius:10px; background:#fff; color:#2c4937; font-size:13px; min-height:42px; padding:9px 10px; font-weight:650; cursor:pointer; width:100%; }
+.bkit-sleep-device-steps { display:grid; gap:3px; padding:7px 0 0; }
+.bkit-sleep-device-steps a { color:#285744; font-size:13px; font-weight:650; text-underline-offset:3px; padding:6px 0; }
