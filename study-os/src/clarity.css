@@ -916,7 +916,7 @@ body > .orbit-nav button:not(.active):hover {
   min-width: 0;
   box-sizing: border-box;
 }
-@media (max-width: 1279px) {
+@media (max-width: 1519px) {
   .app-shell.atelier-os.page-settings .settings-layout {
     grid-template-columns: minmax(0, 1fr);
     max-width: 760px;
@@ -931,4 +931,32 @@ body > .orbit-nav button:not(.active):hover {
   .app-shell.atelier-os.page-settings .settings-layout .section-head h2 {
     flex-basis: 150px;
   }
+}
+
+/* iPad and desktop: keep the navigation away from study actions and form
+   controls. The floating bottom bar belongs to phone-sized viewports only. */
+@media (min-width: 768px) {
+  body > .orbit-nav,
+  html[data-bkit-glass-engine] body > .orbit-nav {
+    top: 89px;
+    bottom: auto;
+    left: 50%;
+    margin: 0;
+  }
+  .app-shell.atelier-os:not(.is-focusing) main,
+  .app-shell.atelier-os.page-today:not(.is-focusing) main {
+    padding-top: 123px;
+  }
+}
+/* Use full input tracks with real gutters instead of letting native iPad
+   time controls expand past their grid cell. */
+.app-shell.atelier-os.page-settings .form-grid {
+  column-gap: 20px;
+  row-gap: 4px;
+}
+.app-shell.atelier-os.page-settings .form-grid > .field,
+.app-shell.atelier-os.page-settings .form-grid input[type="time"] {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
