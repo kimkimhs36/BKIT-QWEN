@@ -27,6 +27,7 @@ import {
 } from './atelier';
 import { getPhoto, storePhoto } from './atelierMedia';
 import { PhotoText } from './PhotoText';
+import { BriefingAI } from './BriefingAI';
 import { formatQuantity, formatTaskDeadline } from './capture';
 
 export function AtelierScene() {
@@ -464,6 +465,13 @@ export function StudyAtelier({
                 <small>{draft.text.length.toLocaleString()} / 3,000</small>
               </label>
               <p className="atelier-note">사진만 있다면, 바로 다음 단계로 가도 좋아요.</p>
+              <BriefingAI text={draft.text} photoIds={draft.attachmentIds} disabled={busy || locked}
+                existing={draft.missions.length > 0} onUse={missions => {
+                  // A late response must never replace a newer human-edited review.
+                  if (draftRef.current.missions.length) throw new Error('작성 중인 과제를 먼저 확인하고 저장해 주세요.');
+                  update({ ...draftRef.current, missions, step: 'prepare' });
+                  setError('');
+                }}/>
               <button
                 type="button"
                 className="atelier-text-shortcut"

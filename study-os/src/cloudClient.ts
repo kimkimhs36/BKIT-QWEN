@@ -57,6 +57,13 @@ export function prepareGoogleIdentity():Promise<void>{
 }
 /** Browser OAuth consent. Access token stays in memory, never in a URL, sheet or localStorage. */
 export function authorizeGoogle(clientId:string):Promise<string>{
+  return requestGoogleToken(clientId, SCOPES);
+}
+/** Briefing AI needs verified email only; Sheets permission is separate. */
+export function authorizeGoogleIdentity(clientId:string):Promise<string>{
+  return requestGoogleToken(clientId, EMAIL_SCOPE);
+}
+function requestGoogleToken(clientId:string, scopes:string):Promise<string>{
   // Do not await script loading here: on iOS Safari the OAuth popup must
   // open synchronously from the user's Connect tap.
   if(!window.google?.accounts?.oauth2)
@@ -66,12 +73,12 @@ export function authorizeGoogle(clientId:string):Promise<string>{
     const fail=(message:string)=>{if(!done){done=true;reject(new Error(message));}};
     try{
       const client=window.google!.accounts.oauth2.initTokenClient({
-        client_id:clientId,scope:SCOPES,
+        client_id:clientId,scope:scopes,
         callback:(result)=>{
           if(done)return;
           if(result.error||!result.access_token)fail(result.error_description||result.error||'Google 로그인이 취소됐어.');
-          else if(result.scope && !SCOPES.split(' ').every(scope=>result.scope!.split(/\s+/).includes(scope)))
-            fail('Google Sheets와 이메일 확인 권한을 승인해야 BKIT 비서를 연결할 수 있어.');
+          else if(result.scope && !scopes.split(' ').every(scope=>result.scope!.split(/\s+/).includes(scope)))
+            fail(scopes===EMAIL_SCOPE?'이메일 확인 권한을 승인해야 AI를 연결할 수 있어.':'Google Sheets와 이메일 확인 권한을 승인해야 BKIT 비서를 연결할 수 있어.');
           else {done=true;resolve(result.access_token);}
         },
         error_callback:(result)=>{
