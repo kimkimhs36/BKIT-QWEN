@@ -3,24 +3,41 @@ import { newState } from '../../src/model';
 import { KEY } from '../../src/storage';
 const fixedTime = new Date('2026-10-12T06:00:00Z');
 async function nav(p: Page, name: string) {
+  if (name === '설정') {
+    const settings = p.getByRole('button', { name: '설정 열기', exact: true });
+    if (!(await settings.isVisible()))
+      await p.getByRole('button', { name: '더 보기', exact: true }).click();
+    await settings.click();
+    return;
+  }
   await p
     .getByRole('navigation')
-    .getByRole('button', { name: new RegExp('^' + name) })
+    .getByRole('button', { name, exact: true })
     .filter({ visible: true })
     .first()
     .click();
 }
+async function showTodayDetails(p: Page) {
+  if (!((await p.locator('.today-more').getAttribute('open')) !== null))
+    await p.locator('.today-more > summary').click();
+}
+async function detailedTask(p: Page) {
+  await nav(p, '과제');
+  await p.getByRole('button', { name: '과제 등록', exact: true }).click();
+  await p.getByRole('button', { name: '상세 입력', exact: true }).click();
+  return p.getByRole('dialog');
+}
 async function addTask(p: Page, title = '테스트 · 학습지 극한 1–3번') {
-  await p
-    .getByRole('button', { name: /첫 과제 등록|과제 등록/ })
-    .first()
-    .click();
-  const d = p.getByRole('dialog');
+  const d = await detailedTask(p);
   await d.getByLabel('과목', { exact: true }).fill('수학');
   await d.getByLabel('과제 이름 · 바로 할 행동').fill(title);
-  await d.getByLabel('마감 (한국 시각 · 미확정이면 비워두세요)').fill('2026-10-14T21:00');
-  await d.getByRole('button', { name: '과제 저장' }).click();
+  await d.getByLabel('마감 날짜 (모르면 비우기)', { exact: true }).fill('2026-10-14');
+  await d.getByRole('combobox', { name: '마감의 정확성', exact: true }).selectOption('exact-time');
+  await d.getByLabel('확정된 시각 (시각까지 알 때)', { exact: true }).fill('21:00');
+  await d.getByRole('button', { name: '과제 저장', exact: true }).click();
   await expect(d).not.toBeVisible();
+  await nav(p, '오늘');
+  await showTodayDetails(p);
 }
 test.beforeEach(async ({ page }) => {
   await page.clock.install({ time: fixedTime });
@@ -29,22 +46,24 @@ test.beforeEach(async ({ page }) => {
 test('empty state, CRUD, timer pause, finish, submission and refresh persistence', async ({
   page,
 }) => {
-  await expect(page.getByRole('heading', { name: '오늘, 한 걸음.' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '첫 할 일을 하나 적어볼까요?' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '오늘', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '5분만, 가볍게.' })).toBeVisible();
   await addTask(page);
-  await page.getByRole('button', { name: '5분 공부 시작', exact: true }).click();
+  await page.getByRole('button', { name: '5분만 시작', exact: true }).click();
   await page.clock.runFor(5000);
+  await page.getByLabel('집중 타이머', { exact: true }).click();
   await page.getByRole('button', { name: '일시정지', exact: true }).click();
   await page.getByLabel('일시정지 사유').fill('테스트 · 잠깐 휴식');
   await page.getByRole('dialog').getByRole('button', { name: '일시정지', exact: true }).click();
   await page.reload();
-  await expect(page.getByText('집중 세션 진행 중')).toBeVisible();
+  await expect(page.locator('.now-focus-status')).toContainText('일시정지');
   await nav(page, '집중');
   await page.getByRole('button', { name: '다시 시작', exact: true }).click();
   await page.clock.runFor(3000);
   await page.getByRole('button', { name: '학습량 기록 · 종료' }).click();
   await page.getByLabel('완료한 문제 수').fill('3');
   await page.getByLabel('떠올리거나 이해한 개념').fill('테스트 · 극한');
+  await page.locator('.finish-details > summary').click();
   await page.getByLabel('오답 · 이해하지 못한 개념').fill('테스트 · 분수 약분');
   await page
     .getByRole('dialog')
@@ -91,12 +110,14 @@ test('repeating schedules all week, temporary exclusions, deadline edit and dele
   await nav(page, '과제');
   await addTask(page);
   await page.getByRole('button', { name: /수학.*테스트 · 학습지/ }).click();
-  await page.getByLabel('마감 (한국 시각 · 미확정이면 비워두세요)').fill('2026-10-15T20:00');
+  await page.getByLabel('마감 날짜 (모르면 비우기)', { exact: true }).fill('2026-10-15');
+  await page.getByLabel('확정된 시각 (시각까지 알 때)', { exact: true }).fill('20:00');
   await page.getByRole('button', { name: '과제 저장' }).click();
-  await expect(page.getByText(/2026-10-15 20:00/)).toBeVisible();
+  await expect(page.getByText(/10.15.*20:00/).first()).toBeVisible();
   await page.getByRole('button', { name: /수학.*테스트 · 학습지/ }).click();
   page.once('dialog', (d) => d.accept());
   await page.getByRole('dialog').getByRole('button', { name: '삭제', exact: true }).click();
+  await nav(page, '과제');
   await expect(page.getByRole('heading', { name: '여기에 할 일을 모아두세요' })).toBeVisible();
 });
 test('API unavailable recovery, compare, approve, undo, export and import', async ({ page }) => {
@@ -144,10 +165,10 @@ test('production PWA shell reloads offline, keeps records and scope isolation', 
   });
   await context.setOffline(true);
   await page.reload();
-  await expect(page.getByRole('heading', { name: '오늘, 한 걸음.' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '테스트 · 학습지 극한 1–3번' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '오늘', exact: true })).toBeVisible();
+  await expect(page.locator('.now-focus h2')).toHaveText('테스트 · 학습지 극한 1–3번');
   expect(await page.evaluate(() => localStorage.getItem('crashweek.v3'))).toBe('legacy-preserved');
-  await expect(page.getByText('오프라인 모드')).toBeVisible();
+  await expect(page.getByText('오프라인', { exact: true })).toBeVisible();
   await context.setOffline(false);
 });
 test('all six screens fit narrow viewport with keyboard-accessible dialog', async ({
@@ -163,7 +184,7 @@ test('all six screens fit narrow viewport with keyboard-accessible dialog', asyn
   await addTask(page);
   await page.clock.runFor(7000);
   await page.screenshot({
-    path: `/workspace/artifacts/bkit-${info.project.name}.png`,
+    path: info.outputPath(`bkit-${info.project.name}.png`),
     fullPage: true,
   });
   await page.getByRole('button', { name: /수학.*테스트 · 학습지/ }).click();
@@ -176,7 +197,7 @@ test('quota failure and corrupt data never silently reset stored data', async ({
   });
   await page.reload();
   await expect(page.getByRole('alert')).toBeVisible();
-  await page.getByRole('button', { name: '첫 과제 등록' }).click();
+  await detailedTask(page);
   await page.getByRole('dialog').getByLabel('과목', { exact: true }).fill('수학');
   await page.getByRole('dialog').getByLabel('과제 이름 · 바로 할 행동').fill('테스트');
   await page.getByRole('dialog').getByRole('button', { name: '과제 저장' }).click();
@@ -214,7 +235,7 @@ test('storage write failure preserves existing records and shows a save error', 
       original.call(this, key, value);
     };
   }, KEY);
-  await page.getByRole('button', { name: '첫 과제 등록' }).click();
+  await detailedTask(page);
   await page.getByRole('dialog').getByLabel('과목', { exact: true }).fill('수학');
   await page.getByRole('dialog').getByLabel('과제 이름 · 바로 할 행동').fill('테스트 · 저장 실패');
   await page.getByRole('dialog').getByRole('button', { name: '과제 저장' }).click();
@@ -227,10 +248,12 @@ test('Seoul dashboard advances across midnight without fabricated output', async
   await expect(page.locator('.date-box')).toContainText('10월 12일');
   await page.clock.runFor(10000);
   await expect(page.locator('.date-box')).toContainText('10월 13일');
-  await expect(
-    page.getByRole('heading', { name: '충분히 쉬고, 내일 다시 시작해요.' }),
-  ).toBeVisible();
-  expect(await page.locator('.metrics').innerText()).toContain('0');
+  await expect(page.getByRole('heading', { name: '지금은 충분히 쉬어갈 시간.' })).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem('bkit.study-os.v1') || '{\"sessions\":[]}').sessions,
+    ),
+  ).toEqual([]);
 });
 test('submission reminders remain on TODAY until the user marks submitted', async ({ page }) => {
   await addTask(page);
@@ -240,7 +263,7 @@ test('submission reminders remain on TODAY until the user marks submitted', asyn
   await expect(page.getByRole('region', { name: '제출 확인 알림' })).toContainText(
     '숙제·수행평가 1개',
   );
-  await page.getByRole('button', { name: '확인하기', exact: true }).click();
+  await page.getByRole('button', { name: '제출 확인하기', exact: true }).click();
   await expect(page.getByRole('button', { name: '제출 확인', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '테스트 · 학습지 극한 1–3번 제출 완료 기록' }).click();
   await nav(page, '오늘');
@@ -284,6 +307,7 @@ test('completed tasks show submission or clear completion instead of pretending 
   await page.getByRole('button', { name: '테스트 · 학습지 극한 1–3번 제출 완료 기록' }).click();
   await nav(page, '오늘');
   await expect(page.getByRole('heading', { name: '남은 학습 과제가 없어요.' })).toBeVisible();
+  await showTodayDetails(page);
   await expect(page.getByRole('heading', { name: '지금 챙길 과제가 없어요' })).toBeVisible();
   await expect(page.getByRole('button', { name: '새 과제 등록', exact: true })).toBeVisible();
 });

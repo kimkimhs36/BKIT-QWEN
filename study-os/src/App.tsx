@@ -1,4 +1,5 @@
 import { QuickCapture } from './QuickCapture';
+import { TaskCheckIn } from './TaskCheckIn';
 import { LandscapeNote } from './LandscapeNote';
 import { HomeEntry } from './HomeEntry';
 import { SleepSummary } from './SleepSummary';
@@ -1024,6 +1025,8 @@ export default function App() {
               </section>
                 {hasHomeTask && <HomeEntry onBriefing={() => openAtelier()} onMaterials={() => openAtelier('capture')}/>}
               </div>
+              <TaskCheckIn pending={pending.length} awaiting={awaiting.length} total={s.tasks.length}
+                onSubmission={() => {setFilter('submission');setTab('tasks');}} onAdd={() => openAtelier()}/>
               <LandscapeNote/>
               <SleepSummary guard={sleep} onOpen={() => setTab('sleep')}/>
               <details ref={todayDetailsRef} className="today-more">

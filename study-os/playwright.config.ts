@@ -8,6 +8,7 @@ const chromiumLaunchOptions = {
 };
 export default defineConfig({
   testDir: './tests/e2e',
+  reporter: process.env.CI ? [['list'], ['github']] : [['list']],
   timeout: 30000,
   fullyParallel: false,
   workers: 1,

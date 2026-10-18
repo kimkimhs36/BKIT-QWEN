@@ -400,3 +400,61 @@ html[data-sleep-night='true'] dialog::backdrop {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
+
+.task-check-in {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  margin-block: 22px;
+  border: 1px solid var(--os-border);
+  border-radius: 20px;
+  background: var(--os-tint);
+  color: var(--os-ink);
+}
+.app-shell.atelier-os .task-check-in h2 {
+  font-size: 17px;
+  line-height: 1.5;
+  margin: 0 0 7px;
+  letter-spacing: -0.02em;
+  color: var(--os-ink);
+}
+.task-check-in > svg {
+  flex: 0 0 auto;
+}
+.task-check-in > div {
+  flex: 1;
+  min-width: 0;
+}
+.task-check-in p {
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0;
+  color: var(--os-muted);
+}
+.task-check-in button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--os-border);
+  border-radius: 12px;
+  background: var(--os-paper);
+  color: var(--os-ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+@media (max-width: 600px) {
+  .task-check-in {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .task-check-in button {
+    margin-left: 36px;
+  }
+  .task-check-in > div {
+    flex-basis: calc(100% - 40px);
+  }
+}
