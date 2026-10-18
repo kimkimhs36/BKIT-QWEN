@@ -59,3 +59,14 @@
 @media (prefers-reduced-motion: reduce) {
   .bkit-sleep-device, .bkit-sleep-secondary { animation:none !important; transition:none !important; }
 }
+
+/* Freeze behind-the-dialog motion during wind-down. Never animate the sleep screen. */
+html[data-bkit-sleep-guard-active='true'] .app-shell *,
+html[data-bkit-sleep-guard-active='true'] .app-shell *::before,
+html[data-bkit-sleep-guard-active='true'] .app-shell *::after {
+  animation-play-state: paused !important;
+}
+html[data-bkit-sleep-guard-active='true'] .app-shell,
+html[data-bkit-sleep-guard-active='true'] body > .orbit-nav {
+  pointer-events: none;
+}
