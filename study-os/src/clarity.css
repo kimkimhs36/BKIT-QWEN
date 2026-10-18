@@ -803,3 +803,13 @@ body > .orbit-nav button:not(.active):hover {
   right: 145px;
   bottom: 32px;
 }
+
+/* Keep text contrast stable throughout page entrance, including on slower devices. */
+@media (prefers-reduced-motion: no-preference) {
+  .app-shell.atelier-os main { animation-name: atelier-readable-enter; }
+}
+@keyframes atelier-readable-enter {
+  from { transform: translateY(7px); }
+  to { transform: translateY(0); }
+}
+.app-shell.atelier-os.page-today .page-footer > span { color: #596452; }

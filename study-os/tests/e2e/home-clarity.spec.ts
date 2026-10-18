@@ -88,6 +88,9 @@ test('home at 320px fits, has readable controls, and tools and film are accessib
   await page.clock.install({ time: new Date('2026-10-16T06:00:00Z') });
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto('./');
+  await expect(page.locator('.orbit-nav')).toBeVisible();
+  await expect(page.locator('.home-entry-action').first()).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
   const geometry = await page.evaluate(() => {
     const nav = document.querySelector('.orbit-nav')!.getBoundingClientRect();
     const actions = [...document.querySelectorAll('.home-entry-action,.now-focus-primary')];
