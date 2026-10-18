@@ -870,6 +870,20 @@ export default function App() {
             </button>
           </div>}
         </header>
+        <nav className="tablet-primary-nav" aria-label="태블릿 및 데스크톱 주 메뉴">
+          {NAV.filter((n) => n.id !== 'settings').map((n) => (
+            <button
+              key={n.id}
+              type="button"
+              className={tab === n.id ? 'active' : ''}
+              aria-current={tab === n.id ? 'page' : undefined}
+              onClick={() => setTab(n.id)}
+            >
+              <n.icon size={20} strokeWidth={tab === n.id ? 2.3 : 1.9} aria-hidden="true" />
+              <span>{n.label}</span>
+            </button>
+          ))}
+        </nav>
         <main id="main" tabIndex={-1} key={tab}>
           <div className="page-head">
             <div>
