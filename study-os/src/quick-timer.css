@@ -1,0 +1,32 @@
+/* BKIT 3.4 — quiet, one-tap timer. Mobile first; no animated clocks or heavy canvas. */
+.quick-timer{display:grid;gap:14px;padding:clamp(18px,3vw,28px);background:linear-gradient(150deg,rgba(217,234,224,.28),transparent 68%),var(--surface,rgba(255,255,255,.8));border:1px solid var(--line,rgba(98,125,115,.16));border-radius:24px;min-width:0}
+.quick-timer-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.quick-timer-intro h2{font-size:clamp(19px,2.3vw,24px);letter-spacing:-.04em;margin:6px 0;display:flex;align-items:center;gap:9px}
+.quick-timer-intro p{margin:0;color:var(--muted,#66736d);font-size:13px;line-height:1.5}
+.quick-timer-today{font-size:12px;color:var(--muted,#65736b);display:flex;flex-direction:column;align-items:flex-end;gap:2px;white-space:nowrap}
+.quick-timer-today strong{font-size:18px;letter-spacing:-.02em;color:var(--text,#263d32);font-variant-numeric:tabular-nums}
+.quick-timer-idle{display:grid;gap:12px}
+.quick-timer-modes,.quick-timer-lengths,.quick-timer-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.quick-timer-modes button,.quick-timer-lengths button{background:transparent;border:1px solid var(--line,rgba(85,110,92,.25));border-radius:14px;padding:10px 15px;display:inline-flex;gap:8px;align-items:center;font:inherit;font-size:13px;cursor:pointer;color:inherit}
+.quick-timer-modes button.selected,.quick-timer-lengths button.selected{background:rgba(113,153,126,.13);border-color:rgba(89,129,108,.55);font-weight:650}
+.quick-timer-lengths label{display:flex;gap:5px;align-items:center;font-size:12px;color:var(--muted,#66736d)}
+.quick-timer-lengths input{width:62px;min-width:62px;border-radius:10px;border:1px solid var(--line,rgba(85,110,92,.3));background:transparent;color:inherit;padding:7px;font:inherit}
+.quick-timer-begin{width:100%;min-height:58px;border:0;border-radius:16px;background:#304c3c;color:#f5fcf7;font:inherit;font-size:17px;font-weight:700;display:flex;justify-content:center;align-items:center;gap:10px;cursor:pointer;box-shadow:0 10px 22px rgba(25,62,44,.12)}
+.quick-timer-begin:disabled{opacity:.45;cursor:not-allowed}
+.quick-timer-running{text-align:center;padding:12px 0 2px;display:grid;gap:12px}
+.quick-timer-display{font-variant-numeric:tabular-nums;font-size:clamp(48px,9vw,82px);font-weight:620;letter-spacing:-.065em;line-height:1.15;color:var(--text,#243d2c)}
+.quick-timer-under{font-size:13px;color:var(--muted,#66736d);line-height:1.5}
+.quick-timer-actions{justify-content:center}
+.quick-timer-actions button{min-height:43px;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 16px}
+.quick-timer-after{border-top:1px solid var(--line,rgba(85,110,92,.15));padding-top:12px;display:grid;gap:10px}
+.quick-timer-review,.quick-timer-reopen{display:inline-flex;align-items:center;gap:7px;color:inherit;background:transparent;border:0;padding:9px 0;text-align:left;font:inherit;font-size:13px;cursor:pointer}
+.quick-timer-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.quick-timer-form>p,.quick-timer-form>.quick-timer-actions{grid-column:1/-1;margin:0}
+.quick-timer-form label{display:grid;gap:5px;font-size:13px;min-width:0}
+.quick-timer-form label:has(textarea){grid-column:1/-1}
+.quick-timer-form select,.quick-timer-form input,.quick-timer-form textarea{width:100%;min-width:0;border:1px solid var(--line,rgba(85,110,92,.22));border-radius:11px;padding:10px;background:var(--surface,rgba(255,255,255,.75));font:inherit;color:inherit}
+.quick-timer-compact{margin:0 0 18px}
+.quick-timer-compact .quick-timer-intro p{display:none}
+.quick-timer-top-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;border:1px solid rgba(82,126,92,.25);background:rgba(97,146,110,.12);color:inherit;font:inherit;font-size:12px;font-variant-numeric:tabular-nums;cursor:pointer}
+@media(max-width:500px){.quick-timer{border-radius:20px;padding:18px}.quick-timer-today{align-items:flex-start}.quick-timer-form{grid-template-columns:minmax(0,1fr)}.quick-timer-form label:has(textarea){grid-column:auto}.quick-timer-actions button{flex:1}.quick-timer-modes button{flex:1;justify-content:center}}
+@media(prefers-reduced-motion:reduce){.quick-timer *{animation:none!important;transition:none!important}}
