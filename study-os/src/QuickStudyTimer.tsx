@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Check, Pause, Play, RotateCcw, Timer, Clock3, ChevronDown } from 'lucide-react';
 import type { State, Session } from './model';
-import { quickSeconds, quickClock, quickDaySeconds } from './quickTimer';
+import { quickSeconds, quickClock } from './quickTimer';
 import './quick-timer.css';
 
 type Props = {
