@@ -3,6 +3,7 @@ import { auditStudyStorage, type StorageAudit } from './storageReadiness';
 import {
   exportCompleteBackup,
   inspectCompleteBackup,
+  backupMatchesCurrent,
   restoreCompleteBackup,
   latestRecovery,
   type InspectedBackup,
@@ -30,6 +31,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
   const [storageStatus, setStorageStatus] = useState('');
   const [checkingStorage, setCheckingStorage] = useState(false);
   const [audit, setAudit] = useState<StorageAudit | null>(null);
+  const [archiveCoverage, setArchiveCoverage] = useState<ReturnType<typeof backupMatchesCurrent> | null>(null);
   async function inspectLocalStorageHealth() {
     setCheckingStorage(true);
     try {
@@ -158,8 +160,14 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             페이지 {audit.paperPages}장 · 필기 획 {audit.strokes}개
           </p>
           <p>
-            기존 학습 사진 {audit.studyPhotos}장 · 수면 사진 {audit.sleepPhotos}장 ·
-            확인한 PDF/학습지 원본 {audit.verifiedOriginals}개
+            학습 사진 {audit.verifiedStudyPhotos}/{audit.studyPhotos}장 검증 ·
+            수면 사진 {audit.verifiedSleepPhotos}/{audit.sleepPhotos}장 검증 ·
+            PDF/학습지 원본 {audit.verifiedOriginals}/{audit.paperDocuments}개 확인
+          </p>
+          <p role="status">
+            {audit.findings.some((finding) => finding.level === 'error')
+              ? '원본 누락·손상 또는 기록 읽기 문제가 발견됐습니다. ZIP 복구 전 현재 파일을 먼저 보존하세요.'
+              : '이 기기에서 확인 가능한 저장 데이터 검사 완료. 외부 ZIP 보관과 기기 간 복구는 별도로 확인하세요.'}
           </p>
           <ul>
             {audit.findings.map((finding, i) => (
@@ -184,10 +192,12 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             const file = e.target.files?.[0];
             e.target.value = '';
             setInspected(null);
+            setArchiveCoverage(null);
             if (file)
               void work(async () => {
                 const result = await inspectCompleteBackup(file, localStorage, setMessage);
                 setInspected(result);
+                setArchiveCoverage(backupMatchesCurrent(result));
                 const checked = new Date().toISOString();
                 setVerifiedBackupAt(checked);
                 try { localStorage.setItem('bkit.backup.last-file-checked.v1', checked); }
@@ -201,6 +211,13 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
         <div className="resource-editor">
           <h3>가져오기 전 확인</h3>
           <p>백업 생성: {new Date(inspected.manifest.createdAt).toLocaleString()}</p>
+          {archiveCoverage && (
+            <p role="status">
+              {archiveCoverage.study && archiveCoverage.sleep && archiveCoverage.paper
+                ? '선택한 ZIP은 검사 시점의 학습·수면·PDF/필기 저장 내용과 일치합니다. 파일을 외부에 보관했는지 확인하세요.'
+                : '선택한 ZIP은 손상되지 않았지만 현재 기기의 모든 최신 기록과 일치하지는 않습니다. 이 파일만으로 지금의 기록 전체를 되찾을 수 있다고 가정하지 마세요.'}
+            </p>
+          )}
           <p>
             PDF·디지털 종이 {inspected.paper.documents.length}개 · 원본 사진{' '}
             {inspected.manifest.photos.length}장 · 겹치는 기록 ID {inspected.conflicts.length}개 ·

@@ -107,13 +107,15 @@ export function InkCanvas({
         document.dispatchEvent(new Event('bkit:flush-learning-draft', { cancelable: true }));
       }
     };
-    document.addEventListener('bkit:flush-learning-draft', flush);
-    window.addEventListener('beforeunload', flush);
-    document.addEventListener('visibilitychange', hide);
+    // Capture first: the active stroke must enter the dirty queue *before* the
+    // parent's navigation guard decides whether it is safe to reload/leave.
+    document.addEventListener('bkit:flush-learning-draft', flush, true);
+    window.addEventListener('beforeunload', flush, true);
+    document.addEventListener('visibilitychange', hide, true);
     return () => {
-      document.removeEventListener('bkit:flush-learning-draft', flush);
-      window.removeEventListener('beforeunload', flush);
-      document.removeEventListener('visibilitychange', hide);
+      document.removeEventListener('bkit:flush-learning-draft', flush, true);
+      window.removeEventListener('beforeunload', flush, true);
+      document.removeEventListener('visibilitychange', hide, true);
     };
   });
   function point(e: PointerEvent | ReactPointerEvent<HTMLCanvasElement>) {
