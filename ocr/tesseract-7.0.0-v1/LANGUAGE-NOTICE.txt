@@ -1,0 +1,4 @@
+Korean and English traineddata: @tesseract.js-data/kor and @tesseract.js-data/eng 1.0.0.
+Source: https://github.com/naptha/tessdata
+Package authors: Balearica and Jerome Wu. Package license: MIT.
+Underlying Tesseract language models: https://github.com/tesseract-ocr/tessdata (Apache-2.0; see LICENSE-core).
