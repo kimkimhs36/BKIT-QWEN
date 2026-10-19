@@ -1191,6 +1191,7 @@ export default function App() {
                     onFocus={() => setTab('study')}
                     onSchedule={() => setTab('school')}
                     quickActive={!!s.quickTimer}
+                    quickLabel={s.quickTimer?.mode === 'countdown' ? '카운트다운' : '스톱워치'}
                     quickDuration={quickClock(quickElapsed)}
                     onQuickStart={() => beginQuick('stopwatch', 480)}
                     onQuickOpen={() => document.getElementById('quick-timer-now')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
