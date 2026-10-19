@@ -64,7 +64,7 @@ export function QuickStudyTimer({
           <h2><Timer size={20} aria-hidden="true" /> 먼저 시작하는 공부</h2>
           <p>과목과 목표는 나중에. 지금 바로 시작해.</p>
         </div>
-        <span className="quick-timer-today">오늘 기록한 공부 <strong>{quickClock(todaySeconds)}</strong></span>
+        <span className="quick-timer-today">오늘 바로 시작 <strong>{quickClock(todaySeconds)}</strong></span>
       </header>
       {!timer ? (
         <div className="quick-timer-idle">
