@@ -1,0 +1,243 @@
+/*
+ * BKIT dark study surface / explicit opt-in.
+ * This stylesheet loads LAST, after all legacy visual layers.
+ * DO NOT invert the whole document: user photos, scanned PDFs, ink and
+ * illustrations retain their original colors and contrast.
+ */
+html[data-bkit-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e8f0e8; --muted: #a4b7aa; --line: #374b3e;
+  --paper: #1b2922; --surface: #192820; --sage: #24382c; --green: #9bc3a3;
+  --bkit-ink: #e8f0e8; --bkit-muted: #a4b7aa;
+  --bkit-blue: #a2c5a9; --bkit-glass: rgba(27,40,33,.94);
+  --bkit-stroke: rgba(150,193,155,.25);
+  --bkit-shadow: 0 10px 30px rgba(0,0,0,.18);
+  --liquid-ink: #e8f0e8; --liquid-deep: #b5dac0;
+  --liquid-surface: rgba(24,39,29,.76);
+  --liquid-edge: rgba(145,183,150,.20);
+  --liquid-shadow: 0 10px 28px rgba(0,0,0,.19);
+  --ios-ink: #e8f0e8; --ios-secondary: #a8bcae;
+  --ios-divider: rgba(149,185,159,.25); --ios-accent: #a7cbb1;
+  background: #111b17; color: var(--ink);
+}
+html[data-bkit-theme="dark"] body {
+  background: radial-gradient(ellipse 70% 48% at 90% -12%,rgba(48,74,56,.25),transparent 78%),#111b17 !important;
+  background-attachment: fixed !important;
+  color: var(--ink);
+}
+html[data-bkit-theme="dark"] :is(.app-shell,.main-shell,main,.page-head) {
+  color: #e8f0e8;
+}
+html[data-bkit-theme="dark"] .app-shell.atelier-os .topbar {
+  background: rgba(17,27,23,.93) !important;
+  border-bottom: 1px solid #2d4134 !important;
+}
+html[data-bkit-theme="dark"] :is(.v2-brand strong,.mobile-brand,.breadcrumb,.top-meta,.top-meta > span:not(.status-dot)),
+html[data-bkit-theme="dark"] .app-shell.atelier-os :is(.v2-brand strong,.mobile-brand,.breadcrumb,.top-meta > span:not(.status-dot)) {
+  color: #dfeae0 !important;
+}
+html[data-bkit-theme="dark"] .app-shell.atelier-os .topbar .icon-button,
+html[data-bkit-theme="dark"] .home-top-tools > span,
+html[data-bkit-theme="dark"] .home-top-tools .theme-toggle {
+  color: #dce9dd !important;
+  background: transparent !important;
+}
+html[data-bkit-theme="dark"] :is(.topbar-settings-action,.theme-toggle)[aria-pressed="true"] {
+  background: rgba(154,192,159,.17) !important;
+  border-radius: 13px !important;
+}
+html[data-bkit-theme="dark"] .app-shell.atelier-os .main-shell .page-head :is(h1,.subtitle,.eyebrow),
+html[data-bkit-theme="dark"] .app-shell.atelier-os.page-today .main-shell .page-head :is(h1,.subtitle,.eyebrow) {
+  color: #e1ebe1 !important;
+}
+html[data-bkit-theme="dark"] .app-shell.atelier-os .main-shell .page-head :is(.subtitle,.eyebrow) {
+  color: #a7b9aa !important;
+}
+/* Primary surfaces, grouped forms and study cards. */
+html[data-bkit-theme="dark"] :is(
+  .panel,.note-card,.home-entry,.recovery-card,.submission-notice,
+  .next-card,.review-deck-card,.review-deck-clear,.task-check-in,.assessment-radar,
+  .exam-panel,.exam-card,.problem-review-card,.complete-backup,
+  .resource-card,.resource-editor,.resource-review-card,.resource-resume,
+  .multi-workspace,.problem-workspace,.task-row,.atelier-task,
+  .research-quick-capture,.deadline-pulse,.research-next-context,
+  .nature-assistant-entry,.quick-timer,.study-summary,.home-primary,
+  .cloud-sync-panel,.bkit-cloud-panel,.quick-capture,
+  .command-stage,.today-more,.home-entry,.timeline-card,.rhythm-card,
+  .settings-layout > div,.settings-layout .panel,.settings-layout .note-card
+) {
+  background: #1a2921 !important;
+  color: #e4eee4 !important;
+  border-color: #374c3e !important;
+  box-shadow: none !important;
+}
+html[data-bkit-theme="dark"] .app-shell.atelier-os.page-today :is(.command-stage,.home-entry),
+html[data-bkit-theme="dark"] .app-shell.atelier-os.page-settings :is(.panel,.settings-layout > div,.complete-backup) {
+  background: #1a2921 !important;
+  color: #e4eee4 !important;
+  border-color: #374c3e !important;
+}
+html[data-bkit-theme="dark"] .app-shell.atelier-os.page-today .now-focus.now-action {
+  background: transparent !important;
+}
+html[data-bkit-theme="dark"] .app-shell.atelier-os :is(
+ .now-focus.now-action h2,.now-focus-description,.now-focus-label,
+ .task-content strong,.atelier-task .atelier-task-title,
+ .home-entry-action,.home-entry-action strong,.home-entry-action small,
+ .page-head h1,.note-card h3,.exam-panel h2,.exam-card h3,
+ .settings-layout .section-head h2,.problem-workspace-heading h3,
+ .problem-text,.problem-workspace label,.problem-review-card label
+) {
+  color: #e7f0e7 !important;
+}
+html[data-bkit-theme="dark"] :is(
+ .app-shell p,.app-shell small,.app-shell .subtitle,.app-shell .muted,
+ .home-entry-action small,.app-shell .hint,.app-shell .eyebrow,
+ .resource-resume p,.task-content > span:last-child,
+ .assessment-radar-detail small,.review-deck-answer p,
+ .problem-setup > p,.problem-selfcheck small,
+ .complete-backup p,.field > span,.date-box small
+) {
+  color: #acbdb0 !important;
+}
+html[data-bkit-theme="dark"] :is(.page-head h1,.settings-layout h2,.section-head h2,.panel h2,.note-card h3,.resource-card h3,.assessment-radar h2,.quick-timer h2,.problem-review-card h3,.exam-panel h3,.exam-card h3) {
+  color: #edf4ec !important;
+}
+html[data-bkit-theme="dark"] :is(.home-entry-action,.atelier-task,.task-row,.assessment-radar-item,.schedule-row,.temporal-row) {
+  border-color: #384c3e !important;
+}
+html[data-bkit-theme="dark"] :is(.home-entry-action:hover,.task-row:hover,.assessment-radar-item:hover) {
+  background: #22392b !important;
+}
+html[data-bkit-theme="dark"] :is(.home-entry-icon,.home-entry-action > svg,.atelier-task-start,.quick-timer-today strong,.assessment-radar-item > svg) {
+  color: #aacfb2 !important;
+}
+html[data-bkit-theme="dark"] :is(.now-focus-status,.now-focus-guard,.now-task-options,.now-task-options[open],.subject,.tag,.chip,.date-box,.task-status,.problem-workspace-count,.review-deck-answer,.backup-status) {
+  background: #253a2b !important;
+  color: #d3e6d5 !important;
+  border-color: #4d6552 !important;
+}
+html[data-bkit-theme="dark"] :is(.app-shell .primary,.app-shell .now-focus-primary,.quick-timer-begin,.complete-backup .primary) {
+  background: #b8d8bc !important;
+  color: #14271b !important;
+  border-color: #b8d8bc !important;
+}
+html[data-bkit-theme="dark"] :is(.app-shell .secondary,.app-shell .text-button,.app-shell .icon-button,.app-shell .quick-timer-modes button,.app-shell .quick-timer-lengths button) {
+  color: #d5e6d7;
+}
+html[data-bkit-theme="dark"] :is(.app-shell button[disabled],.app-shell button:disabled) {
+  opacity: .52;
+}
+html[data-bkit-theme="dark"] :is(
+ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+ select,textarea,.field input,.field select,.field textarea,
+ .problem-workspace textarea,.problem-workspace input,
+ .capture-input textarea,.photo-text textarea,.photo-text select,
+ .complete-backup input:not([type="checkbox"]),.complete-backup select
+) {
+  background: #122018 !important;
+  color: #ecf4ec !important;
+  border-color: #526958 !important;
+  box-shadow: none !important;
+  color-scheme: dark;
+}
+html[data-bkit-theme="dark"] :is(input,textarea)::placeholder {
+  color: #9aaa9f !important;
+}
+html[data-bkit-theme="dark"] :is(input,textarea,select,button,a,summary):focus-visible {
+  outline-color: #d3f2d5 !important;
+}
+html[data-bkit-theme="dark"] :is(.app-shell .quick-timer-form,.complete-backup label,.assessment-radar-detail strong,.problem-workspace-heading h3) {
+  color: #e9f3e9 !important;
+}
+/* Drawers, native dialogs and the detached floating tab bar. */
+html[data-bkit-theme="dark"] :is(dialog,dialog.atelier,dialog.tools-dialog[open],dialog.atelier-photo-dialog) {
+  background: #1b2a22 !important;
+  color: #e8f0e8 !important;
+  border-color: #455e4b !important;
+  box-shadow: 0 22px 60px rgba(0,0,0,.5) !important;
+}
+html[data-bkit-theme="dark"] dialog::backdrop {
+  background: rgba(5,10,7,.65);
+}
+html[data-bkit-theme="dark"] dialog :is(.modal-head,.modal-head h2,.field,legend,label) {
+  color: #e7f0e7 !important;
+}
+html[data-bkit-theme="dark"] dialog.tools-dialog .home-tools-list > button {
+  color: #e5f0e6 !important;
+  border-color: #3f5545 !important;
+  background: #1e3126 !important;
+}
+html[data-bkit-theme="dark"] body > .orbit-nav,
+html[data-bkit-theme="dark"][data-bkit-glass-engine] body > .orbit-nav {
+  background: rgba(25,40,31,.96) !important;
+  color: #dce9dd !important;
+  border: 1px solid #43594a !important;
+  box-shadow: 0 8px 34px rgba(0,0,0,.4) !important;
+}
+html[data-bkit-theme="dark"] body > .orbit-nav::before,
+html[data-bkit-theme="dark"] body > .orbit-nav::after {
+  display: none !important;
+}
+html[data-bkit-theme="dark"] body > .orbit-nav button:not(.nav-capture) {
+  color: #afc3b3 !important;
+  background: transparent;
+}
+html[data-bkit-theme="dark"] body > .orbit-nav button.active,
+html[data-bkit-theme="dark"] body > .orbit-nav button.active:hover {
+  background: #334b38 !important;
+  color: #f4fff1 !important;
+}
+html[data-bkit-theme="dark"] body > .orbit-nav button:not(.active):hover {
+  background: #253b2c !important;
+  color: #e6f2e6 !important;
+}
+html[data-bkit-theme="dark"] :is(.tablet-primary-nav,.sidebar,.bottom-nav) {
+  background: #18261d !important;
+  border-color: #394e3e !important;
+}
+html[data-bkit-theme="dark"] :is(.tablet-primary-nav button,.bottom-nav button,.nav-item) {
+  color: #b8cdb9 !important;
+}
+html[data-bkit-theme="dark"] :is(.tablet-primary-nav button.active,.bottom-nav button.active,.nav-item.active) {
+  background: #344b39 !important;
+  color: #f4fff0 !important;
+}
+html[data-bkit-theme="dark"] :is(.backup-panel,.assessment-radar-counts span,.quick-timer-after,.problem-selfcheck,.quick-timer-review,.task-check-in button,.notice-card) {
+  border-color: #465d4d !important;
+}
+html[data-bkit-theme="dark"] :is(.assessment-radar-counts span,.assessment-radar-item,.quick-timer-modes button.selected,.quick-timer-lengths button.selected) {
+  background: #263d2d !important;
+  color: #e6f1e6 !important;
+}
+html[data-bkit-theme="dark"] :is(.app-shell .warning,.app-shell .alert,.app-shell .form-error) {
+  background: #423027 !important;
+  color: #ffe2c8 !important;
+  border-color: #8e694e !important;
+}
+/* Preserve the deliberate dimming of immersive focus. Images and ink are
+ * never globally filtered: the page remains a source-faithful study tool. */
+html[data-bkit-theme="dark"] :is(img,video,canvas,iframe,.pdf-canvas,.ink-canvas) {
+  filter: none;
+}
+.theme-preferences {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; padding: 17px 20px; margin-bottom: 16px;
+}
+.theme-preferences h2 { font-size: 18px; margin: 0 0 3px; }
+.theme-preferences p { margin: 0; font-size: 12px; }
+.theme-preferences-action {
+  display: inline-flex; align-items: center; gap: 8px;
+  flex: none; min-height: 44px; border-radius: 12px;
+  padding: 9px 13px; border: 1px solid var(--line);
+}
+html[data-bkit-theme="dark"] .theme-preferences-action {
+  background: #314637 !important; color: #e9f3e9 !important; border-color: #54705b !important;
+}
+@media (max-width:520px) {
+ .theme-preferences { align-items: flex-start; flex-direction: column; }
+ .theme-preferences-action { width: 100%; justify-content: center; }
+}
+@media(prefers-reduced-motion: reduce) {
+ html[data-bkit-theme="dark"] * { transition-duration: 0s !important; }
+}
