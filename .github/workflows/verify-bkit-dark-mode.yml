@@ -1,0 +1,78 @@
+name: Verify BKIT dark mode and settings toggle
+on:
+  push:
+    branches: [fix/bkit-3-5-dark-mode-settings-toggle-20261020]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dark-35-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compile-and-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    defaults: { run: { working-directory: study-os } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+  theme-browsers:
+    needs: compile-and-unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [iphone, ipad, desktop, galaxy-css, webkit-iphone, webkit-ipad]
+    defaults: { run: { working-directory: study-os } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:e2e -- tests/e2e/dark-mode-settings.spec.ts --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: dark-mode-${{ matrix.project }}-failure
+          path: study-os/test-results/
+          retention-days: 7
+  existing-app-regression:
+    needs: theme-browsers
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [iphone, desktop, webkit-ipad]
+    defaults: { run: { working-directory: study-os } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:e2e -- --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: dark-3-5-regression-${{ matrix.project }}
+          path: study-os/test-results/
+          retention-days: 7
