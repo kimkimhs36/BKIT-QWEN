@@ -60,6 +60,9 @@ function activePool(){
  return qs;
 }
 function chooseQuestion(){
+ // Do not advance the "unanswered" queue before showing the explanation for
+ // the answer just given. This is essential for learning from mistakes.
+ if(response?.id){const answered=QUESTIONS.find(q=>q.id===response.id);if(answered)return answered}
  const pool=activePool();
  const match=pool.find(q=>q.id===state.current);
  if(match)return match;
