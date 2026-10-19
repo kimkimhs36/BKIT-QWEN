@@ -4,6 +4,7 @@ import { newState, stateSchema } from '../src/model';
 import { KEY } from '../src/storage';
 import { SLEEP_KEY, defaultSleep } from '../src/sleep';
 import { addResource } from '../src/learningEngine';
+import { startQuick } from '../src/quickTimer';
 import { sha256, LocalZipWriter, readLocalZip } from '../src/localZip';
 import { addVaultPhoto, readVaultPhoto } from '../src/photoVault';
 import {
@@ -80,6 +81,26 @@ async function fixture() {
   });
 }
 describe('complete local archive preservation', () => {
+  it('backs up a running zero-input stopwatch as a paused copy without changing the live timer', async () => {
+    const source = await fixture();
+    const before = Date.now();
+    const original = JSON.parse(source.getItem(KEY)!);
+    const running = startQuick(original, 'stopwatch', 480, before - 90_000, 'quick-zip');
+    source.setItem(KEY, JSON.stringify(running));
+    const raw = source.getItem(KEY);
+    const zip = await exportCompleteBackup(source);
+    expect(source.getItem(KEY)).toBe(raw); // The original stopwatch keeps running.
+    globalThis.indexedDB = new IDBFactory();
+    const target = storage();
+    const preview = await inspectCompleteBackup(zip, target);
+    await restoreCompleteBackup(preview, 'replace', target);
+    const restored = stateSchema.parse(JSON.parse(target.getItem(KEY)!));
+    expect(restored.quickTimer?.segmentStart).toBeNull();
+    expect(restored.quickTimer?.elapsed).toBeGreaterThanOrEqual(90);
+    expect(restored.quickTimer?.elapsed).toBeLessThan(110);
+    expect(restored.quickTimer?.mode).toBe('stopwatch');
+  });
+
   it('exports a running session as a resumable paused snapshot without mutating live study', async () => {
     const source = await fixture();
     const state = JSON.parse(source.getItem(KEY)!);
