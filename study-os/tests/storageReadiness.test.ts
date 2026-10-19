@@ -59,6 +59,8 @@ describe('daily-use storage readiness', () => {
     expect(result.paperDocuments).toBe(1);
     expect(result.verifiedOriginals).toBe(1);
     expect(result.studyPhotos).toBe(1);
+    expect(result.verifiedStudyPhotos).toBe(1);
+    expect(result.verifiedSleepPhotos).toBe(0);
     expect(s.getItem('bkit.study-os.v1')).toBe(before);
     expect(s.length).toBe(1); // Disposable write probe was removed.
   });
@@ -79,6 +81,37 @@ describe('daily-use storage readiness', () => {
     );
     const result = await auditStudyStorage(storage({ 'bkit.study-os.v1': JSON.stringify(state) }));
     expect(result.findings.some((f) => f.level === 'error' && f.message.includes('학습 사진'))).toBe(true);
+  });
+
+  it('detects a study photo whose record exists but whose original bytes changed', async () => {
+    const state = addResource(
+      newState(),
+      { title: '손상된 학습지', subject: '수학', sourceType: 'school-worksheet',
+        linkedTaskId: null, linkedMediaIds: ['photo-corrupt'] },
+      ['1번'],
+    );
+    const original = new Blob(['original photo bytes']);
+    const damaged = new Blob(['different photo bytes']);
+    await addVaultPhoto('study', {
+      id: 'photo-corrupt', bytes: await damaged.arrayBuffer(), name: 'worksheet.png',
+      mime: 'image/png', size: damaged.size, digest: await sha256(original),
+    });
+    const result = await auditStudyStorage(storage({ 'bkit.study-os.v1': JSON.stringify(state) }));
+    expect(result.studyPhotos).toBe(1);
+    expect(result.verifiedStudyPhotos).toBe(0);
+    expect(result.findings.some((f) => f.level === 'error' && f.message.includes('체크섬'))).toBe(true);
+  });
+
+  it('detects a sleep photo whose stored size differs from its actual bytes', async () => {
+    const blob = new Blob(['sleep photo']);
+    await addVaultPhoto('sleep', {
+      id: 'sleep-corrupt', bytes: await blob.arrayBuffer(), name: 'sleep.png',
+      mime: 'image/png', size: blob.size + 1, digest: await sha256(blob),
+    });
+    const result = await auditStudyStorage(storage());
+    expect(result.sleepPhotos).toBe(1);
+    expect(result.verifiedSleepPhotos).toBe(0);
+    expect(result.findings.some((f) => f.level === 'error' && f.message.includes('수면 사진 원본'))).toBe(true);
   });
 
   it('reports a failed write probe instead of claiming storage health', async () => {
