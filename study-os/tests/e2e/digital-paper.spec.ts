@@ -604,3 +604,50 @@ test('worksheet photo original, finger ink and source policy stay local and fit 
   ).toHaveAttribute('href', 'https://www.ebsi.co.kr/ebs/xip/xipc/previousPaperList.ebs');
   await expect(page.getByText('등록한 기출 PDF가 없습니다.', { exact: false })).toBeVisible();
 });
+
+test('in-progress Apple Pencil stroke survives a guarded navigation request', async ({ page }) => {
+  await seed(page);
+  await upload(page);
+  await page.getByRole('button', { name: '종이 열기', exact: true }).click();
+  await expect(room(page).getByTestId('ink-canvas')).toBeVisible();
+  const allowed = await room(page).getByTestId('ink-canvas').evaluate((canvas) => {
+    const el = canvas as HTMLCanvasElement;
+    // Synthetic pointer events do not own native capture in WebKit.
+    el.setPointerCapture = () => {};
+    el.releasePointerCapture = () => {};
+    el.hasPointerCapture = () => false;
+    const box = el.getBoundingClientRect();
+    const send = (kind: string, y: number) =>
+      el.dispatchEvent(new PointerEvent(kind, {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 808,
+        pointerType: 'pen',
+        button: 0,
+        buttons: 1,
+        clientX: box.left + 40,
+        clientY: box.top + y,
+        pressure: 0.6,
+      }));
+    send('pointerdown', 90);
+    send('pointermove', 130);
+    // User asks the app to update while the pen is still down.
+    return document.dispatchEvent(new CustomEvent('bkit:flush-learning-draft', {
+      cancelable: true,
+      detail: {
+        resume: () => {
+          (window as typeof window & { bkitSaveFinished?: boolean }).bkitSaveFinished = true;
+        },
+      },
+    }));
+  });
+  expect(allowed).toBe(false);
+  await expect.poll(async () => (await readDocs(page))[0].layers[0].strokes.length).toBe(1);
+  await expect.poll(() => page.evaluate(() =>
+    (window as typeof window & { bkitSaveFinished?: boolean }).bkitSaveFinished ?? false,
+  )).toBe(true);
+  await page.reload();
+  await nav(page, '집중');
+  await page.getByRole('button', { name: '종이 열기', exact: true }).click();
+  await expect.poll(async () => (await readDocs(page))[0].layers[0].strokes.length).toBe(1);
+});
