@@ -58,6 +58,39 @@ function fixture() {
   return s;
 }
 describe('additive resource learning', () => {
+  it('keeps tomorrow retesting after same-day quick success and extends only on a delayed independent answer', () => {
+    for (const mode of ['incorrect', 'hint', 'low'] as const) {
+      let s = fixture();
+      const id = s.learning!.problems[0].id;
+      const answer = (when: number, first = false) => {
+        s.learning!.problems[0].draft = '실제 답';
+        s = recordResourceAttempt(
+          s,
+          id,
+          {
+            hintUsed: first && mode === 'hint',
+            confidence: first && mode === 'low' ? 'low' : 'high',
+          },
+          when,
+        );
+        s = checkResourceAttempt(
+          s,
+          s.learning!.attempts.at(-1)!.id,
+          first && mode === 'incorrect' ? 'incorrect' : 'correct',
+          'concept',
+          when,
+        );
+      };
+      answer(now, true);
+      answer(now + 60000);
+      expect(buildResourceReviews(s, '2026-10-19')[0].due).toBe('2026-10-20');
+      s.active!.id = 'next-session';
+      answer(now + 86400000);
+      expect(buildResourceReviews(s, '2026-10-20')[0].due).toBe('2026-10-23');
+      expect(s.tasks[0].quantity!.remaining).toBe(19);
+    }
+  });
+
   it('opens unfinished material first for a task with several worksheets', () => {
     let s = addResource(
       newState(),

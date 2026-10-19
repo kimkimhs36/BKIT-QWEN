@@ -225,14 +225,22 @@ export function buildResourceReviews(s: State, today: string) {
       attempts.forEach((a, i) => {
         if (a.selfCheck === 'incorrect' || a.hintUsed || a.confidence === 'low') reset = i;
       });
+      const resetDay =
+        reset >= 0 ? dayKey(attempts[reset].checkedAt ?? attempts[reset].submittedAt) : null;
       const successes = new Set(
         attempts
           .slice(reset + 1)
-          .filter((a) => a.selfCheck === 'correct' && !a.hintUsed && a.confidence !== 'low')
+          .filter(
+            (a) =>
+              a.selfCheck === 'correct' &&
+              !a.hintUsed &&
+              a.confidence !== 'low' &&
+              (!resetDay || dayKey(a.submittedAt) > resetDay),
+          )
           .map((a) => dayKey(a.submittedAt)),
       ).size;
       const interval =
-        last.selfCheck === 'incorrect' || last.hintUsed
+        last.selfCheck === 'incorrect' || last.hintUsed || (reset >= 0 && successes === 0)
           ? 1
           : last.confidence === 'low'
             ? [1, 3, 7][Math.min(successes, 2)]

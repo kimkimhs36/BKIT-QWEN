@@ -87,6 +87,10 @@ test('20 actual problems: solve 1–8, preserve error, resume 9, finish quantity
     if (i === 3) {
       await w.getByLabel('오류 유형', { exact: true }).selectOption('calculation');
       await w.getByRole('button', { name: '오답 · 다시 연습', exact: true }).click();
+      await w.getByRole('button', { name: '답을 가리고 재시도', exact: true }).click();
+      await w.getByLabel('최종 답', { exact: true }).fill('당일 바로 고쳐 푼 답');
+      await w.getByRole('button', { name: '내 답 저장 · 직접 확인하기', exact: true }).click();
+      await w.getByRole('button', { name: '정답 · 직접 확인했어요', exact: true }).click();
     } else await w.getByRole('button', { name: '정답 · 직접 확인했어요', exact: true }).click();
     if (i < 8) await w.getByRole('button', { name: '다음 문제', exact: true }).click();
   }
@@ -116,7 +120,7 @@ test('20 actual problems: solve 1–8, preserve error, resume 9, finish quantity
     submitted: false,
     quantity: { total: 20, remaining: 0 },
   });
-  expect(saved.learning.attempts).toHaveLength(20);
+  expect(saved.learning.attempts).toHaveLength(21);
   await page.clock.setSystemTime(new Date('2026-10-20T12:00:00Z'));
   await page.reload();
   await page.getByRole('button', { name: '답을 가리고 다시 풀기', exact: false }).click();
@@ -127,7 +131,7 @@ test('20 actual problems: solve 1–8, preserve error, resume 9, finish quantity
   await page.getByRole('button', { name: '정답 · 직접 확인했어요', exact: true }).click();
   saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
   expect(saved.tasks[0].quantity.remaining).toBe(0);
-  expect(saved.learning.attempts).toHaveLength(21);
+  expect(saved.learning.attempts).toHaveLength(22);
 });
 test('draft and subject steps survive reload and safe Sleep Guard transition', async ({ page }) => {
   const s = resourceState('물리');
