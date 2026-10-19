@@ -49,6 +49,16 @@ for (const type of [chromium, webkit]) {
   assert.deepEqual(d.past, legacy.past);
   assert.equal(d.mission.elapsed, 145);
   assert.equal(d.current, "lab014");
+  await p.locator(".understanding summary").click();
+  await p.locator("#understanding-note").fill("과목을 바꿔도 남아야 하는 생각");
+  await p.locator("#study-controls summary").click();
+  await p.locator('[data-subject="수학"]').click();
+  await p.locator('[data-subject="영어"]').click();
+  await p.locator(".understanding summary").click();
+  assert.equal(
+    await p.locator("#understanding-note").inputValue(),
+    "과목을 바꿔도 남아야 하는 생각",
+  );
   await p.locator('[data-choice="3"]').click();
   assert.equal(
     (await p.evaluate((k) => JSON.parse(localStorage.getItem(k)), KEY)).attempts

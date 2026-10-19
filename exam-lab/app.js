@@ -73,6 +73,7 @@
     mission: null,
     feedback: null,
     draft: null,
+    drafts: {},
     diagnostic: null,
     events: [],
     sessions: [],
@@ -166,6 +167,22 @@
     )
       return false;
     if (
+      d.drafts !== undefined &&
+      (!object(d.drafts) ||
+        Object.keys(d.drafts).length > 1000 ||
+        Object.values(d.drafts).some(
+          (v) =>
+            !object(v) ||
+            typeof v.id !== "string" ||
+            typeof v.note !== "string" ||
+            !["normal", "unsure", "guess"].includes(v.confidence) ||
+            !Number.isInteger(v.hints) ||
+            v.hints < 0 ||
+            v.hints > 2,
+        ))
+    )
+      return false;
+    if (
       d.feedback !== undefined &&
       d.feedback !== null &&
       (!object(d.feedback) ||
@@ -251,6 +268,7 @@
     $("save-status").textContent = "저장 확인 필요 · JSON 백업을 만들어 줘.";
   }
   function save() {
+    if (state.draft) state.drafts[state.draft.id] = { ...state.draft };
     if (blocked) {
       warning(
         storageError || "다른 탭에서 기록이 변경되어 이 탭의 저장을 멈췄어.",
@@ -289,7 +307,15 @@
   const draft = (q) =>
     state.draft?.id === q.id
       ? state.draft
-      : { id: q.id, hints: 0, note: "", confidence: "normal" };
+      : state.drafts[q.id] || {
+          id: q.id,
+          hints: 0,
+          note:
+            typeof state.attempts[q.id]?.reflection === "string"
+              ? state.attempts[q.id].reflection
+              : "",
+          confidence: "normal",
+        };
   function clock(s) {
     s = Math.max(0, Math.floor(s));
     return (
@@ -765,6 +791,8 @@
       subject: q.subject,
     });
     state.events = state.events.slice(-20000);
+    state.draft = null;
+    delete state.drafts[q.id];
     state.feedback = { id: q.id, choice: pick };
     state.current = q.id;
     save();

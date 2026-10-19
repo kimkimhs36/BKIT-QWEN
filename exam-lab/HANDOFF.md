@@ -8,7 +8,7 @@ Scope: `/exam-lab/` only. Production BKIT STUDY OS 3.3, the 3.4 development bran
 - The existing 46 authored originals each have a concept, two hints, solution steps, four distractor explanations and a linked transfer question. There are 46 additional authored transfer questions, clearly distinguished from official papers.
 - English supports core word definitions, passage translations and discourse structure. Mathematics/science solutions unfold in steps. A learner can record their own interpretation before answering.
 - Hinted, guessed or uncertain correct answers stay pending. A later unassisted correct answer clears pending status. A subsequent wrong answer reopens it. First-attempt correctness never changes.
-- Last question, hints, self-explanation, answer feedback, error cause and paper notes survive refresh. Review can be filtered by cause.
+- Last question, hints, self-explanation, answer feedback, error cause and paper notes survive refresh. Unsubmitted per-question drafts also survive subject switching. Review can be filtered by cause.
 - Focus mode removes surrounding controls. No forced animation, reward system or setup form.
 - 120/180-minute routes include breaks in the total schedule. Active focus and foreground break durations are separate. Leaving the page pauses timing. A discarded tab reopens paused from its saved snapshot; it does not manufacture unattended study time. Finishing writes a session with real attempts, then allows subject/content edits.
 - Native local PDF/image viewing, a full-screen source link, manually marked answer sheets and mathematics short answers for questions 22–30. PDF originals are not included in this app's JSON backup and need reselecting after reload.
