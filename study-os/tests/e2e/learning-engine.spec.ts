@@ -293,6 +293,9 @@ test('complete ZIP with original study and sleep photos restores in a fresh brow
   await target.getByLabel('전체 ZIP 백업 검사', { exact: true }).setInputFiles(path);
   await expect(target.getByText('원본 사진 2장', { exact: false })).toBeVisible();
   await target.getByLabel('복원 방식', { exact: true }).selectOption('replace');
+  // Replacing local study data intentionally asks the learner for explicit consent.
+  // An unattended browser test must acknowledge this protection, not bypass it.
+  target.once('dialog', (dialog) => dialog.accept());
   await target.getByRole('button', { name: '검사한 백업 교체', exact: true }).click();
   await expect(
     target.getByRole('button', { name: '복원한 앱 다시 열기', exact: true }),
