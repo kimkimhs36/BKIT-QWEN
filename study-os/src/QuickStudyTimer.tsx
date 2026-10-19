@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Check, Pause, Play, RotateCcw, Timer, Clock3, ChevronDown } from 'lucide-react';
-import type { State, Session } from './model';
+import type { State, Session, Task } from './model';
 import { quickSeconds, quickClock } from './quickTimer';
 import './quick-timer.css';
 
@@ -9,24 +9,26 @@ type Props = {
   now: number;
   todaySeconds: number;
   last: Session | undefined;
+  tasks: Task[];
   editingId: string | null;
   focusBusy: boolean;
   onStart: (mode: 'stopwatch' | 'countdown', target: number) => void;
   onPause: () => void;
   onResume: () => void;
   onFinish: () => void;
-  onLabel: (id: string, subject: string, activity: string, note: string) => boolean;
+  onLabel: (id: string, subject: string, activity: string, note: string, taskId?: string) => boolean;
   onCloseEdit: () => void;
   compact?: boolean;
 };
 export function QuickStudyTimer({
-  timer, now, todaySeconds, last, editingId, focusBusy,
+  timer, now, todaySeconds, last, tasks, editingId, focusBusy,
   onStart, onPause, onResume, onFinish, onLabel, onCloseEdit, compact,
 }: Props) {
   const [mode, setMode] = useState<'stopwatch' | 'countdown'>('stopwatch');
   const [minutes, setMinutes] = useState(25);
   const [expanded, setExpanded] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
+  const [linkedTaskId, setLinkedTaskId] = useState('');
   const [subject, setSubject] = useState('');
   const [activity, setActivity] = useState('');
   const [note, setNote] = useState('');
@@ -35,6 +37,7 @@ export function QuickStudyTimer({
     if (editingId) {
       setShowEditor(true);
       setSubject('');
+      setLinkedTaskId('');
       setActivity('');
       setNote('');
       setError('');
@@ -48,7 +51,7 @@ export function QuickStudyTimer({
   const running = Boolean(timer?.segmentStart);
   const saveLabel = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!last || !onLabel(last.id, subject, activity, note)) {
+    if (!last || !onLabel(last.id, subject, activity, note, linkedTaskId || undefined)) {
       setError('기록을 저장하지 못했어요. 입력을 유지했으니 다시 시도해 주세요.');
       return;
     }
@@ -120,6 +123,14 @@ export function QuickStudyTimer({
           {showEditor && (
             <form onSubmit={saveLabel} className="quick-timer-form">
               <p>지금은 안 적어도 돼. 시간은 이미 저장했어.</p>
+              {tasks.length > 0 && (
+                <label>기존 과제와 연결 (선택)
+                  <select value={linkedTaskId} onChange={e => setLinkedTaskId(e.target.value)}>
+                    <option value="">과제 연결 없이 기록</option>
+                    {tasks.map(task => <option key={task.id} value={task.id}>{task.subject} · {task.title}</option>)}
+                  </select>
+                </label>
+              )}
               <label>과목 (선택)
                 <select value={subject} onChange={e => setSubject(e.target.value)}>
                   <option value="">나중에 선택</option>
