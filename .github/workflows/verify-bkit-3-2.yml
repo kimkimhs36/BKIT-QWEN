@@ -3,8 +3,11 @@ on:
   push:
     branches: [feat/bkit-3-2-worksheet-ink-pdf]
     paths-ignore: ['**/*.md']
+  # During draft development: statics only. The six-browser suite runs when
+  # the PR is explicitly moved to Ready for review or via manual dispatch.
   pull_request:
     branches: [feat/bkit-3-2-worksheet-ink-pdf]
+    types: [ready_for_review]
   workflow_dispatch:
     inputs:
       profile:
@@ -33,7 +36,7 @@ jobs:
       - run: npm test
       - run: npm run build
   release-regression:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action == 'ready_for_review')
     needs: static-and-data
     runs-on: ubuntu-latest
     timeout-minutes: 30
