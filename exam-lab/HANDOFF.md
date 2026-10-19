@@ -36,6 +36,7 @@ cd ..
 node exam-lab/tests/smoke.mjs
 node exam-lab/tests/safety.mjs
 node exam-lab/tests/ipad.mjs
+node exam-lab/tests/clock.mjs
 node exam-lab/tests/accessibility.mjs
 ```
 
@@ -45,7 +46,7 @@ node exam-lab/tests/accessibility.mjs
 - Six scenarios: iPhone WebKit, iPad portrait/landscape WebKit, desktop Chromium, Galaxy tablet CSS/touch emulation, small iPhone Chromium.
 - Learning: diagnosis, both hints, self-explanation, feedback restoration, tutor prompt, transfer, wrong-answer retest, vocabulary, focus screen.
 - Papers/data: local PDF selection, manual O/X, mathematics short answer, per-keystroke notes, refresh, JSON export and valid/invalid restore.
-- Timing: pause/resume, break accounting, refresh paused, end session, optional edits and full 180-minute completion with controlled time.
+- Timing: pause/resume, break accounting, refresh paused, end session, optional edits and full 180-minute completion with controlled time. A separate real-clock test (no fake clock) compares ~18 seconds of focus and ~8 seconds of breaks against Node’s independent monotonic clock in Chromium and WebKit; a four-second pause must add nothing.
 - Safety: legacy v1 compatibility, unrelated production keys, multi-tab conflicts, malformed original preservation, denied writes and emergency export.
 - Accessibility: axe WCAG 2/2.1 A/AA checks of entry, study, feedback, tutor, papers and report. This is automated coverage, not a complete accessibility certification.
 
