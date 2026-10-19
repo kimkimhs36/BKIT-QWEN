@@ -1,6 +1,6 @@
 import { sha256 } from './localZip';
 import { listPaperDocuments, readPaperFile } from './paperStorage';
-import { photoIds } from './photoVault';
+import { photoIds, readVaultPhoto, type Vault } from './photoVault';
 import { readSleep } from './sleep';
 import { readState } from './storage';
 
@@ -15,6 +15,8 @@ export type StorageAudit = {
   studyPhotos: number;
   sleepPhotos: number;
   verifiedOriginals: number;
+  verifiedStudyPhotos: number;
+  verifiedSleepPhotos: number;
   findings: StorageAuditFinding[];
 };
 
@@ -82,6 +84,33 @@ export async function auditStudyStorage(
   } catch {
     warning('초안 또는 개인 배경의 사진 참조를 확인하지 못했습니다.');
   }
+  // Verify every stored original, not just the fact that its ID exists. A corrupt
+  // photo can still be present in IndexedDB and would otherwise be reported as safe.
+  // Work sequentially to avoid holding the entire photo library in RAM on iPad.
+  async function verifyVault(vault: Vault, ids: Set<string>): Promise<number> {
+    let checked = 0;
+    let errors = 0;
+    for (const id of ids) {
+      onProgress((vault === 'study' ? '학습' : '수면') + ' 사진 확인 중 ' + (checked + errors + 1) + '/' + ids.size);
+      try {
+        const photo = await readVaultPhoto(vault, id);
+        if (!photo || photo.size !== photo.bytes.byteLength ||
+            photo.digest !== await sha256(new Blob([photo.bytes]))) {
+          errors++;
+        } else {
+          checked++;
+        }
+      } catch {
+        errors++;
+      }
+    }
+    if (errors)
+      error((vault === 'study' ? '학습' : '수면') + ' 사진 원본 ' + errors + '개의 크기/체크섬이 손상되었거나 읽기 실패했습니다. ZIP 백업의 원본과 비교하세요.');
+    return checked;
+  }
+  const verifiedStudyPhotos = await verifyVault('study', studyPhotoSet);
+  const verifiedSleepPhotos = await verifyVault('sleep', sleepPhotoSet);
+
   const missingStudy = [...requiredStudy].filter((id) => !studyPhotoSet.has(id));
   const missingSleep = [...requiredSleep].filter((id) => !sleepPhotoSet.has(id));
   if (missingStudy.length) error('연결된 학습 사진 원본 ' + missingStudy.length + '개를 찾을 수 없습니다.');
@@ -95,6 +124,7 @@ export async function auditStudyStorage(
   }
   const resourceIds = new Set((study.state.learning?.resources ?? []).map((r) => r.id));
   const originalById = new Map<string, { digest: string; size: number }>();
+  const verifiedOriginals = new Set<string>();
   for (const document of documents) {
     if (document.resourceId && !resourceIds.has(document.resourceId))
       warning(document.name + ': 연결된 학습 자료를 찾을 수 없습니다.');
@@ -104,13 +134,14 @@ export async function auditStudyStorage(
         error(document.name + ': 동일 원본 ID의 크기 또는 체크섬이 충돌합니다.');
       continue;
     }
-    onProgress('원본 PDF·사진 검사 중 · ' + (originalById.size + 1) + '/' + documents.length);
+    originalById.set(document.fileId, { digest: document.digest, size: document.size });
+    onProgress('원본 PDF·사진 검사 중 · ' + originalById.size + '/' + documents.length);
     try {
       const bytes = await readPaperFile(document.fileId);
       if (bytes.byteLength !== document.size ||
           (await sha256(new Blob([bytes]))) !== document.digest)
         error(document.name + ': 원본 크기 또는 SHA-256 검사가 실패했습니다.');
-      else originalById.set(document.fileId, { digest: document.digest, size: document.size });
+      else verifiedOriginals.add(document.fileId);
     } catch {
       error(document.name + ': PDF·사진 원본이 없거나 읽을 수 없습니다.');
     }
@@ -130,7 +161,9 @@ export async function auditStudyStorage(
     ),
     studyPhotos: studyPhotoSet.size,
     sleepPhotos: sleepPhotoSet.size,
-    verifiedOriginals: originalById.size,
+    verifiedOriginals: verifiedOriginals.size,
+    verifiedStudyPhotos,
+    verifiedSleepPhotos,
     findings,
   };
 }
