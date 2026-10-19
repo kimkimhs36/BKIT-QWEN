@@ -558,14 +558,15 @@ export default function App() {
       setNotice('공부 시간 저장 완료. 과목이나 메모는 나중에 적어도 돼요.');
     }
   }
-  function saveQuickLabel(id: string, subject: string, action: string, note: string) {
-    return commit(v => labelQuick(v, id, subject, action, note));
+  function saveQuickLabel(id: string, subject: string, action: string, note: string, taskId?: string) {
+    return commit(v => labelQuick(v, id, subject, action, note, taskId));
   }
   const quickProps = {
     timer: s.quickTimer,
     now,
     todaySeconds: quickToday,
     last: quickRecent,
+    tasks: s.tasks.filter(task => task.status !== 'done'),
     editingId: quickEditingId,
     focusBusy: !!s.active,
     onStart: beginQuick,
