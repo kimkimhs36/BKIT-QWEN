@@ -305,7 +305,11 @@ function init(){
  document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseMission()});
  window.addEventListener('pagehide',pauseMission);
  timerHandle=setInterval(()=>{if(state.mission){renderMission();if(state.mission.running&&Math.floor(now()/15000)!==Math.floor((now()-1000)/15000))save()}},1000);
- if(state.mission?.running){state.mission.running=false;state.mission.elapsed=missionSeconds();state.mission.startedAt=0;save()}
+ if(state.mission?.running){
+  // A discarded Safari tab cannot count as continuous active study. Keep the
+  // elapsed snapshot from the last successful periodic save; reopen paused.
+  state.mission.running=false;state.mission.startedAt=0;save();
+ }
  go(['drills','past','report'].includes(state.view)?state.view:'drills');
  renderMission();stats();
 }
