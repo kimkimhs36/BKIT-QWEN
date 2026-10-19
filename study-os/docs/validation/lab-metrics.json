@@ -1,66 +1,66 @@
 {
   "environment": "Debian 13 / Chromium headless / local Vite preview / cold isolated context / no CPU or network throttling / SW blocked / returning empty learner / 390x844 CSS",
-  "measuredAt": "2026-10-19T12:31:05.183Z",
+  "measuredAt": "2026-10-19T12:42:19.724Z",
   "rows": [
     {
       "label": "baseline",
       "sample": 1,
-      "lcp": 952,
+      "lcp": 996,
       "cls": 0.000008077432775889684,
-      "dcl": 446.30000000004657,
-      "load": 483.39999999990687,
-      "fcp": 952,
+      "dcl": 452.10000000009313,
+      "load": 454,
+      "fcp": 996,
       "resourceBytes": 365530
     },
     {
       "label": "baseline",
       "sample": 2,
-      "lcp": 1000,
+      "lcp": 948,
       "cls": 0.000008077432775889684,
-      "dcl": 505.5,
-      "load": 506.30000000004657,
-      "fcp": 1000,
+      "dcl": 411.30000000004657,
+      "load": 411.80000000004657,
+      "fcp": 948,
       "resourceBytes": 365530
     },
     {
       "label": "baseline",
       "sample": 3,
-      "lcp": 1376,
+      "lcp": 1284,
       "cls": 0.000008077432775889684,
-      "dcl": 700.6000000000931,
-      "load": 701.1000000000931,
-      "fcp": 1376,
+      "dcl": 471.80000000004657,
+      "load": 472.30000000004657,
+      "fcp": 1284,
       "resourceBytes": 365530
     },
     {
       "label": "current",
       "sample": 1,
-      "lcp": 1616,
+      "lcp": 700,
       "cls": 0.0000081098288966486,
-      "dcl": 698.9000000001397,
-      "load": 700.6000000000931,
-      "fcp": 1616,
-      "resourceBytes": 366811
+      "dcl": 336.79999999981374,
+      "load": 337.5999999998603,
+      "fcp": 700,
+      "resourceBytes": 366834
     },
     {
       "label": "current",
       "sample": 2,
-      "lcp": 944,
+      "lcp": 924,
       "cls": 0.0000081098288966486,
-      "dcl": 513.6000000000931,
-      "load": 514.1999999999534,
-      "fcp": 944,
-      "resourceBytes": 366811
+      "dcl": 405.19999999995343,
+      "load": 407.89999999990687,
+      "fcp": 924,
+      "resourceBytes": 366834
     },
     {
       "label": "current",
       "sample": 3,
-      "lcp": 928,
+      "lcp": 864,
       "cls": 0.0000081098288966486,
-      "dcl": 431.80000000004657,
-      "load": 433,
-      "fcp": 928,
-      "resourceBytes": 366811
+      "dcl": 429.10000000009313,
+      "load": 429.9000000001397,
+      "fcp": 864,
+      "resourceBytes": 366834
     }
   ]
 }

@@ -64,3 +64,10 @@
 - 마지막 전체 단위 173/173, TypeScript 및 production build 통과. 최종 CI는 이 체크포인트 push로 6개 전체 suite를 실행한다.
 - 측정/스크린샷 재현: `scripts/measure-product.mjs`; baseline `c0715d4` preview 4174와 현재 preview 4175를 사용. docs/validation에 4 viewport 전후 화면과 원시 lab JSON 보존.
 - 코드 변경은 여기서 동결하고 CI 실패 수정에만 집중. 다음 명령: `gh run list --repo kimkimhs36/BKIT-QWEN --branch feat/bkit-3-5-product-perfection --limit 3`
+
+## CI에서 추가 발견한 320px P0 수정
+
+- 7181346 전체 CI의 완료된 5개 프로필에서 각각 90개 통과, 동일 home-clarity 320×740 geometry 1개 실패. (iPad WebKit은 당시 실행 중.)
+- 원인: 3.4 비교 빌드에도 있던 홈 capture 버튼의 하단 dock 중첩. 좁은 화면에서 카드 padding과 gap을 줄여 수정. 버튼/텍스트/44px 기준과 기존 assertion을 그대로 유지.
+- 수정 후 동일 기존 테스트가 로컬 6개 프로필에서 6/6 통과 (axe 포함). build 통과. baseline/current narrow-320 화면과 갱신 lab JSON 저장.
+- 새 소스 체크포인트는 이 문서를 포함한 다음 커밋 (`git log -1`). 해당 push에서 전체 6개 suite를 다시 실행해야 함. 7181346 CI를 최종 통과로 인용하지 말 것.

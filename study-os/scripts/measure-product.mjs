@@ -52,6 +52,7 @@ for (const [label, url] of [
     if (sample === 0) {
       for (const [device, viewport] of [
         ['iphone', { width: 390, height: 844 }],
+        ['narrow-320', { width: 320, height: 740 }],
         ['ipad-landscape', { width: 1194, height: 834 }],
         ['galaxy', { width: 1280, height: 800 }],
         ['desktop', { width: 1440, height: 1000 }],
