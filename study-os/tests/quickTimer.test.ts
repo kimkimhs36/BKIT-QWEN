@@ -46,6 +46,29 @@ describe('start first, record later', () => {
     expect(JSON.stringify(s.sessions[0])).toBe(before);
     expect(s.sessions).toHaveLength(2);
   });
+  it('correctly allocates a cross-midnight quick session to each Korean calendar day', () => {
+    const begin = t('2026-10-19T14:59:00Z'); // 23:59 KST
+    let s = startQuick(newState(), 'stopwatch', 480, begin, 'midnight');
+    s = finishQuick(s, begin + 120_000); // 00:01 KST next day
+    expect(quickDaySeconds(s, begin)).toBe(60);
+    expect(quickDaySeconds(s, begin + 120_000)).toBe(60);
+  });
+  it('can attach a finished stopwatch to an existing homework only after studying', () => {
+    const initial = newState();
+    initial.tasks.push({
+      id: 'homework', subject: '수학', title: '미적분 학습지', kind: '숙제',
+      due: null, priority: 1, minutes: 25, remaining: 25, status: 'todo',
+      submitted: false, optional: false, notes: '', link: '',
+    });
+    let s = startQuick(initial, 'stopwatch', 480, t('2026-10-19T02:00:00Z'), 'quick-homework');
+    s = finishQuick(s, t('2026-10-19T02:10:00Z'));
+    expect(s.sessions[0].taskId).toBeNull();
+    s = labelQuick(s, 'quick-homework', '', '', '2쪽까지', 'homework');
+    expect(stateSchema.parse(s).sessions[0].taskId).toBe('homework');
+    expect(s.sessions[0].subject).toBe('수학');
+    expect(s.sessions[0].action).toBe('미적분 학습지');
+    expect(s.tasks[0].status).toBe('todo'); // Never auto-complete homework.
+  });
   it('formats stopwatch and countdown readouts', () => {
     expect(quickClock(0)).toBe('00:00');
     expect(quickClock(65)).toBe('01:05');
