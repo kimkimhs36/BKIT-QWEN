@@ -13,27 +13,35 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Confirm independent exam lab deployed with question bank and scripts
+      - uses: actions/checkout@v4
+      - name: Verify exact published HTML, styles, teaching notes and question bank
         env:
           SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
           for attempt in $(seq 1 45); do
-            if curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "https://teambkit.com/exam-lab/?source=${SHA}" > /tmp/lab.html &&
-               curl --fail --silent --show-error --location --max-time 20 "https://teambkit.com/exam-lab/questions.js?source=${SHA}" > /tmp/lab-questions.js &&
-               curl --fail --silent --show-error --location --max-time 20 "https://teambkit.com/exam-lab/app.js?source=${SHA}" > /tmp/lab-app.js &&
-               curl --fail --silent --show-error --location --max-time 20 "https://teambkit.com/exam-lab/style.css?source=${SHA}" > /tmp/lab-style.css &&
-               grep -q 'BKIT EXAM LAB' /tmp/lab.html &&
-               grep -q 'window.BKIT_EXAM_QUESTIONS' /tmp/lab-questions.js &&
-               grep -q 'bkit.exam-lab.20261019.v1' /tmp/lab-app.js &&
-               grep -q '.question-reading' /tmp/lab-style.css; then
+            matched=true
+            for file in index.html app.js style.css questions.js learning.js release.json; do
+              if ! curl --fail --silent --show-error --location --max-time 15 \
+                -H 'Cache-Control: no-cache' \
+                "https://teambkit.com/exam-lab/${file}?verify=${SHA}-${attempt}" > "/tmp/lab-${file}"; then
+                matched=false
+                break
+              fi
+              if ! cmp --silent "exam-lab/${file}" "/tmp/lab-${file}"; then
+                matched=false
+                break
+              fi
+            done
+            if [ "$matched" = true ]; then
               node --check /tmp/lab-app.js
               node --check /tmp/lab-questions.js
-              echo "PASS: https://teambkit.com/exam-lab/ serves all validated study modules"
+              node --check /tmp/lab-learning.js
+              echo "PASS: every live EXAM LAB module exactly matches ${SHA}"
               exit 0
             fi
-            echo "Waiting for GitHub Pages to publish EXAM LAB: ${attempt}/45"
+            echo "Waiting for GitHub Pages: ${attempt}/45"
             sleep 8
           done
-          echo "FAIL: EXAM LAB files not fully published on teambkit.com"
+          echo 'FAIL: live site does not match the release commit'
           exit 1
