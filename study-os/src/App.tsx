@@ -1,4 +1,6 @@
 import { flushLearning } from './learningFlush';
+import { QuickStudyTimer } from './QuickStudyTimer';
+import { startQuick, pauseQuick, resumeQuick, finishQuick, labelQuick, quickSeconds, quickClock, quickDaySeconds } from './quickTimer';
 import { learning, resourceProgress, resourceForTask, linkedTaskProgress, moveProblem, protectResourceTask, buildResourceReviews, isCompleted } from './learningEngine';
 import { sleepConstraints, studyFixedNow } from './sleepConstraints';
 import { addProblemRetest, buildProblemReviews, type AttemptMeta, type ErrorTag, type ProblemSourceMeta } from './problemReview';
@@ -261,7 +263,8 @@ export default function App() {
     [imported, setImported] = useState<State | null>(null),
     [coach, setCoach] = useState(''),
     [focusUiVisible, setFocusUiVisible] = useState(true),
-    [updateAvailable, setUpdateAvailable] = useState(false);
+    [updateAvailable, setUpdateAvailable] = useState(false),
+    [quickEditingId, setQuickEditingId] = useState<string | null>(null);
   const todayDetailsRef = useRef<HTMLDetailsElement>(null);
   // A fixed tab bar changes content but not the document's scroll position.
   // Reset before paint, then again after Safari has laid out the new section.
@@ -535,9 +538,50 @@ export default function App() {
   }, [now, s.active, sleep.state]);
   const canStudy = !current;
   const seconds = s.active ? elapsed(s.active, now) : 0;
+  const quickElapsed = s.quickTimer ? quickSeconds(s.quickTimer, now) : 0;
+  const quickRecent = [...s.sessions].reverse().find(entry => entry.quick);
+  const quickToday = quickDaySeconds(s, now);
+  function beginQuick(mode: 'stopwatch' | 'countdown', target: number) {
+    if (s.active || s.quickTimer) { setNotice('기존 타이머가 진행 중입니다. 먼저 마무리해 주세요.'); return; }
+    const started = Date.now();
+    if (commit(v => startQuick(v, mode, target, started, uid())))
+      setNotice('기록 없이 바로 시작! 공부가 끝나면 시간을 먼저 저장할게요.');
+  }
+  function pauseQuickNow() { commit(v => pauseQuick(v, Date.now())); }
+  function resumeQuickNow() { commit(v => resumeQuick(v, Date.now())); }
+  function finishQuickNow() {
+    if (!flushLearning(finishQuickNow)) return;
+    const id = memory.current.quickTimer?.id;
+    if (id && commit(v => finishQuick(v, Date.now()))) {
+      setQuickEditingId(id);
+      setNotice('공부 시간 저장 완료. 과목이나 메모는 나중에 적어도 돼요.');
+    }
+  }
+  function saveQuickLabel(id: string, subject: string, action: string, note: string) {
+    return commit(v => labelQuick(v, id, subject, action, note));
+  }
+  const quickProps = {
+    timer: s.quickTimer,
+    now,
+    todaySeconds: quickToday,
+    last: quickRecent,
+    editingId: quickEditingId,
+    focusBusy: !!s.active,
+    onStart: beginQuick,
+    onPause: pauseQuickNow,
+    onResume: resumeQuickNow,
+    onFinish: finishQuickNow,
+    onLabel: saveQuickLabel,
+    onCloseEdit: () => setQuickEditingId(null),
+  };
   const late = delayMinutes(s, now);
   function start(minutes: number, task = selected || actionTask?.id || null, resourceId?: string, problemId?: string) {
     if(!flushLearning(()=>start(minutes,task,resourceId,problemId)))return;
+    if (s.quickTimer) {
+      setNotice('바로 시작 타이머를 먼저 마무리하세요. 기록한 시간은 남아 있어요.');
+      setTab('today');
+      return;
+    }
     if (s.active) {
       if(resourceId && resourceId!==s.active.resourceId) setNotice('현재 학습을 종료한 뒤 다른 자료를 열어 주세요.');
       else if(resourceId && problemId) commit(v=>moveProblem(v,resourceId,problemId));
@@ -1117,9 +1161,15 @@ export default function App() {
               </button>
             </div>
           )}
+          {tab !== 'today' && tab !== 'study' && !!s.quickTimer && (
+            <button type="button" className="quick-timer-top-chip" onClick={() => setTab('today')}>
+              <Clock size={15}/> {s.quickTimer.segmentStart ? '공부 중' : '일시정지'} · {quickClock(quickElapsed)} · 타이머 열기
+            </button>
+          )}
           {tab === 'more' && <Suspense fallback={<p role="status">학습 도구를 여는 중…</p>}><MoreHub onNavigate={setTab} onCapture={()=>taskEditor()}/></Suspense>}
           {tab === 'today' && (
             <>
+              <QuickStudyTimer {...quickProps}/>
               <div className="home-primary">
 
               <section className="command-stage">
@@ -1487,6 +1537,7 @@ export default function App() {
           )}
           {tab === 'study' && (
             <>
+              <QuickStudyTimer {...quickProps} compact/>
               {!s.active&&<Suspense fallback={<p role="status">자료 라이브러리를 여는 중…</p>}><ResourceLibrary state={s} onChange={commit} onOpen={openResource}/></Suspense>}
               <div className="study-layout">
                 <section
