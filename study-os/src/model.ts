@@ -113,6 +113,16 @@ export const problemWorkspaceSchema = z.object({
   problemNumber: text.optional(),
   attempts: z.array(learningAttemptSchema).max(20),
 });
+/** Zero-friction timer starts before the learner chooses any task or subject. */
+export const quickTimerSchema = z.object({
+  id,
+  mode: z.enum(['stopwatch', 'countdown']),
+  targetMinutes: minutes,
+  started: instant,
+  segmentStart: instant.nullable(),
+  elapsed: z.number().min(0),
+  segments: z.array(segmentSchema).max(102),
+});
 export const activeSchema = z.object({
   id,
   taskId: id.nullable(),
@@ -129,6 +139,7 @@ export const activeSchema = z.object({
 });
 export const sessionSchema = z.object({
   id,
+  quick: z.boolean().optional(),
   taskId: id.nullable(),
   subject: text,
   action: text,
@@ -195,6 +206,7 @@ export const stateSchema = z
     schedules: z.array(scheduleSchema).max(300),
     sessions: z.array(sessionSchema).max(5000),
     active: activeSchema.nullable(),
+    quickTimer: quickTimerSchema.nullable().optional(),
     plan: z.array(blockSchema).max(500),
     undo: z.array(blockSchema).max(500).nullable(),
     settings: settingsSchema,
@@ -269,6 +281,7 @@ export const newState = (): State => ({
   schedules: [],
   sessions: [],
   active: null,
+  quickTimer: null,
   plan: [],
   undo: null,
   grades: [],
