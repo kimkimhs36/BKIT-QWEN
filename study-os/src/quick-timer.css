@@ -30,3 +30,10 @@
 .quick-timer-top-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;border:1px solid rgba(82,126,92,.25);background:rgba(97,146,110,.12);color:inherit;font:inherit;font-size:12px;font-variant-numeric:tabular-nums;cursor:pointer}
 @media(max-width:500px){.quick-timer{border-radius:20px;padding:18px}.quick-timer-today{align-items:flex-start}.quick-timer-form{grid-template-columns:minmax(0,1fr)}.quick-timer-form label:has(textarea){grid-column:auto}.quick-timer-actions button{flex:1}.quick-timer-modes button{flex:1;justify-content:center}}
 @media(prefers-reduced-motion:reduce){.quick-timer *{animation:none!important;transition:none!important}}
+
+/* Above-the-fold shortcut is positioned inside the existing NOW card without
+   changing the height or displacing its three established primary actions. */
+.now-focus{position:relative}
+.now-focus-shortcut{position:absolute;top:12px;right:14px;max-width:46%;display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(86,131,104,.25);border-radius:999px;padding:7px 10px;background:rgba(108,151,117,.10);color:inherit;font:inherit;font-size:12px;line-height:1.2;cursor:pointer;white-space:nowrap}
+.now-focus-shortcut:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+@media(max-width:360px){.now-focus-shortcut{font-size:11px;right:8px;padding:6px 8px}}
