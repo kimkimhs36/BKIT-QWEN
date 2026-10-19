@@ -208,6 +208,12 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             원본 사진은 보존됩니다. 사진 ID 충돌은 새 ID로 연결합니다. 작업하지 않으면 현재 기록이
             그대로 유지됩니다.
           </p>
+          {mode === 'replace' && (
+            <p className="warning" role="alert">
+              교체는 현재 기기의 학습 기록과 필기 문서 내용을 백업 버전으로 바꿀 수 있습니다.
+              먼저 현재 기기의 ZIP 백업을 안전한 파일 앱에 별도로 보관하세요.
+            </p>
+          )}
           {studying && (
             <p role="alert">
               현재 학습을 종료한 뒤 파일을 다시 검사하세요. 작성 중인 답은 학습실에 저장됩니다.
@@ -217,7 +223,14 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             <button
               className="primary"
               disabled={busy || studying || restored}
-              onClick={() =>
+              onClick={() => {
+                if (
+                  mode === 'replace' &&
+                  !window.confirm(
+                    '현재 기기의 학습 기록과 PDF 필기를 검사한 백업 내용으로 교체합니다. ' +
+                      '현재 기록의 별도 ZIP 백업 파일을 보관했나요? 취소하면 아무것도 변경하지 않습니다.',
+                  )
+                ) return;
                 void work(async () => {
                   const journal = await restoreCompleteBackup(
                     inspected,
@@ -227,8 +240,8 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
                   );
                   setRestored(true);
                   setMessage(`복원 완료. 앱을 다시 열어 기록을 확인하세요. 원본 보존: ${journal}`);
-                })
-              }
+                });
+              }}
             >
               검사한 백업 {mode === 'merge' ? '병합' : '교체'}
             </button>
