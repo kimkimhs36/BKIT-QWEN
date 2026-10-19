@@ -26,6 +26,8 @@ import {captureDeadline,formatTaskDeadline,formatQuantity} from './capture';
 import { QuickSessionEditor } from './QuickSessionEditor';
 import { NowFocus } from './NowFocus';
 import { DeadlinePulse } from './DeadlinePulse';
+import { AssessmentRadar } from './AssessmentRadar';
+import { ApiReadinessPanel } from './ApiReadinessPanel';
 import { StudyRhythm } from './StudyRhythm';
 import { FocusStayAwake } from './FocusStayAwake';
 import { ReviewDeck } from './ReviewDeck';
@@ -250,6 +252,7 @@ export default function App() {
   function setTab(route:string) {if(flushLearning(()=>setTab(route)))setTabState(route);}
   const sleep = useSleepGuard(now, Boolean(s.active));
   const [energy,setEnergy] = useState<'low'|'normal'>('normal');
+  const [taskPresetKind, setTaskPresetKind] = useState<Task['kind']>('숙제');
   const [editTask, setEditTask] = useState<Task | null>(null),
     [editSchedule, setEditSchedule] = useState<Schedule | null>(null),
     [day, setDay] = useState(dayKey()),
@@ -494,7 +497,13 @@ export default function App() {
   }
   function taskEditor(t: Task | null = null) {
     setEditTask(t);
+    setTaskPresetKind(t?.kind ?? '숙제');
     open(t ? 'task' : 'capture');
+  }
+  function addAssessmentNow() {
+    setEditTask(null);
+    setTaskPresetKind('수행평가');
+    open('task');
   }
   function scheduleEditor(t: Schedule | null = null) {
     setEditSchedule(t);
@@ -1250,6 +1259,8 @@ export default function App() {
               <QuickStudyTimer {...quickProps}/>
               <TaskCheckIn pending={pending.length} awaiting={awaiting.length} total={s.tasks.length}
                 onSubmission={() => {setFilter('submission');setTab('tasks');}} onAdd={() => openAtelier()}/>
+              <AssessmentRadar tasks={s.tasks} now={now} onAdd={addAssessmentNow}
+                onEdit={taskEditor} onAll={() => {setFilter('pending');setTab('tasks');}}/>
               {!s.active&&resumeResource&&<section className="resource-resume" aria-label="마지막 자료 이어하기"><div><strong>{resumeResource.title}</strong><p>남은 {resourceProgress(learning(s),resumeResource.id).remainingCount}문제 · 이어 풀 위치 저장됨</p></div><button className="primary" onClick={()=>openResource(resumeResource.id)}>마지막 문제부터 5분 시작</button></section>}
               {!s.active&&dueProblems>0&&<section className="task-check-in" aria-label="오늘 문제 복습"><BookOpen size={22} aria-hidden="true"/><div><h2>오늘 다시 풀 문제 {dueProblems}개</h2><p>직접 등록한 문제를 답을 가리고 다시 풀어봐요.</p></div><button onClick={()=>{setTab('study');requestAnimationFrame(()=>document.getElementById('learn-problem-reviews')?.scrollIntoView({block:'start',behavior:'auto'}));}}>답을 가리고 다시 풀기 <ArrowRight size={16}/></button></section>}
               <LandscapeNote/>
@@ -2162,6 +2173,7 @@ export default function App() {
                       때 알림을 보낸다고 표시하지 않습니다.
                     </p>
                   </section>
+                  <ApiReadinessPanel />
                   <section className="note-card">
                     <h3>AI 연결 상태</h3>
                     <p className="mode-label">
@@ -2297,7 +2309,7 @@ export default function App() {
                   />
                 </Field>
                 <Field label="종류">
-                  <select name="kind" defaultValue={editTask?.kind || '숙제'}>
+                  <select name="kind" defaultValue={editTask?.kind || taskPresetKind}>
                     {['숙제', '수행평가', '시험공부', '개인 일정'].map((v) => (
                       <option key={v}>{v}</option>
                     ))}
