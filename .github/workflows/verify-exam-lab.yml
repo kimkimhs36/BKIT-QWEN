@@ -1,0 +1,31 @@
+name: Verify Exam Lab Before Mock Exam
+on:
+  push:
+    branches: [feat/bkit-mock-lab-exam-eve-20261019]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exam-study-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test runner
+        run: npm install --prefix exam-lab --no-save --package-lock=false @playwright/test
+      - name: Install browsers
+        run: cd exam-lab && npx playwright install --with-deps chromium webkit
+      - name: Serve independent exam lab
+        run: |
+          python3 -m http.server 4175 --bind 127.0.0.1 >/tmp/exam-lab-http.log 2>&1 &
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4175/exam-lab/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/exam-lab-http.log
+          exit 1
+      - name: Smoke test mobile, Safari and desktop workflows
+        run: node exam-lab/tests/smoke.mjs
