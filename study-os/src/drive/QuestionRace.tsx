@@ -1,3 +1,4 @@
+import { useDriveMotion } from './useDriveMotion';
 import { useEffect } from 'react';
 import type { State } from '../model';
 import type { LearningProblem } from '../learningModel';
@@ -23,6 +24,7 @@ export function QuestionRace({
   onNext?: () => void;
 }) {
   const a = state.active;
+  const quiet = useDriveMotion(controller.garage);
   useEffect(() => {
     if (a && a.questionPace?.current !== problem.id)
       onChange((s) => moveProblem(s, problem.resourceId, problem.id));
@@ -41,7 +43,7 @@ export function QuestionRace({
     <section
       className="tohesar question-race"
       aria-label="문제별 시간 진행"
-      data-motion={g.reduceMotion || g.hideAnimations || !a.segmentStart ? 'none' : 'auto'}
+      data-motion={quiet || !a.segmentStart ? 'none' : 'auto'}
     >
       <div className="question-race-heading">
         <strong>

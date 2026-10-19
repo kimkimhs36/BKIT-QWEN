@@ -91,10 +91,14 @@ describe('local learning rewards', () => {
     const study = answered(30);
     const earned = rewardLearning(bought, study, t + 4000);
     expect(earned.transactions).toHaveLength(31);
-    expect(earned.stamps.map(s => s.id)).toEqual(['first-answer']);
+    expect(earned.stamps.map((s) => s.id)).toEqual(['first-answer']);
     expect(garageSchema.safeParse(earned).success).toBe(true);
     expect(rewardLearning(earned, study, t + 5000).transactions).toEqual(earned.transactions);
-    expect(garageSchema.safeParse({ ...earned, transactions: [...earned.transactions, earned.transactions[0]] }).success).toBe(false);
+    expect(
+      garageSchema.safeParse({
+        ...earned,
+        transactions: [...earned.transactions, earned.transactions[0]],
+      }).success,
+    ).toBe(false);
   });
-
 });

@@ -1,3 +1,4 @@
+import { useDriveMotion } from './useDriveMotion';
 import { useMemo } from 'react';
 import type { GarageController } from './useGarage';
 import { Car } from './Car';
@@ -43,6 +44,7 @@ export function DriveDashboard({
   state?: State;
 }) {
   const { garage: g } = controller;
+  const quiet = useDriveMotion(g);
   const p = Math.min(1, Math.max(0, seconds / Math.max(1, target * 60)));
   const remaining = Math.max(0, target * 60 - seconds);
   const summary = useMemo(() => {
@@ -55,13 +57,17 @@ export function DriveDashboard({
         .filter((a) => ids.has(a.problemId) && a.selfCheck !== 'unreviewed')
         .map((a) => a.problemId),
     );
-    return { total: all.length, completed: completed.size, ordinal: all.find(p => p.id === state?.active?.questionPace?.current)?.ordinal }; 
-  }, [state?.learning, state?.active?.resourceId]);
+    return {
+      total: all.length,
+      completed: completed.size,
+      ordinal: all.find((p) => p.id === state?.active?.questionPace?.current)?.ordinal,
+    };
+  }, [state?.learning, state?.active?.resourceId, state?.active?.questionPace?.current]);
   return (
     <section
       className="tohesar drive-dashboard"
       aria-label="DRIVE 집중 계기판"
-      data-motion={g.reduceMotion || g.hideAnimations ? 'none' : 'auto'}
+      data-motion={quiet ? 'none' : 'auto'}
     >
       <div className="drive-status">
         <span>BKIT / DRIVE 36</span>
@@ -121,7 +127,8 @@ export function DriveDashboard({
           <span>{state.active.action}</span>
           {summary.total > 0 && (
             <small aria-label="문제별 자동차 진행">
-              {summary.ordinal ? summary.ordinal + '번 · ' : ''}풀이 확인 {summary.completed} · 미완료 {summary.total - summary.completed} · 검토{' '}
+              {summary.ordinal ? summary.ordinal + '번 · ' : ''}풀이 확인 {summary.completed} ·
+              미완료 {summary.total - summary.completed} · 검토{' '}
               {state.active.questionPace?.review.length ?? 0}
             </small>
           )}

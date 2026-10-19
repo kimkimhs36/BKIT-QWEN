@@ -98,6 +98,7 @@ export function Garage({
           <label>
             휠
             <select
+              aria-label="휠"
               value={g.car.wheels}
               onChange={(e) => car({ wheels: e.target.value as 'classic' | 'aero' })}
             >
@@ -110,6 +111,7 @@ export function Garage({
           <label>
             휠 색상 · 무료
             <select
+              aria-label="휠 색상 · 무료"
               value={g.car.wheelColor}
               onChange={(e) =>
                 car({ wheelColor: e.currentTarget.value as GarageState['car']['wheelColor'] })
@@ -123,6 +125,7 @@ export function Garage({
           <label>
             서스펜션 높이 · 외형 전용
             <select
+              aria-label="서스펜션 높이 · 외형 전용"
               value={g.car.rideHeight}
               onChange={(e) =>
                 car({ rideHeight: e.currentTarget.value as GarageState['car']['rideHeight'] })
@@ -136,6 +139,7 @@ export function Garage({
           <label>
             스포일러
             <select
+              aria-label="스포일러"
               value={String(g.car.spoiler)}
               onChange={(e) => car({ spoiler: e.target.value === 'true' })}
             >
@@ -237,6 +241,16 @@ export function Garage({
                 ))}
             </ol>
             <p>최근 20건 표시 · 무료·비현금성·양도 불가 · 현금 환전 불가</p>
+          </details>
+          <details className="garage-ledger">
+            <summary>BKIT × TOHEŞAR</summary>
+            <p>
+              BKIT은 공부의 시작·지속·복귀를 돕는 학습 플랫폼입니다. TOHEŞAR는 자동차를 중심으로
+              사진·영상·도시·음악·디자인과 문화를 다루는 독립 브랜드입니다.
+            </p>
+            <a href="https://tohesar.com" target="_blank" rel="noopener noreferrer">
+              TOHEŞAR 공식 사이트 · 선택해서 새 창으로 열기 ↗
+            </a>
           </details>
           <p className="garage-policy">
             답안을 제출하고 직접 확인하면 문제당 5 CR, 1분 이상 학습 후 문제 수를 기록해 종료하면 10

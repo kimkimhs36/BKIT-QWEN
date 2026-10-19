@@ -10,6 +10,8 @@ import { QuickSessionEditor } from './QuickSessionEditor';
 type Props = {
   controller: GarageController;
   onBreak: () => void;
+  onIntermission: () => void;
+  onWake: () => void;
   timer: State['quickTimer'];
   now: number;
   todaySeconds: number;
@@ -35,6 +37,8 @@ type Props = {
 export function QuickStudyTimer({
   controller,
   onBreak,
+  onIntermission,
+  onWake,
   timer,
   now,
   todaySeconds,
@@ -204,6 +208,10 @@ export function QuickStudyTimer({
           <button type="button" className="secondary" onClick={onBreak}>
             DRAG RACE · 3분 쉬기
           </button>
+          <div className="garage-actions">
+            <button onClick={onIntermission}>INTERMISSION · 쉬기</button>
+            <button className="wake-bomb-trigger" onClick={onWake}>WAKE BOMB · 30초 리셋</button>
+          </div>
           <small className="race-break-note">학습 타이머를 멈추고 시작해요.</small>
           <div className="quick-timer-actions">
             <button type="button" className="secondary" onClick={running ? onPause : onResume}>

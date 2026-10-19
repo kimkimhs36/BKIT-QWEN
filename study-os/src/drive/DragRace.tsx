@@ -14,10 +14,12 @@ export function DragRace({
   garage,
   until,
   onReturn,
+  onRoom,
 }: {
   garage: GarageState;
   until: number;
   onReturn: () => void;
+  onRoom?: () => void;
 }) {
   const [race, setRace] = useState(newRace);
   const live = useRef(race);
@@ -146,6 +148,7 @@ export function DragRace({
         휴식 {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')} · 종료하면 원래 학습
         위치로 돌아가요
       </p>
+      {onRoom && <button onClick={onRoom}>INTERMISSION 공간 선택</button>}
       <div className={'race-track scene-' + garage.car.scene}>
         <div className="race-lane" />
         <div className="race-finish" />

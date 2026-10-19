@@ -308,3 +308,192 @@ test('an expired break on reload returns to the study route and keeps the timer 
   await expect(page.getByRole('button', { name: '이어하기', exact: true })).toBeVisible();
   expect(await page.evaluate(() => sessionStorage.getItem('bkit.drive-break.v1'))).toBeNull();
 });
+
+test('INTERMISSION keeps the break deadline through rooms and reload, and WAKE pauses actual study', async ({
+  page,
+}) => {
+  const timer = await prepare(page);
+  await timer.getByRole('button', { name: '지금 시작', exact: true }).click();
+  await page.clock.fastForward(30000);
+  await timer.getByRole('button', { name: 'INTERMISSION · 쉬기', exact: true }).click();
+  const room = page.getByRole('dialog', { name: 'INTERMISSION', exact: true });
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(100);
+      return room.isVisible();
+    })
+    .toBe(true);
+  const paused = await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'));
+  expect(JSON.parse(paused!).quickTimer.elapsed).toBe(30);
+  expect(JSON.parse(paused!).quickTimer.segmentStart).toBeNull();
+  await room.getByRole('button', { name: '바다', exact: true }).click();
+  await room.getByText('지금부터 쉴 시간 선택', { exact: true }).click();
+  await room.getByRole('button', { name: '지금부터 5분 쉬기', exact: true }).click();
+  const until = await page.evaluate(
+    () => JSON.parse(sessionStorage.getItem('bkit.drive-break.v1')!).until,
+  );
+  await page.reload();
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(100);
+      return room.isVisible();
+    })
+    .toBe(true);
+  expect(
+    await page.evaluate(() => JSON.parse(sessionStorage.getItem('bkit.drive-break.v1')!).until),
+  ).toBe(until);
+  await room.getByRole('button', { name: 'WAKE BOMB · 30초 리셋', exact: true }).click();
+  const wake = page.getByRole('dialog', { name: 'WAKE BOMB', exact: true });
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(100);
+      return wake.isVisible();
+    })
+    .toBe(true);
+  await wake.getByRole('button', { name: 'ICE RESET', exact: true }).click();
+  await page.clock.fastForward(31000);
+  await expect(wake).not.toBeVisible();
+  const restored = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
+  for (const key of [
+    'quickTimer',
+    'active',
+    'sessions',
+    'tasks',
+    'learning',
+    'plan',
+    'settings',
+    'reviewsDone',
+  ])
+    expect(restored[key]).toEqual(JSON.parse(paused!)[key]);
+  expect(
+    restored.learningEvents.every((e: { type: string }) => e.type === 'RecommendationShown'),
+  ).toBe(true);
+  await expect(timer.getByRole('button', { name: '이어하기', exact: true })).toBeVisible();
+});
+
+test('question sprint measures actual time independently from solved output and survives a reset', async ({
+  page,
+}) => {
+  const t = new Date('2026-10-19T12:00:00Z');
+  const s = addResource(
+    newState(),
+    {
+      title: '시간 연습',
+      subject: '수학',
+      sourceType: 'school-worksheet',
+      linkedTaskId: null,
+      linkedMediaIds: [],
+    },
+    ['첫 문제', '둘째 문제'],
+  );
+  await page.clock.install({ time: t });
+  await page.clock.pauseAt(t);
+  await page.addInitScript((value) => {
+    if (!localStorage.getItem('bkit.study-os.v1'))
+      localStorage.setItem('bkit.study-os.v1', JSON.stringify(value));
+  }, s);
+  await page.goto('./');
+  await page.getByRole('button', { name: '마지막 문제부터 5분 시작', exact: true }).click();
+  await page.getByRole('button', { name: 'MINI', exact: true }).click();
+  const sprint = page.getByRole('region', { name: '문제별 시간 진행', exact: true });
+  await page.clock.fastForward(160000);
+  await expect(sprint.getByRole('timer')).toHaveText('02:40');
+  await expect(sprint.getByRole('progressbar')).toHaveAttribute('value', '160');
+  await page.getByRole('button', { name: '다음 문제', exact: true }).click();
+  await page.clock.fastForward(10000);
+  await expect(sprint.getByRole('timer')).toHaveText('00:10');
+  await page.getByRole('button', { name: '이전 문제', exact: true }).click();
+  await expect(sprint.getByRole('timer')).toHaveText('02:40');
+  await page.getByLabel('최종 답', { exact: true }).fill('초안을 유지해요');
+  await page.getByRole('button', { name: 'WAKE BOMB · 30초 리셋', exact: true }).click();
+  const wake = page.getByRole('dialog', { name: 'WAKE BOMB', exact: true });
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(100);
+      return wake.isVisible();
+    })
+    .toBe(true);
+  await page.clock.fastForward(31000);
+  await expect(wake).not.toBeVisible();
+  await expect(sprint.getByRole('timer')).toHaveText('02:40');
+  await expect(page.getByLabel('최종 답', { exact: true })).toHaveValue('초안을 유지해요');
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
+  expect(saved.active.elapsed).toBe(170);
+  expect(saved.learning.attempts).toHaveLength(0);
+});
+
+test('new garage layers and confirmed ownership persist after refresh', async ({
+  page,
+}, testInfo) => {
+  await page.addInitScript(
+    (g) => {
+      if (!localStorage.getItem('bkit.drive-garage.v1'))
+        localStorage.setItem('bkit.drive-garage.v1', JSON.stringify(g));
+    },
+    { ...newGarage(), credits: 30 },
+  );
+  await page.goto('./');
+  await openGarage(page);
+  await page.getByLabel('휠 색상 · 무료', { exact: true }).selectOption('bronze');
+  await page.getByLabel('서스펜션 높이 · 외형 전용', { exact: true }).selectOption('low');
+  await page.getByRole('button', { name: '15 CR로 열기', exact: true }).click();
+  expect(
+    await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.drive-garage.v1')!).credits),
+  ).toBe(30);
+  await page.getByRole('button', { name: '구매 확정', exact: true }).click();
+  await page.getByLabel('휠', { exact: true }).selectOption('aero');
+  await page.reload();
+  await openGarage(page);
+  await expect(page.getByLabel('휠 색상 · 무료', { exact: true })).toHaveValue('bronze');
+  await expect(page.getByLabel('서스펜션 높이 · 외형 전용', { exact: true })).toHaveValue('low');
+  await expect(page.getByLabel('휠', { exact: true })).toHaveValue('aero');
+  const garage = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('bkit.drive-garage.v1')!),
+  );
+  expect(garage.credits).toBe(15);
+  expect(garage.transactions).toHaveLength(1);
+  await page.screenshot({
+    path: `test-results/garage-3.6-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
+});
+
+test('JUGGERNAUT saves a confirmed date and reads the existing study ledger', async ({
+  page,
+}, testInfo) => {
+  await page.addInitScript(() => localStorage.setItem('bkit.juggernaut.visited.v1', '1'));
+  const timer = await prepare(page);
+  await timer.getByRole('button', { name: '지금 시작', exact: true }).click();
+  await page.clock.fastForward(60000);
+  await timer.getByRole('button', { name: '일시정지', exact: true }).click();
+  const before = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
+  await page.locator('nav button:visible').filter({ hasText: '더보기' }).click();
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(100);
+      return page.getByRole('button', { name: 'JUGGERNAUT', exact: true }).isVisible();
+    })
+    .toBe(true);
+  await page.getByRole('button', { name: 'JUGGERNAUT', exact: true }).click();
+  const dashboard = page.getByRole('region', { name: 'JUGGERNAUT 실제 학습 현황', exact: true });
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(100);
+      return dashboard.isVisible();
+    })
+    .toBe(true);
+  await expect(dashboard).toContainText('시험 날짜를 직접 확인해 설정하세요.');
+  await expect(dashboard).toContainText('01:00');
+  await dashboard.getByText('나의 시험 날짜·주간 목표 설정', { exact: true }).click();
+  await dashboard.getByLabel('확인한 시험 날짜', { exact: true }).fill('2027-11-18');
+  await dashboard.getByLabel('주간 학습 목표 (분)', { exact: true }).fill('120');
+  await dashboard.getByRole('button', { name: '나의 목표 저장', exact: true }).click();
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
+  expect(saved.juggernaut).toEqual({ examDate: '2027-11-18', weeklyMinutes: 120 });
+  expect(saved.quickTimer).toEqual(before.quickTimer);
+  expect(saved.sessions).toEqual(before.sessions);
+  await page.screenshot({
+    path: `test-results/juggernaut-3.6-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
+});

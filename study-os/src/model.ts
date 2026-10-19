@@ -213,6 +213,7 @@ export const stateSchema = z
   .object({
     version: z.literal(1),
     learning: learningSchema.optional(),
+    juggernaut: z.object({ examDate: date.nullable(), weeklyMinutes: z.number().int().min(5).max(3000) }).optional(),
     revision: z.number().int().min(0),
     tasks: z.array(taskSchema).max(500),
     schedules: z.array(scheduleSchema).max(300),

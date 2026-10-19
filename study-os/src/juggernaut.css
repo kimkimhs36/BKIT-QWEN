@@ -170,3 +170,14 @@
 .jg-intro-setting input {width:20px;height:20px;}
 .juggernaut button:disabled {opacity:.5;cursor:default;}
 html[data-sleep-night='true'] .juggernaut *, html[data-sleep-night='true'] .juggernaut *::before,html[data-sleep-night='true'] .juggernaut *::after {animation:none!important;transition:none!important;}
+
+.juggernaut .jg-progress { border: 1px solid #ffffff33; border-radius: 20px; padding: clamp(16px, 3vw, 28px); text-align: left; margin-bottom: 30px; background: #101e23; color: #edf2e8; }
+.jg-progress-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.jg-progress-grid dt { font-size: 11px; opacity: .8; }
+.jg-progress-grid dd { margin: 4px 0; font-size: clamp(18px, 3vw, 26px); font-variant-numeric: tabular-nums; }
+.jg-progress p { font-size: 13px; line-height: 1.8; }
+.jg-progress progress { display: block; width: 100%; height: 7px; margin: 12px 0; accent-color: #c2ba93; }
+.jg-progress details { margin: 18px 0; font-size: 13px; }
+.jg-progress label { display: block; margin: 12px 0; }
+.jg-progress input { display: block; color-scheme: dark; background: #203039; border: 1px solid #ffffff44; color: #fff; padding: 10px; border-radius: 8px; width: 100%; box-sizing: border-box; }
+.jg-progress button { min-height: 44px; padding: 10px 14px; border-radius: 12px; border: 1px solid #ffffff44; background: #203039; color: #edf2e8; }

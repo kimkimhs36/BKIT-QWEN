@@ -1,4 +1,5 @@
-import type { Task } from './model';
+import type { Task, State } from './model';
+import { JuggernautDashboard } from './JuggernautDashboard';
 import { firstLearningAction } from './now';
 import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import { JuggernautOpening } from './JuggernautOpening';
@@ -148,9 +149,6 @@ function kstDate(now: number) {
   }).format(now);
   return new Date(iso + 'T00:00:00Z').getTime();
 }
-function remaining(now: number) {
-  return Math.max(0, Math.round((Date.UTC(2027, 10, 18) - kstDate(now)) / 86400000));
-}
 const STAGES: { key: Stage; label: string; num: string }[] = [
   { key: 'arrival', label: '각성', num: '01' },
   { key: 'archive', label: '수능 역사', num: '02' },
@@ -178,6 +176,7 @@ export function Juggernaut({
   recommended,
   canStart,
   protectedReason,
+  state, onChange, onResumeResource, now,
 }: {
   onExit: () => void;
   onStart: (taskId: string | null) => void;
@@ -185,10 +184,13 @@ export function Juggernaut({
   recommended?: Task;
   canStart: boolean;
   protectedReason: string;
+  state: State;
+  now: number;
+  onChange: (fn: (s: State) => State) => boolean;
+  onResumeResource: (id: string) => void;
 }) {
   const [stage, setStage] = useState<Stage>(() => (skipIntro() ? 'launch' : 'intro'));
   const [selected, setSelected] = useState(1);
-  const [now, setNow] = useState(() => Date.now());
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [answer, setAnswer] = useState<number | null>(null);
   const [learningTask, setLearningTask] = useState('');
@@ -196,12 +198,8 @@ export function Juggernaut({
     learningTask === '__free__'
       ? undefined
       : (tasks.find((t) => t.id === learningTask) ?? recommended);
-  const days = remaining(now);
+  const days = state.juggernaut?.examDate ? Math.max(0, Math.round((Date.parse(state.juggernaut.examDate + 'T00:00:00Z') - kstDate(now)) / 86400000)) : null;
   const selectedSubject = SUBJECTS[selected];
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 60000);
-    return () => clearInterval(timer);
-  }, []);
   useEffect(() => {
     const escape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onExit();
@@ -312,12 +310,12 @@ export function Juggernaut({
                   </span>
                 </button>
                 <div className="jg-count">
-                  <span>2027년 11월 18일 목요일</span>
+                  <span>{state.juggernaut?.examDate ?? '나의 시험 날짜 미설정'}</span>
                   <div>
                     <small>D</small>
-                    <strong>{days === 0 ? 'DAY' : '−' + days}</strong>
+                    <strong>{days === null ? '—' : days === 0 ? 'DAY' : '−' + days}</strong>
                   </div>
-                  <p>2028학년도 대학수학능력시험까지</p>
+                  <p>직접 확인한 나의 시험 날짜 기준</p>
                 </div>
                 <div className="jg-manifesto">
                   <span>THE ART OF BECOMING</span>
@@ -507,6 +505,7 @@ export function Juggernaut({
             )}
             {stage === 'launch' && (
               <div className="jg-launch">
+                <JuggernautDashboard state={state} now={now} onChange={onChange} onResumeResource={onResumeResource}/>
                 <div className="jg-section-top">
                   <span>CHAPTER V / THE FIRST MOVE</span>
                   <h2>

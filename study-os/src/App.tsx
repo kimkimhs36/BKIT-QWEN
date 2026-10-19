@@ -4,7 +4,9 @@ import { QuickStudyTimer } from './QuickStudyTimer';
 import { useGarage } from './drive/useGarage';
 import { DriveSwitch, DriveDashboard } from './drive/DriveDashboard';
 import { RaceBoundary } from './drive/RaceBoundary';
-import { BREAK_KEY, restoreBrowserBreak, type StudyBreak } from './drive/break';
+import { BREAK_KEY, restoreBrowserBreak, type StudyBreak, type BreakActivity } from './drive/break';
+const Intermission = lazy(() => import('./drive/Intermission').then(m => ({ default: m.Intermission })));
+const WakeBomb = lazy(() => import('./drive/WakeBomb').then(m => ({ default: m.WakeBomb })));
 const DragRace = lazy(() => import('./drive/DragRace').then(m => ({ default: m.DragRace })));
 const Garage = lazy(() => import('./drive/Garage').then(m => ({ default: m.Garage })));
 import { startQuick, pauseQuick, resumeQuick, finishQuick, attachQuickResource, attachQuickTask, finishQuickResource, labelQuick, quickSeconds, quickClock, quickDaySeconds, pausedStudySnapshot } from './quickTimer';
@@ -620,6 +622,8 @@ export default function App() {
   const quickProps = {
     controller: garageController,
     onBreak: beginStudyBreak,
+    onIntermission: () => beginBreak('intermission', 180),
+    onWake: () => beginBreak('wake', 30),
     timer: s.quickTimer,
     now,
     todaySeconds: quickToday,
@@ -635,17 +639,27 @@ export default function App() {
     onLabel: saveQuickLabel,
     onCloseEdit: () => setQuickEditingId(null),
   };
-  function beginStudyBreak() {
-    if (!flushLearning(beginStudyBreak)) return;
+  function beginStudyBreak() { beginBreak('race', 180); }
+  function beginBreak(activity: BreakActivity, duration: number) {
+    if (studyBreak) return;
+    if (!flushLearning(() => beginBreak(activity, duration))) return;
     const current = memory.current;
     if (current.active?.segmentStart || current.quickTimer?.segmentStart) {
       if (!commit(v => ({...pauseQuick(v, Date.now()), active: v.active ? closeSegment(v.active,Date.now()) : null}))) return;
     }
     const route = (tab === 'today' || tab === 'study') ? tab : current.active ? 'study' : 'today';
-    const next: StudyBreak = {until:Date.now()+180000,scroll:tab===route ? window.scrollY : 0,route};
+    const problem = learning(current).problems.find(p => p.id === current.active?.questionPace?.current);
+    const returnLabel = current.active ? `${current.active.subject} ${problem ? problem.ordinal + '번 문제' : current.active.action}로 돌아가기` : '공부 타이머로 돌아가기';
+    const next: StudyBreak = {until:Date.now()+duration*1000,scroll:tab===route ? window.scrollY : 0,route,activity,returnLabel};
     breakFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     try { sessionStorage.setItem(BREAK_KEY,JSON.stringify(next)); } catch { /* In-memory deadline still applies. */ }
     if (tab !== route) setTab(route);
+    setStudyBreak(next);
+  }
+  function changeBreak(activity: BreakActivity, seconds?: number) {
+    if (!studyBreak) return;
+    const next = { ...studyBreak, activity, until: seconds ? Date.now() + seconds * 1000 : studyBreak.until };
+    try { sessionStorage.setItem(BREAK_KEY, JSON.stringify(next)); } catch { /* Memory deadline remains authoritative. */ }
     setStudyBreak(next);
   }
   useEffect(() => {
@@ -656,7 +670,7 @@ export default function App() {
     try { sessionStorage.removeItem(BREAK_KEY); } catch { /* Keep local study intact. */ }
     setStudyBreak(null);
     requestAnimationFrame(() => { window.scrollTo(0,position); if(breakFocus.current?.isConnected) breakFocus.current.focus({preventScroll:true}); else document.getElementById('main')?.focus({preventScroll:true}); });
-    setNotice('휴식이 끝났어요. 원래 학습 위치를 유지했어요. 준비되면 타이머를 이어가세요.');
+    setNotice(`${studyBreak?.returnLabel ?? '학습으로 돌아가기'} · 준비되면 타이머를 이어가세요.`);
   }
   const late = delayMinutes(s, now);
   function start(minutes: number, task = selected || actionTask?.id || null, resourceId?: string, problemId?: string) {
@@ -1690,7 +1704,7 @@ export default function App() {
                   )}
                   {s.active?.resourceId && <Suspense fallback={<p role="status">자료 학습실을 여는 중…</p>}><MultiProblemWorkspace controller={garageController} totalSeconds={seconds} state={s} onChange={commit} onFinish={finishResource} onSleep={()=>{const a=memory.current.active;if(a&&commit(v=>({...v,active:closeSegment(a,Date.now())})))setTab('sleep');}}/></Suspense>}
                   <DriveSwitch controller={garageController}/>
-                  {s.active && <div className="race-return-bar"><button onClick={beginStudyBreak}>DRAG RACE · 3분 쉬기</button></div>}
+                  {s.active && <div className="race-return-bar"><button onClick={beginStudyBreak}>DRAG RACE · 3분 쉬기</button><button onClick={() => beginBreak('intermission',180)}>INTERMISSION · 쉬기</button><button className="wake-bomb-trigger" onClick={() => beginBreak('wake',30)}>WAKE BOMB · 30초 리셋</button></div>}
                   {s.active && ['drive', 'dashboard'].includes(garageController.garage.display) ? <DriveDashboard controller={garageController} seconds={seconds} target={s.active.target} running={!!s.active.segmentStart} stopwatch={s.active.quickMode === 'stopwatch'} state={s}/> : <div className="focus-instrument">
                     <FocusHalo
                       progress={s.active ? seconds / (s.active.target * 60) : 0}
@@ -2277,9 +2291,9 @@ export default function App() {
           return { duplicates: merged.duplicates };
         }}/>, document.body,
       )}
-      {studyBreak && createPortal(<RaceBoundary onReturn={returnFromBreak}><Suspense fallback={<dialog open className="tohesar race-dialog"><p>휴식 레이스를 여는 중…</p><button onClick={returnFromBreak}>학습으로 복귀</button></dialog>}><DragRace garage={garageController.garage} until={studyBreak.until} onReturn={returnFromBreak}/></Suspense></RaceBoundary>,document.body)}
+      {studyBreak && createPortal(<RaceBoundary onReturn={returnFromBreak}><Suspense fallback={<dialog open className="tohesar race-dialog"><p>휴식 레이스를 여는 중…</p><button onClick={returnFromBreak}>학습으로 복귀</button></dialog>}>{studyBreak.activity === 'intermission' ? <Intermission garage={garageController.garage} until={studyBreak.until} returnLabel={studyBreak.returnLabel} onReturn={returnFromBreak} onRace={() => changeBreak('race')} onWake={() => changeBreak('wake',30)} onDuration={seconds => changeBreak('intermission',seconds)}/> : studyBreak.activity === 'wake' ? <WakeBomb garage={garageController.garage} until={studyBreak.until} returnLabel={studyBreak.returnLabel} onReturn={returnFromBreak} onDuration={seconds => changeBreak('wake', seconds)}/> : <DragRace garage={garageController.garage} until={studyBreak.until} onReturn={returnFromBreak} onRoom={() => changeBreak('intermission')}/>}</Suspense></RaceBoundary>,document.body)}
       {tab === 'juggernaut' && createPortal(
-        <Suspense fallback={<p role="status">JUGGERNAUT를 여는 중…</p>}><Juggernaut onExit={() => setTab('today')} tasks={ordered} recommended={actionTask} canStart={!!s.active||recommendationReady} protectedReason={current?.title??'다음 일정 준비'} onStart={id => start(5,id)} /></Suspense>,
+        <Suspense fallback={<p role="status">JUGGERNAUT를 여는 중…</p>}><Juggernaut now={now} state={s} onChange={commit} onResumeResource={openResource} onExit={() => setTab('today')} tasks={ordered} recommended={actionTask} canStart={!!s.active||recommendationReady} protectedReason={current?.title??'다음 일정 준비'} onStart={id => start(5,id)} /></Suspense>,
         document.body,
       )}
       {createPortal(

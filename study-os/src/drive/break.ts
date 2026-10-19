@@ -1,5 +1,12 @@
 export const BREAK_KEY = 'bkit.drive-break.v1';
-export type StudyBreak = { until: number; scroll: number; route: 'today' | 'study' };
+export type BreakActivity = 'race' | 'intermission' | 'wake';
+export type StudyBreak = {
+  until: number;
+  scroll: number;
+  route: 'today' | 'study';
+  activity?: BreakActivity;
+  returnLabel?: string;
+};
 export function restoreBreak(
   storage: Pick<Storage, 'getItem'>,
   now = Date.now(),
@@ -10,7 +17,10 @@ export function restoreBreak(
     return b &&
       Number.isFinite(b.until) &&
       b.until > (includeExpired ? now - 86400000 : now) &&
-      b.until <= now + 180000 &&
+      b.until <= now + 600000 &&
+      (b.activity === undefined || ['race', 'intermission', 'wake'].includes(b.activity)) &&
+      (b.returnLabel === undefined ||
+        (typeof b.returnLabel === 'string' && b.returnLabel.length <= 400)) &&
       Number.isFinite(b.scroll) &&
       b.scroll >= 0 &&
       ['today', 'study'].includes(b.route)
