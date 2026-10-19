@@ -55,6 +55,25 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
       setCheckingStorage(false);
     }
   }
+  async function requestPersistentStorage() {
+    setCheckingStorage(true);
+    try {
+      if (!navigator.storage?.persist) {
+        setStorageStatus('이 브라우저는 영구 저장 요청을 지원하지 않습니다. 외부 ZIP 백업이 필요합니다.');
+        return;
+      }
+      const granted = await navigator.storage.persist();
+      setStorageStatus(
+        granted
+          ? '이 브라우저가 영구 저장 요청을 승인했습니다. 그래도 기기 삭제·손상 시에는 외부 ZIP 백업이 필요합니다.'
+          : '영구 저장 요청이 승인되지 않았습니다. 브라우저의 저장 공간 정책에 따라 데이터가 정리될 수 있습니다. 외부 ZIP 백업을 보관하세요.',
+      );
+    } catch {
+      setStorageStatus('영구 저장 권한을 확인할 수 없습니다. 외부 ZIP 백업을 보관하세요.');
+    } finally {
+      setCheckingStorage(false);
+    }
+  }
   async function work(fn: () => Promise<void>) {
     if (working.current) return;
     working.current = true;
@@ -112,6 +131,9 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
       </p>
       <button type="button" disabled={checkingStorage} onClick={() => void inspectLocalStorageHealth()}>
         {checkingStorage ? '저장 환경 확인 중…' : '현재 기기 저장 환경 확인'}
+      </button>
+      <button type="button" disabled={checkingStorage} onClick={() => void requestPersistentStorage()}>
+        이 기기에 오래 보관하도록 브라우저에 요청
       </button>
       {storageStatus && <p className="muted" role="status">{storageStatus}</p>}
       <button
