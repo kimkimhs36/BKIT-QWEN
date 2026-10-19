@@ -1,5 +1,6 @@
 import type { State, Session } from './model';
 import { iso, dayKey } from './time';
+import { studySeconds } from './session';
 
 /** Only an explicit tap starts timing. Wall-clock timestamps survive Safari suspension. */
 export function quickSeconds(timer: NonNullable<State['quickTimer']>, now: number): number {
@@ -96,7 +97,7 @@ export function labelQuick(
   };
 }
 export function quickDaySeconds(state: State, now: number): number {
-  const day = dayKey(now);
-  return state.sessions.filter(s => s.quick && dayKey(s.ended) === day)
-    .reduce((sum, session) => sum + session.seconds, 0);
+  // Existing study-time accounting splits sessions crossing midnight into the
+  // correct local study day; quick sessions follow the same rule.
+  return studySeconds(state.sessions.filter(session => session.quick), dayKey(now));
 }
