@@ -1,1 +1,1 @@
-{"product":"BKIT STUDY OS 3.3","sourceCommit":"577d7558e14af036d1af6685fe310f58c030f838","verifiedSourceCommit":"13912ce35189a7ec542f30e1b5be5256a43c9466","publishedAt":"2026-10-19T07:26:57.362Z"}
+{"product": "BKIT STUDY OS 3.5", "sourceCommit": "93979de8c8a36b707be199140925e912daaab770", "publishedAt": "2026-10-19T15:04:06.703231+00:00", "validation": "TypeScript, 188 unit tests, production build; full browser matrix incomplete (expedited owner approval)", "rollbackCommit": "2569b2f2bc0519115fd3c7e9eb6bbb4b3a095572"}
