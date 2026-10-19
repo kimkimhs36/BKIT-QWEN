@@ -432,6 +432,22 @@ test('editable tools, two-finger navigation, pointer cancellation and unsaved-in
   await saved(page);
   expect((await readDocs(page))[0].cursor.zoom).toBeGreaterThan(1);
   expect((await readDocs(page))[0].layers[0].strokes).toHaveLength(1);
+  // At native iPhone sizes, a 600x800 PDF can still fit vertically after a 1.5x
+  // pinch. Make the viewport genuinely scrollable before asserting a 50px pan.
+  const scroller = room(page).locator('.paper-scroll');
+  for (let i = 0; i < 4; i++) {
+    if ((await scroller.evaluate((el) => el.scrollHeight - el.clientHeight)) > 150) break;
+    await room(page).getByRole('button', { name: '확대', exact: true }).click();
+  }
+  await expect
+    .poll(() => scroller.evaluate((el) => el.scrollHeight - el.clientHeight))
+    .toBeGreaterThan(150);
+  await scroller.evaluate((el) => {
+    el.scrollTop = 40;
+  });
+  // Wait for the cursor to reach IndexedDB, rather than relying on the ink save
+  // status (which may already read '저장됨' from an earlier stroke).
+  await expect.poll(async () => (await readDocs(page))[0].cursor.scrollTop).toBeGreaterThan(35);
   const beforePan = (await readDocs(page))[0].cursor;
   await room(page)
     .getByTestId('ink-canvas')
@@ -456,7 +472,11 @@ test('editable tools, two-finger navigation, pointer cancellation and unsaved-in
       send('pointerup', 41, 50, 50);
       send('pointerup', 42, 150, 50);
     });
-  await saved(page);
+  // The scroll change is applied in requestAnimationFrame and persisted with
+  // a short debounce, so await the *actual* cursor, not a previous ink status.
+  await expect
+    .poll(async () => (await readDocs(page))[0].cursor.scrollTop)
+    .toBeGreaterThan(beforePan.scrollTop + 40);
   const afterPan = (await readDocs(page))[0].cursor;
   expect(afterPan.zoom).toBeCloseTo(beforePan.zoom, 5);
   // WebKit rounds intermediate scroll positions to CSS pixels.
