@@ -32,10 +32,6 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   data = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.mock-rescue.20261020.v1')));
   assert.equal(data.completed.q013.firstCorrect, false);
   assert.equal(data.completed.q013.reason, '문장·해석');
-  const download = page.waitForEvent('download');
-  await page.locator('#downloadProgress').click();
-  const backup = await download;
-  assert.equal(backup.suggestedFilename(), 'BKIT-MOCK-20261019-progress.json');
   await page.locator('#mission-pause').click();
   data = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.mock-rescue.20261020.v1')));
   assert.equal(data.mission.running, false);
@@ -44,6 +40,12 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.locator('#mission-pause').click();
   await page.locator('#mission-jump').click();
   assert.equal(await page.locator('#status').innerText(), '영어 · 기본 문제');
+  // A native file picker/download may hide the page and auto-pause the mission;
+  // test manual pause first, then the independent export behavior.
+  const download = page.waitForEvent('download');
+  await page.locator('#downloadProgress').click();
+  const backup = await download;
+  assert.equal(backup.suggestedFilename(), 'BKIT-MOCK-20261019-progress.json');
   assert.deepEqual(errors, [], name + ' page errors');
   console.log(name + ': mission, response, wrong reason, export, pause, resume and reload PASS');
   await context.close();
