@@ -33,16 +33,19 @@ export function QuickStudyTimer({
   const [activity, setActivity] = useState('');
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
+  const loadSavedLabel = () => {
+    setSubject(last?.subject === '미분류' ? '' : last?.subject ?? '');
+    setLinkedTaskId(last?.taskId ?? '');
+    setActivity(last?.action === '바로 시작한 공부' ? '' : last?.action ?? '');
+    setNote(last?.concepts ?? '');
+    setError('');
+  };
   useEffect(() => {
-    if (editingId) {
+    if (editingId && editingId === last?.id) {
       setShowEditor(true);
-      setSubject('');
-      setLinkedTaskId('');
-      setActivity('');
-      setNote('');
-      setError('');
+      loadSavedLabel();
     }
-  }, [editingId]);
+  }, [editingId, last?.id]);
   const seconds = timer ? quickSeconds(timer, now) : 0;
   const remaining = timer?.mode === 'countdown'
     ? Math.max(0, timer.targetMinutes * 60 - seconds)
@@ -153,7 +156,7 @@ export function QuickStudyTimer({
         </div>
       )}
       {!timer && last?.quick && !editingId && !expanded && !showEditor && (
-        <button className="quick-timer-reopen" type="button" onClick={() => {setExpanded(true);setShowEditor(true);}}>
+        <button className="quick-timer-reopen" type="button" onClick={() => {loadSavedLabel();setExpanded(true);setShowEditor(true);}}>
           <RotateCcw size={14}/> 최근 공부 기록 정리하기 (선택)
         </button>
       )}
