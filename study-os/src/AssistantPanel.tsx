@@ -63,7 +63,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
         <WaterDrop />
         <div><span>YOUR STUDY COMPANION</span><h3>복잡한 하루에, 작은 여유.</h3><p>계획부터 복습까지, 함께 풀어가요.</p></div>
       </div>
-      <p className="assistant-intro">하나의 대화창에서 과제·일정·계획·복습을 관리해. {apiEnabled ? 'AI 서버 설정 시 자유로운 질문도 지원해.' : '현재는 로컬 비서 모드야. 외부 AI 요청은 하지 않아.'}</p>
+      <p className="assistant-intro">하나의 대화창에서 과제·일정·계획·복습을 관리해. 현재 운영 서버의 일반 AI 채팅은 미지원이야. 로컬 규칙으로 과제 초안·일정·학습 기록을 안내해.</p>
       <div className="assistant-messages" role="log" aria-label="비서 대화" aria-live="polite">
         {messages.map((message, i) => (
           <article className={'assistant-message assistant-message--' + message.role} key={i}>
@@ -102,7 +102,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
           <Send size={19}/>
         </button>
       </form>
-      <p className="assistant-foot"><Sparkles size={13}/> 일정·과제 자동 변경 없음 · 확인 후 저장 · AI 질문은 Google 계정으로 인증 후 외부 API에 전송</p>
+      <p className="assistant-foot"><Sparkles size={13}/> 일정·과제 자동 변경 없음 · 확인 후 저장 · 과제 브리핑 AI는 공지 정리 화면에서 별도 연결</p>
     </section>
   );
 }

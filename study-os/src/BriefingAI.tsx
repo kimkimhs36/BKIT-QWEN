@@ -1,33 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
+import { briefingInput, parseBriefingResponse } from './briefingContract';
 import { API_URL } from './ai';
 import { authorizeGoogleIdentity, prepareGoogleIdentity } from './cloudClient';
 import { createMission, type Mission } from './atelier';
-
-const responseSchema = z.object({
-  mode: z.literal('live'),
-  missions: z
-    .array(
-      z.object({
-        title: z.string().trim().min(1).max(200),
-        subject: z.string().max(200),
-        kind: z.enum(['숙제', '수행평가', '시험공부', '개인 일정']),
-        due: z
-          .string()
-          .regex(/^20\d{2}-\d{2}-\d{2}$/)
-          .nullable(),
-        dueTime: z
-          .string()
-          .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
-          .nullable(),
-        quantityUnit: z.enum(['problems', 'pages', 'passages', 'chapters']).nullable(),
-        quantityTotal: z.number().int().min(1).max(10000).nullable(),
-        minutes: z.number().int().min(1).max(480).nullable(),
-      }),
-    )
-    .min(1)
-    .max(20),
-});
 
 export function BriefingAI({
   text,
@@ -116,6 +92,10 @@ export function BriefingAI({
   }
   async function analyze() {
     if (operation.current || disabled || existing || !text.trim() || !token.current) return;
+    if (!briefingInput.safeParse(text).success) {
+      setMessage('3,000자 이내의 공지를 입력해 주세요. 직접 정리는 계속 사용할 수 있어요.');
+      return;
+    }
     operation.current = true;
     setBusy(true);
     setMessage('할 일을 정리하고 있어요…');
@@ -130,7 +110,7 @@ export function BriefingAI({
         body: JSON.stringify({ text: submitted.current }),
         signal: controller.signal,
       });
-      const body = await res.json();
+      const body = await res.json().catch(() => ({}));
       if (!alive.current) return;
       if (latestText.current !== submitted.current)
         throw new Error('입력 내용이 바뀌었어요. 새 내용으로 다시 정리해 주세요.');
@@ -141,7 +121,7 @@ export function BriefingAI({
       }
       if (!res.ok)
         throw new Error(typeof body.error === 'string' ? body.error : 'AI 정리를 마치지 못했어요.');
-      const result = responseSchema.parse(body);
+      const result = parseBriefingResponse(body, submitted.current);
       onUse(
         result.missions.map((m) => ({
           ...createMission(m.title, [...photoIds]),
@@ -178,8 +158,9 @@ export function BriefingAI({
     >
       <summary>AI로 할 일 정리 · 선택</summary>
       <p>
-        DeepSeek 4.1 Flash · 하루 최대 1,000원. 정리 버튼을 누르면 입력한 글자만 DeepSeek에
-        보냅니다. 사진은 보내지 않아요.
+        DeepSeek 과제 브리핑 · 서버 사용 상한 하루 1,000원·60회. 정리 버튼을 누르면 입력한 글자만
+        DeepSeek에 보냅니다. 사진은 보내지 않아요. 사용량 예약 기준이며 실제 청구액을 보증하지
+        않습니다.
       </p>
       {existing && <p>작성 중인 과제를 먼저 저장하면 새 브리핑을 AI로 정리할 수 있어요.</p>}
       {enabled && !signedIn && (

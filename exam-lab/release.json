@@ -1,0 +1,9 @@
+{
+  "product": "BKIT EXAM LAB",
+  "version": "2026.10.19-immersive.1",
+  "originalQuestions": 46,
+  "transferQuestions": 46,
+  "storageSchema": 1,
+  "storageKey": "bkit.exam-lab.20261019.v1",
+  "scope": "/exam-lab/"
+}

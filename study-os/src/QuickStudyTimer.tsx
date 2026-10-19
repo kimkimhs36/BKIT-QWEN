@@ -17,6 +17,7 @@ type Props = {
   onPause: () => void;
   onResume: () => void;
   onFinish: () => void;
+  onAttachTask: (taskId: string) => void;
   onLabel: (
     id: string,
     subject: string,
@@ -39,6 +40,7 @@ export function QuickStudyTimer({
   onPause,
   onResume,
   onFinish,
+  onAttachTask,
   onLabel,
   onCloseEdit,
   compact,
@@ -161,6 +163,27 @@ export function QuickStudyTimer({
                   ? '목표 ' + timer.targetMinutes + '분 · 끝난 뒤 기록하기'
                   : '일시정지 중'}
           </div>
+          {tasks.some((t) => t.status !== 'done') && (
+            <label>
+              지금 공부 중인 과제와 연결 (선택)
+              <select
+                aria-label="진행 중인 스톱워치 과제 연결"
+                value=""
+                onChange={(e) => {
+                  if (e.target.value) onAttachTask(e.target.value);
+                }}
+              >
+                <option value="">시간을 유지하며 과제 선택</option>
+                {tasks
+                  .filter((t) => t.status !== 'done')
+                  .map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.subject} · {t.title}
+                    </option>
+                  ))}
+              </select>
+            </label>
+          )}
           <div className="quick-timer-actions">
             <button type="button" className="secondary" onClick={running ? onPause : onResume}>
               {running ? (

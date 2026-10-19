@@ -30,3 +30,17 @@ describe('private multi-device portable state',()=>{
     expect(input.tasks[0].attachmentIds).toEqual(['local-photo']);
   });
 });
+
+it('an older cloud snapshot cannot erase local quick-history editing and material links', async () => {
+  const {mergePrivateStudyState} = await import('../src/PrivateSync');
+  const {startQuick,finishQuick} = await import('../src/quickTimer');
+  const local = finishQuick(startQuick(newState(),'stopwatch',480,1000,'quick'),66000);
+  local.sessions[0].resourceId = 'device-paper';
+  const remote = structuredClone(local);
+  delete remote.sessions[0].quick;
+  delete remote.sessions[0].resourceId;
+  remote.sessions[0].concepts = '다른 기기 메모';
+  const merged = mergePrivateStudyState(local,remote);
+  expect(merged.sessions[0]).toMatchObject({quick:true,resourceId:'device-paper',concepts:'다른 기기 메모',seconds:65});
+  expect(local.sessions[0].concepts).toBe('');
+});

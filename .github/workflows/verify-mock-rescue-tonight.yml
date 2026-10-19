@@ -1,0 +1,33 @@
+name: Verify Mock Rescue Tonight
+on:
+  push:
+    branches: [hotfix/mock-rescue-tonight-20261019]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # The published main branch contains only site assets, not the development lockfile.
+      - name: Install minimal browser-test dependencies
+        run: npm install --prefix study-os --no-save --package-lock=false @playwright/test
+      - run: npx playwright install --with-deps chromium webkit
+        working-directory: study-os
+      - name: Serve independent exam-eve page
+        run: |
+          python3 -m http.server 4175 --bind 127.0.0.1 >/tmp/bkit-mock-http.log 2>&1 &
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4175/mock-rescue/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/bkit-mock-http.log
+          exit 1
+      - name: Test emergency study loop in Chromium and Safari engines
+        working-directory: study-os
+        run: node scripts/check-mock-rescue.mjs

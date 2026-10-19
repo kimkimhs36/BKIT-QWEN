@@ -119,3 +119,39 @@ describe('durable quick-study boundaries', () => {
     expect(stateSchema.parse(s).quickTimer?.id).toBe('live');
   });
 });
+
+describe('live task attachment without material', () => {
+  it('preserves paused segments across reload, linking, resume and finish', async () => {
+    const { attachQuickTask, finishQuickResource } = await import('../src/quickTimer');
+    const s = newState();
+    s.tasks.push({
+      id: 'task',
+      subject: '영어',
+      title: '수행 준비',
+      kind: '수행평가',
+      due: null,
+      priority: 2,
+      minutes: 25,
+      remaining: 25,
+      status: 'todo',
+      submitted: false,
+      optional: false,
+      notes: '',
+      link: '',
+    });
+    let v = pauseQuick(startQuick(s, 'stopwatch', 480, 1000, 'live'), 66000);
+    const timer = v.quickTimer!;
+    v = stateSchema.parse(attachQuickTask(stateSchema.parse(v), 'task'));
+    expect(v.active).toMatchObject({
+      id: 'live',
+      elapsed: 65,
+      segmentStart: null,
+      segments: timer.segments,
+    });
+    expect(v.quickTimer).toBeNull();
+    v.active = { ...v.active!, segmentStart: new Date(100000).toISOString() };
+    v = stateSchema.parse(finishQuickResource(v, 135000));
+    expect(v.sessions[0]).toMatchObject({ seconds: 100, taskId: 'task', subject: '영어' });
+    expect(v.tasks[0]).toMatchObject({ status: 'doing', submitted: false });
+  });
+});

@@ -1,0 +1,32 @@
+name: Verify Live Mock Rescue for Tomorrow
+on:
+  push:
+    branches: [main]
+    paths:
+      - mock-rescue/index.html
+      - .github/workflows/verify-live-mock-rescue.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Verify real teambkit.com mock-exam route
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 45); do
+            if curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "https://teambkit.com/mock-rescue/?confirm=${SHA}" > /tmp/live-mock.html; then
+              if grep -q 'id="mission-120"' /tmp/live-mock.html && grep -q 'id="mission-180"' /tmp/live-mock.html && grep -q "bkit.mock-rescue.20261020.v1" /tmp/live-mock.html; then
+                echo "PASS: teambkit.com/mock-rescue/ serves study-mission release"
+                exit 0
+              fi
+            fi
+            echo "Waiting for GitHub Pages to publish mission controls: ${attempt}/45"
+            sleep 8
+          done
+          echo "FAIL: live mock-rescue did not expose both validated mission choices"
+          exit 1

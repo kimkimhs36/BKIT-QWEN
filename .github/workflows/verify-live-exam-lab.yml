@@ -1,0 +1,47 @@
+name: Verify Live EXAM LAB October 20
+on:
+  push:
+    branches: [main]
+    paths:
+      - exam-lab/**
+      - .github/workflows/verify-live-exam-lab.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-study-room:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact published HTML, styles, teaching notes and question bank
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 45); do
+            matched=true
+            for file in index.html app.js style.css questions.js learning.js release.json; do
+              if ! curl --fail --silent --show-error --location --max-time 15 \
+                -H 'Cache-Control: no-cache' \
+                "https://teambkit.com/exam-lab/${file}?verify=${SHA}-${attempt}" > "/tmp/lab-${file}"; then
+                matched=false
+                break
+              fi
+              if ! cmp --silent "exam-lab/${file}" "/tmp/lab-${file}"; then
+                matched=false
+                break
+              fi
+            done
+            if [ "$matched" = true ]; then
+              node --check /tmp/lab-app.js
+              node --check /tmp/lab-questions.js
+              node --check /tmp/lab-learning.js
+              echo "PASS: every live EXAM LAB module exactly matches ${SHA}"
+              exit 0
+            fi
+            echo "Waiting for GitHub Pages: ${attempt}/45"
+            sleep 8
+          done
+          echo 'FAIL: live site does not match the release commit'
+          exit 1

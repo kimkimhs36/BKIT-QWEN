@@ -1,0 +1,16 @@
+{
+  "name": "bkit-exam-lab",
+  "private": true,
+  "version": "1.1.0",
+  "scripts": {
+    "test": "node tests/smoke.mjs",
+    "test:safety": "node tests/safety.mjs",
+    "test:accessibility": "node tests/accessibility.mjs",
+    "test:ipad": "node tests/ipad.mjs",
+    "test:clock": "node tests/clock.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.64.1"
+  }
+}

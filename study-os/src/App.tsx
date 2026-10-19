@@ -1,6 +1,7 @@
+import { TaskMaterials, emptyTaskMaterials, type TaskMaterialDraft } from './TaskMaterials';
 import { flushLearning } from './learningFlush';
 import { QuickStudyTimer } from './QuickStudyTimer';
-import { startQuick, pauseQuick, resumeQuick, finishQuick, attachQuickResource, finishQuickResource, labelQuick, quickSeconds, quickClock, quickDaySeconds, pausedStudySnapshot } from './quickTimer';
+import { startQuick, pauseQuick, resumeQuick, finishQuick, attachQuickResource, attachQuickTask, finishQuickResource, labelQuick, quickSeconds, quickClock, quickDaySeconds, pausedStudySnapshot } from './quickTimer';
 import { learning, resourceProgress, resourceForTask, linkedTaskProgress, moveProblem, protectResourceTask, buildResourceReviews, isCompleted } from './learningEngine';
 import { sleepConstraints, studyFixedNow } from './sleepConstraints';
 import { addProblemRetest, buildProblemReviews, type AttemptMeta, type ErrorTag, type ProblemSourceMeta } from './problemReview';
@@ -19,7 +20,7 @@ import { AtelierMissions, StudyAtelier, PrivatePhotoCard } from './StudyAtelier'
 import { mergeMissions, sameMission } from './atelier';
 import type { AssistantAction } from './assistantLogic';
 import { CloudSyncPanel } from './CloudSyncPanel';
-import { PrivateSyncPanel, usePrivateStudySync } from './PrivateSync';
+import { PrivateSyncPanel, usePrivateStudySync, mergePrivateStudyState } from './PrivateSync';
 import {useStudyCloud} from './useStudyCloud';
 import { ProblemWorkspace } from './ProblemWorkspace';
 import {captureDeadline,formatTaskDeadline,formatQuantity} from './capture';
@@ -97,7 +98,7 @@ import {
 import { elapsed, studySeconds, todayOutput, closeSegment } from './session';
 import { needsSubmission, needsAttention, filteredTasks } from './tasks';
 import { inputError } from './input-error';
-import { apiEnabled, requestAI } from './ai';
+import { requestAI } from './ai';
 import { protectedBoundary, fixedConflicts } from './safety';
 import { KEY, readState, writeState, parseBackup, pausedImportedState, StorageConflict, LEARNING_BACKUP_KEY } from './storage';
 const ResourceLibrary = lazy(()=>import('./ResourceLibrary').then(m=>({default:m.ResourceLibrary})));
@@ -253,6 +254,9 @@ export default function App() {
   const sleep = useSleepGuard(now, Boolean(s.active));
   const [energy,setEnergy] = useState<'low'|'normal'>('normal');
   const [taskPresetKind, setTaskPresetKind] = useState<Task['kind']>('숙제');
+  const [taskDraftId, setTaskDraftId] = useState<string>(uid);
+  const [taskMaterials, setTaskMaterials] = useState<TaskMaterialDraft>(() => emptyTaskMaterials());
+  const [taskMaterialBusy, setTaskMaterialBusy] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null),
     [editSchedule, setEditSchedule] = useState<Schedule | null>(null),
     [day, setDay] = useState(dayKey()),
@@ -442,24 +446,8 @@ export default function App() {
       return false;
     }
   }
-  const privateSync = usePrivateStudySync(s, (incoming) => commit((v) => ({
-    ...incoming,
-    // Device-only active timer and private photos never leave the device.
-    active: v.active,
-    quickTimer: v.quickTimer, // never overwrite a running local stopwatch from a remote snapshot
-    learningEvents: v.learningEvents,
-    problemRetests: v.problemRetests,
-    exams: v.exams,
-    learning: v.learning,
-    tasks: incoming.tasks.map(t => ({
-      ...t,
-      attachmentIds: v.tasks.find(local => local.id === t.id)?.attachmentIds,
-      submissionRequired:t.submissionRequired??v.tasks.find(local=>local.id===t.id)?.submissionRequired,
-      capture:t.capture??v.tasks.find(local=>local.id===t.id)?.capture,
-    })),
-    plan: [],
-    undo: null,
-  })));
+  const privateSync = usePrivateStudySync(s, incoming =>
+    commit(v => mergePrivateStudyState(v, incoming)));
   const cloud = useStudyCloud(s, (incoming) => commit((v) => ({
     ...v,
     tasks: incoming.tasks.map(t => ({ ...t, attachmentIds: v.tasks.find(local => local.id === t.id)?.attachmentIds,
@@ -496,11 +484,13 @@ export default function App() {
     setModal(kind);
   }
   function taskEditor(t: Task | null = null) {
+    setTaskDraftId(t?.id ?? uid()); setTaskMaterials(emptyTaskMaterials(t));
     setEditTask(t);
     setTaskPresetKind(t?.kind ?? '숙제');
     open(t ? 'task' : 'capture');
   }
   function addAssessmentNow() {
+    setTaskDraftId(uid()); setTaskMaterials(emptyTaskMaterials());
     setEditTask(null);
     setTaskPresetKind('수행평가');
     open('task');
@@ -616,6 +606,7 @@ export default function App() {
     onPause: pauseQuickNow,
     onResume: resumeQuickNow,
     onFinish: finishQuickNow,
+    onAttachTask: (id: string) => start(5, id),
     onLabel: saveQuickLabel,
     onCloseEdit: () => setQuickEditingId(null),
   };
@@ -629,8 +620,10 @@ export default function App() {
       return;
     }
     if (s.quickTimer) {
-      setNotice('바로 시작 타이머를 먼저 마무리하세요. 기록한 시간은 남아 있어요.');
-      setTab('today');
+      const linked = resourceForTask(s, task ?? undefined);
+      if (commit(v => linked ? attachQuickResource(v, linked.id) : attachQuickTask(v, task ?? ''))) {
+        setTab('study'); setNotice('시작한 시간 그대로 과제에 연결했어요. 완료와 제출은 따로 기록해 주세요.');
+      } else { setTab('today'); setNotice('연결할 미완료 과제를 선택해 주세요. 타이머는 유지돼요.'); }
       return;
     }
     if (s.active) {
@@ -804,6 +797,7 @@ export default function App() {
   }
   function saveTask(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (taskMaterialBusy) { setFormError('첨부 원본 보관이 끝난 뒤 저장해 주세요.'); return; }
     const f = new FormData(e.currentTarget);
     try {
       const dueDate=String(f.get('dueDate')||'');
@@ -820,8 +814,8 @@ export default function App() {
       }:undefined;
       const duration=Number(f.get('minutes'));
       const t = taskSchema.parse({
-        id: editTask?.id || uid(),
-        attachmentIds: editTask?.attachmentIds,
+        id: editTask?.id || taskDraftId,
+        attachmentIds: taskMaterials.photoIds,
         subject: f.get('subject'),
         title: f.get('title'),
         kind: f.get('kind'),
@@ -851,6 +845,11 @@ export default function App() {
         commit((v) => ({
           ...v,
           tasks: editTask ? v.tasks.map((x) => (x.id === t.id ? t : x)) : [...v.tasks, t],
+          learning: taskMaterials.papers.length ? {
+            ...learning(v),
+            resources: [...learning(v).resources, ...taskMaterials.papers.map(p => ({...p.resource, subject:t.subject, linkedTaskId:t.id}))],
+            problems: [...learning(v).problems, ...taskMaterials.papers.flatMap(p => p.problems)],
+          } : v.learning,
           plan: v.plan.filter(
             (b) =>
               b.taskId !== t.id ||
@@ -2177,17 +2176,13 @@ export default function App() {
                   <section className="note-card">
                     <h3>AI 연결 상태</h3>
                     <p className="mode-label">
-                      {apiEnabled
-                        ? '서버 요청 사용 설정 · 응답 성공 시에만 서버 AI로 표시'
-                        : 'Demo AI Mode · 외부 API 요청 꺼짐'}
+                      {'과제 브리핑 AI · Google 본인 인증 후 선택 사용'}
                     </p>
                     <p>
-                      기본: Demo AI Mode · 규칙 기반. 서버와 키를 설정하면 검증된 AI 응답을 사용할
-                      수 있습니다. 외부 전송은 계획 복구·코치 버튼을 누를 때만 발생합니다.
+                      계획 복구·코치·일반 비서는 로컬 규칙 기반입니다. 현재 운영 API는 이 세 AI 기능을 지원하지 않습니다.
                     </p>
                     <p>
-                      전송: 과제명·과목·마감·시간표 또는 최근 학습량. 과제 메모, 링크, 성적은 AI
-                      요청에서 제외합니다.
+                      과제 브리핑은 공지 정리 화면에서 Google로 연결하고 정리 버튼을 누를 때만 입력 글자를 보냅니다. 사진·PDF는 보내지 않으며 초안을 확인한 뒤 저장합니다.
                     </p>
                   </section>
                 </div>
@@ -2260,7 +2255,7 @@ export default function App() {
               import: '백업 가져오기',
             }[modal]
           }
-          onClose={() => setModal(null)}
+          onClose={() => { if (taskMaterialBusy) {setFormError('원본 보관 중이에요. 잠시 기다려 주세요.'); return;} setModal(null); }}
           nonModal={modal === 'tools'}
         >
           {formError && (
@@ -2297,7 +2292,8 @@ export default function App() {
           )}
           {modal === 'task' && (
             <form onSubmit={saveTask}>
-              {!!editTask?.attachmentIds?.length && <details className="atelier-source"><summary>이 과제의 비공개 학습 자료 ({editTask.attachmentIds.length})</summary><div className="atelier-photos">{editTask.attachmentIds.map(id => <PrivatePhotoCard key={id} id={id}/>)}</div></details>}
+              <TaskMaterials key={taskDraftId} taskId={taskDraftId} value={taskMaterials}
+                onChange={setTaskMaterials} onBusy={setTaskMaterialBusy}/>
               <div className="form-grid">
                 <Field label="과목">
                   <input
@@ -2446,7 +2442,7 @@ export default function App() {
                     <Trash2 size={16} /> 삭제
                   </button>
                 )}
-                <button className="primary" type="submit">
+                <button className="primary" type="submit" disabled={taskMaterialBusy}>
                   과제 저장
                 </button>
               </div>
