@@ -1,0 +1,62 @@
+name: Verify BKIT 3.6 drive and rewards (no deploy)
+on:
+  push:
+    branches: [feat/bkit-3-6-drive-reward-20261019]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: bkit-36-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compile-and-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults: { run: { working-directory: study-os } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+  browsers:
+    needs: compile-and-data
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [webkit-iphone, webkit-ipad, desktop]
+    defaults: { run: { working-directory: study-os } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - run: >-
+          npm run test:e2e --
+          tests/e2e/drive-reward.spec.ts
+          tests/e2e/dark-mode-settings.spec.ts
+          tests/e2e/quick-timer.spec.ts
+          tests/e2e/learning-engine.spec.ts
+          tests/e2e/digital-paper.spec.ts
+          tests/e2e/storage-readiness.spec.ts
+          tests/e2e/school-ready.spec.ts
+          tests/e2e/assessment-readiness.spec.ts
+          --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: bkit-36-${{ matrix.project }}-failure
+          path: study-os/test-results/
+          retention-days: 7

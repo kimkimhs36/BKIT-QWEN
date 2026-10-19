@@ -151,7 +151,7 @@ export function Garage({
               집중하러 가기 ↗
             </button>
             <button className="secondary" onClick={onRace} disabled={!canRace}>
-              DRAG RACE · 3분 휴식
+              DRAG RACE · 일시정지하고 3분 휴식
             </button>
           </div>
           {!canRace && <p>학습 타이머를 일시정지한 뒤 휴식을 시작해 주세요.</p>}
@@ -164,7 +164,10 @@ export function Garage({
             <input
               type="checkbox"
               checked={g.reduceMotion}
-              onChange={(e) => update((v) => ({ ...v, reduceMotion: e.target.checked }))}
+              onChange={(e) => {
+                const checked = e.currentTarget.checked;
+                update((v) => ({ ...v, reduceMotion: checked }));
+              }}
             />
             모션 감소
           </label>
@@ -172,7 +175,10 @@ export function Garage({
             <input
               type="checkbox"
               checked={g.hideAnimations}
-              onChange={(e) => update((v) => ({ ...v, hideAnimations: e.target.checked }))}
+              onChange={(e) => {
+                const checked = e.currentTarget.checked;
+                update((v) => ({ ...v, hideAnimations: checked }));
+              }}
             />
             애니메이션 숨기기
           </label>

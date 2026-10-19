@@ -1,7 +1,7 @@
 {
   "name": "bkit-study-os",
   "private": true,
-  "version": "3.5.0-dev",
+  "version": "3.6.0-dev",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",

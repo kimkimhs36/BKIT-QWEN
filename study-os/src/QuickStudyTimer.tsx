@@ -9,6 +9,7 @@ import { QuickSessionEditor } from './QuickSessionEditor';
 
 type Props = {
   controller: GarageController;
+  onBreak: () => void;
   timer: State['quickTimer'];
   now: number;
   todaySeconds: number;
@@ -33,6 +34,7 @@ type Props = {
 };
 export function QuickStudyTimer({
   controller,
+  onBreak,
   timer,
   now,
   todaySeconds,
@@ -199,6 +201,9 @@ export function QuickStudyTimer({
               </select>
             </label>
           )}
+          <button type="button" className="secondary" onClick={onBreak}>
+            DRAG RACE · 일시정지하고 3분 휴식
+          </button>
           <div className="quick-timer-actions">
             <button type="button" className="secondary" onClick={running ? onPause : onResume}>
               {running ? (

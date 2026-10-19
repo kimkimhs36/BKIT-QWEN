@@ -1,8 +1,9 @@
+import { useMemo } from 'react';
 import type { GarageController } from './useGarage';
 import { Car } from './Car';
 import { quickClock } from '../quickTimer';
 import type { State } from '../model';
-import { learning, resourceProblems, isCompleted } from '../learningEngine';
+import { learning, resourceProblems } from '../learningEngine';
 import './drive.css';
 export function DriveSwitch({ controller }: { controller: GarageController }) {
   return (
@@ -40,9 +41,27 @@ export function DriveDashboard({
   const { garage: g } = controller;
   const p = Math.min(1, Math.max(0, seconds / Math.max(1, target * 60)));
   const remaining = Math.max(0, target * 60 - seconds);
-  const data = state ? learning(state) : null;
-  const problems =
-    data && state?.active?.resourceId ? resourceProblems(data, state.active.resourceId) : [];
+  const { problems, completed, currentId, total } = useMemo(() => {
+    const data = state ? learning(state) : null;
+    const all =
+      data && state?.active?.resourceId ? resourceProblems(data, state.active.resourceId) : [];
+    const currentId = data?.resources.find(
+      (r) => r.id === state?.active?.resourceId,
+    )?.currentProblemId;
+    const index = Math.max(
+      0,
+      all.findIndex((p) => p.id === currentId),
+    );
+    const start = Math.min(Math.max(0, index - 2), Math.max(0, all.length - 5));
+    return {
+      problems: all.slice(start, start + 5),
+      completed: new Set(
+        data?.attempts.filter((a) => a.selfCheck !== 'unreviewed').map((a) => a.problemId),
+      ),
+      currentId,
+      total: all.length,
+    };
+  }, [state?.learning, state?.active?.resourceId]);
   return (
     <section
       className="tohesar drive-dashboard"
@@ -97,13 +116,12 @@ export function DriveDashboard({
           </p>
         </>
       )}
-      {problems.length > 0 && data && (
+      {problems.length > 0 && (
         <div className="drive-problems" aria-label="문제별 자동차 진행">
+          <span className="drive-problem-summary">총 {total}문제 · 현재 위치 주변 최대 5문제</span>
           {problems.map((problem) => {
-            const done = isCompleted(data, problem.id);
-            const current =
-              problem.id ===
-              state?.learning?.resources.find((r) => r.id === problem.resourceId)?.currentProblemId;
+            const done = completed.has(problem.id);
+            const current = problem.id === currentId;
             return (
               <div className={'drive-problem ' + (current ? 'current' : '')} key={problem.id}>
                 <span>
