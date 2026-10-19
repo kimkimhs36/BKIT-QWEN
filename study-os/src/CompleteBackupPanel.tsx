@@ -23,6 +23,10 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
     [mode, setMode] = useState<'merge' | 'replace'>('merge'),
     [restored, setRestored] = useState(false);
   const working = useRef(false);
+  const [verifiedBackupAt, setVerifiedBackupAt] = useState(() => {
+    try { return localStorage.getItem('bkit.backup.last-file-checked.v1') ?? ''; }
+    catch { return ''; }
+  });
   const [storageStatus, setStorageStatus] = useState('');
   const [checkingStorage, setCheckingStorage] = useState(false);
   const [audit, setAudit] = useState<StorageAudit | null>(null);
@@ -95,6 +99,13 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
         사진 포함 전체 ZIP 내보내기
       </button>
       <p className="muted">
+        {verifiedBackupAt
+          ? '이 브라우저에서 마지막으로 외부 ZIP 파일을 직접 검사한 시각: ' + new Date(verifiedBackupAt).toLocaleString('ko-KR')
+          : '이 브라우저에서 외부 ZIP 백업 파일을 다시 검사한 기록이 없습니다.'}
+        {' '}검사 뒤 파일을 삭제하거나 이동했을 가능성은 앱이 확인할 수 없습니다.
+        공부한 자료가 늘어나면 새 ZIP을 만들고 직접 검사를 반복하세요.
+      </p>
+      <p className="muted">
         브라우저 안의 로컬 자료는 다른 기기에 자동 백업·동기화되지 않습니다. 특히 PDF와 필기 원본은
         백업 ZIP을 외부에 보관해야 기기나 브라우저 저장소가 지워져도 복원할 수 있습니다. 다운로드
         요청만으로 파일 저장이 확인되는 것은 아니니 실제 파일을 다시 선택해 검사하세요.
@@ -155,7 +166,11 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
               void work(async () => {
                 const result = await inspectCompleteBackup(file, localStorage, setMessage);
                 setInspected(result);
-                setMessage('파일과 사진 무결성 검사를 마쳤습니다. 복원 방식을 선택하세요.');
+                const checked = new Date().toISOString();
+                setVerifiedBackupAt(checked);
+                try { localStorage.setItem('bkit.backup.last-file-checked.v1', checked); }
+                catch { /* The file is still verified in this session; metadata is optional. */ }
+                setMessage('선택한 ZIP 파일의 무결성을 확인했습니다. 복원할 필요가 없다면 기존 기록 유지를 누르세요. 파일이 외부에 계속 보관되는지는 직접 확인해야 합니다.');
               });
           }}
         />
