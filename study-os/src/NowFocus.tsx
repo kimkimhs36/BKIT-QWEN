@@ -20,6 +20,7 @@ type Props = {
   onSchedule: () => void;
   quickActive: boolean;
   quickDuration: string;
+  quickLabel: string;
   onQuickStart: () => void;
   onQuickOpen: () => void;
   energy: 'low' | 'normal';
@@ -41,6 +42,7 @@ export function NowFocus({
   onSchedule,
   quickActive,
   quickDuration,
+  quickLabel,
   onQuickStart,
   onQuickOpen,
   energy,
@@ -168,7 +170,7 @@ export function NowFocus({
       <div className="command-actions now-focus-actions">
         {quickActive ? (
           <button className="primary now-focus-primary" onClick={onQuickOpen}>
-            <Clock3 size={17}/> 스톱워치 {quickDuration} · 보기
+            <Clock3 size={17}/> {quickLabel} {quickDuration} · 보기
           </button>
         ) : active ? (
           <button className="primary now-focus-primary" onClick={onFocus}>
