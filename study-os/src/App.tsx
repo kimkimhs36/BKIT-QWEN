@@ -1171,7 +1171,6 @@ export default function App() {
           {tab === 'more' && <Suspense fallback={<p role="status">학습 도구를 여는 중…</p>}><MoreHub onNavigate={setTab} onCapture={()=>taskEditor()}/></Suspense>}
           {tab === 'today' && (
             <>
-              <QuickStudyTimer {...quickProps}/>
               <div className="home-primary">
 
               <section className="command-stage">
@@ -1191,12 +1190,17 @@ export default function App() {
                     onStart={(taskId) => start(5, taskId)}
                     onFocus={() => setTab('study')}
                     onSchedule={() => setTab('school')}
+                    quickActive={!!s.quickTimer}
+                    quickDuration={quickClock(quickElapsed)}
+                    onQuickStart={() => beginQuick('stopwatch', 480)}
+                    onQuickOpen={() => document.getElementById('quick-timer-now')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
                   />
                 </div>
 
               </section>
                 <HomeEntry onBriefing={() => openAtelier()} onMaterials={() => openAtelier('capture')}/>
               </div>
+              <QuickStudyTimer {...quickProps}/>
               <TaskCheckIn pending={pending.length} awaiting={awaiting.length} total={s.tasks.length}
                 onSubmission={() => {setFilter('submission');setTab('tasks');}} onAdd={() => openAtelier()}/>
               {!s.active&&resumeResource&&<section className="resource-resume" aria-label="마지막 자료 이어하기"><div><strong>{resumeResource.title}</strong><p>남은 {resourceProgress(learning(s),resumeResource.id).remainingCount}문제 · 이어 풀 위치 저장됨</p></div><button className="primary" onClick={()=>openResource(resumeResource.id)}>마지막 문제부터 5분 시작</button></section>}
