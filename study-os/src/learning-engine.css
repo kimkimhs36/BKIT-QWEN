@@ -289,10 +289,6 @@
 .focus-resource .focus-card > .hint {
   display: none;
 }
-.resource-problem-list > li {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 70px;
-}
 /* Native fields on library/backup screens also inherit the old night form palette. */
 .resource-library input:not([type='checkbox']),
 .resource-library textarea,
@@ -322,4 +318,15 @@
   border-radius: 6px;
   min-height: 36px;
   margin-right: 0.6rem;
+}
+.complete-backup label,
+.resource-library label {
+  min-width: 0;
+}
+.complete-backup input:not([type='checkbox']),
+.complete-backup select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
