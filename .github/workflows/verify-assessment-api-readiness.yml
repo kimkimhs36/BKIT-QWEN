@@ -26,3 +26,31 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+  assessment-e2e:
+    needs: readiness-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [iphone, webkit-ipad, desktop]
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:e2e -- tests/e2e/assessment-readiness.spec.ts --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: assessment-e2e-${{ matrix.project }}
+          path: study-os/test-results/
+          retention-days: 7
