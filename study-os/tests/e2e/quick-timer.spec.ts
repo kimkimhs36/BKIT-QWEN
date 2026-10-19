@@ -15,6 +15,18 @@ async function read(page: Page) {
   return page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
 }
 
+test('first screen keeps homework actions visible and starts an unplanned stopwatch with one tap', async ({page}) => {
+  await prepare(page);
+  await expect(page.getByRole('button', { name: '5분만 시작' })).toBeInViewport();
+  await expect(page.getByRole('button', { name: '오늘 할 일 정리' })).toBeInViewport();
+  await expect(page.getByRole('button', { name: '자료 추가' })).toBeInViewport();
+  const shortcut = page.getByRole('button', { name: '스톱워치 바로 시작' });
+  await expect(shortcut).toBeInViewport();
+  await shortcut.click();
+  expect((await read(page)).quickTimer.mode).toBe('stopwatch');
+  await expect(page.getByRole('button', { name: /스톱워치 .* · 보기/ })).toBeVisible();
+});
+
 test('zero-input stopwatch can start, survive reload and save before entering subject', async ({ page }) => {
   const timer = await prepare(page);
   await expect(timer.getByRole('button', { name: '지금 시작' })).toBeVisible();
