@@ -169,6 +169,15 @@ export type InspectedBackup = {
   photoConflicts: string[];
   paper: InspectedPaper;
 };
+/** Conservative comparison: a verified ZIP is not necessarily a backup of the newest local edits. */
+export function backupMatchesCurrent(archive: InspectedBackup) {
+  return {
+    study: archive.keys[KEY] === archive.baseline[KEY],
+    sleep: archive.keys[SLEEP_KEY] === archive.baseline[SLEEP_KEY],
+    paper: JSON.stringify(archive.paper.documents) === JSON.stringify(archive.paper.baseline),
+  };
+}
+
 export async function inspectCompleteBackup(
   file: Blob,
   storage: Storage,
