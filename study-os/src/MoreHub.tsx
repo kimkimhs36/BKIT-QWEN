@@ -1,6 +1,21 @@
-import { CalendarDays, ChevronRight, Moon, Plus, Settings, Sparkles, Target } from 'lucide-react';
+import {
+  Car,
+  CalendarDays,
+  ChevronRight,
+  Moon,
+  Plus,
+  Settings,
+  Sparkles,
+  Target,
+} from 'lucide-react';
 
 const TOOLS = [
+  {
+    id: 'garage',
+    label: 'TOHEŞAR GARAGE',
+    detail: '공부로 여는 나만의 자동차 · DRIVE & 휴식',
+    icon: Car,
+  },
   {
     id: 'exams',
     label: '시험 관리',

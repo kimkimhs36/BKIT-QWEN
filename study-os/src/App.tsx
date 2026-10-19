@@ -1,6 +1,9 @@
 import { TaskMaterials, emptyTaskMaterials, type TaskMaterialDraft } from './TaskMaterials';
 import { flushLearning } from './learningFlush';
 import { QuickStudyTimer } from './QuickStudyTimer';
+import { useGarage } from './drive/useGarage';
+import { DriveSwitch, DriveDashboard } from './drive/DriveDashboard';
+const Garage = lazy(() => import('./drive/Garage').then(m => ({ default: m.Garage })));
 import { startQuick, pauseQuick, resumeQuick, finishQuick, attachQuickResource, attachQuickTask, finishQuickResource, labelQuick, quickSeconds, quickClock, quickDaySeconds, pausedStudySnapshot } from './quickTimer';
 import { learning, resourceProgress, resourceForTask, linkedTaskProgress, moveProblem, protectResourceTask, buildResourceReviews, isCompleted } from './learningEngine';
 import { sleepConstraints, studyFixedNow } from './sleepConstraints';
@@ -124,7 +127,7 @@ const NAV = [
   { id: 'more', en: 'MORE', label: '더보기', icon: Menu },
 ];
 const PRIMARY_NAV = ['today','study','tasks','more'].map(id=>NAV.find(n=>n.id===id)!);
-const MORE_ROUTES = ['school','progress','settings','sleep','juggernaut','exams'];
+const MORE_ROUTES = ['garage','school','progress','settings','sleep','juggernaut','exams'];
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 function Empty({ title, children }: { title: string; children: ReactNode }) {
@@ -231,6 +234,7 @@ export default function App() {
   const [s, setS] = useState<State>(initial.state),
     [storageError, setStorageError] = useState(initial.error),
     [readBlocked, setReadBlocked] = useState(!!initial.error);
+  const garageController = useGarage(s, readBlocked);
   const [theme, setTheme] = useState(() => restoreTheme(window.localStorage));
   useEffect(() => { applyTheme(theme); }, [theme]);
   const changeTheme = () => {
@@ -608,6 +612,7 @@ export default function App() {
     return commit(v => labelQuick(v, id, subject, action, note, taskId));
   }
   const quickProps = {
+    controller: garageController,
     timer: s.quickTimer,
     now,
     todaySeconds: quickToday,
@@ -1172,6 +1177,7 @@ export default function App() {
                       tasks: '할 일',
                       study: '집중',
                       progress: '공부 기록',
+                      garage: 'TOHEŞAR GARAGE',
                       settings: '설정',
                       sleep: 'Sleep Guard',
                       more: '더보기',
@@ -1189,6 +1195,7 @@ export default function App() {
                       tasks: '기억하는 대신 여기에 내려놓으세요.',
                       study: '시간을 채우기보다, 한 문제를 이해하는 시간.',
                       progress: '직접 답한 문제와 지연 복습 기록을 확인해요.',
+                      garage: '공부로 완성하는 나만의 자동차.',
                       more: '시간표, 학습 증거, 수면과 데이터 관리를 한곳에서.',
                       exams:'확인된 시험 범위와 실제 자료를 연결하세요.',
                       settings: '이 기기의 기록과 생활 리듬을 관리하세요.',
@@ -1236,6 +1243,7 @@ export default function App() {
               <Clock size={15}/> {s.quickTimer.segmentStart ? '공부 중' : '일시정지'} · {quickClock(quickElapsed)} · 타이머 열기
             </button>
           )}
+          {tab === 'garage' && <Suspense fallback={<p role="status">차고를 여는 중…</p>}><Garage controller={garageController} onStudy={() => setTab('study')} onRace={() => setNotice('DRAG RACE를 준비하고 있어요.')} canRace={false}/></Suspense>}
           {tab === 'more' && <Suspense fallback={<p role="status">학습 도구를 여는 중…</p>}><MoreHub onNavigate={setTab} onCapture={()=>taskEditor()}/></Suspense>}
           {tab === 'today' && (
             <>
@@ -1649,7 +1657,8 @@ export default function App() {
                     />
                   )}
                   {s.active?.resourceId && <Suspense fallback={<p role="status">자료 학습실을 여는 중…</p>}><MultiProblemWorkspace state={s} onChange={commit} onFinish={finishResource} onSleep={()=>{const a=memory.current.active;if(a&&commit(v=>({...v,active:closeSegment(a,Date.now())})))setTab('sleep');}}/></Suspense>}
-                  <div className="focus-instrument">
+                  <DriveSwitch controller={garageController}/>
+                  {s.active && garageController.garage.display === 'drive' ? <DriveDashboard controller={garageController} seconds={seconds} target={s.active.target} running={!!s.active.segmentStart} stopwatch={s.active.quickMode === 'stopwatch'} state={s}/> : <div className="focus-instrument">
                     <FocusHalo
                       progress={s.active ? seconds / (s.active.target * 60) : 0}
                       running={!!s.active?.segmentStart}
@@ -1675,7 +1684,7 @@ export default function App() {
                           : '오직 하나에 집중하는 시간'}
                       </small>
                     </div>
-                  </div>
+                  </div>}
                   {s.active?.segmentStart && (
                     <div className="focus-quiet-tools" aria-label="몰입 화면 옵션">
                       <button type="button" className="text-button quiet-now" onClick={() => setFocusUiVisible(false)}>

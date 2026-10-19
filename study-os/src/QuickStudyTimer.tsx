@@ -1,3 +1,5 @@
+import type { GarageController } from './drive/useGarage';
+import { DriveSwitch, DriveDashboard } from './drive/DriveDashboard';
 import { useEffect, useState } from 'react';
 import { Check, Pause, Play, RotateCcw, Timer, Clock3, ChevronDown } from 'lucide-react';
 import type { State, Session, Task } from './model';
@@ -6,6 +8,7 @@ import './quick-timer.css';
 import { QuickSessionEditor } from './QuickSessionEditor';
 
 type Props = {
+  controller: GarageController;
   timer: State['quickTimer'];
   now: number;
   todaySeconds: number;
@@ -29,6 +32,7 @@ type Props = {
   compact?: boolean;
 };
 export function QuickStudyTimer({
+  controller,
   timer,
   now,
   todaySeconds,
@@ -81,6 +85,7 @@ export function QuickStudyTimer({
           오늘 바로 시작 <strong>{quickClock(todaySeconds)}</strong>
         </span>
       </header>
+      <DriveSwitch controller={controller} />
       {!timer ? (
         <div className="quick-timer-idle">
           <div className="quick-timer-modes" role="group" aria-label="빠른 타이머 종류">
@@ -145,13 +150,23 @@ export function QuickStudyTimer({
         </div>
       ) : (
         <div className="quick-timer-running">
-          <div
-            className="quick-timer-display"
-            role="timer"
-            aria-label={timer.mode === 'countdown' ? '남은 집중 시간' : '공부한 시간'}
-          >
-            {quickClock(remaining)}
-          </div>
+          {controller.garage.display === 'drive' ? (
+            <DriveDashboard
+              controller={controller}
+              seconds={seconds}
+              target={timer.targetMinutes}
+              running={running}
+              stopwatch={timer.mode === 'stopwatch'}
+            />
+          ) : (
+            <div
+              className="quick-timer-display"
+              role="timer"
+              aria-label={timer.mode === 'countdown' ? '남은 집중 시간' : '공부한 시간'}
+            >
+              {quickClock(remaining)}
+            </div>
+          )}
           <div className="quick-timer-under" role="status">
             {timer.mode === 'stopwatch'
               ? running

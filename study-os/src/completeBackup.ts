@@ -1,3 +1,4 @@
+import { GARAGE_KEY, garageSchema } from './drive/garage';
 import {
   paperManifestSchema,
   exportPaperBackup,
@@ -16,6 +17,7 @@ import { closeSegment } from './session';
 import { LocalZipWriter, readLocalZip, sha256 } from './localZip';
 import { photoIds, readVaultPhoto, addVaultPhoto, type Vault } from './photoVault';
 export const BACKUP_KEYS = [
+  GARAGE_KEY,
   KEY,
   SLEEP_KEY,
   'crashweek.v3',
@@ -66,6 +68,7 @@ function validateKeys(keys: StoredKeys) {
     if (!BACKUP_KEYS.includes(key) || (value !== null && typeof value !== 'string'))
       throw new Error('지원하지 않는 저장 항목입니다.');
   }
+  if (keys[GARAGE_KEY]) garageSchema.parse(JSON.parse(keys[GARAGE_KEY]!));
   if (keys[KEY]) stateSchema.parse(JSON.parse(keys[KEY]!));
   if (keys[SLEEP_KEY]) sleepSchema.parse(JSON.parse(keys[SLEEP_KEY]!));
 }
