@@ -1073,14 +1073,14 @@ export default function App() {
       >
         <WaterDrop className="water-object--brand" />
         <strong>
-          BKIT<small>STUDY OS 3.2</small>
+          BKIT<small>STUDY OS 3.5</small>
         </strong>
       </a>
       <div className="main-shell">
         <header className="topbar">
           <div>
             <span className="mobile-brand">
-              BKIT <small>STUDY OS 3.2</small>
+              BKIT <small>STUDY OS 3.5</small>
             </span>
             <span className="breadcrumb">
               BKIT <ChevronRight size={13} /> {(tab === 'sleep' ? 'Sleep Guard' : NAV.find((n) => n.id === tab)?.label)}
@@ -1642,12 +1642,12 @@ export default function App() {
                       </span>
                       <div className="timer" aria-label="집중 타이머">
                         {s.active
-                          ? `${String(Math.floor(Math.max(0, s.active.target * 60 - seconds) / 60)).padStart(2, '0')}:${String(Math.floor(Math.max(0, s.active.target * 60 - seconds) % 60)).padStart(2, '0')}`
+                          ? s.active.quickMode === 'stopwatch' ? quickClock(seconds) : `${String(Math.floor(Math.max(0, s.active.target * 60 - seconds) / 60)).padStart(2, '0')}:${String(Math.floor(Math.max(0, s.active.target * 60 - seconds) % 60)).padStart(2, '0')}`
                           : `${String(duration).padStart(2, '0')}:00`}
                       </div>
                       <small className="focus-counter">
                         {s.active
-                          ? `${Math.floor(seconds / 60)}분 경과 / ${s.active.target}분 목표`
+                          ? s.active.quickMode === 'stopwatch' ? `${Math.floor(seconds / 60)}분 경과 · 스톱워치` : `${Math.floor(seconds / 60)}분 경과 / ${s.active.target}분 목표`
                           : '오직 하나에 집중하는 시간'}
                       </small>
                     </div>
@@ -1749,6 +1749,7 @@ export default function App() {
                       <button
                         className="primary"
                         onClick={() => {
+                          if (s.active?.quick) { finishResource(); return; }
                           const a = s.active!;
                           if (
                             commit((v) => ({

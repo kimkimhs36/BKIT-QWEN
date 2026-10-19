@@ -4,6 +4,9 @@ import type { Page } from '@playwright/test';
 
 async function prepare(page: Page) {
   await page.clock.install({ time: new Date('2026-10-19T12:00:00Z') });
+  // install() alone keeps real time advancing during clicks and reload. Freeze
+  // between explicit fastForward calls so exact second assertions stay exact.
+  await page.clock.pauseAt(new Date('2026-10-19T12:00:01Z'));
   await page.addInitScript((state) => {
     if (!localStorage.getItem('bkit.study-os.v1'))
       localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
@@ -15,7 +18,9 @@ async function read(page: Page) {
   return page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
 }
 
-test('first screen keeps homework actions visible and starts an unplanned stopwatch with one tap', async ({page}) => {
+test('first screen keeps homework actions visible and starts an unplanned stopwatch with one tap', async ({
+  page,
+}) => {
   await prepare(page);
   await expect(page.getByRole('button', { name: '5분만 시작' })).toBeInViewport();
   await expect(page.getByRole('button', { name: '오늘 할 일 정리' })).toBeInViewport();
@@ -27,7 +32,9 @@ test('first screen keeps homework actions visible and starts an unplanned stopwa
   await expect(page.getByRole('button', { name: /스톱워치 .* · 보기/ })).toBeVisible();
 });
 
-test('zero-input stopwatch can start, survive reload and save before entering subject', async ({ page }) => {
+test('zero-input stopwatch can start, survive reload and save before entering subject', async ({
+  page,
+}) => {
   const timer = await prepare(page);
   await expect(timer.getByRole('button', { name: '지금 시작' })).toBeVisible();
   await timer.getByRole('button', { name: '지금 시작' }).click();
@@ -60,7 +67,9 @@ test('zero-input stopwatch can start, survive reload and save before entering su
   await expect(timer.getByPlaceholder('예: 미적분 학습지 3쪽')).toHaveValue('미적분 기초 3쪽');
 });
 
-test('countdown reaches goal and retains time even if learner skips the after-study form', async ({ page }) => {
+test('countdown reaches goal and retains time even if learner skips the after-study form', async ({
+  page,
+}) => {
   const timer = await prepare(page);
   await timer.getByRole('button', { name: '심플 타이머' }).click();
   await timer.getByLabel('간단 타이머 시간').fill('10');

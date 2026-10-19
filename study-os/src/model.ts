@@ -126,6 +126,7 @@ export const quickTimerSchema = z.object({
 export const activeSchema = z.object({
   id,
   quick: z.boolean().optional(),
+  quickMode: z.enum(['stopwatch', 'countdown']).optional(),
   taskId: id.nullable(),
   subject: text,
   action: text.min(1),

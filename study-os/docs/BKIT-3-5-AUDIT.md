@@ -21,7 +21,10 @@
 | B35-09 | P1 | 5,000 session 한도 도달 때 끝내기 무반응 | 한도 안내와 살아 있는 timer 보존 | capacity 단위 |
 | B35-10 | P2 | 작은 shortcut/일부 조작 버튼, countdown 도달 상태 알림 부재 | 44px 터치 목표, focus-visible, 상태 메시지 | viewport·회전·axe scoped 검사 |
 
-이는 고유 결함/개선 10건의 분류이며, 동일 변경을 여러 번 센 숫자가 아니다. 10,000구간을 넘는 극단적인 장기 세션, 시스템 시각 역행, localStorage 다중 탭의 정확히 동시인 read-check-write 경합은 별도 위험이다. 낙관적 문자열 비교와 storage 이벤트는 완전한 원자적 다중 탭 잠금이 아니다.
+| B35-11 | P0 | legacy JSON 가져오기에서 실행 타이머 덮어쓰기·보관 기간의 자동 시간 누적 위험 | UI/commit 경계 차단, export 일시정지 snapshot, legacy import 저장 시간만 일시정지 | storage 단위·JSON E2E |
+| B35-12 | P2 | header/title/PWA 이름이 3.2에 머물러 현재 버전 구분 어려움 | 개발 소스 package 3.5.0-dev와 표시 3.5, 백업 형식 호환 버전은 그대로 유지 | 빌드·화면 비교 |
+
+이는 고유 결함/개선 12건의 분류이며, 동일 변경을 여러 번 센 숫자가 아니다. 10,000구간을 넘는 극단적인 장기 세션, 시스템 시각 역행, localStorage 다중 탭의 정확히 동시인 read-check-write 경합은 별도 위험이다. 낙관적 문자열 비교와 storage 이벤트는 완전한 원자적 다중 탭 잠금이 아니다.
 
 ## 화면·기능 인벤토리와 근거
 

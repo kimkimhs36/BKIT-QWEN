@@ -34,3 +34,11 @@
 - JSON export는 live 상태를 바꾸지 않고 paused snapshot을 만든다. legacy JSON import는 저장된 구간만 유지하며 archive 보관 기간이 공부 시간으로 쌓이지 않도록 일시정지한다. 원본 파일은 수정하지 않음.
 - 1798274에서 clean CI 테스트 타입 오류 수정. 최종 source checkpoint는 다음 git log 확인. PR #15: https://github.com/kimkimhs36/BKIT-QWEN/pull/15
 - CI 중복 비용 방지를 위해 push/manual만 실행, 6개 전체 suite는 유지한다.
+
+## 최종 소스 검증 단계
+
+- baseline 1798274 로컬 핵심 48개 중 47 통과, iPad WebKit 1개는 테스트 clock install이 실시간 진행하는 중 1초 차이 발생. exact assertion은 유지하고 `clock.pauseAt`로 결정적 시계 설정; 해당 3개 재검증 통과.
+- JSON export/live 비변경/restore 경계 신규 E2E iPhone 통과. quick 자료 진입 후 stopwatch/countdown 모드도 유지하도록 보강.
+- 마지막 전체 단위 173/173, TypeScript 및 production build 통과. 최종 CI는 이 체크포인트 push로 6개 전체 suite를 실행한다.
+- 측정/스크린샷 재현: `scripts/measure-product.mjs`; baseline `c0715d4` preview 4174와 현재 preview 4175를 사용. docs/validation에 4 viewport 전후 화면과 원시 lab JSON 보존.
+- 코드 변경은 여기서 동결하고 CI 실패 수정에만 집중. 다음 명령: `gh run list --repo kimkimhs36/BKIT-QWEN --branch feat/bkit-3-5-product-perfection --limit 3`

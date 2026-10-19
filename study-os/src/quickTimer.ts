@@ -153,6 +153,7 @@ export function attachQuickResource(state: State, resourceId: string, problemId?
     active: {
       id: timer.id,
       quick: true,
+      quickMode: timer.mode,
       taskId: resource.linkedTaskId,
       resourceId,
       subject: resource.subject,
@@ -176,7 +177,7 @@ export function finishQuickResource(state: State, now: number): State {
       active: null,
       quickTimer: {
         id: active.id,
-        mode: 'countdown',
+        mode: active.quickMode ?? 'countdown',
         targetMinutes: active.target,
         started: active.started,
         segmentStart: active.segmentStart,

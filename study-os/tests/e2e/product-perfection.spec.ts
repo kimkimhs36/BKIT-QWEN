@@ -59,6 +59,8 @@ test('one tap → real worksheet → attempted answer → immediate durable sess
   await page.getByRole('button', { name: '마지막 문제부터 5분 시작', exact: true }).click();
   await expect(page.getByRole('region', { name: '다중 문제 학습실' })).toBeVisible();
   expect((await saved(page)).active.id).toBe(id);
+  expect((await saved(page)).active.quickMode).toBe('stopwatch');
+  await expect(page.getByLabel('집중 타이머', { exact: true })).toContainText('01:');
   expect((await saved(page)).quickTimer).toBeNull();
   await page.getByLabel('최종 답', { exact: true }).fill('직접 구한 답과 이유');
   await page.getByRole('button', { name: '내 답 저장 · 직접 확인하기', exact: true }).click();
@@ -184,4 +186,55 @@ test('edited memo blocks navigation until explicitly saved or deferred', async (
     .click();
   await expect(page.getByRole('button', { name: '스톱워치 바로 시작', exact: true })).toBeVisible();
   expect((await saved(page)).sessions[0].concepts).toBe('아직 저장하지 않은 메모');
+});
+
+test('JSON backup snapshots a live timer and restore cannot replace it until finished', async ({
+  page,
+}) => {
+  await seed(page);
+  await page.getByRole('button', { name: '스톱워치 바로 시작', exact: true }).click();
+  await page.clock.fastForward(65000);
+  const live = await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'));
+  async function settings() {
+    await page
+      .getByRole('navigation')
+      .getByRole('button', { name: '더보기', exact: true })
+      .filter({ visible: true })
+      .first()
+      .click();
+    await page
+      .getByRole('navigation', { name: '추가 도구', exact: true })
+      .getByRole('button', { name: '설정', exact: true })
+      .click();
+  }
+  await settings();
+  await expect(page.getByLabel('JSON 백업 파일')).toBeDisabled();
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'JSON 백업 내보내기', exact: true }).click();
+  const file = await download;
+  const { readFile } = await import('node:fs/promises');
+  const snapshot = JSON.parse(await readFile((await file.path())!, 'utf8'));
+  expect(snapshot.quickTimer.segmentStart).toBeNull();
+  expect(snapshot.quickTimer.elapsed).toBeGreaterThanOrEqual(65);
+  expect(await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'))).toBe(live);
+  await page
+    .getByRole('navigation')
+    .getByRole('button', { name: '오늘', exact: true })
+    .filter({ visible: true })
+    .first()
+    .click();
+  await page
+    .getByRole('region', { name: '바로 시작 타이머' })
+    .getByRole('button', { name: '끝내고 시간 저장', exact: true })
+    .click();
+  await settings();
+  await page.getByLabel('JSON 백업 파일').setInputFiles({
+    name: 'snapshot.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(snapshot)),
+  });
+  await page.getByRole('button', { name: '백업으로 교체', exact: true }).click();
+  const restored = await saved(page);
+  expect(restored.quickTimer.segmentStart).toBeNull();
+  expect(restored.quickTimer.elapsed).toBe(snapshot.quickTimer.elapsed);
 });

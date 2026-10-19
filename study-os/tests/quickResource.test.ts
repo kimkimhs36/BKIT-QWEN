@@ -37,6 +37,7 @@ describe('study first, open real material afterwards', () => {
     expect(s.quickTimer).toBeNull();
     expect(s.active).toMatchObject({
       id: 'same-session',
+      quickMode: 'stopwatch',
       elapsed: 65,
       segmentStart: null,
       quick: true,
