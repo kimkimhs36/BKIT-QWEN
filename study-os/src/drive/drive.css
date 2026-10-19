@@ -643,3 +643,4 @@ html[data-bkit-theme='dark'] .tohesar .garage-panel select {
   font-size: 11px;
   margin: 4px 0 12px;
 }
+html[data-bkit-theme='dark'] .tohesar button.secondary{background:var(--motor-paper)!important;color:var(--motor-ink)!important;border-color:var(--motor-line)!important}

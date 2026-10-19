@@ -54,9 +54,8 @@ test('photo notice → failed save → retry → paused stopwatch attachment →
   expect((await state(page)).active).toMatchObject({id, elapsed:paused.elapsed,segmentStart:null,taskId:originalTask.id});
   await page.getByRole('button',{name:'다시 시작',exact:true}).click();
   await page.clock.fastForward(35000);
-  // Quiet focus intentionally hides chrome; reveal the controls before finishing.
-  const reveal = page.getByRole('button',{name:'조작 표시',exact:true});
-  if (await reveal.isVisible()) await reveal.click();
+  // A real key wakes the intentionally hidden focus chrome even with a frozen clock.
+  await page.keyboard.press('Shift');
   await page.getByRole('button',{name:'학습량 기록 · 종료',exact:true}).click();
   const saved = (await state(page)).sessions.find((s:{id:string})=>s.id===id);
   expect(saved.taskId).toBe(originalTask.id);
@@ -67,6 +66,7 @@ test('photo notice → failed save → retry → paused stopwatch attachment →
   await nav(page,'오늘');
   await expect(page.getByRole('region',{name:'수행평가 및 제출 준비'})).toContainText('학습 완료 · 제출 기록 확인 필요');
   await nav(page,'과제');
+  await page.getByRole('button',{name:'제출 확인',exact:true}).click();
   await page.getByRole('button',{name:'학교 발표 준비 제출 완료 기록',exact:true}).click();
   expect((await state(page)).tasks[0].submitted).toBe(true);
   await page.reload();

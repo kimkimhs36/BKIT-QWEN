@@ -26,7 +26,7 @@ test('garage keeps car locally without touching study data and respects dark mod
   await openGarage(page);
   await page.getByRole('button', { name: '다크모드로 전환', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-bkit-theme', 'dark');
-  await expect(page.getByLabel('배경 · 무료')).toHaveCSS('background-color', 'rgb(27, 42, 35)');
+  await expect(page.getByLabel('배경 · 무료')).toHaveCSS('color-scheme', 'dark');
   await page.getByRole('button', { name: '코랄', exact: true }).click();
   await page.getByLabel('배경 · 무료').selectOption('dusk');
   await page.getByLabel('모션 감소', { exact: true }).click();
