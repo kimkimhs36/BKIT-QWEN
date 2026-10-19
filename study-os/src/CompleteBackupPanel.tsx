@@ -22,6 +22,33 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
     [mode, setMode] = useState<'merge' | 'replace'>('merge'),
     [restored, setRestored] = useState(false);
   const working = useRef(false);
+  const [storageStatus, setStorageStatus] = useState('');
+  const [checkingStorage, setCheckingStorage] = useState(false);
+  async function inspectLocalStorageHealth() {
+    setCheckingStorage(true);
+    try {
+      if (!navigator.storage?.estimate) {
+        setStorageStatus('이 브라우저에서는 저장 공간 추정 정보를 제공하지 않습니다.');
+        return;
+      }
+      const estimate = await navigator.storage.estimate();
+      const persistent = navigator.storage.persisted
+        ? await navigator.storage.persisted()
+        : null;
+      const size = (bytes: number | undefined) =>
+        bytes === undefined ? '미제공' : (bytes / 1024 / 1024).toFixed(1) + 'MB';
+      setStorageStatus(
+        '이 사이트 저장 공간 추정: ' + size(estimate.usage) + ' 사용 / ' +
+          size(estimate.quota) + ' 할당량. 영구 저장 보호: ' +
+          (persistent === true ? '승인됨' : persistent === false ? '승인되지 않음' : '지원 정보 없음') +
+          '. 이 수치는 저장 파일 무결성 검사나 외부 백업 완료를 보증하지 않습니다.',
+      );
+    } catch {
+      setStorageStatus('저장 환경을 확인할 수 없습니다. ZIP 백업 파일을 내려받아 직접 재검사해 주세요.');
+    } finally {
+      setCheckingStorage(false);
+    }
+  }
   async function work(fn: () => Promise<void>) {
     if (working.current) return;
     working.current = true;
@@ -70,6 +97,10 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
         백업 ZIP을 외부에 보관해야 기기나 브라우저 저장소가 지워져도 복원할 수 있습니다. 다운로드
         요청만으로 파일 저장이 확인되는 것은 아니니 실제 파일을 다시 선택해 검사하세요.
       </p>
+      <button type="button" disabled={checkingStorage} onClick={() => void inspectLocalStorageHealth()}>
+        {checkingStorage ? '저장 환경 확인 중…' : '현재 기기 저장 환경 확인'}
+      </button>
+      {storageStatus && <p className="muted" role="status">{storageStatus}</p>}
       <label>
         전체 ZIP 백업 검사
         <input
