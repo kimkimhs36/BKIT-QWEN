@@ -5,7 +5,7 @@ const timeLabel = (at: number) =>
 export function SleepSummary({ guard, onOpen }: { guard: SleepController; onOpen: () => void }) {
   const { state, status } = guard;
   return (
-    <button type="button" className="sleep-summary" onClick={onOpen}>
+    <button type="button" className="sleep-summary" aria-label="Sleep Guard 열기" onClick={onOpen}>
       <Moon size={20} aria-hidden="true" />
       <span>
         <strong>Sleep Guard</strong>

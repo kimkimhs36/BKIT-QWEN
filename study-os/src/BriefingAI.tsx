@@ -44,9 +44,16 @@ export function BriefingAI({
     setBusy(true);
     setMessage('AI 연결 상태를 확인하고 있어요…');
     try {
-      const res = await fetch(API_URL + '/api/config', {
-        signal: AbortSignal.timeout(10000),
-      });
+      const controller = new AbortController();
+      request.current = controller;
+      const timeout = window.setTimeout(() => controller.abort(), 10000);
+      let res: Response;
+      try {
+        res = await fetch(API_URL + '/api/config', { signal: controller.signal });
+      } finally {
+        window.clearTimeout(timeout);
+        request.current = null;
+      }
       if (!res.ok)
         throw new Error('AI 서버에 연결하지 못했어요. 직접 정리는 계속 사용할 수 있어요.');
       const config = z
@@ -62,10 +69,11 @@ export function BriefingAI({
         setMessage(
           'AI 서버 연결을 준비하고 있어요. 직접 정리나 사진 글자 가져오기는 바로 사용할 수 있어요.',
         );
-    } catch (e) {
+    } catch {
       if (!alive.current) return;
       setEnabled(false);
-      setMessage(e instanceof Error ? e.message : '연결을 확인하지 못했어요.');
+      // HTTP, offline/CORS, timeout and malformed configuration share one useful fallback.
+      setMessage('AI 서버에 연결하지 못했어요. 직접 정리는 계속 사용할 수 있어요.');
     } finally {
       operation.current = false;
       if (alive.current) setBusy(false);
