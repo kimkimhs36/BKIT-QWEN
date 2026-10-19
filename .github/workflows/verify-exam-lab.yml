@@ -1,7 +1,8 @@
 name: Verify Exam Lab Before Mock Exam
 on:
   push:
-    branches: [feat/bkit-mock-lab-exam-eve-20261019]
+    branches:
+      [feat/bkit-mock-lab-exam-eve-20261019, feat/exam-lab-immersive-20261019]
   workflow_dispatch:
 permissions:
   contents: read
@@ -13,9 +14,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
       - name: Install browser test runner
-        run: npm install --prefix exam-lab --no-save --package-lock=false @playwright/test
+        run: npm ci --prefix exam-lab
       - name: Install browsers
         run: cd exam-lab && npx playwright install --with-deps chromium webkit
       - name: Serve independent exam lab
@@ -28,4 +29,18 @@ jobs:
           cat /tmp/exam-lab-http.log
           exit 1
       - name: Smoke test mobile, Safari and desktop workflows
-        run: node exam-lab/tests/smoke.mjs
+        run: |
+          node --check exam-lab/app.js
+          node --check exam-lab/learning.js
+          node exam-lab/tests/smoke.mjs
+          node exam-lab/tests/safety.mjs
+          node exam-lab/tests/ipad.mjs
+          node exam-lab/tests/clock.mjs
+          node exam-lab/tests/accessibility.mjs
+
+      - name: Save responsive screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exam-lab-responsive-qa
+          path: /tmp/bkit-qa

@@ -1,98 +1,379 @@
 <!doctype html>
 <html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#101d1a">
-<meta name="description" content="BKIT EXAM LAB — 고2 10월 학평 전날 실전 모의 학습실. 기초 진단, 독해·추론, 공식 9월 기출 풀이, 오답 재시험.">
-<title>BKIT EXAM LAB · 10.20</title>
-<link rel="stylesheet" href="./style.css">
-</head>
-<body>
-<div class="site">
-<header class="mast">
- <a class="brand" href="https://teambkit.com/" aria-label="BKIT 메인으로">BKIT<span class="brand-slash">/</span>EXAM LAB</a>
- <div class="mast-side"><span class="live-dot"></span><span>10월 20일 고2 학평 대비</span></div>
-</header>
-<main>
-<section class="hero">
- <div class="hero-copy">
- <p class="eyebrow">19 OCTOBER 2026 · EXAM EVE</p>
- <h1>문제를 풀기 전엔<br><em>아무것도 준비하지 마.</em></h1>
- <p class="lead">오늘의 목표는 완벽한 계획이 아니라, 실제 문제를 풀고 틀린 이유를 찾아 내일 맞힐 수 있는 문제를 하나라도 늘리는 것.</p>
- <div class="hero-actions"><button class="main-cta" id="hero-start" type="button">첫 문제 바로 풀기 <span>↗</span></button><a class="under-link" href="https://teambkit.com/mock-rescue/" target="_blank" rel="noopener noreferrer">기존 기초 54문제 ↗</a></div>
- </div>
- <div class="hero-stats">
- <div><small>새로 만든 실전형 연습</small><strong id="hero-count">46<span>문항</span></strong></div>
- <div><small>과목별 학습 노트</small><strong>06<span>과목</span></strong></div>
- <div><small>내일 시험까지</small><strong>01<span>일</span></strong></div>
- </div>
-</section>
-<div class="stats" aria-label="개인 학습 기록">
- <div class="stat"><span>푼 문제</span><strong id="stat-done">0</strong><small>서로 다른 문항</small></div>
- <div class="stat"><span>첫 시도 정답률</span><strong id="stat-rate">—</strong><small>찍기 제외 아님</small></div>
- <div class="stat"><span>오답 재시험</span><strong id="stat-pending">0</strong><small>다시 확인할 문항</small></div>
- <div class="stat"><span>기출 기록</span><strong id="stat-past">0</strong><small>실제 시험지 답안</small></div>
-</div>
-<section class="mission" aria-label="오늘 밤 학습 미션">
- <div class="mission-top"><div><p class="eyebrow">TONIGHT / STUDY BLOCK</p><h2>공부 시간을 정하는 데 10초만.</h2><p class="muted" id="mission-note">한 번 누르면 2시간 실전 루트를 시작해. 과목은 그때그때 바꿔도 돼.</p></div><div class="mission-time" id="mission-clock">READY</div></div>
- <div class="mission-buttons">
-  <button id="mission-120" class="solid" type="button">120분 미션 시작</button>
-  <button id="mission-180" class="ghost" type="button">180분 미션 시작</button>
-  <button id="mission-toggle" class="ghost" type="button" hidden>일시정지</button>
-  <button id="mission-focus" class="ghost" type="button" hidden>지금 과목 열기 →</button>
- </div>
- <div class="track" id="mission-track" hidden><span id="mission-fill"></span></div>
- <div id="mission-stages" class="mission-stages" hidden></div>
-</section>
-<nav class="sections" aria-label="학습실 메뉴">
- <button id="tab-drills" type="button" aria-selected="true" aria-controls="view-drills">01 · 실전형 연습</button>
- <button id="tab-past" type="button" aria-selected="false" aria-controls="view-past">02 · 실제 9월 기출</button>
- <button id="tab-report" type="button" aria-selected="false" aria-controls="view-report">03 · 약점 리포트</button>
-</nav>
-<section id="view-drills" class="study-view" aria-label="실전형 연습">
- <div class="study-heading"><div><p class="eyebrow">ORIGINAL DRILL / ACTIVE RECALL</p><h2>문제 → 선택 → 이유 확인 → 다시.</h2></div><span class="micro">BKIT 자체 제작 · 공식 기출 아님</span></div>
- <div class="subjects" id="drill-subjects" role="group" aria-label="과목 선택"></div>
- <div class="modes" role="group" aria-label="학습 방식"><button id="mode-new" aria-pressed="true" type="button">안 푼 문제</button><button id="mode-review" aria-pressed="false" type="button">오답 재시험</button><button id="mode-all" aria-pressed="false" type="button">전체 보기</button></div>
- <div class="question-shell" id="question-shell"><p class="muted">문제를 불러오는 중…</p></div>
-</section>
-<section id="view-past" class="study-view" aria-label="실제 기출 학습" hidden>
- <div class="study-heading"><div><p class="eyebrow">REAL PAST PAPER / SOURCE FIRST</p><h2>실제 기출은 실제 시험지로.</h2></div><span class="micro">2026년 9월 고2 전국연합</span></div>
- <p class="intro">기출 원본·정답·해설은 EBSi에서 확인해. 저작권이 있는 문제지를 이 사이트에 무단 복제하지 않고, 네가 내려받은 PDF를 이 기기에서만 열어 연습하도록 구성했어.</p>
- <div class="paper-tools"><label>과목<select id="past-subject" aria-label="기출 과목"></select></label>
-  <a href="https://cloud.ebsi.co.kr/ebs/xip/xipc/previousPaperList.ebs?targetCd=D200" target="_blank" rel="noopener noreferrer" class="source-link">EBSi 고2 공식 기출 검색 ↗</a>
-  <label class="file-label" for="past-file">내려받은 PDF/이미지 열기<input id="past-file" type="file" accept=".pdf,application/pdf,image/*"></label>
- </div>
- <p id="file-name" class="hint">PDF 원본은 이 앱 서버로 업로드되지 않고, 새로고침하면 다시 선택해야 해. 답안 기록만 이 브라우저에 남아.</p>
- <div id="file-preview" class="file-preview" hidden></div>
- <div class="paper-workspace">
-  <div><p class="eyebrow">ANSWER SHEET</p><h3>답을 고른 뒤, 정답표로 직접 채점해.</h3><p class="muted">아래 번호는 문제지의 번호야. BKIT이 실제 기출 정답을 임의로 채우거나 자동 채점하지 않아.</p></div>
-  <div id="past-grid" class="past-grid" aria-label="기출 문제 번호"></div>
-  <div class="answer-editor" id="answer-editor">
-   <strong id="answer-heading">1번 · 답안 기록</strong>
-   <div class="answer-options" id="past-choices" role="group" aria-label="내가 선택한 답"></div>
-   <div class="mark-options" role="group" aria-label="정답표 확인 결과"><button data-mark="correct" type="button">정답표 확인 · O</button><button data-mark="wrong" type="button">정답표 확인 · X</button><button data-mark="unsure" type="button">아직 미채점</button></div>
-   <label class="note-label">어디서 막혔어? (선택)<textarea id="past-note" rows="2" maxlength="180" placeholder="예: 해석이 안 됨 / 조건을 놓침"></textarea></label>
-   <p class="hint" id="past-status">저장된 답안은 이 브라우저에만 남아. 정답표를 직접 확인해야 해.</p>
-  </div>
- </div>
-</section>
-<section id="view-report" class="study-view" aria-label="약점 리포트" hidden>
- <div class="study-heading"><div><p class="eyebrow">AFTER ACTION REVIEW</p><h2>오늘 약했던 걸 내일 맞히자.</h2></div><span class="micro">기록 기반 · 예상 등급 아님</span></div>
- <p class="intro">첫 시도 정답률은 여기서 푼 자체 제작 문항의 결과야. 실제 전국연합 성적이나 등급으로 해석하면 안 돼.</p>
- <div id="report-subjects" class="report-subjects"></div>
- <div id="report-next" class="next-panel"></div>
- <div class="backup-panel">
-  <div><h3>내 공부 기록 보존</h3><p class="muted">다른 브라우저와 자동 동기화되지 않아. JSON으로 내보낸 뒤 파일 앱 등에 저장하고, 필요하면 다시 가져와.</p></div>
-  <div class="backup-actions"><button id="export" type="button" class="solid">진도 JSON 백업</button><label class="file-label" for="import">백업 JSON 가져오기<input id="import" type="file" accept=".json,application/json"></label><button id="reset" type="button" class="danger">진도 초기화</button></div>
-  <p id="backup-status" role="status" class="hint"></p>
- </div>
-</section>
-<section class="closing"><p class="eyebrow">ONE LAST THING</p><p>오늘 다 끝내는 것보다 <strong>틀렸던 문제를 한 번 더 꺼내 풀 수 있는 상태</strong>로 잠드는 게 중요해. 수면은 내일의 집중력과 연결돼.</p><a href="https://teambkit.com/" target="_blank" rel="noopener noreferrer">BKIT STUDY OS로 돌아가기 ↗</a></section>
-</main>
-<footer><span>BKIT / EXAM LAB</span><span>개인 학습용 · 자체 제작 연습문항 + 공식 기출 연결 · 저장은 이 기기</span></footer>
-</div>
-<script src="./questions.js"></script>
-<script src="./app.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#183f35" />
+    <meta
+      name="description"
+      content="한 문제를 이해하고, 한 번 더. BKIT EXAM LAB의 단계별 해설, 유사 문항, 오답 재시험과 120분 집중 학습."
+    />
+    <title>BKIT EXAM LAB · 한 문제만 더</title>
+    <link rel="stylesheet" href="./style.css?v=20261019-immersive-1" />
+  </head>
+  <body>
+    <a class="skip" href="#question-shell">문제로 바로 가기</a>
+    <div id="save-warning" role="alert" hidden></div>
+    <div class="site">
+      <aside class="sidebar">
+        <a class="brand" href="/">BKIT<span>STUDY OS</span></a>
+        <div class="lab-label">나만의 집중 학습실</div>
+        <nav class="sections" aria-label="학습실 메뉴">
+          <button
+            id="tab-drills"
+            type="button"
+            aria-current="page"
+            aria-pressed="true"
+            aria-controls="view-drills"
+          >
+            <span>◎</span> 문제 풀기 <small>01</small>
+          </button>
+          <button
+            id="tab-past"
+            type="button"
+            aria-pressed="false"
+            aria-controls="view-past"
+          >
+            <span>▤</span> 기출 학습 <small>02</small>
+          </button>
+          <button
+            id="tab-report"
+            type="button"
+            aria-pressed="false"
+            aria-controls="view-report"
+          >
+            <span>◷</span> 나의 기록 <small>03</small>
+          </button>
+        </nav>
+        <div class="sidebar-note">
+          <div class="leaf">✳</div>
+          <p>한 번에 전부 말고,<br />지금 이 한 문제.</p>
+          <small>이해한 만큼 앞으로 가요.</small>
+        </div>
+        <div class="sidebar-bottom">
+          <span class="live-dot"></span> 기록은 이 브라우저에 저장<br /><a
+            href="/"
+            >BKIT 메인으로 ↗</a
+          ><a href="/mock-rescue/">기존 기초 학습실 ↗</a>
+        </div>
+      </aside>
+      <div class="workspace">
+        <header class="mast">
+          <div>
+            <span class="eyebrow">EXAM LAB</span
+            ><span class="header-date">2026.10.19 · 시험 전날</span>
+          </div>
+          <button id="focus-toggle" class="quiet" aria-pressed="false">
+            집중 화면 ↗
+          </button>
+        </header>
+        <main>
+          <section class="hero" id="welcome">
+            <div class="hero-copy">
+              <p class="eyebrow">A LITTLE CLEARER, ONE QUESTION AT A TIME</p>
+              <h1>한 문제를 이해하면,<br /><em>다음이 조금 쉬워져.</em></h1>
+              <p class="lead">
+                잘 몰라도 괜찮아. 풀어 보고, 이유를 찾고, 다시 확인해.<br />지금
+                필요한 건 완벽한 계획보다 작은 시작 하나.
+              </p>
+              <button class="main-cta" id="hero-start" type="button">
+                지금 시작하기 <span>→</span>
+              </button>
+              <p class="hero-caption" id="resume-caption">
+                짧은 6문항 진단부터 · 준비할 것 없이 바로
+              </p>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+              <div class="art-orbit"></div>
+              <div class="art-book">
+                <div class="book-lines"></div>
+                <span>one<br />more.</span>
+                <div class="book-mark"></div>
+              </div>
+              <span class="art-spark">✳</span>
+              <p>SMALL STEPS.<br />CLEARER THINKING.</p>
+            </div>
+          </section>
+          <section class="mission" aria-label="집중 세션">
+            <div class="mission-top">
+              <div>
+                <p class="eyebrow">YOUR FOCUS SESSION</p>
+                <h2 id="mission-title">오늘, 나에게 주는 두 시간.</h2>
+                <p class="muted" id="mission-note">
+                  과목을 바꿔도 흐름은 이어져. 쉬는 시간도 따로 기록해.
+                </p>
+              </div>
+              <div
+                class="mission-time"
+                id="mission-clock"
+                aria-label="세션 남은 시간"
+              >
+                120<span>min</span>
+              </div>
+            </div>
+            <div class="mission-buttons">
+              <button id="mission-120" class="solid">120분 시작 →</button
+              ><button id="mission-180" class="ghost">180분</button
+              ><button id="mission-toggle" class="ghost" hidden>일시정지</button
+              ><button id="mission-break" class="ghost" hidden>5분 쉬기</button
+              ><button id="mission-focus" class="ghost" hidden>
+                지금 과목 열기 →</button
+              ><button id="mission-end" class="quiet" hidden>
+                세션 마치기
+              </button>
+            </div>
+            <div class="track" id="mission-track" hidden>
+              <span id="mission-fill"></span>
+            </div>
+            <div id="mission-stages" class="mission-stages" hidden></div>
+          </section>
+          <section id="view-drills" class="study-view" aria-label="문제 풀기">
+            <div class="study-heading">
+              <div>
+                <p class="eyebrow" id="drill-eyebrow">
+                  PRACTICE / UNDERSTAND / TRY AGAIN
+                </p>
+                <h2 id="drill-title">지금은, 한 문제에만.</h2>
+              </div>
+              <span class="micro" id="drill-progress"
+                >자체 제작 연습 · 공식 기출 아님</span
+              >
+            </div>
+            <div id="diagnostic-status" class="diagnostic-status" hidden></div>
+            <details class="study-controls" id="study-controls">
+              <summary>
+                과목·학습 방식 바꾸기
+                <span id="current-filter">추천 · 안 푼 문제</span>
+              </summary>
+              <div
+                class="subjects"
+                id="drill-subjects"
+                role="group"
+                aria-label="과목 선택"
+              ></div>
+              <div class="modes" role="group" aria-label="학습 방식">
+                <button id="mode-new" aria-pressed="true">안 푼 문제</button
+                ><button id="mode-review" aria-pressed="false">
+                  아직 모르는 문제</button
+                ><button id="mode-all" aria-pressed="false">전체 보기</button>
+              </div>
+              <label class="cause-filter" id="cause-filter-label" hidden
+                >오답 유형
+                <select id="cause-filter">
+                  <option value="">모든 유형</option>
+                  <option>개념</option>
+                  <option>풀이방법</option>
+                  <option>계산·실수</option>
+                  <option>독해·해석</option>
+                  <option>시간 부족</option>
+                  <option>추측</option>
+                </select></label
+              >
+            </details>
+            <div class="question-shell" id="question-shell" tabindex="-1">
+              <p>문제를 불러오는 중…</p>
+            </div>
+            <p class="study-footer">
+              <span class="live-dot"></span>
+              <span id="save-status">내 풀이가 자동으로 저장돼요.</span
+              ><span
+                >자체 제작 <b id="hero-count">46</b>문항 + 유사 46문항</span
+              >
+            </p>
+          </section>
+          <section
+            id="view-past"
+            class="study-view"
+            aria-label="기출 학습"
+            hidden
+          >
+            <div class="study-heading">
+              <div>
+                <p class="eyebrow">PAST PAPERS / YOUR OWN PACE</p>
+                <h2>실제 기출도, 차근차근.</h2>
+              </div>
+              <span class="micro">공식 자료는 출처에서 확인</span>
+            </div>
+            <p class="intro">
+              ① EBSi에서 고2 · 2026년 · 9월을 선택해 문제지와 정답표를 내려받아.
+              ② PDF를 열고 답을 기록해. ③ 공식 정답표와 대조해 O/X를 표시해.
+            </p>
+            <div class="source-notice">
+              EBSi에서 2026년 9월 2일 고2 학평(인천)의 6과목 문제·정답·해설 제공
+              목록을 확인했어. EBSi 로그인 후 내려받아 줘. 이 답안지는 공식
+              정답표와 직접 대조하는 개인 기록이야.
+            </div>
+            <div class="paper-tools">
+              <label
+                >과목<select
+                  id="past-subject"
+                  aria-label="기출 과목"
+                ></select></label
+              ><a
+                href="https://cloud.ebsi.co.kr/ebs/xip/xipc/previousPaperList.ebs?targetCd=D200"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="source-link"
+                >EBSi 공식 기출 찾기 ↗</a
+              ><label class="file-label"
+                >내 PDF·이미지 열기<input
+                  id="past-file"
+                  type="file"
+                  accept=".pdf,application/pdf,image/png,image/jpeg,image/webp"
+              /></label>
+            </div>
+            <p id="file-name" class="hint">
+              PDF는 서버로 전송되지 않아. 새로 접속하면 다시 선택해 줘.
+              답안·메모는 자동 저장돼.
+            </p>
+            <div class="past-study-layout">
+              <div id="file-preview" class="file-preview" hidden></div>
+              <div class="paper-workspace">
+                <div>
+                  <p class="eyebrow">ANSWER SHEET</p>
+                  <h3>풀고, 확인하고, 남기기.</h3>
+                  <p class="muted">
+                    수학 22~30번은 단답형으로 기록할 수 있어. 실제 문제지에 맞춰
+                    입력해.
+                  </p>
+                </div>
+                <div
+                  id="past-grid"
+                  class="past-grid"
+                  aria-label="기출 문제 번호"
+                ></div>
+                <div class="answer-editor">
+                  <strong id="answer-heading">1번 답안</strong>
+                  <div
+                    class="answer-options"
+                    id="past-choices"
+                    role="group"
+                    aria-label="내가 선택한 답"
+                  ></div>
+                  <label id="short-answer-label" hidden
+                    >단답형 답
+                    <input
+                      id="short-answer"
+                      inputmode="numeric"
+                      maxlength="8"
+                      placeholder="예: 125"
+                  /></label>
+                  <div
+                    class="mark-options"
+                    role="group"
+                    aria-label="정답표 확인 결과"
+                  >
+                    <button data-mark="correct">정답표 확인 · O</button
+                    ><button data-mark="wrong">정답표 확인 · X</button
+                    ><button data-mark="unsure">아직 미채점</button>
+                  </div>
+                  <label class="note-label"
+                    >어디서 막혔어?<textarea
+                      id="past-note"
+                      rows="2"
+                      maxlength="180"
+                      placeholder="해석이 안 된 문장 / 놓친 조건"
+                    ></textarea>
+                  </label>
+                  <p id="past-status" class="hint"></p>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section
+            id="view-report"
+            class="study-view"
+            aria-label="나의 기록"
+            hidden
+          >
+            <div class="study-heading">
+              <div>
+                <p class="eyebrow">EVERY ATTEMPT COUNTS</p>
+                <h2>오늘, 이해한 만큼.</h2>
+              </div>
+              <span class="micro">실제 풀이 기록 · 예상 등급 아님</span>
+            </div>
+            <div class="stats">
+              <div class="stat">
+                <span>풀어 본 원문항</span><strong id="stat-done">0</strong>
+              </div>
+              <div class="stat">
+                <span>첫 시도 정답률</span><strong id="stat-rate">—</strong>
+              </div>
+              <div class="stat">
+                <span>다시 확인할 문제</span
+                ><strong id="stat-pending">0</strong>
+              </div>
+              <div class="stat">
+                <span>기출 답안 기록</span><strong id="stat-past">0</strong>
+              </div>
+            </div>
+            <p class="intro">
+              적은 수의 자체 제작 문항에서 관찰한 결과야. 힌트·추측 여부를 함께
+              보고, 실제 시험 성적이나 등급으로 해석하지 말아 줘.
+            </p>
+            <div id="report-subjects" class="report-subjects"></div>
+            <div id="report-next" class="next-panel"></div>
+            <div id="session-history" class="next-panel"></div>
+            <div class="backup-panel">
+              <h3>내 공부를 안전하게 보관해.</h3>
+              <p>
+                이 브라우저에 저장되며 다른 기기와 자동 동기화되지 않아. JSON
+                백업에는 이 학습실 기록만 포함돼. BKIT 본앱·PDF 원본은 본앱에서
+                따로 백업해.
+              </p>
+              <div class="backup-actions">
+                <button id="export" class="solid">기록 JSON 백업 ↓</button
+                ><label class="file-label"
+                  >백업 가져오기<input
+                    id="import"
+                    type="file"
+                    accept=".json,application/json"
+                /></label>
+              </div>
+              <p id="backup-status" role="status" class="hint"></p>
+            </div>
+          </section>
+        </main>
+        <footer>
+          <span>BKIT EXAM LAB <small>IMMERSIVE / 01</small></span
+          ><span>더 많이보다, 조금 더 분명하게.</span>
+        </footer>
+      </div>
+    </div>
+    <dialog id="tutor-dialog" aria-labelledby="tutor-heading">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">CONTINUE WITH CHATGPT</p>
+          <h2 id="tutor-heading">막힌 부분부터 함께.</h2>
+        </div>
+        <button id="tutor-close" class="quiet" aria-label="닫기">✕</button>
+      </div>
+      <p>
+        문제와 내 선택을 정리했어. 복사 후 ChatGPT에 붙여넣어 질문해. 이 앱에서
+        AI를 호출하거나 기록 전체를 전송하지 않아.
+      </p>
+      <label
+        >전달할 질문<textarea id="tutor-text" rows="8" readonly></textarea>
+      </label>
+      <p id="tutor-status" role="status" class="hint"></p>
+      <div class="feedback-actions">
+        <button id="tutor-copy" class="solid">질문 복사</button
+        ><a
+          id="tutor-open"
+          class="source-link"
+          href="https://chatgpt.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >ChatGPT 열기 ↗</a
+        >
+      </div>
+    </dialog>
+    <script src="./questions.js?v=20261019-immersive-1"></script>
+    <script src="./learning.js?v=20261019-immersive-1"></script>
+    <script src="./app.js?v=20261019-immersive-1"></script>
+  </body>
 </html>
