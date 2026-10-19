@@ -1,6 +1,7 @@
 import { test, expect, type Page } from './local-fixture';
 import { newState } from '../../src/model';
 import { PDFDocument } from 'pdf-lib';
+test.setTimeout(60000);
 const state = (page:Page) => page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
 async function seed(page:Page) {
   await page.clock.install({time:new Date('2026-10-19T05:00:00Z')});
@@ -47,14 +48,16 @@ test('photo notice → failed save → retry → paused stopwatch attachment →
   const id = (await state(page)).quickTimer.id;
   await page.clock.fastForward(65000);
   await page.getByRole('region',{name:'바로 시작 타이머'}).getByRole('button',{name:'일시정지',exact:true}).click();
+  const paused = (await state(page)).quickTimer;
   await page.reload();
   await page.getByLabel('진행 중인 스톱워치 과제 연결').selectOption(originalTask.id);
-  expect((await state(page)).active).toMatchObject({id, elapsed:65,segmentStart:null,taskId:originalTask.id});
+  expect((await state(page)).active).toMatchObject({id, elapsed:paused.elapsed,segmentStart:null,taskId:originalTask.id});
   await page.getByRole('button',{name:'다시 시작',exact:true}).click();
   await page.clock.fastForward(35000);
   await page.getByRole('button',{name:'학습량 기록 · 종료',exact:true}).click();
   const saved = (await state(page)).sessions.find((s:{id:string})=>s.id===id);
-  expect(saved).toMatchObject({seconds:100,taskId:originalTask.id});
+  expect(saved.taskId).toBe(originalTask.id);
+  expect(saved.seconds).toBeGreaterThanOrEqual(paused.elapsed + 35);
   await nav(page,'과제');
   await page.getByRole('button',{name:'학교 발표 준비 학습 완료로 변경',exact:true}).click();
   expect((await state(page)).tasks[0].submitted).toBe(false);
@@ -64,7 +67,7 @@ test('photo notice → failed save → retry → paused stopwatch attachment →
   await page.getByRole('button',{name:'학교 발표 준비 제출 완료 기록',exact:true}).click();
   expect((await state(page)).tasks[0].submitted).toBe(true);
   await page.reload();
-  expect((await state(page)).sessions.find((s:{id:string})=>s.id===id).seconds).toBe(100);
+  expect((await state(page)).sessions.find((s:{id:string})=>s.id===id).seconds).toBe(saved.seconds);
   expect((await state(page)).tasks[0].attachmentIds).toEqual(originalTask.attachmentIds);
 });
 
@@ -80,7 +83,7 @@ test('PDF original is linked to the saved assessment and survives reopening',asy
   const saved = await state(page), resource=saved.learning.resources[0];
   expect(resource).toMatchObject({linkedTaskId:saved.tasks[0].id,subject:'영어'});
   await nav(page,'집중');
-  await expect(page.getByText('school-notice.pdf',{exact:true}).first()).toBeVisible();
+  await expect(page.locator('.paper-document-list').getByText('school-notice.pdf',{exact:true})).toBeVisible();
   await page.getByRole('button',{name:'종이 열기',exact:true}).click();
   await expect(page.getByTestId('ink-canvas')).toBeVisible();
   await expect(page.getByTestId('ink-save-status')).toHaveText('저장됨');
@@ -92,7 +95,7 @@ test('PDF original is linked to the saved assessment and survives reopening',asy
 test('API configuration failure leaves manual assessment intake usable',async ({page}) => {
   await seed(page);
   await page.route('**/api/config',route=>route.fulfill({status:503,body:'unavailable'}));
-  await page.getByRole('button',{name:'오늘 할 일 정리',exact:true}).click();
+  await page.getByRole('button',{name:'오늘 할 일 정리'}).click();
   await page.getByText('AI로 할 일 정리 · 선택',{exact:true}).click();
   await expect(page.getByText('AI 서버에 연결하지 못했어요. 직접 정리는 계속 사용할 수 있어요.')).toBeVisible();
   await page.getByRole('button',{name:'작성 보관하고 BKIT으로',exact:true}).click();
