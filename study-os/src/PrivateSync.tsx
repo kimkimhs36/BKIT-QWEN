@@ -21,6 +21,26 @@ export function portableStudyState(state: State): State {
     undo: null,
   };
 }
+/** Older production schemas omit local learning metadata; never erase it on download. */
+export function mergePrivateStudyState(local: State, incoming: State): State {
+  return {
+    ...incoming, active:local.active, quickTimer:local.quickTimer,
+    learningEvents:local.learningEvents, problemRetests:local.problemRetests,
+    exams:local.exams, learning:local.learning,
+    tasks:incoming.tasks.map(task => {
+      const existing = local.tasks.find(t => t.id === task.id);
+      return {...task, attachmentIds:existing?.attachmentIds,
+        submissionRequired:task.submissionRequired ?? existing?.submissionRequired,
+        capture:task.capture ?? existing?.capture};
+    }),
+    sessions:incoming.sessions.map(session => {
+      const existing = local.sessions.find(s => s.id === session.id);
+      return {...session, quick:session.quick ?? existing?.quick,
+        resourceId:existing?.resourceId};
+    }),
+    plan:[], undo:null,
+  };
+}
 const cloudSchema = z.object({
   version: z.number().int().nonnegative(),
   state: stateSchema.nullable(),
@@ -79,6 +99,8 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
     return cloudSchema.parse(await res.json());
   }
   async function writeCloud(expectedVersion: number, study: State) {
+    if (study.sessions.some(s => (s.segments?.length ?? 0) > 102))
+      throw new Error('현재 서버는 기록당 집중 구간 102개까지 지원해요. 이 기기의 전체 시간·구간은 보존되며 ZIP으로 옮길 수 있어요.');
     const res = await fetch(API_URL + '/api/sync', {
       method:'PUT',
       headers:{...tokenHeaders(token.current),'Content-Type':'application/json'},
@@ -205,7 +227,7 @@ export function PrivateSyncPanel({sync}:{sync:PrivateStudyBridge}) {
         {sync.status==='connected'?'연결됨':sync.status==='conflict'?'선택 필요':sync.status==='connecting'?'연결 중':sync.status==='error'?'재연결 필요':'이 기기만'}
       </span></div>
     <p className="muted">아이폰 · 아이패드 · PC의 과제, 일정, 집중 완료 기록을 같은 Google 본인 계정으로 연결해요.
-      실시간 타이머와 사진 원본은 아직 이 기기에만 보관돼요.</p>
+      실시간 타이머·사진·PDF·필기 원본은 이 기기에만 보관돼요.</p>
     <p role="status" className="bkit-cloud-status">{sync.message}</p>
     {sync.lastSynced&&<p className="hint">마지막 확인: {sync.lastSynced}</p>}
     <div className="button-stack">
@@ -237,6 +259,7 @@ export function PrivateSyncPanel({sync}:{sync:PrivateStudyBridge}) {
     </button>
     {advanced&&<p className="hint">과제·수행평가·시간표·공부 완료 세션·성적·복습 진행·학습 목표를 개인 클라우드에 저장합니다.
       사진 원본, 사진 첨부 번호, 진행 중 타이머, 자동 계산 계획표는 공유하지 않습니다.
+      현재 서버는 바로 시작 기록의 수정 표시와 자료 연결 정보를 다른 기기에 전달하지 못하며, 기록당 집중 구간 102개를 넘으면 동기화를 중단합니다. 모든 자료 이전에는 전체 ZIP을 사용하세요.
       로그인하지 않은 친구는 다른 사람의 기록을 볼 수 없습니다.
       서버는 설정된 본인 Google 계정만 허용합니다. 인터넷이 없어도 이 기기에서 공부할 수 있어요.</p>}
     <p className="bkit-cloud-privacy"><CheckCircle2 size={16}/>

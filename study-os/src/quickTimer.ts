@@ -167,6 +167,31 @@ export function attachQuickResource(state: State, resourceId: string, problemId?
     },
   };
 }
+/** Link an already running or paused stopwatch without resetting any elapsed time. */
+export function attachQuickTask(state: State, taskId: string): State {
+  const timer = state.quickTimer;
+  const task = state.tasks.find((t) => t.id === taskId && t.status !== 'done');
+  if (!timer || state.active || !task) return state;
+  return {
+    ...state,
+    quickTimer: null,
+    active: {
+      id: timer.id,
+      quick: true,
+      quickMode: timer.mode,
+      taskId: task.id,
+      subject: task.subject,
+      action: task.title,
+      target: timer.targetMinutes,
+      started: timer.started,
+      segmentStart: timer.segmentStart,
+      elapsed: timer.elapsed,
+      segments: timer.segments,
+      pauses: [],
+    },
+    tasks: state.tasks.map((t) => (t.id === taskId ? { ...t, status: 'doing' } : t)),
+  };
+}
 /** Quick-start material sessions still finish before any optional form. */
 export function finishQuickResource(state: State, now: number): State {
   const active = state.active;
