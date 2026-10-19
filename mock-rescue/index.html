@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/><meta name="theme-color" content="#0f181c"/><meta name="description" content="2026년 10월 20일 고2 모의고사 긴급 대비 — 지금 첫 문제부터"/><title>BKIT MOCK RESCUE · 10.20</title>
+<style>
+:root{color-scheme:dark;--bg:#0c1318;--pane:#141f26;--line:#2a3740;--ink:#edf3f0;--muted:#a0b1b5;--mint:#9fcdbb;--accent:#c6e2cd;--danger:#f5b7ad;--good:#acd6c0}
+*{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse 1000px 460px at 40% -200px,#1e3436,transparent 75%),var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard','Noto Sans KR',sans-serif;line-height:1.55;min-height:100dvh}
+button,select{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible{outline:3px solid #c3e0cd;outline-offset:3px}button:disabled{cursor:default;opacity:.55}
+.shell{width:min(760px,100%);margin:auto;padding:20px 20px 88px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{color:#cedfd8;font-size:12px;font-weight:800;letter-spacing:.2em}.date{font-size:12px;color:var(--muted)}h1{font-weight:700;letter-spacing:-.055em;font-size:clamp(28px,6vw,42px);line-height:1.18;margin:23px 0 9px}.sub{color:var(--muted);font-size:13px;margin:0 0 16px;max-width:580px}.head{padding-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 16px}.stat{padding:13px 13px;border:1px solid var(--line);background:#132028;border-radius:14px;min-width:0}.stat b{display:block;font-size:clamp(18px,4vw,26px);color:var(--ink);font-variant-numeric:tabular-nums}.stat small{font-size:11px;color:var(--muted)}.track{height:4px;background:#314047;border-radius:99px;overflow:hidden;margin:4px 0 20px}.track span{display:block;background:#a7d0b8;height:100%;width:0%;transition:width .25s}
+.chips{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding:3px 1px 13px}.chips::-webkit-scrollbar{display:none}.chip{flex:none;border:1px solid #3a474c;background:transparent;color:#b6c8c6;font-size:12px;border-radius:99px;padding:9px 13px;min-height:39px}.chip.active{background:#d9e9df;color:#153028;border-color:#d9e9df;font-weight:800}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;font-size:13px}.toolbar .label{color:var(--mint);font-size:12px;font-weight:700}.tools{display:flex;align-items:center;gap:7px}.mini{padding:7px 9px;border:1px solid var(--line);border-radius:9px;color:#c9d8d5;background:#17262b;font-size:12px;min-height:38px}
+.card{border:1px solid #34444a;border-radius:22px;background:linear-gradient(165deg,#19262d,#121e25 74%);box-shadow:0 12px 36px #0002;padding:clamp(17px,4vw,28px)}.eyebrow{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#a6c3b9;text-transform:uppercase;letter-spacing:.1em;font-size:11px;font-weight:800;margin-bottom:18px}.q{font-weight:700;font-size:clamp(19px,4.5vw,26px);line-height:1.48;letter-spacing:-.02em;white-space:pre-wrap;word-break:keep-all;margin:0 0 22px}.opt-list{display:grid;gap:9px}.opt{display:flex;gap:13px;align-items:flex-start;border:1px solid #3b4b51;background:#17262d;color:#e3eee9;padding:13px 14px;border-radius:13px;min-height:52px;text-align:left;width:100%;transition:background .12s,border .12s;line-height:1.42;font-size:15px}.opt .n{border:1px solid #51635e;min-width:26px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;color:#b6ccbf;flex:none}.opt:not(:disabled):active{background:#294039}.opt.correct{border-color:#a8dcc1;background:#234136;color:#f1fff6}.opt.wrong{border-color:#d9a8a4;background:#482c32}.opt.revealed{border-color:#7fae94;background:#1d342c}
+.help-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:15px}.hint-btn{border:0;background:none;padding:10px 3px;color:#bddac8;font-size:13px;text-align:left}.hint-text{color:#c9dbd0;font-size:13px;padding:12px;border:1px dashed #648776;border-radius:11px;margin-top:8px;background:#1b3029}.feedback{margin-top:17px;border-radius:15px;padding:16px 17px;background:#20372f;border:1px solid #486454}.feedback.is-wrong{background:#34262a;border-color:#7f5457}.feedback strong{display:block;font-size:17px;color:#e6f5e8}.feedback.is-wrong strong{color:#ffd6cd}.feedback p{margin:8px 0 0;color:#d0e0d8;font-size:14px;line-height:1.7}.next{display:block;width:100%;min-height:54px;border:0;border-radius:13px;background:#cde6d6;color:#173227;font-weight:900;font-size:15px;margin-top:15px}.next:active{transform:scale(.99)}.assist{font-size:12px;color:#8aa49c;margin:12px 0 0}
+.break{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#131f25;border:1px solid var(--line);padding:13px 15px;border-radius:15px;margin-top:15px}.break strong{font-size:14px}.break span{display:block;font-size:12px;color:var(--muted);margin-top:2px}.timer{font-weight:700;font-size:24px;letter-spacing:.04em;font-variant-numeric:tabular-nums;color:#d1e8d8;white-space:nowrap}.notice{margin-top:14px;padding:14px 15px;background:#1b2c2f;color:#b8d2c7;border:1px solid #344e47;font-size:13px;border-radius:14px}.note{font-size:12px;color:#94a8a6;line-height:1.7;margin:25px 0}.footer{font-size:11px;color:#829795;margin-top:25px;padding-top:18px;border-top:1px solid var(--line)}.complete{padding:24px 6px;text-align:center}.complete h2{font-size:24px}.complete p{font-size:14px;color:var(--muted);line-height:1.7}.complete .next{max-width:320px;margin:20px auto 0}
+.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.action{background:#1d302f;border:1px solid #527469;border-radius:11px;color:#c6e5d7;padding:9px 12px;font-weight:650;font-size:12px}.action:disabled{opacity:.4}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(min-width:600px){.shell{padding-top:32px}.card{padding:29px}.opt{min-height:59px}.opt:hover:not(:disabled){border-color:#799e8e;background:#23352e}}@media(max-width:370px){.shell{padding-left:14px;padding-right:14px}.stats{gap:6px}.stat{padding:11px 9px}.brand{font-size:10px}.q{font-size:20px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style></head><body><main class="shell">
+<header class="head"><div class="top"><div class="brand">BKIT <span style="opacity:.4">/</span> MOCK RESCUE</div><div class="date">2026.10.20 · 고2 학평</div></div><h1>내일 점수,<br>지금 한 문제부터.</h1><p class="sub">읽기만 하지 말고 답을 눌러. 모르면 힌트 → 채점 → 이해 → 다시. 준비보다 실행이 우선이야.</p></header>
+<section aria-label="학습 진행 현황"><div class="stats"><div class="stat"><b id="done">0</b><small>해결한 문제</small></div><div class="stat"><b id="right">0</b><small>첫 시도 정답</small></div><div class="stat"><b id="wrong">0</b><small>복습할 오답</small></div></div><div class="track" role="progressbar" aria-label="전체 문제 풀이 진도" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress"><span id="progress-fill"></span></div></section>
+<nav id="chips" class="chips" aria-label="과목 선택"></nav>
+<div class="toolbar"><span id="status" class="label">기초 점수 구출 · 첫 문제</span><div class="tools"><button id="review" class="mini" type="button">오답 재도전</button><button id="reset" class="mini" type="button">초기화</button></div></div>
+<section class="card" id="card" aria-live="polite"></section>
+<div class="break"><div><strong id="focusLabel">집중 15분</strong><span id="focusMsg">첫 답을 누르면 자동 시작 · 화면 이탈 시 일시정지</span></div><div class="timer" id="timer">15:00</div></div>
+<div class="actions"><button id="pause" type="button" class="action">집중 시작</button><button id="restartTimer" type="button" class="action">15분 다시</button></div>
+<div class="notice" id="sleepNote" hidden>수면도 시험 준비야. 밤에는 무리해서 점수를 쫓지 말고 충분히 자자.</div>
+<p class="note">이번 페이지는 기본 개념 확인용 자체 제작 문항이야. 실제 2026년 10월 학력평가 문제나 출제 적중을 보장하지 않아. 답과 틀린 문제는 <strong>이 기기의 브라우저에만 저장</strong>되며, 다른 기기와 자동 동기화되지 않아.</p>
+<footer class="footer">2026 고2 전국연합학력평가 · 10/20 경기교육청 · BKIT 개인 학습용 · 오프라인 실행 가능</footer>
+</main>
+<script>
+'use strict';
+const QUESTIONS = [
+  {
+    "id": "q001",
+    "subject": "수학",
+    "topic": "극한·인수분해",
+    "stem": "lim(x→3) (x² − 9)/(x − 3) 의 값은?",
+    "options": [
+      "0",
+      "3",
+      "6",
+      "9",
+      "존재하지 않는다"
+    ],
+    "answer": 2,
+    "why": "x²−9=(x−3)(x+3). x≠3일 때 약분하면 x+3, 따라서 극한은 6.",
+    "hint": "0/0이면 곧장 0이 아니야. 인수분해부터!",
+    "level": "기본"
+  },
+  {
+    "id": "q002",
+    "subject": "수학",
+    "topic": "무한대 극한",
+    "stem": "lim(x→∞) (2x² − x)/(x² + 1) 의 값은?",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "+∞",
+      "−∞"
+    ],
+    "answer": 2,
+    "why": "분자와 분모의 최고차항이 모두 2차이므로 계수 2/1=2.",
+    "hint": "분자·분모의 가장 높은 차수를 비교해.",
+    "level": "기본"
+  },
+  {
+    "id": "q003",
+    "subject": "수학",
+    "topic": "절댓값·좌우극한",
+    "stem": "lim(x→2) |x−2|/(x−2) 는?",
+    "options": [
+      "−1",
+      "0",
+      "1",
+      "2",
+      "존재하지 않는다"
+    ],
+    "answer": 4,
+    "why": "x가 2보다 클 때 +1, 작을 때 −1. 좌극한과 우극한이 달라 전체 극한은 존재하지 않아.",
+    "hint": "절댓값은 x가 2의 왼쪽인지 오른쪽인지에 따라 달라.",
+    "level": "기본"
+  },
+  {
+    "id": "q004",
+    "subject": "수학",
+    "topic": "미분계수",
+    "stem": "f(x)=x²−3x일 때 f′(2)는?",
+    "options": [
+      "−1",
+      "0",
+      "1",
+      "2",
+      "4"
+    ],
+    "answer": 2,
+    "why": "f′(x)=2x−3. 따라서 f′(2)=4−3=1.",
+    "hint": "x²을 미분하면 2x가 돼.",
+    "level": "기본"
+  },
+  {
+    "id": "q005",
+    "subject": "수학",
+    "topic": "로그",
+    "stem": "log₂8 + log₃9 의 값은?",
+    "options": [
+      "2",
+      "3",
+      "4",
+      "5",
+      "6"
+    ],
+    "answer": 3,
+    "why": "2³=8이므로 log₂8=3, 3²=9이므로 log₃9=2. 합은 5.",
+    "hint": "로그는 지수의 반대야. 2를 몇 번 곱하면 8?",
+    "level": "기본"
+  },
+  {
+    "id": "q006",
+    "subject": "수학",
+    "topic": "지수방정식",
+    "stem": "2ˣ=16을 만족하는 x는?",
+    "options": [
+      "2",
+      "3",
+      "4",
+      "5",
+      "8"
+    ],
+    "answer": 2,
+    "why": "16=2⁴이므로 x=4.",
+    "hint": "16을 2의 거듭제곱으로 써 봐.",
+    "level": "기본"
+  },
+  {
+    "id": "q007",
+    "subject": "수학",
+    "topic": "삼각함수",
+    "stem": "sin30° + cos60° 는?",
+    "options": [
+      "0",
+      "1/2",
+      "1",
+      "√2",
+      "2"
+    ],
+    "answer": 2,
+    "why": "sin30°=1/2, cos60°=1/2이므로 합은 1.",
+    "hint": "30°와 60°의 사인·코사인 기본값을 기억해.",
+    "level": "기본"
+  },
+  {
+    "id": "q008",
+    "subject": "수학",
+    "topic": "등차수열",
+    "stem": "첫째항 3, 공차 4인 등차수열의 다섯째 항은?",
+    "options": [
+      "15",
+      "16",
+      "17",
+      "19",
+      "23"
+    ],
+    "answer": 3,
+    "why": "a₅=a₁+(5−1)d=3+4×4=19.",
+    "hint": "다섯째 항까지 공차를 몇 번 더할까?",
+    "level": "기본"
+  },
+  {
+    "id": "q009",
+    "subject": "수학",
+    "topic": "등비수열",
+    "stem": "첫째항 2, 공비 3인 등비수열의 넷째 항은?",
+    "options": [
+      "18",
+      "27",
+      "36",
+      "54",
+      "81"
+    ],
+    "answer": 3,
+    "why": "a₄=2×3³=54.",
+    "hint": "첫 항부터 세 번 3을 곱해.",
+    "level": "기본"
+  },
+  {
+    "id": "q010",
+    "subject": "수학",
+    "topic": "수열의 합",
+    "stem": "2+4+6+…+20의 값은?",
+    "options": [
+      "90",
+      "100",
+      "110",
+      "120",
+      "210"
+    ],
+    "answer": 2,
+    "why": "첫째항 2, 마지막 항 20, 항 개수 10. 합=(2+20)×10/2=110.",
+    "hint": "짝수 2부터 20까지 10개 항이 있어.",
+    "level": "기본"
+  },
+  {
+    "id": "q011",
+    "subject": "수학",
+    "topic": "연속성",
+    "stem": "함수 f(x)가 x=1에서 연속이려면 반드시 성립해야 하는 것은?",
+    "options": [
+      "f(1)이 정의되지 않아야 한다",
+      "좌극한만 존재하면 된다",
+      "우극한만 존재하면 된다",
+      "lim(x→1)f(x)=f(1)",
+      "f(1)=0"
+    ],
+    "answer": 3,
+    "why": "연속의 조건은 함수값이 정의되고, 극한이 존재하며, 둘이 같아야 한다는 것이야.",
+    "hint": "극한값과 실제 함수값의 관계를 생각해.",
+    "level": "기본"
+  },
+  {
+    "id": "q012",
+    "subject": "수학",
+    "topic": "미분계수 정의",
+    "stem": "f′(a)의 정의에 해당하는 식은?",
+    "options": [
+      "lim(h→0) [f(a+h)−f(a)]/h",
+      "f(a)+h",
+      "lim(h→∞) f(a+h)",
+      "f(a)/a",
+      "f(a)×a"
+    ],
+    "answer": 0,
+    "why": "미분계수는 매우 작은 변화량 h에 대해 함수값 변화량을 h로 나눈 값의 극한이야.",
+    "hint": "평균변화율에서 구간 길이를 0으로 보낸다고 생각해.",
+    "level": "기본"
+  },
+  {
+    "id": "q013",
+    "subject": "영어",
+    "topic": "핵심 어휘",
+    "stem": "reliable의 뜻으로 가장 알맞은 것은?",
+    "options": [
+      "비싼",
+      "신뢰할 수 있는",
+      "위험한",
+      "우연한",
+      "편리하지 않은"
+    ],
+    "answer": 1,
+    "why": "reliable = 믿을 수 있는, 신뢰할 수 있는. reliable information은 신뢰할 수 있는 정보.",
+    "hint": "rely on = ~에 의지하다.",
+    "level": "기본"
+  },
+  {
+    "id": "q014",
+    "subject": "영어",
+    "topic": "핵심 연결어",
+    "stem": "unless의 뜻으로 가장 알맞은 것은?",
+    "options": [
+      "~이기 때문에",
+      "~에도 불구하고",
+      "~하지 않는 한",
+      "~하는 동안",
+      "~할수록"
+    ],
+    "answer": 2,
+    "why": "unless = if ... not. 예: Unless you hurry, you will miss the bus. 서두르지 않으면 버스를 놓칠 거야.",
+    "hint": "if not으로 바꿔 생각해.",
+    "level": "기본"
+  },
+  {
+    "id": "q015",
+    "subject": "영어",
+    "topic": "생활 표현",
+    "stem": "“나는 자동차에 관심이 있어.”의 올바른 영어 표현은?",
+    "options": [
+      "I interested cars.",
+      "I am interesting to cars.",
+      "I am interested in cars.",
+      "I interested in car.",
+      "I have interest by cars."
+    ],
+    "answer": 2,
+    "why": "be interested in + 명사/동명사. I am interested in cars.",
+    "hint": "be interested in을 하나의 덩어리로 기억해.",
+    "level": "기본"
+  },
+  {
+    "id": "q016",
+    "subject": "영어",
+    "topic": "현재완료",
+    "stem": "She has lived in Seoul for five years.의 의미는?",
+    "options": [
+      "앞으로 5년 뒤에 살 예정이다",
+      "5년 전에 잠깐 살았다",
+      "지금까지 5년 동안 살고 있다",
+      "지금은 서울에 살지 않는다",
+      "5년마다 이사한다"
+    ],
+    "answer": 2,
+    "why": "has lived + for five years는 과거부터 현재까지 이어진 상태를 나타낼 수 있어.",
+    "hint": "has + 과거분사, for + 기간.",
+    "level": "기본"
+  },
+  {
+    "id": "q017",
+    "subject": "영어",
+    "topic": "가정법 과거",
+    "stem": "If I had enough time, I would read more books.의 뜻은?",
+    "options": [
+      "시간이 충분해서 많이 읽었다",
+      "시간이 충분하다면 더 많이 읽을 텐데",
+      "시간이 부족하지 않았다",
+      "책을 읽을 시간이 없었던 적이 없다",
+      "시간이 생길 때마다 읽는다"
+    ],
+    "answer": 1,
+    "why": "현재 사실과 다른 가정을 나타내는 가정법 과거야. if + 과거형, would + 동사원형.",
+    "hint": "had는 여기서 과거 사건을 단순 보고하는 게 아니야.",
+    "level": "기본"
+  },
+  {
+    "id": "q018",
+    "subject": "영어",
+    "topic": "동명사",
+    "stem": "다음 중 문법상 올바른 문장은?",
+    "options": [
+      "She enjoys to swim.",
+      "She enjoy swimming.",
+      "She enjoys swimming.",
+      "She enjoying swimming.",
+      "She enjoys swim."
+    ],
+    "answer": 2,
+    "why": "enjoy 뒤에는 동명사(-ing)가 와. 주어 She에는 enjoys.",
+    "hint": "enjoy + -ing.",
+    "level": "기본"
+  },
+  {
+    "id": "q019",
+    "subject": "영어",
+    "topic": "양보 접속사",
+    "stem": "Although it was raining, we went outside.의 의미는?",
+    "options": [
+      "비가 오기 때문에 밖에 나갔다",
+      "비가 오기 전 밖에 나갔다",
+      "비가 오면 밖에 나갈 것이다",
+      "비가 오고 있었지만 밖에 나갔다",
+      "비가 멈춰서 밖에 나갔다"
+    ],
+    "answer": 3,
+    "why": "although는 양보를 나타내며 “~에도 불구하고”라는 뜻이야.",
+    "hint": "although = though = 비록 ~이지만.",
+    "level": "기본"
+  },
+  {
+    "id": "q020",
+    "subject": "영어",
+    "topic": "수동태",
+    "stem": "The experiment was conducted by students.에서 실험을 실시한 주체는?",
+    "options": [
+      "students",
+      "experiment",
+      "teachers",
+      "nobody",
+      "알 수 없다"
+    ],
+    "answer": 0,
+    "why": "was conducted by students에서 by 뒤의 students가 행위자야.",
+    "hint": "수동태에서 by는 행위자를 소개해.",
+    "level": "기본"
+  },
+  {
+    "id": "q021",
+    "subject": "영어",
+    "topic": "짧은 독해",
+    "stem": "A school installed more bicycle racks. Six months later, more students began cycling to school. 이 글에서 가장 타당한 추론은?",
+    "options": [
+      "자전거는 학교에 금지됐다",
+      "모든 학생이 자동차를 샀다",
+      "자전거 보관 시설은 통학 선택에 영향을 줄 수 있다",
+      "학생 수가 반드시 감소했다",
+      "학교는 자전거를 팔았다"
+    ],
+    "answer": 2,
+    "why": "학교에 자전거 거치대가 늘어난 뒤 자전거 통학 학생이 늘었으니, 시설이 행동 선택에 영향을 줄 가능성을 추론할 수 있어.",
+    "hint": "두 문장 사이 변화의 연결을 읽어 봐.",
+    "level": "기본"
+  },
+  {
+    "id": "q022",
+    "subject": "영어",
+    "topic": "필수 숙어",
+    "stem": "contribute to의 뜻으로 가장 알맞은 것은?",
+    "options": [
+      "~을 피하다",
+      "~에 기여하다",
+      "~을 거부하다",
+      "~을 잊다",
+      "~에 반대하다"
+    ],
+    "answer": 1,
+    "why": "contribute to = ~에 기여하다. Regular sleep can contribute to better concentration.",
+    "hint": "기여·원인 관계를 말하는 표현이야.",
+    "level": "기본"
+  },
+  {
+    "id": "q023",
+    "subject": "영어",
+    "topic": "가주어 it",
+    "stem": "It is important to get enough sleep.에서 it의 역할은?",
+    "options": [
+      "인칭대명사",
+      "가주어",
+      "목적격 관계대명사",
+      "가목적어",
+      "지시형용사"
+    ],
+    "answer": 1,
+    "why": "진짜 주어는 to get enough sleep이고, 앞의 It은 문장의 형식상 자리를 채우는 가주어야.",
+    "hint": "It is + 형용사 + to부정사 패턴.",
+    "level": "기본"
+  },
+  {
+    "id": "q024",
+    "subject": "영어",
+    "topic": "비교 구문",
+    "stem": "The more you practice, the better you become.의 뜻은?",
+    "options": [
+      "연습하면 나빠진다",
+      "연습하는 동안 쉬어야 한다",
+      "더 연습할수록 더 나아진다",
+      "연습해도 변화가 없다",
+      "연습은 좋지 않다"
+    ],
+    "answer": 2,
+    "why": "The 비교급 ..., the 비교급 ... = ~할수록 더욱 ...하다.",
+    "hint": "the more, the better를 묶어서 외워.",
+    "level": "기본"
+  },
+  {
+    "id": "q025",
+    "subject": "통합과학",
+    "topic": "뉴턴의 운동 법칙",
+    "stem": "질량 2 kg인 물체에 알짜힘 6 N이 작용한다. 가속도의 크기는?",
+    "options": [
+      "1 m/s²",
+      "2 m/s²",
+      "3 m/s²",
+      "6 m/s²",
+      "12 m/s²"
+    ],
+    "answer": 2,
+    "why": "F=ma이므로 a=F/m=6/2=3 m/s².",
+    "hint": "알짜힘=질량×가속도.",
+    "level": "기본"
+  },
+  {
+    "id": "q026",
+    "subject": "통합과학",
+    "topic": "운동 에너지",
+    "stem": "질량 2 kg인 물체가 3 m/s로 운동할 때 운동 에너지는?",
+    "options": [
+      "3 J",
+      "6 J",
+      "9 J",
+      "12 J",
+      "18 J"
+    ],
+    "answer": 2,
+    "why": "운동 에너지 K=½mv²=½×2×3²=9 J.",
+    "hint": "속력은 제곱이야.",
+    "level": "기본"
+  },
+  {
+    "id": "q027",
+    "subject": "통합과학",
+    "topic": "전기 회로",
+    "stem": "2 Ω 저항과 3 Ω 저항을 직렬로 연결했다. 전체 저항은?",
+    "options": [
+      "0.6 Ω",
+      "1 Ω",
+      "2.5 Ω",
+      "5 Ω",
+      "6 Ω"
+    ],
+    "answer": 3,
+    "why": "직렬연결에서는 저항을 더해 2+3=5 Ω이야.",
+    "hint": "직렬은 합, 병렬은 역수의 합.",
+    "level": "기본"
+  },
+  {
+    "id": "q028",
+    "subject": "통합과학",
+    "topic": "산·염기",
+    "stem": "pH 3 용액의 수소 이온 농도는 pH 5 용액의 몇 배인가?",
+    "options": [
+      "1/100배",
+      "1/10배",
+      "10배",
+      "100배",
+      "1000배"
+    ],
+    "answer": 3,
+    "why": "pH가 1 낮아질 때 수소 이온 농도는 10배 커져. 2 차이면 100배.",
+    "hint": "pH는 로그 척도야.",
+    "level": "기본"
+  },
+  {
+    "id": "q029",
+    "subject": "통합과학",
+    "topic": "산화·환원",
+    "stem": "산화에 해당하는 것은?",
+    "options": [
+      "전자를 얻는다",
+      "전자를 잃는다",
+      "원자핵이 분열한다",
+      "항상 온도가 내려간다",
+      "물질이 반드시 녹는다"
+    ],
+    "answer": 1,
+    "why": "산화는 전자를 잃는 과정이고 환원은 전자를 얻는 과정이야.",
+    "hint": "산화 잃음 / 환원 얻음.",
+    "level": "기본"
+  },
+  {
+    "id": "q030",
+    "subject": "통합과학",
+    "topic": "온실 효과",
+    "stem": "다음 중 대표적인 온실 기체는?",
+    "options": [
+      "질소(N₂)",
+      "산소(O₂)",
+      "아르곤(Ar)",
+      "이산화탄소(CO₂)",
+      "헬륨(He)"
+    ],
+    "answer": 3,
+    "why": "이산화탄소는 온실 효과에 기여하는 기체 중 하나야.",
+    "hint": "탄소가 포함된 화석 연료 연소를 떠올려.",
+    "level": "기본"
+  },
+  {
+    "id": "q031",
+    "subject": "통합과학",
+    "topic": "판 구조론",
+    "stem": "해양 판이 서로 멀어지는 발산형 경계에서 흔히 형성되는 것은?",
+    "options": [
+      "해령",
+      "습곡 산맥만",
+      "깊은 해구만",
+      "대규모 충돌 분화구",
+      "퇴적 분지만"
+    ],
+    "answer": 0,
+    "why": "판이 멀어지는 곳에서는 마그마가 올라와 새로운 해양 지각을 만들며 해령이 형성될 수 있어.",
+    "hint": "새 해양 지각이 만들어지는 장소를 생각해.",
+    "level": "기본"
+  },
+  {
+    "id": "q032",
+    "subject": "통합과학",
+    "topic": "DNA 염기쌍",
+    "stem": "DNA의 아데닌(A)과 상보적으로 결합하는 염기는?",
+    "options": [
+      "아데닌(A)",
+      "구아닌(G)",
+      "사이토신(C)",
+      "타이민(T)",
+      "유라실(U)"
+    ],
+    "answer": 3,
+    "why": "DNA에서 A–T, G–C가 상보적 염기쌍이야. RNA에서는 보통 U가 등장해.",
+    "hint": "A는 T, G는 C.",
+    "level": "기본"
+  },
+  {
+    "id": "q033",
+    "subject": "통합과학",
+    "topic": "생태계 에너지",
+    "stem": "먹이 사슬에서 일반적으로 상위 영양 단계로 갈수록 이용 가능한 에너지는?",
+    "options": [
+      "증가한다",
+      "감소한다",
+      "항상 일정하다",
+      "무조건 0이 된다",
+      "생산자보다 항상 많다"
+    ],
+    "answer": 1,
+    "why": "호흡 등으로 에너지가 소모되므로 영양 단계가 올라갈수록 전달 가능한 에너지는 줄어드는 경향이 있어.",
+    "hint": "에너지는 매 단계에서 일부만 전달돼.",
+    "level": "기본"
+  },
+  {
+    "id": "q034",
+    "subject": "통합과학",
+    "topic": "화학 반응식",
+    "stem": "2H₂ + O₂ → 2H₂O에서 H₂, O₂, H₂O의 계수비는?",
+    "options": [
+      "1:1:1",
+      "2:1:2",
+      "1:2:2",
+      "2:2:1",
+      "4:1:2"
+    ],
+    "answer": 1,
+    "why": "수소와 산소의 원자 개수가 반응 전후 같아야 하므로 2:1:2.",
+    "hint": "원자 수 보존을 기준으로 세어.",
+    "level": "기본"
+  },
+  {
+    "id": "q035",
+    "subject": "통합과학",
+    "topic": "자전·공전과 계절",
+    "stem": "한국에서 계절 변화가 나타나는 주된 원인은?",
+    "options": [
+      "지구와 달의 거리만",
+      "지구 자전축의 기울기와 공전",
+      "하루마다 태양 크기가 달라짐",
+      "지구의 자전이 멈춤",
+      "달의 공전 속도가 계절을 결정"
+    ],
+    "answer": 1,
+    "why": "기울어진 지구 자전축을 유지한 채 태양 주위를 공전하며 일조 시간과 태양 고도가 달라져.",
+    "hint": "지구가 기울어진 채 태양 주위를 돌고 있어.",
+    "level": "기본"
+  },
+  {
+    "id": "q036",
+    "subject": "통합과학",
+    "topic": "평균 속력",
+    "stem": "물체가 10초 동안 60 m를 이동했다. 평균 속력은?",
+    "options": [
+      "0.6 m/s",
+      "3 m/s",
+      "5 m/s",
+      "6 m/s",
+      "60 m/s"
+    ],
+    "answer": 3,
+    "why": "평균 속력=이동 거리/걸린 시간=60/10=6 m/s.",
+    "hint": "거리 ÷ 시간.",
+    "level": "기본"
+  },
+  {
+    "id": "q037",
+    "subject": "통합사회",
+    "topic": "경제·기회비용",
+    "stem": "어떤 선택의 기회비용을 가장 정확히 설명한 것은?",
+    "options": [
+      "선택한 물건의 가격만",
+      "포기한 대안 가운데 가장 가치가 큰 것의 가치",
+      "모든 대안의 가치를 합친 것",
+      "언제나 0원",
+      "소득의 일정 비율"
+    ],
+    "answer": 1,
+    "why": "기회비용은 어떤 선택 때문에 포기한 대안 중 가치가 가장 큰 대안의 가치야. 직접 지출 비용과 함께 판단하기도 해.",
+    "hint": "선택하지 못한 것 중 가장 아까운 대안을 생각해.",
+    "level": "기본"
+  },
+  {
+    "id": "q038",
+    "subject": "통합사회",
+    "topic": "비교우위",
+    "stem": "두 나라가 교역할 때 비교우위를 판단하는 기준은?",
+    "options": [
+      "절대 생산량만",
+      "노동자 수만",
+      "물가상승률만",
+      "기회비용의 상대적 크기",
+      "국토 면적"
+    ],
+    "answer": 3,
+    "why": "비교우위는 다른 생산품을 포기해야 하는 기회비용이 상대적으로 낮을 때 생겨.",
+    "hint": "비교우위는 기회비용, 절대우위는 생산성.",
+    "level": "기본"
+  },
+  {
+    "id": "q039",
+    "subject": "통합사회",
+    "topic": "시장과 수요",
+    "stem": "다른 조건이 같을 때 정상재를 구매하는 사람들의 소득이 증가하면 그 재화의 수요는 대체로?",
+    "options": [
+      "감소",
+      "증가",
+      "0이 됨",
+      "공급만 변화",
+      "변화할 수 없음"
+    ],
+    "answer": 1,
+    "why": "정상재는 소득이 증가하면 수요가 증가하는 재화를 말해.",
+    "hint": "정상재라는 단어 자체가 힌트야.",
+    "level": "기본"
+  },
+  {
+    "id": "q040",
+    "subject": "통합사회",
+    "topic": "외부효과",
+    "stem": "공장이 생산 과정에서 주변 지역에 오염을 발생시키는 것은?",
+    "options": [
+      "긍정적 외부효과",
+      "완전한 공공재",
+      "부정적 외부효과",
+      "비교우위",
+      "환율 효과"
+    ],
+    "answer": 2,
+    "why": "오염으로 제3자가 비용을 부담하므로 부정적 외부효과야.",
+    "hint": "거래 당사자가 아닌 사람에게 피해가 발생해.",
+    "level": "기본"
+  },
+  {
+    "id": "q041",
+    "subject": "통합사회",
+    "topic": "환율",
+    "stem": "원/달러 환율이 1,300원에서 1,400원으로 상승하면, 다른 조건이 같을 때?",
+    "options": [
+      "같은 1달러를 사는 데 원화가 더 적게 든다",
+      "원화 가치가 상승한다",
+      "달러 표시 수입품의 원화 가격이 오를 수 있다",
+      "미국 달러 가치가 반드시 폭락했다",
+      "수입 비용이 항상 0이 된다"
+    ],
+    "answer": 2,
+    "why": "달러 1개를 사는 데 필요한 원화가 늘었으므로 원화 가치는 하락하고 달러 표시 수입품이 비싸질 수 있어.",
+    "hint": "달러 한 장의 원화 가격이 올랐다는 뜻.",
+    "level": "기본"
+  },
+  {
+    "id": "q042",
+    "subject": "통합사회",
+    "topic": "문화 이해",
+    "stem": "다른 문화의 생활 방식을 그 문화의 맥락에서 이해하려는 태도는?",
+    "options": [
+      "자문화 중심주의",
+      "문화 사대주의",
+      "문화 상대주의",
+      "문화 제국주의",
+      "편견"
+    ],
+    "answer": 2,
+    "why": "문화 상대주의는 문화의 배경과 맥락을 고려해 이해하려는 태도야. 단, 인권 침해를 무조건 용인한다는 뜻은 아니야.",
+    "hint": "그 문화의 환경과 맥락부터 이해해.",
+    "level": "기본"
+  },
+  {
+    "id": "q043",
+    "subject": "통합사회",
+    "topic": "환경 정책",
+    "stem": "탄소세가 해결하려는 대표적인 경제 문제는?",
+    "options": [
+      "공공재의 공급 과잉",
+      "부정적 외부효과",
+      "환율 고정",
+      "실업률 측정 오류",
+      "비교우위 소멸"
+    ],
+    "answer": 1,
+    "why": "온실가스 배출로 생기는 사회적 비용을 경제 활동의 의사결정에 반영하도록 유도하는 정책이야.",
+    "hint": "오염을 일으키는 행위에 사회적 비용을 반영해.",
+    "level": "기본"
+  },
+  {
+    "id": "q044",
+    "subject": "통합사회",
+    "topic": "정치·권력 분립",
+    "stem": "입법·행정·사법 기능을 나누는 주된 이유는?",
+    "options": [
+      "정치 참여 금지",
+      "선거 폐지",
+      "권력 집중과 남용 방지",
+      "법률의 전면 폐지",
+      "국민 기본권 축소"
+    ],
+    "answer": 2,
+    "why": "권력 분립은 권력이 한곳에 집중되어 남용되는 것을 견제하기 위한 원리야.",
+    "hint": "삼권이 서로 견제와 균형을 이루도록 해.",
+    "level": "기본"
+  },
+  {
+    "id": "q045",
+    "subject": "국어",
+    "topic": "접속 표현",
+    "stem": "“그는 열심히 준비했다. 그러나 결과는 좋지 않았다.”에서 그러나의 기능은?",
+    "options": [
+      "인과",
+      "대조·역접",
+      "예시",
+      "첨가",
+      "시간 순서"
+    ],
+    "answer": 1,
+    "why": "그러나는 앞뒤 내용이 기대와 다르거나 서로 대비됨을 나타내는 역접 표현이야.",
+    "hint": "앞뒤 문장 관계를 생각해.",
+    "level": "기본"
+  },
+  {
+    "id": "q046",
+    "subject": "국어",
+    "topic": "비유법",
+    "stem": "“그의 웃음은 햇살처럼 따뜻했다.”에 사용된 표현법은?",
+    "options": [
+      "직유법",
+      "반어법",
+      "설의법",
+      "역설법",
+      "의인법"
+    ],
+    "answer": 0,
+    "why": "“~처럼”이라는 비교 표지를 이용하므로 직유법이야.",
+    "hint": "처럼/같이/듯이 등 비교 표현을 찾아.",
+    "level": "기본"
+  },
+  {
+    "id": "q047",
+    "subject": "국어",
+    "topic": "논증",
+    "stem": "주장에 대한 구체적인 사례·통계·자료가 하는 주된 역할은?",
+    "options": [
+      "주제와 무관한 이야기 추가",
+      "주장을 뒷받침하는 근거 제시",
+      "문제의 난도 상승",
+      "독자의 읽기 방해",
+      "결론의 자동 삭제"
+    ],
+    "answer": 1,
+    "why": "근거는 주장에 설득력과 타당성을 부여해.",
+    "hint": "주장 = 말하고 싶은 것 / 근거 = 뒷받침하는 이유.",
+    "level": "기본"
+  },
+  {
+    "id": "q048",
+    "subject": "국어",
+    "topic": "시의 화자",
+    "stem": "문학 작품에서 시적 화자에 대한 설명으로 알맞은 것은?",
+    "options": [
+      "항상 실제 작가와 동일 인물이다",
+      "작품 속에서 말을 건네거나 정서를 드러내는 목소리이다",
+      "소설의 출판사이다",
+      "반드시 작품 제목이다",
+      "항상 독자와 동일하다"
+    ],
+    "answer": 1,
+    "why": "시적 화자는 시 안에서 말하는 주체야. 실제 작가와 자동으로 동일시하면 안 돼.",
+    "hint": "작품 안의 목소리와 현실 작가를 구분해.",
+    "level": "기본"
+  },
+  {
+    "id": "q049",
+    "subject": "국어",
+    "topic": "독서·중심 내용",
+    "stem": "글에서 글쓴이가 반복해 강조하는 핵심 생각은 보통 무엇이라 부르는가?",
+    "options": [
+      "주제",
+      "출처",
+      "부록",
+      "각주",
+      "문단 번호"
+    ],
+    "answer": 0,
+    "why": "글 전체를 관통하는 중심 생각이 주제야.",
+    "hint": "무엇을 말하려는 글인가를 한 문장으로 요약해.",
+    "level": "기본"
+  },
+  {
+    "id": "q050",
+    "subject": "한국사",
+    "topic": "일제 강점기",
+    "stem": "3·1 운동이 일어난 해는?",
+    "options": [
+      "1894년",
+      "1905년",
+      "1910년",
+      "1919년",
+      "1945년"
+    ],
+    "answer": 3,
+    "why": "3·1 운동은 1919년에 일어났고, 이후 대한민국 임시정부 수립에 영향을 주었어.",
+    "hint": "3·1 = 1919.",
+    "level": "기본"
+  },
+  {
+    "id": "q051",
+    "subject": "한국사",
+    "topic": "독립운동",
+    "stem": "대한민국 임시정부가 1919년에 수립된 도시는?",
+    "options": [
+      "베이징",
+      "상하이",
+      "도쿄",
+      "서울",
+      "평양"
+    ],
+    "answer": 1,
+    "why": "1919년 중국 상하이에 대한민국 임시정부가 수립되었어.",
+    "hint": "중국 상하이에서 시작했어.",
+    "level": "기본"
+  },
+  {
+    "id": "q052",
+    "subject": "한국사",
+    "topic": "광복",
+    "stem": "대한민국이 일제 식민 지배에서 광복한 해는?",
+    "options": [
+      "1919년",
+      "1932년",
+      "1945년",
+      "1948년",
+      "1950년"
+    ],
+    "answer": 2,
+    "why": "1945년 8월 15일 광복을 맞았어.",
+    "hint": "8·15 광복.",
+    "level": "기본"
+  },
+  {
+    "id": "q053",
+    "subject": "한국사",
+    "topic": "대한민국 정부 수립",
+    "stem": "대한민국 정부 수립 연도는?",
+    "options": [
+      "1910년",
+      "1919년",
+      "1945년",
+      "1948년",
+      "1953년"
+    ],
+    "answer": 3,
+    "why": "대한민국 정부는 1948년 8월 15일 수립되었어. 광복은 1945년이야.",
+    "hint": "광복 후 3년 뒤.",
+    "level": "기본"
+  },
+  {
+    "id": "q054",
+    "subject": "한국사",
+    "topic": "한국 전쟁",
+    "stem": "6·25 전쟁이 발발한 해는?",
+    "options": [
+      "1945년",
+      "1948년",
+      "1950년",
+      "1953년",
+      "1960년"
+    ],
+    "answer": 2,
+    "why": "6·25 전쟁은 1950년 6월 25일 발발했어.",
+    "hint": "사건 명칭의 6·25는 날짜야.",
+    "level": "기본"
+  }
+];
+const STORE='bkit.mock-rescue.20261020.v1';
+const SUBJECTS=['추천 순서','수학','영어','통합과학','통합사회','국어','한국사'];
+const $=id=>document.getElementById(id);
+const clean=v=>String(v).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const defaultData=()=>({completed:{},wrong:{},subject:'추천 순서',review:false});
+function load(){try{let p=JSON.parse(localStorage.getItem(STORE));if(p&&typeof p==='object')return {...defaultData(),...p,completed:p.completed||{},wrong:p.wrong||{}};}catch(e){}return defaultData()}
+let data=load(),cur=null,selected=null,hintOpen=false,answerShown=false;
+function save(){try{localStorage.setItem(STORE,JSON.stringify(data))}catch(e){}}
+function pickedList(){
+ if(data.review){return QUESTIONS.filter(q=>data.wrong[q.id]&&(data.subject==='추천 순서'||q.subject===data.subject));}
+ return QUESTIONS.filter(q=>!data.completed[q.id]&&(data.subject==='추천 순서'||q.subject===data.subject));
+}
+function nextQuestion(){cur=pickedList()[0]||null;selected=null;hintOpen=false;answerShown=false;draw();}
+function draw(){
+ const total=QUESTIONS.length,done=Object.keys(data.completed).length,
+ right=Object.values(data.completed).filter(x=>x.firstCorrect).length,
+ wrong=Object.keys(data.wrong).filter(id=>data.wrong[id]).length;
+ $('done').textContent=done+'/'+total;$('right').textContent=right;$('wrong').textContent=wrong;
+ $('progress-fill').style.width=(100*done/total)+'%';$('progress').setAttribute('aria-valuenow',String(Math.round(100*done/total)));
+ $('chips').innerHTML=SUBJECTS.map(s=>`<button type="button" class="chip ${data.subject===s?'active':''}" data-subject="${s}" aria-pressed="${data.subject===s}">${s}</button>`).join('');
+ $('review').textContent=data.review?'새 문제로 돌아가기':'오답 재도전';
+ $('status').textContent=data.review?'틀린 문제 다시 풀기':data.subject==='추천 순서'?'기초 점수 구출 · 추천 순서':data.subject+' · 기본 문제';
+ const card=$('card');
+ if(!cur){
+ const more=Object.keys(data.wrong).filter(id=>data.wrong[id]).length;
+ card.innerHTML=`<div class="complete"><div style="font-size:31px">${data.review?'↺':'✓'}</div><h2>${data.review?'이 과목 오답 복습 완료!':'이 범위 문제를 다 풀었어!'}</h2><p>${data.review?'다른 과목으로 넘어가거나 새 문제를 선택해 보자.':more?'틀린 문제가 '+more+'개 남아 있어. 지금 다시 풀면 기억이 더 오래가.':'잘했어. 오늘은 더 많은 계획보다 실제로 풀어낸 문제를 기록하고 마무리해.'}</p><button type="button" class="next" id="finishAction">${more?'오답 다시 풀기':'추천 문제 목록 보기'}</button></div>`;
+ $('finishAction').onclick=()=>{data.review=more>0;data.subject='추천 순서';save();nextQuestion()};return;
+ }
+ const opts=cur.options.map((o,i)=>{
+   let cls='';if(answerShown){if(i===cur.answer)cls='correct';else if(i===selected)cls='wrong';}
+   return `<button type="button" class="opt ${cls}" data-idx="${i}" ${answerShown?'disabled':''}><span class="n">${i+1}</span><span>${clean(o)}</span></button>`;
+ }).join('');
+ card.innerHTML=`<div class="eyebrow"><span>${clean(cur.subject)} · ${clean(cur.topic)}</span><span>${clean(cur.level)}</span></div><h2 class="q">${clean(cur.stem)}</h2><div class="opt-list" role="group" aria-label="보기에서 정답 선택">${opts}</div><div class="help-row"><button type="button" class="hint-btn" id="hint" ${answerShown?'disabled':''}>${hintOpen?'힌트 감추기':'모르겠으면 힌트 보기'} ↗</button><span style="color:#869d97;font-size:11px">${data.review?'오답 재도전':'한 문제씩'}</span></div>${hintOpen&&!answerShown?`<div class="hint-text">${clean(cur.hint)}</div>`:''}${answerShown?`<div class="feedback ${selected===cur.answer?'':'is-wrong'}" role="status"><strong>${selected===cur.answer?'맞았어! 핵심을 확인하자.':'괜찮아. 정답은 '+(cur.answer+1)+'번이야.'}</strong><p>${clean(cur.why)}</p></div><button id="next" class="next" type="button">다음 문제 바로 풀기 →</button>`:''}<p class="assist">단 20초만 생각하고 선택해. 답을 고른 다음 설명을 읽는 게 시작이야.</p>`;
+ card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(Number(b.dataset.idx)));
+ const hint=$('hint');if(hint)hint.onclick=()=>{hintOpen=!hintOpen;draw();};
+ const next=$('next');if(next)next.onclick=nextQuestion;
+}
+function answer(i){if(!cur||answerShown)return;let correct=i===cur.answer;selected=i;answerShown=true;
+ if(!data.review){data.completed[cur.id]={firstCorrect:correct,answeredAt:new Date().toISOString()};if(!correct)data.wrong[cur.id]=true;}
+ else if(correct)delete data.wrong[cur.id];
+ save();if(!timerStarted)startFocus();draw();}
+$('chips').addEventListener('click',e=>{let b=e.target.closest('[data-subject]');if(!b)return;data.subject=b.dataset.subject;save();nextQuestion()});
+$('review').onclick=()=>{data.review=!data.review;save();nextQuestion()};
+$('reset').onclick=()=>{if(confirm('모든 문제 풀이·오답 진도를 지울까? 이 기기에서만 초기화돼.')){data=defaultData();save();nextQuestion();}};
+// A focus interval excludes backgrounded time. We do not claim it measures active study or sleep.
+let remaining=15*60, timerStarted=false,timerRunning=false,lastTick=0,tickHandle=null;
+function showClock(){let t=Math.max(0,Math.ceil(remaining));$('timer').textContent=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');$('pause').textContent=timerRunning?'잠깐 멈추기':timerStarted?'집중 이어가기':'집중 시작';}
+function tick(){if(!timerRunning)return;let now=performance.now();remaining=Math.max(0,remaining-(now-lastTick)/1000);lastTick=now;showClock();if(remaining<=0){timerRunning=false;clearInterval(tickHandle);$('focusLabel').textContent='15분 완료!';$('focusMsg').textContent='목·어깨 펴고 물 한 모금. 다음 문제는 원할 때 이어서.';showClock();}}
+function startFocus(){if(remaining<=0)remaining=15*60;timerStarted=true;timerRunning=true;lastTick=performance.now();clearInterval(tickHandle);tickHandle=setInterval(tick,250);showClock()}
+function stopFocus(){tick();timerRunning=false;clearInterval(tickHandle);showClock()}
+$('pause').onclick=()=>{timerRunning?stopFocus():startFocus()};
+$('restartTimer').onclick=()=>{timerRunning=false;clearInterval(tickHandle);remaining=15*60;timerStarted=false;$('focusLabel').textContent='집중 15분';$('focusMsg').textContent='첫 답을 누르면 자동 시작 · 화면 이탈 시 일시정지';showClock()};
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&timerRunning){stopFocus();$('focusMsg').textContent='화면을 떠나서 자동 일시정지했어. 돌아오면 재개할 수 있어.';}});
+(function(){let p=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',hour:'numeric',hour12:false}).format(new Date());let h=Number(p)%24;if(h>=21||h<6)$('sleepNote').hidden=false})();
+showClock();nextQuestion();
+</script></body></html>
