@@ -35,6 +35,7 @@ import { ReviewDeck } from './ReviewDeck';
 import { buildReviewQueue, recordReviewOutcome, type ReviewOutcome } from './review';
 import { shouldAutoHideFocusUi } from './focusQuiet';
 import { FocusHalo } from './FocusHalo';
+import { applyTheme, nextTheme, restoreTheme, saveTheme } from './theme';
 import { LiquidOptics } from './LiquidOptics';
 import { WaterDrop } from './WaterDrop';
 import { DayTimeline } from './DayTimeline';
@@ -67,6 +68,7 @@ import {
   X,
   Menu,
   Moon,
+  Sun,
   LockKeyhole,
   Pencil,
   CheckSquare,
@@ -229,6 +231,14 @@ export default function App() {
   const [s, setS] = useState<State>(initial.state),
     [storageError, setStorageError] = useState(initial.error),
     [readBlocked, setReadBlocked] = useState(!!initial.error);
+  const [theme, setTheme] = useState(() => restoreTheme(window.localStorage));
+  useEffect(() => { applyTheme(theme); }, [theme]);
+  const changeTheme = () => {
+    const next = nextTheme(theme);
+    setTheme(next);
+    if (!saveTheme(window.localStorage, next))
+      setNotice('화면 모드는 바뀌었지만 브라우저가 설정 저장을 막았어요. 다시 접속하면 원래대로 돌아올 수 있어요.');
+  };
   const [atelierOpen, setAtelierOpen] = useState(false);
   const [atelierStep, setAtelierStep] = useState<'capture' | undefined>();
   function openAtelier(step?: 'capture') { setAtelierStep(step); setAtelierOpen(true); }
@@ -251,6 +261,9 @@ export default function App() {
       | 'import'
     >(null);
   function setTab(route:string) {if(flushLearning(()=>setTab(route)))setTabState(route);}
+  const settingsReturnTab = useRef('today');
+  useEffect(() => { if (tab !== 'settings') settingsReturnTab.current = tab; }, [tab]);
+  function toggleSettings() { setTab(tab === 'settings' ? settingsReturnTab.current : 'settings'); }
   const sleep = useSleepGuard(now, Boolean(s.active));
   const [energy,setEnergy] = useState<'low'|'normal'>('normal');
   const [taskPresetKind, setTaskPresetKind] = useState<Task['kind']>('숙제');
@@ -1095,11 +1108,11 @@ export default function App() {
             </span>
           </div>
           {tab === 'today' ? <div className="home-top-tools">
-            <button className="icon-button" aria-label="Sleep Guard 열기" onClick={() => setTab('sleep')}><Moon size={20}/></button>
+            <button type="button" className="icon-button theme-toggle" aria-label={theme === 'dark' ? '라이트모드로 전환' : '다크모드로 전환'} title={theme === 'dark' ? '라이트모드' : '다크모드'} aria-pressed={theme === 'dark'} onClick={changeTheme}>{theme === 'dark' ? <Sun size={20}/> : <Moon size={20}/>}</button>
             {!online && <span>오프라인</span>}
             <button type="button" className="icon-button home-tools-button" aria-label="더 보기" aria-expanded={modal === 'tools'} aria-controls="bkit-tools-menu" onClick={() => modal === 'tools' ? setModal(null) : open('tools')}><Menu size={22}/></button>
           </div> :           <div className="top-meta">
-            <button className="icon-button" aria-label="Sleep Guard 열기" onClick={() => setTab('sleep')}><Moon size={20}/></button>
+            <button type="button" className="icon-button theme-toggle" aria-label={theme === 'dark' ? '라이트모드로 전환' : '다크모드로 전환'} title={theme === 'dark' ? '라이트모드' : '다크모드'} aria-pressed={theme === 'dark'} onClick={changeTheme}>{theme === 'dark' ? <Sun size={20}/> : <Moon size={20}/>}</button>
             <span className={'status-dot ' + (!online ? 'offline' : '')} />
             <span>{online ? '로컬 저장 모드' : '오프라인 모드'}</span>
             <button
@@ -1123,9 +1136,10 @@ export default function App() {
             <button
               type="button"
               className="icon-button topbar-settings-action"
-              aria-label="설정 열기"
-              title="설정 열기"
-              onClick={() => setTab('settings')}
+              aria-label={tab === 'settings' ? '설정 닫기' : '설정 열기'}
+              title={tab === 'settings' ? '설정 닫기' : '설정 열기'}
+              aria-pressed={tab === 'settings'}
+              onClick={toggleSettings}
             >
               <SlidersHorizontal size={19} />
             </button>
@@ -1977,6 +1991,15 @@ export default function App() {
           )}
           {tab === 'settings' && (
             <>
+              <section className="theme-preferences panel" aria-label="화면 모드 설정">
+                <div>
+                  <h2>화면 모드</h2>
+                  <p>눈이 편한 다크모드로 전환해도 공부 기록과 파일은 변경되지 않아요.</p>
+                </div>
+                <button type="button" className="secondary theme-preferences-action" aria-pressed={theme === 'dark'} onClick={changeTheme}>
+                  {theme === 'dark' ? <Sun size={18}/> : <Moon size={18}/>} {theme === 'dark' ? '라이트모드로 전환' : '다크모드로 전환'}
+                </button>
+              </section>
               <Suspense fallback={<p role="status">전체 백업을 여는 중…</p>}><CompleteBackupPanel studying={!!s.active || !!s.quickTimer}/></Suspense>
               <div className="settings-layout">
                 <section className="panel">
