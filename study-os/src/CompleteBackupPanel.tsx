@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { auditStudyStorage, type StorageAudit } from './storageReadiness';
 import {
   exportCompleteBackup,
   inspectCompleteBackup,
@@ -24,6 +25,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
   const working = useRef(false);
   const [storageStatus, setStorageStatus] = useState('');
   const [checkingStorage, setCheckingStorage] = useState(false);
+  const [audit, setAudit] = useState<StorageAudit | null>(null);
   async function inspectLocalStorageHealth() {
     setCheckingStorage(true);
     try {
@@ -101,6 +103,44 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
         {checkingStorage ? '저장 환경 확인 중…' : '현재 기기 저장 환경 확인'}
       </button>
       {storageStatus && <p className="muted" role="status">{storageStatus}</p>}
+      <button
+        type="button"
+        disabled={busy || checkingStorage}
+        onClick={() =>
+          void work(async () => {
+            setAudit(null);
+            const result = await auditStudyStorage(localStorage, setMessage);
+            setAudit(result);
+            setMessage('기기 안의 기록 및 연결된 원본 검사 완료. 결과를 아래에서 확인하세요.');
+          })
+        }
+      >
+        내 공부 기록·PDF·필기 원본 정밀 검사
+      </button>
+      {audit && (
+        <section aria-label="저장 무결성 진단 결과" className="resource-editor">
+          <h3>이 기기의 저장 상태</h3>
+          <p>
+            과제 {audit.tasks}개 · 문제 {audit.problems}개 · PDF/사진 문서 {audit.paperDocuments}개 ·
+            페이지 {audit.paperPages}장 · 필기 획 {audit.strokes}개
+          </p>
+          <p>
+            기존 학습 사진 {audit.studyPhotos}장 · 수면 사진 {audit.sleepPhotos}장 ·
+            확인한 PDF/학습지 원본 {audit.verifiedOriginals}개
+          </p>
+          <ul>
+            {audit.findings.map((finding, i) => (
+              <li key={i} role={finding.level === 'error' ? 'alert' : undefined}>
+                {finding.level === 'error' ? '점검 필요: ' : '안내: '}{finding.message}
+              </li>
+            ))}
+          </ul>
+          <p className="muted">
+            이 검사는 현재 기기에서 읽을 수 있는 원본을 검사합니다. 브라우저 캐시 삭제, 기기 분실,
+            외부 백업 파일의 실제 보존 여부와 다른 기기 동기화는 보장하지 않습니다.
+          </p>
+        </section>
+      )}
       <label>
         전체 ZIP 백업 검사
         <input
