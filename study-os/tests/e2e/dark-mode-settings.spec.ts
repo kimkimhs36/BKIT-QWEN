@@ -49,7 +49,7 @@ test('settings icon toggles closed when tapped again and settings has a dedicate
 test('settings top-right button returns to last non-settings screen', async ({ page }) => {
   await page.goto('./');
   // From another app tab, settings should close back to that tab.
-  await page.getByRole('button', { name: /집중 LEARN/ }).first().click();
+  await page.getByRole('navigation', { name: '주 메뉴' }).getByRole('button', { name: '집중' }).click();
   await expect(page.locator('.app-shell')).toHaveClass(/page-study/);
   const button = page.locator('.topbar-settings-action');
   await button.click();
