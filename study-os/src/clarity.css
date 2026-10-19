@@ -1014,3 +1014,10 @@ body > .orbit-nav button:not(.active):hover {
 @media (max-width: 767px) {
   .app-shell.atelier-os .tablet-primary-nav { display: none; }
 }
+
+/* 320px phones need a little less card padding to keep all three existing
+   actions above Safari's bottom dock. Keep every label and touch target. */
+@media (max-width: 360px) {
+  .app-shell.atelier-os.page-today .home-primary { gap: 12px; }
+  .app-shell.atelier-os.page-today .home-primary .command-stage { padding: 16px 18px; }
+}

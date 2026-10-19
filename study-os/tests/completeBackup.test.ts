@@ -257,3 +257,21 @@ describe('complete local archive preservation', () => {
     await expect(readLocalZip(new Blob(['bad']))).rejects.toThrow();
   });
 });
+
+describe('restore while quick study is in progress', () => {
+  it.each(['merge', 'replace'] as const)(
+    'refuses %s before touching any live key or recovery journal',
+    async (mode) => {
+      const source = storage({ [KEY]: JSON.stringify(newState()) });
+      const zip = await exportCompleteBackup(source);
+      const active = startQuick(newState(), 'stopwatch', 480, Date.now(), 'must-survive');
+      const original = JSON.stringify(active);
+      const target = storage({ [KEY]: original });
+      const preview = await inspectCompleteBackup(zip, target);
+      const beforeLength = target.length;
+      await expect(restoreCompleteBackup(preview, mode, target)).rejects.toThrow('타이머');
+      expect(target.getItem(KEY)).toBe(original);
+      expect(target.length).toBe(beforeLength);
+    },
+  );
+});

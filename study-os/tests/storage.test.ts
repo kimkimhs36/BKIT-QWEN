@@ -196,3 +196,21 @@ describe('explicit restore recovery', () => {
     expect(parseBackup(store.getItem(KEY + '.before-restore.test')!).revision).toBe(17);
   });
 });
+
+describe('legacy JSON timer imports', () => {
+  it('does not accrue archive age and preserves original committed segments', async () => {
+    const { startQuick, pauseQuick, resumeQuick, pausedStudySnapshot } =
+      await import('../src/quickTimer');
+    const { pausedImportedState } = await import('../src/storage');
+    let state = startQuick(newState(), 'stopwatch', 480, 0, 'legacy');
+    state = resumeQuick(pauseQuick(state, 60000), 120000);
+    const bytes = JSON.stringify(state);
+    const exported = pausedStudySnapshot(state, 180000);
+    expect(exported.quickTimer?.elapsed).toBe(120);
+    expect(JSON.stringify(state)).toBe(bytes);
+    const restored = pausedImportedState(parseBackup(bytes));
+    expect(restored.quickTimer?.segmentStart).toBeNull();
+    expect(restored.quickTimer?.elapsed).toBe(60);
+    expect(restored.quickTimer?.segments).toEqual(state.quickTimer?.segments);
+  });
+});

@@ -1,0 +1,57 @@
+name: Verify BKIT 3.5 development (no deploy)
+on:
+  push:
+    branches: [feat/bkit-3-5-product-perfection]
+    paths-ignore: ['**/*.md']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: bkit-35-verify-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  static-and-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+  browser-regression:
+    needs: static-and-data
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [iphone, ipad, desktop, galaxy-css, webkit-iphone, webkit-ipad]
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:e2e -- --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bkit-35-${{ matrix.project }}
+          path: study-os/test-results/
+          retention-days: 14

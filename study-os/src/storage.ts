@@ -50,3 +50,12 @@ export function parseBackup(raw: string) {
   if (raw.length > 5_000_000) throw new Error('백업이 너무 큽니다.');
   return stateSchema.parse(JSON.parse(raw));
 }
+
+/** A legacy JSON file has no export timestamp: retain committed time, never accrue archive age. */
+export function pausedImportedState(state: State): State {
+  return {
+    ...state,
+    active: state.active ? { ...state.active, segmentStart: null } : null,
+    quickTimer: state.quickTimer ? { ...state.quickTimer, segmentStart: null } : state.quickTimer,
+  };
+}
