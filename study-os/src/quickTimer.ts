@@ -62,7 +62,7 @@ export function finishQuick(state: State, now: number): State {
     started: timer.started,
     ended: iso(now),
     seconds,
-    target: timer.targetMinutes,
+    target: timer.mode === 'stopwatch' ? Math.max(1, Math.min(480, Math.ceil(seconds / 60))) : timer.targetMinutes,
     problems: 0,
     concepts: '',
     rating: '보통',
