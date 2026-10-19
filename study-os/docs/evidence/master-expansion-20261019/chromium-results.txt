@@ -1,0 +1,35 @@
+[WebServer] (node:4072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 20 tests using 1 worker
+
+(node:4089) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [iphone] › tests/e2e/dark-mode-settings.spec.ts:24:1 › settings icon toggles closed when tapped again and settings has a dedicated dark toggle (3.1s)
+  ✓   2 [iphone] › tests/e2e/drive-reward.spec.ts:312:1 › INTERMISSION keeps the break deadline through rooms and reload, and WAKE pauses actual study (4.7s)
+  ✓   3 [iphone] › tests/e2e/drive-reward.spec.ts:374:1 › question sprint measures actual time independently from solved output and survives a reset (3.3s)
+  ✓   4 [iphone] › tests/e2e/drive-reward.spec.ts:425:1 › new garage layers and confirmed ownership persist after refresh (4.3s)
+  ✓   5 [iphone] › tests/e2e/drive-reward.spec.ts:461:1 › JUGGERNAUT saves a confirmed date and reads the existing study ledger (3.5s)
+(node:4491) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [ipad] › tests/e2e/dark-mode-settings.spec.ts:24:1 › settings icon toggles closed when tapped again and settings has a dedicated dark toggle (2.9s)
+  ✓   7 [ipad] › tests/e2e/drive-reward.spec.ts:312:1 › INTERMISSION keeps the break deadline through rooms and reload, and WAKE pauses actual study (4.0s)
+  ✓   8 [ipad] › tests/e2e/drive-reward.spec.ts:374:1 › question sprint measures actual time independently from solved output and survives a reset (3.0s)
+  ✓   9 [ipad] › tests/e2e/drive-reward.spec.ts:425:1 › new garage layers and confirmed ownership persist after refresh (4.1s)
+  ✓  10 [ipad] › tests/e2e/drive-reward.spec.ts:461:1 › JUGGERNAUT saves a confirmed date and reads the existing study ledger (4.1s)
+(node:4879) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [galaxy-css] › tests/e2e/dark-mode-settings.spec.ts:24:1 › settings icon toggles closed when tapped again and settings has a dedicated dark toggle (2.9s)
+  ✓  12 [galaxy-css] › tests/e2e/drive-reward.spec.ts:312:1 › INTERMISSION keeps the break deadline through rooms and reload, and WAKE pauses actual study (3.9s)
+  ✓  13 [galaxy-css] › tests/e2e/drive-reward.spec.ts:374:1 › question sprint measures actual time independently from solved output and survives a reset (2.9s)
+  ✓  14 [galaxy-css] › tests/e2e/drive-reward.spec.ts:425:1 › new garage layers and confirmed ownership persist after refresh (4.2s)
+  ✓  15 [galaxy-css] › tests/e2e/drive-reward.spec.ts:461:1 › JUGGERNAUT saves a confirmed date and reads the existing study ledger (4.0s)
+(node:5255) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 [desktop] › tests/e2e/dark-mode-settings.spec.ts:24:1 › settings icon toggles closed when tapped again and settings has a dedicated dark toggle (2.8s)
+  ✓  17 [desktop] › tests/e2e/drive-reward.spec.ts:312:1 › INTERMISSION keeps the break deadline through rooms and reload, and WAKE pauses actual study (4.4s)
+  ✓  18 [desktop] › tests/e2e/drive-reward.spec.ts:374:1 › question sprint measures actual time independently from solved output and survives a reset (3.4s)
+  ✓  19 [desktop] › tests/e2e/drive-reward.spec.ts:425:1 › new garage layers and confirmed ownership persist after refresh (3.9s)
+  ✓  20 [desktop] › tests/e2e/drive-reward.spec.ts:461:1 › JUGGERNAUT saves a confirmed date and reads the existing study ledger (3.4s)
+
+  20 passed (1.3m)

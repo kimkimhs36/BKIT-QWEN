@@ -1,0 +1,50 @@
+
+> bkit-study-os@3.6.0-dev build
+> tsc -b && vite build
+
+vite v6.4.4 building for production...
+transforming...
+✓ 1943 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                          1.24 kB │ gzip:   0.64 kB
+dist/assets/dm-sans-latin-600-normal-Aqo67rzb.woff2     14.14 kB
+dist/assets/dm-sans-latin-400-normal-CW0RaeGs.woff2     14.20 kB
+dist/assets/dm-sans-latin-500-normal-B9HHJjqV.woff2     14.30 kB
+dist/assets/dm-sans-latin-700-normal-DvUfVpUG.woff2     14.35 kB
+dist/assets/dm-sans-latin-600-normal-BmdmIIQ2.woff      18.32 kB
+dist/assets/dm-sans-latin-400-normal-BwCSEQnW.woff      18.36 kB
+dist/assets/dm-sans-latin-700-normal-CUSSCpQX.woff      18.50 kB
+dist/assets/dm-sans-latin-500-normal-Dr3UlScf.woff      18.52 kB
+dist/assets/pdf.worker.min-yatZIOMy.mjs              1,375.84 kB
+dist/assets/DigitalPaperRoom-DxjXuaYr.css                2.71 kB │ gzip:   0.99 kB
+dist/assets/Juggernaut-CiWwpwPW.css                     43.74 kB │ gzip:  10.77 kB
+dist/assets/index-CF0px_lR.css                         247.40 kB │ gzip:  52.94 kB
+dist/assets/pdf.worker.min--YMEZGJq.js                   0.08 kB │ gzip:   0.10 kB
+dist/assets/useBreakDialog-fOH-uXYD.js                   0.66 kB │ gzip:   0.37 kB
+dist/assets/photoVault-7u-SMmFn.js                       1.06 kB │ gzip:   0.63 kB
+dist/assets/MoreHub-BVpQFVj-.js                          1.97 kB │ gzip:   1.21 kB
+dist/assets/WakeBomb-DXVWxPow.js                         2.67 kB │ gzip:   1.58 kB
+dist/assets/ResourcePaper-CrKuY7gs.js                    2.76 kB │ gzip:   1.35 kB
+dist/assets/Intermission-C-oe2KtN.js                     2.78 kB │ gzip:   1.51 kB
+dist/assets/ProblemReviewQueue-BtuJUPiI.js               2.91 kB │ gzip:   1.39 kB
+dist/assets/ResourceReviews-CLbj1T6a.js                  3.14 kB │ gzip:   1.57 kB
+dist/assets/LearningEvidence-DglOMHy-.js                 5.43 kB │ gzip:   2.15 kB
+dist/assets/ExamPanel-DIk493eY.js                        5.99 kB │ gzip:   2.52 kB
+dist/assets/paperPdf-C7nAf6iW.js                         6.51 kB │ gzip:   3.07 kB
+dist/assets/DragRace-BTxCnSmI.js                         7.32 kB │ gzip:   3.04 kB
+dist/assets/Garage-L_7QC3bb.js                           8.44 kB │ gzip:   3.38 kB
+dist/assets/ResourceLibrary-BOkEFkxU.js                 11.95 kB │ gzip:   4.29 kB
+dist/assets/DigitalLibrary-NMvQZF6W.js                  11.98 kB │ gzip:   4.64 kB
+dist/assets/index-C6xHUsg2.js                           15.83 kB │ gzip:   6.83 kB
+dist/assets/SleepGuard-BkYhoxX_.js                      16.73 kB │ gzip:   6.45 kB
+dist/assets/MultiProblemWorkspace-C7yg69F6.js           17.28 kB │ gzip:   6.57 kB
+dist/assets/DigitalPaperRoom-VcGyj-KR.js                21.45 kB │ gzip:   8.17 kB
+dist/assets/CompleteBackupPanel-C3AaHChL.js             28.13 kB │ gzip:   9.99 kB
+dist/assets/Juggernaut-By66Ig_p.js                      30.53 kB │ gzip:  11.10 kB
+dist/assets/schema-vendor-DYuAzjeD.js                   54.21 kB │ gzip:  12.35 kB
+dist/assets/react-vendor-DVGOrvbP.js                   223.23 kB │ gzip:  69.25 kB
+dist/assets/index-CpW3pkKL.js                          320.87 kB │ gzip: 101.05 kB
+dist/assets/pdf-CcZYcL52.js                            365.12 kB │ gzip: 107.61 kB
+dist/assets/index-BK0fcFFg.js                          437.04 kB │ gzip: 180.61 kB
+✓ built in 5.17s
