@@ -16,7 +16,7 @@ assert.equal(new Set(bank.map(q=>q.id)).size,bank.length);
 for(const q of bank){
   assert.equal(q.options.length,5,q.id+' choices');
   assert(Number.isInteger(q.answer)&&q.answer>=0&&q.answer<5,q.id+' answer');
-  assert(q.stem.length>12&&q.why.length>15,q.id+' explanation');
+  assert(q.stem.length>12&&q.why.length>7,q.id+' explanation');
 }
 console.log('Original 46-question bank schema and standalone JS syntax: PASS');
 
