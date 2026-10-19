@@ -110,7 +110,7 @@ export function QuickStudyTimer({
           </div>
           {mode === 'countdown' && (
             <div className="quick-timer-lengths" aria-label="타이머 목표">
-              {[10, 25, 45, 60].map((n) => (
+              {[5, 10, 25, 45, 60].map((n) => (
                 <button
                   type="button"
                   key={n}
@@ -152,7 +152,7 @@ export function QuickStudyTimer({
         </div>
       ) : (
         <div className="quick-timer-running">
-          {controller.garage.display === 'drive' ? (
+          {['drive', 'dashboard'].includes(controller.garage.display) ? (
             <DriveDashboard
               controller={controller}
               seconds={seconds}

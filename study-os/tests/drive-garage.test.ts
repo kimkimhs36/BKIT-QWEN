@@ -78,4 +78,23 @@ describe('local learning rewards', () => {
     expect(purchase(unlocked, 'aero')).toBe(unlocked);
     expect(garageSchema.safeParse({ ...g, car: { ...g.car, wheels: 'aero' } }).success).toBe(false);
   });
+  it('migrates existing cars without losing money and records purchases and capped rewards once', () => {
+    const raw = newGarage(t);
+    const { transactions, stamps, ...legacy } = raw;
+    const { wheelColor, rideHeight, ...car } = legacy.car;
+    const migrated = garageSchema.parse({ ...legacy, credits: 30, car });
+    expect(migrated.car.wheelColor).toBe('silver');
+    expect(migrated.car.rideHeight).toBe('standard');
+    const bought = purchase(migrated, 'aero', t + 1);
+    expect(bought.credits).toBe(15);
+    expect(bought.transactions[0].amount).toBe(-15);
+    const study = answered(30);
+    const earned = rewardLearning(bought, study, t + 4000);
+    expect(earned.transactions).toHaveLength(31);
+    expect(earned.stamps.map(s => s.id)).toEqual(['first-answer']);
+    expect(garageSchema.safeParse(earned).success).toBe(true);
+    expect(rewardLearning(earned, study, t + 5000).transactions).toEqual(earned.transactions);
+    expect(garageSchema.safeParse({ ...earned, transactions: [...earned.transactions, earned.transactions[0]] }).success).toBe(false);
+  });
+
 });

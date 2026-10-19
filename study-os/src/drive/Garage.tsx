@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Car } from './Car';
 import { catalog, DAILY_CAP, purchase, type GarageState, type Upgrade } from './garage';
 import type { GarageController } from './useGarage';
@@ -14,8 +15,31 @@ export function Garage({
   canRace: boolean;
 }) {
   const { garage: g, update, error } = controller;
+  const [confirm, setConfirm] = useState<Upgrade | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
+  async function buy(item: Upgrade) {
+    setBusy(true);
+    let bought = false;
+    const saved = await update((v) => {
+      const next = purchase(v, item);
+      bought = next !== v;
+      return next;
+    });
+    setMessage(
+      saved && bought
+        ? catalog[item].label + ' 구매·저장 완료. 나의 사양에서 장착하세요.'
+        : saved
+          ? '잔액 또는 보유 상태가 바뀌었어요. 비용을 다시 확인하세요.'
+          : '구매를 저장하지 못했어요. 잔액을 유지했어요.',
+    );
+    setBusy(false);
+    setConfirm(null);
+  }
   function car(patch: Partial<GarageState['car']>) {
-    update((v) => ({ ...v, car: { ...v.car, ...patch } }));
+    void update((v) => ({ ...v, car: { ...v.car, ...patch } })).then((ok) =>
+      setMessage(ok ? '차량 설정 저장 완료' : '차량 설정을 저장하지 못했어요.'),
+    );
   }
   return (
     <section className="tohesar" aria-label="TOHEŞAR GARAGE">
@@ -38,6 +62,7 @@ export function Garage({
           </small>
         </div>
       </header>
+      <p role="status">{message}</p>
       {error && <p role="alert">{error}</p>}
       <div className={'garage-showroom scene-' + g.car.scene}>
         <span className="garage-edition">T·36 / YOUR STUDY, YOUR DRIVE</span>
@@ -80,6 +105,32 @@ export function Garage({
               <option value="aero" disabled={!g.owned.includes('aero')}>
                 AERO {g.owned.includes('aero') ? '· 보유' : '· 잠김'}
               </option>
+            </select>
+          </label>
+          <label>
+            휠 색상 · 무료
+            <select
+              value={g.car.wheelColor}
+              onChange={(e) =>
+                car({ wheelColor: e.currentTarget.value as GarageState['car']['wheelColor'] })
+              }
+            >
+              <option value="silver">SILVER</option>
+              <option value="graphite">GRAPHITE</option>
+              <option value="bronze">BRONZE</option>
+            </select>
+          </label>
+          <label>
+            서스펜션 높이 · 외형 전용
+            <select
+              value={g.car.rideHeight}
+              onChange={(e) =>
+                car({ rideHeight: e.currentTarget.value as GarageState['car']['rideHeight'] })
+              }
+            >
+              <option value="standard">STANDARD</option>
+              <option value="low">LOW</option>
+              <option value="raised">RAISED</option>
             </select>
           </label>
           <label>
@@ -135,12 +186,58 @@ export function Garage({
               </div>
               <button
                 disabled={g.owned.includes(id) || g.credits < item.cost}
-                onClick={() => update((v) => purchase(v, id))}
+                onClick={() => setConfirm(id)}
               >
                 {g.owned.includes(id) ? '보유 중' : item.cost + ' CR로 열기'}
               </button>
             </div>
           ))}
+          {confirm && (
+            <section className="purchase-confirm" aria-label="부품 구매 확인">
+              <p>
+                {catalog[confirm].label} · {catalog[confirm].cost} CR
+                <br />
+                현재 {g.credits} CR → 구매 후 {Math.max(0, g.credits - catalog[confirm].cost)} CR
+              </p>
+              <button
+                disabled={busy || g.owned.includes(confirm) || g.credits < catalog[confirm].cost}
+                onClick={() => buy(confirm)}
+              >
+                구매 확정
+              </button>
+              <button disabled={busy} onClick={() => setConfirm(null)}>
+                취소
+              </button>
+            </section>
+          )}
+          <details className="garage-ledger">
+            <summary>스탬프·크레딧 내역</summary>
+            <p>스탬프 {g.stamps.length}개 · 교환하지 않는 학습 성취 기록</p>
+            {g.stamps.map((s) => (
+              <p key={s.id}>
+                ✓ {s.id === 'first-answer' ? '첫 풀이 확인' : '5분 이상 학습·문제 기록 완료'}
+              </p>
+            ))}
+            <p>이전 잔액 {g.credits - g.transactions.reduce((n, t) => n + t.amount, 0)} CR</p>
+            <ol>
+              {g.transactions
+                .slice(-20)
+                .reverse()
+                .map((t) => (
+                  <li key={t.id}>
+                    {new Date(t.at).toLocaleDateString()} ·{' '}
+                    {t.reason === 'purchase'
+                      ? '부품 구매'
+                      : t.reason === 'session'
+                        ? '학습 세션 완료'
+                        : '풀이 확인'}{' '}
+                    · {t.amount > 0 ? '+' : ''}
+                    {t.amount} CR
+                  </li>
+                ))}
+            </ol>
+            <p>최근 20건 표시 · 무료·비현금성·양도 불가 · 현금 환전 불가</p>
+          </details>
           <p className="garage-policy">
             답안을 제출하고 직접 확인하면 문제당 5 CR, 1분 이상 학습 후 문제 수를 기록해 종료하면 10
             CR. 자료·답안 학습은 중복 지급하지 않아요. 시간만 흐르거나 게임을 해서는 지급되지

@@ -8,18 +8,22 @@ import './drive.css';
 export function DriveSwitch({ controller }: { controller: GarageController }) {
   return (
     <div className="drive-switch" role="group" aria-label="집중 화면 선택">
-      <button
-        aria-pressed={controller.garage.display === 'classic'}
-        onClick={() => controller.update((g) => ({ ...g, display: 'classic' }))}
-      >
-        기본 타이머
-      </button>
-      <button
-        aria-pressed={controller.garage.display === 'drive'}
-        onClick={() => controller.update((g) => ({ ...g, display: 'drive' }))}
-      >
-        DRIVE MODE
-      </button>
+      {(
+        [
+          ['classic', '기본 타이머'],
+          ['mini', 'MINI'],
+          ['dashboard', 'DASHBOARD'],
+          ['drive', 'DRIVE MODE'],
+        ] as const
+      ).map(([id, label]) => (
+        <button
+          key={id}
+          aria-pressed={controller.garage.display === id}
+          onClick={() => controller.update((g) => ({ ...g, display: id }))}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -41,26 +45,17 @@ export function DriveDashboard({
   const { garage: g } = controller;
   const p = Math.min(1, Math.max(0, seconds / Math.max(1, target * 60)));
   const remaining = Math.max(0, target * 60 - seconds);
-  const { problems, completed, currentId, total } = useMemo(() => {
+  const summary = useMemo(() => {
     const data = state ? learning(state) : null;
     const all =
       data && state?.active?.resourceId ? resourceProblems(data, state.active.resourceId) : [];
-    const currentId = data?.resources.find(
-      (r) => r.id === state?.active?.resourceId,
-    )?.currentProblemId;
-    const index = Math.max(
-      0,
-      all.findIndex((p) => p.id === currentId),
+    const ids = new Set(all.map((p) => p.id));
+    const completed = new Set(
+      data?.attempts
+        .filter((a) => ids.has(a.problemId) && a.selfCheck !== 'unreviewed')
+        .map((a) => a.problemId),
     );
-    const start = Math.min(Math.max(0, index - 2), Math.max(0, all.length - 5));
-    return {
-      problems: all.slice(start, start + 5),
-      completed: new Set(
-        data?.attempts.filter((a) => a.selfCheck !== 'unreviewed').map((a) => a.problemId),
-      ),
-      currentId,
-      total: all.length,
-    };
+    return { total: all.length, completed: completed.size, ordinal: all.find(p => p.id === state?.active?.questionPace?.current)?.ordinal }; 
   }, [state?.learning, state?.active?.resourceId]);
   return (
     <section
@@ -77,6 +72,7 @@ export function DriveDashboard({
           className="drive-dial"
           style={{ '--drive-angle': `${p * 270}deg` } as React.CSSProperties}
         >
+          <Dial ratio={stopwatch ? (seconds % 60) / 60 : p} />
           <small>ELAPSED / 경과</small>
           <strong role="timer" aria-label="DRIVE 경과 시간">
             {quickClock(seconds)}
@@ -84,6 +80,7 @@ export function DriveDashboard({
           <span>{stopwatch ? '스톱워치' : `${target} MIN ROUTE`}</span>
         </div>
         <div className="drive-dial drive-dial-secondary">
+          <Dial ratio={stopwatch ? 0 : 1 - p} />
           <small>REMAINING / 남은 시간</small>
           <strong>{stopwatch ? '—' : quickClock(Math.ceil(remaining))}</strong>
           <span>
@@ -95,15 +92,17 @@ export function DriveDashboard({
           </span>
         </div>
       </div>
-      <div className={'drive-road scene-' + g.car.scene} aria-hidden="true">
-        <div
-          className={running ? 'drive-car cruising' : 'drive-car'}
-          style={{ left: `${p * 72}%` }}
-        >
-          <Car car={g.car} />
+      {g.display === 'drive' && (
+        <div className={'drive-road scene-' + g.car.scene} aria-hidden="true">
+          <div
+            className={running ? 'drive-car cruising' : 'drive-car'}
+            style={{ left: `${p * 72}%` }}
+          >
+            <Car car={g.car} />
+          </div>
+          <div className="drive-road-line" />
         </div>
-        <div className="drive-road-line" />
-      </div>
+      )}
       {!stopwatch && (
         <>
           <progress
@@ -116,25 +115,16 @@ export function DriveDashboard({
           </p>
         </>
       )}
-      {problems.length > 0 && (
-        <div className="drive-problems" aria-label="문제별 자동차 진행">
-          <span className="drive-problem-summary">총 {total}문제 · 현재 위치 주변 최대 5문제</span>
-          {problems.map((problem) => {
-            const done = completed.has(problem.id);
-            const current = problem.id === currentId;
-            return (
-              <div className={'drive-problem ' + (current ? 'current' : '')} key={problem.id}>
-                <span>
-                  {problem.ordinal}번 {done ? '· 확인 완료' : current ? '· 현재 문제' : '· 대기'}
-                </span>
-                <div className="drive-mini-road">
-                  <div style={{ marginLeft: done ? 'calc(100% - 42px)' : '0' }}>
-                    <Car car={g.car} />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+      {state?.active && (
+        <div className="drive-center">
+          <strong>{state.active.subject}</strong>
+          <span>{state.active.action}</span>
+          {summary.total > 0 && (
+            <small aria-label="문제별 자동차 진행">
+              {summary.ordinal ? summary.ordinal + '번 · ' : ''}풀이 확인 {summary.completed} · 미완료 {summary.total - summary.completed} · 검토{' '}
+              {state.active.questionPace?.review.length ?? 0}
+            </small>
+          )}
         </div>
       )}
       <details className="drive-options">
@@ -164,5 +154,32 @@ export function DriveDashboard({
       </details>
       {controller.error && <p role="alert">{controller.error}</p>}
     </section>
+  );
+}
+
+/** Original SVG instrument: calibrated ticks and a restrained, readable needle. */
+function Dial({ ratio }: { ratio: number }) {
+  return (
+    <svg className="drive-calibration" viewBox="0 0 200 200" aria-hidden="true">
+      {Array.from({ length: 37 }, (_, i) => (
+        <line
+          key={i}
+          x1="100"
+          y1="15"
+          x2="100"
+          y2={i % 3 === 0 ? 26 : 20}
+          transform={`rotate(${-135 + i * 7.5} 100 100)`}
+          stroke="currentColor"
+          opacity={i % 3 === 0 ? 0.7 : 0.3}
+          strokeWidth={i % 3 === 0 ? 1.4 : 0.8}
+        />
+      ))}
+      <g
+        className="drive-needle"
+        style={{ transform: `rotate(${-135 + Math.max(0, Math.min(1, ratio)) * 270}deg)` }}
+      >
+        <path d="M98 32h4l-1 17h-2Z" fill="currentColor" />
+      </g>
+    </svg>
   );
 }

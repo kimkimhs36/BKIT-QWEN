@@ -1,4 +1,5 @@
 import type { State, Task } from './model';
+import { switchQuestion } from './drive/questionPace';
 import { uid } from './model';
 import {
   emptyLearning,
@@ -194,6 +195,7 @@ export function moveProblem(
   if (!d.problems.some((p) => p.id === problemId && p.resourceId === resourceId)) return s;
   return {
     ...s,
+    active: s.active?.resourceId === resourceId ? switchQuestion(s.active, problemId, now) : s.active,
     learning: {
       ...d,
       resources: d.resources.map((r) =>

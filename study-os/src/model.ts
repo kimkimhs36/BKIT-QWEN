@@ -123,6 +123,14 @@ export const quickTimerSchema = z.object({
   elapsed: z.number().min(0),
   segments: z.array(segmentSchema).max(10000),
 });
+/** Per-question pace is an allocation of the shared study clock, never a second timer. */
+export const questionPaceSchema = z.object({
+  current: id,
+  anchor: z.number().finite().nonnegative(),
+  seconds: z.record(z.number().finite().nonnegative()).refine(v => Object.keys(v).length <= 10000),
+  target: z.number().int().min(15).max(3600),
+  review: z.array(id).max(10000),
+});
 export const activeSchema = z.object({
   id,
   quick: z.boolean().optional(),
@@ -134,6 +142,7 @@ export const activeSchema = z.object({
   started: instant,
   workspace: problemWorkspaceSchema.optional(),
   resourceId: id.optional(),
+  questionPace: questionPaceSchema.optional(),
   segmentStart: instant.nullable(),
   elapsed: z.number().min(0),
   pauses: z.array(z.object({ at: instant, reason: text })).max(100),
@@ -149,6 +158,7 @@ export const sessionSchema = z.object({
   ended: instant,
   workspace: problemWorkspaceSchema.optional(),
   resourceId: id.optional(),
+  questionPace: questionPaceSchema.optional(),
   seconds: z.number().min(0),
   target: minutes,
   problems: z.number().int().min(0).max(10000),

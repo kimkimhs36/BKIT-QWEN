@@ -1,3 +1,5 @@
+import { QuestionRace } from './drive/QuestionRace';
+import type { GarageController } from './drive/useGarage';
 import { flushLearning } from './learningFlush';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { uid } from './model';
@@ -22,11 +24,15 @@ const ResourcePaper = lazy(() =>
 );
 export function MultiProblemWorkspace({
   state,
+  controller,
+  totalSeconds,
   onChange,
   onFinish,
   onSleep,
 }: {
   state: State;
+  controller: GarageController;
+  totalSeconds: number;
   onChange: (fn: (s: State) => State) => boolean;
   onFinish: () => void;
   onSleep: () => void;
@@ -46,6 +52,8 @@ export function MultiProblemWorkspace({
     <Problem
       key={p.id}
       state={state}
+      controller={controller}
+      totalSeconds={totalSeconds}
       problem={p}
       onChange={onChange}
       onFinish={onFinish}
@@ -56,11 +64,15 @@ export function MultiProblemWorkspace({
 function Problem({
   state,
   problem: p,
+  controller,
+  totalSeconds,
   onChange,
   onFinish,
   onSleep,
 }: {
   state: State;
+  controller: GarageController;
+  totalSeconds: number;
   problem: LearningProblem;
   onChange: (fn: (s: State) => State) => boolean;
   onFinish: () => void;
@@ -185,6 +197,7 @@ function Problem({
           다음 문제
         </button>
       </nav>
+      <QuestionRace state={state} controller={controller} totalSeconds={totalSeconds} problem={p} onChange={onChange} onNext={index < list.length - 1 ? () => go(list[index + 1].id) : undefined} />
       <h3 className="learning-problem-title">
         {p.ordinal}번 · {p.title.replace(/^\d+번$/, r.subject + ' 문제')}
       </h3>

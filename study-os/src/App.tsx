@@ -705,6 +705,7 @@ export default function App() {
           id: sessionId,
           taskId: t?.id || null,
           resourceId: resource?.id,
+          questionPace: resource ? { current: problemId ?? resourceProgress(learning(v), resource.id).currentProblemId ?? '', anchor: 0, seconds: {}, target: 240, review: [] } : undefined,
           subject: resource?.subject || t?.subject || '자율 학습',
           action: resource?.title || t?.title || '첫 개념을 가리고 떠올린 뒤, 문제 하나 풀기',
           target: minutes,
@@ -817,6 +818,7 @@ export default function App() {
             ended: iso(ended),
             workspace: a.workspace,
             resourceId: a.resourceId,
+            questionPace: a.questionPace,
             seconds: sec,
             target: a.target,
             problems: actualProblems,
@@ -1686,10 +1688,10 @@ export default function App() {
                       onSelfCheck={markLearningAttempt}
                     />
                   )}
-                  {s.active?.resourceId && <Suspense fallback={<p role="status">자료 학습실을 여는 중…</p>}><MultiProblemWorkspace state={s} onChange={commit} onFinish={finishResource} onSleep={()=>{const a=memory.current.active;if(a&&commit(v=>({...v,active:closeSegment(a,Date.now())})))setTab('sleep');}}/></Suspense>}
+                  {s.active?.resourceId && <Suspense fallback={<p role="status">자료 학습실을 여는 중…</p>}><MultiProblemWorkspace controller={garageController} totalSeconds={seconds} state={s} onChange={commit} onFinish={finishResource} onSleep={()=>{const a=memory.current.active;if(a&&commit(v=>({...v,active:closeSegment(a,Date.now())})))setTab('sleep');}}/></Suspense>}
                   <DriveSwitch controller={garageController}/>
                   {s.active && <div className="race-return-bar"><button onClick={beginStudyBreak}>DRAG RACE · 3분 쉬기</button></div>}
-                  {s.active && garageController.garage.display === 'drive' ? <DriveDashboard controller={garageController} seconds={seconds} target={s.active.target} running={!!s.active.segmentStart} stopwatch={s.active.quickMode === 'stopwatch'} state={s}/> : <div className="focus-instrument">
+                  {s.active && ['drive', 'dashboard'].includes(garageController.garage.display) ? <DriveDashboard controller={garageController} seconds={seconds} target={s.active.target} running={!!s.active.segmentStart} stopwatch={s.active.quickMode === 'stopwatch'} state={s}/> : <div className="focus-instrument">
                     <FocusHalo
                       progress={s.active ? seconds / (s.active.target * 60) : 0}
                       running={!!s.active?.segmentStart}

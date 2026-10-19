@@ -247,6 +247,7 @@ test('storage-full and concurrent tab purchases preserve balances and study byte
   await second.goto('./');
   await openGarage(second);
   await page.getByRole('button', { name: '15 CR로 열기', exact: true }).click();
+  await page.getByRole('button', { name: '구매 확정', exact: true }).click();
   await expect(second.getByRole('button', { name: '20 CR로 열기', exact: true })).toBeDisabled();
   const before = await page.evaluate(() => localStorage.getItem('bkit.drive-garage.v1'));
   await page.evaluate(() => {
