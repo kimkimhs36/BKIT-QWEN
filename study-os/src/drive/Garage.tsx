@@ -151,7 +151,7 @@ export function Garage({
               집중하러 가기 ↗
             </button>
             <button className="secondary" onClick={onRace} disabled={!canRace}>
-              DRAG RACE · 일시정지하고 3분 휴식
+              DRAG RACE · 3분 쉬기
             </button>
           </div>
           {!canRace && <p>학습 타이머를 일시정지한 뒤 휴식을 시작해 주세요.</p>}

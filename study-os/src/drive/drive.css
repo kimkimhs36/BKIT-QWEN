@@ -610,3 +610,36 @@ html[data-bkit-theme='dark'] .tohesar {
     left: 0 !important;
   }
 }
+html .tohesar .garage-panel select {
+  background: var(--motor-paper) !important;
+  color: var(--motor-ink) !important;
+  border: 1px solid var(--motor-line);
+  border-radius: 10px;
+  padding: 10px;
+  color-scheme: light;
+}
+html[data-bkit-theme='dark'] .tohesar .garage-panel select {
+  color-scheme: dark;
+}
+.drive-dashboard progress {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--motor-line);
+}
+.drive-dashboard progress::-webkit-progress-bar {
+  background: var(--motor-line);
+}
+.drive-dashboard progress::-webkit-progress-value {
+  background: #739780;
+}
+.drive-dashboard progress::-moz-progress-bar {
+  background: #739780;
+}
+.race-break-note {
+  display: block;
+  font-size: 11px;
+  margin: 4px 0 12px;
+}

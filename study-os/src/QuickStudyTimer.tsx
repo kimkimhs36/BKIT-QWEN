@@ -202,8 +202,9 @@ export function QuickStudyTimer({
             </label>
           )}
           <button type="button" className="secondary" onClick={onBreak}>
-            DRAG RACE · 일시정지하고 3분 휴식
+            DRAG RACE · 3분 쉬기
           </button>
+          <small className="race-break-note">학습 타이머를 멈추고 시작해요.</small>
           <div className="quick-timer-actions">
             <button type="button" className="secondary" onClick={running ? onPause : onResume}>
               {running ? (

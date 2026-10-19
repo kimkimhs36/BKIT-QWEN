@@ -54,6 +54,9 @@ test('photo notice → failed save → retry → paused stopwatch attachment →
   expect((await state(page)).active).toMatchObject({id, elapsed:paused.elapsed,segmentStart:null,taskId:originalTask.id});
   await page.getByRole('button',{name:'다시 시작',exact:true}).click();
   await page.clock.fastForward(35000);
+  // Quiet focus intentionally hides chrome; reveal the controls before finishing.
+  const reveal = page.getByRole('button',{name:'조작 표시',exact:true});
+  if (await reveal.isVisible()) await reveal.click();
   await page.getByRole('button',{name:'학습량 기록 · 종료',exact:true}).click();
   const saved = (await state(page)).sessions.find((s:{id:string})=>s.id===id);
   expect(saved.taskId).toBe(originalTask.id);
@@ -83,7 +86,7 @@ test('PDF original is linked to the saved assessment and survives reopening',asy
   const saved = await state(page), resource=saved.learning.resources[0];
   expect(resource).toMatchObject({linkedTaskId:saved.tasks[0].id,subject:'영어'});
   await nav(page,'집중');
-  await expect(page.locator('.paper-document-list').getByText('school-notice.pdf',{exact:true})).toBeVisible();
+  await expect(page.locator('.paper-document-list strong').filter({hasText:'school-notice.pdf'})).toBeVisible();
   await page.getByRole('button',{name:'종이 열기',exact:true}).click();
   await expect(page.getByTestId('ink-canvas')).toBeVisible();
   await expect(page.getByTestId('ink-save-status')).toHaveText('저장됨');

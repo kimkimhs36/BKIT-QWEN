@@ -1688,7 +1688,7 @@ export default function App() {
                   )}
                   {s.active?.resourceId && <Suspense fallback={<p role="status">자료 학습실을 여는 중…</p>}><MultiProblemWorkspace state={s} onChange={commit} onFinish={finishResource} onSleep={()=>{const a=memory.current.active;if(a&&commit(v=>({...v,active:closeSegment(a,Date.now())})))setTab('sleep');}}/></Suspense>}
                   <DriveSwitch controller={garageController}/>
-                  {s.active && <div className="race-return-bar"><button onClick={beginStudyBreak}>DRAG RACE · 일시정지하고 3분 휴식</button></div>}
+                  {s.active && <div className="race-return-bar"><button onClick={beginStudyBreak}>DRAG RACE · 3분 쉬기</button></div>}
                   {s.active && garageController.garage.display === 'drive' ? <DriveDashboard controller={garageController} seconds={seconds} target={s.active.target} running={!!s.active.segmentStart} stopwatch={s.active.quickMode === 'stopwatch'} state={s}/> : <div className="focus-instrument">
                     <FocusHalo
                       progress={s.active ? seconds / (s.active.target * 60) : 0}

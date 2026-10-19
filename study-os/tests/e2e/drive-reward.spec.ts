@@ -24,9 +24,13 @@ test('garage keeps car locally without touching study data and respects dark mod
   await page.goto('./');
   const before = await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'));
   await openGarage(page);
+  await page.getByRole('button', { name: '다크모드로 전환', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-bkit-theme', 'dark');
+  await expect(page.getByLabel('배경 · 무료')).toHaveCSS('background-color', 'rgb(27, 42, 35)');
   await page.getByRole('button', { name: '코랄', exact: true }).click();
   await page.getByLabel('배경 · 무료').selectOption('dusk');
-  await page.getByLabel('모션 감소', { exact: true }).check();
+  await page.getByLabel('모션 감소', { exact: true }).click();
+  await expect(page.getByLabel('모션 감소', { exact: true })).toBeChecked();
   const car = await page.evaluate(
     () => JSON.parse(localStorage.getItem('bkit.drive-garage.v1')!).car,
   );
@@ -99,9 +103,7 @@ test('race stages a false start, preserves the break deadline on replay/reload a
   const timer = await prepare(page);
   await timer.getByRole('button', { name: '지금 시작', exact: true }).click();
   await page.clock.fastForward(30000);
-  await timer
-    .getByRole('button', { name: 'DRAG RACE · 일시정지하고 3분 휴식', exact: true })
-    .click();
+  await timer.getByRole('button', { name: 'DRAG RACE · 3분 쉬기', exact: true }).click();
   const race = page.getByRole('dialog', { name: 'DRAG RACE', exact: true });
   await expect
     .poll(async () => {
@@ -140,9 +142,7 @@ test('race completes with acceleration and shifting without changing learning or
 }) => {
   await prepare(page);
   await openGarage(page, true);
-  await page
-    .getByRole('button', { name: 'DRAG RACE · 일시정지하고 3분 휴식', exact: true })
-    .click();
+  await page.getByRole('button', { name: 'DRAG RACE · 3분 쉬기', exact: true }).click();
   const race = page.getByRole('dialog', { name: 'DRAG RACE', exact: true });
   await expect
     .poll(async () => {
@@ -208,9 +208,7 @@ test('DRIVE problem cars, answer rewards and break return preserve the current d
     .toBe(5);
   await page.getByRole('button', { name: '다음 문제', exact: true }).click();
   await page.getByLabel('최종 답', { exact: true }).fill('둘째 문제 작성 중');
-  await page
-    .getByRole('button', { name: 'DRAG RACE · 일시정지하고 3분 휴식', exact: true })
-    .click();
+  await page.getByRole('button', { name: 'DRAG RACE · 3분 쉬기', exact: true }).click();
   const race = page.getByRole('dialog', { name: 'DRAG RACE', exact: true });
   await expect
     .poll(async () => {
@@ -268,7 +266,8 @@ test('shared car and reduced motion apply to DRIVE and the race', async ({ page 
   const timer = await prepare(page);
   await openGarage(page, true);
   await page.getByRole('button', { name: '블루', exact: true }).click();
-  await page.getByLabel('애니메이션 숨기기', { exact: true }).check();
+  await page.getByLabel('애니메이션 숨기기', { exact: true }).click();
+  await expect(page.getByLabel('애니메이션 숨기기', { exact: true })).toBeChecked();
   await page.locator('nav button:visible').filter({ hasText: '오늘' }).click();
   await timer.getByRole('button', { name: 'DRIVE MODE', exact: true }).click();
   await timer.getByRole('button', { name: '지금 시작', exact: true }).click();
@@ -276,9 +275,7 @@ test('shared car and reduced motion apply to DRIVE and the race', async ({ page 
   await expect(drive).toHaveAttribute('data-motion', 'none');
   await expect(drive.locator('.car-wheel').first()).toHaveCSS('animation-name', 'none');
   await expect(drive.locator('path[fill="#85b0ce"]').first()).toBeAttached();
-  await timer
-    .getByRole('button', { name: 'DRAG RACE · 일시정지하고 3분 휴식', exact: true })
-    .click();
+  await timer.getByRole('button', { name: 'DRAG RACE · 3분 쉬기', exact: true }).click();
   const race = page.getByRole('dialog', { name: 'DRAG RACE', exact: true });
   await expect
     .poll(async () => {
@@ -289,4 +286,24 @@ test('shared car and reduced motion apply to DRIVE and the race', async ({ page 
   await expect(race).toHaveAttribute('data-motion', 'none');
   await expect(race.locator('path[fill="#85b0ce"]').first()).toBeAttached();
   expect(await race.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+});
+
+test('an expired break on reload returns to the study route and keeps the timer paused', async ({
+  page,
+}) => {
+  const timer = await prepare(page);
+  await timer.getByRole('button', { name: '지금 시작', exact: true }).click();
+  await timer.getByRole('button', { name: '일시정지', exact: true }).click();
+  await page.evaluate(() =>
+    sessionStorage.setItem(
+      'bkit.drive-break.v1',
+      JSON.stringify({ until: Date.now() - 1000, route: 'study', scroll: 100 }),
+    ),
+  );
+  await page.reload();
+  await page.clock.runFor(500);
+  await expect(page.locator('.app-shell')).toHaveClass(/page-study/);
+  await expect(page.getByRole('dialog', { name: 'DRAG RACE', exact: true })).not.toBeVisible();
+  await expect(page.getByRole('button', { name: '이어하기', exact: true })).toBeVisible();
+  expect(await page.evaluate(() => sessionStorage.getItem('bkit.drive-break.v1'))).toBeNull();
 });

@@ -85,7 +85,7 @@ export function DriveDashboard({
         </div>
         <div className="drive-dial drive-dial-secondary">
           <small>REMAINING / 남은 시간</small>
-          <strong>{stopwatch ? '—' : quickClock(remaining)}</strong>
+          <strong>{stopwatch ? '—' : quickClock(Math.ceil(remaining))}</strong>
           <span>
             {stopwatch
               ? '목표 제한 없음'
@@ -143,7 +143,10 @@ export function DriveDashboard({
           <input
             type="checkbox"
             checked={g.reduceMotion}
-            onChange={(e) => controller.update((v) => ({ ...v, reduceMotion: e.target.checked }))}
+            onChange={(e) => {
+              const checked = e.currentTarget.checked;
+              controller.update((v) => ({ ...v, reduceMotion: checked }));
+            }}
           />{' '}
           모션 감소
         </label>
@@ -151,7 +154,10 @@ export function DriveDashboard({
           <input
             type="checkbox"
             checked={g.hideAnimations}
-            onChange={(e) => controller.update((v) => ({ ...v, hideAnimations: e.target.checked }))}
+            onChange={(e) => {
+              const checked = e.currentTarget.checked;
+              controller.update((v) => ({ ...v, hideAnimations: checked }));
+            }}
           />{' '}
           애니메이션 숨기기
         </label>
