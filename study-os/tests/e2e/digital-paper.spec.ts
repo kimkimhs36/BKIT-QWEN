@@ -442,6 +442,12 @@ test('editable tools, two-finger navigation, pointer cancellation and unsaved-in
   await expect
     .poll(() => scroller.evaluate((el) => el.scrollHeight - el.clientHeight))
     .toBeGreaterThan(150);
+  // React zoom renders before the IndexedDB autosave finishes; wait for the
+  // persisted zoom so the pre-gesture snapshot reflects the visible scale.
+  const displayedZoom = Number((await room(page).locator('output').first().innerText()).replace('%', ''));
+  await expect
+    .poll(async () => Math.round((await readDocs(page))[0].cursor.zoom * 100))
+    .toBe(displayedZoom);
   await scroller.evaluate((el) => {
     el.scrollTop = 40;
   });
