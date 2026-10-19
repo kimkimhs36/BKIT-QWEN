@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [feat/bkit-3-1-learning-engine]
   workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Regression profile (all for release verification)'
+        type: choice
+        required: true
+        default: all
+        options: [all, iphone, ipad, desktop, webkit-iphone, webkit-ipad, galaxy-css]
 permissions:
   contents: read
 jobs:
@@ -33,7 +40,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [iphone, ipad, desktop, webkit-iphone, webkit-ipad, galaxy-css]
+        # PRs retain every profile. Manual debugging can rerun only the affected browser.
+        project: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.profile != 'all' && format('["{0}"]', inputs.profile) || '["iphone","ipad","desktop","webkit-iphone","webkit-ipad","galaxy-css"]') }}
     defaults:
       run:
         working-directory: study-os

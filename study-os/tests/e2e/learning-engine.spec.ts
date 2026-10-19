@@ -297,7 +297,13 @@ test('complete ZIP with original study and sleep photos restores in a fresh brow
   await expect(
     target.getByRole('button', { name: '복원한 앱 다시 열기', exact: true }),
   ).toBeVisible();
-  await target.getByRole('button', { name: '복원한 앱 다시 열기', exact: true }).click();
+  await Promise.all([
+    target.waitForEvent('domcontentloaded'),
+    target.getByRole('button', { name: '복원한 앱 다시 열기', exact: true }).click(),
+  ]);
+  await expect(
+    target.getByRole('button', { name: '마지막 문제부터 5분 시작', exact: true }),
+  ).toBeVisible();
   const result = await target.evaluate(async () => {
     const read = (name: string, id: string) =>
       new Promise<number>((resolve, reject) => {
