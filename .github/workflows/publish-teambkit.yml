@@ -3,7 +3,7 @@ name: Publish BKIT Study OS to teambkit.com
 on:
   push:
     branches:
-      - release/bkit-study-os-3-2-20261019
+      - release/bkit-study-os-3-3-20261019
     paths:
       - 'study-os/**'
       - '.github/workflows/publish-teambkit.yml'
@@ -82,12 +82,21 @@ jobs:
           npm run test:e2e -- tests/e2e/focus-restore.spec.ts tests/e2e/home-simple.spec.ts tests/e2e/soft-ui.spec.ts tests/e2e/liquid-optics.spec.ts tests/e2e/ios-navigation.spec.ts tests/e2e/research-now.spec.ts tests/e2e/capture-v2.spec.ts tests/e2e/quality-v10.spec.ts tests/e2e/dock-fixed.spec.ts tests/e2e/cloud-sync.spec.ts tests/e2e/assistant.spec.ts --project=iphone --retries=1
           npm run test:e2e -- tests/e2e/liquid-optics.spec.ts tests/e2e/ios-navigation.spec.ts tests/e2e/research-now.spec.ts tests/e2e/capture-v2.spec.ts tests/e2e/quality-v10.spec.ts tests/e2e/dock-fixed.spec.ts tests/e2e/cloud-sync.spec.ts tests/e2e/assistant.spec.ts --project=webkit-iphone --retries=1
 
-      - name: Verify BKIT 3.2 local study and Sleep Guard across supported CSS viewports
+      - name: Verify BKIT 3.3 local study and Sleep Guard across supported CSS viewports
         working-directory: study-os
         env:
           BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
           APP_BASE: /
         run: npm run test:e2e -- tests/e2e/bkit-3.spec.ts --project=iphone --project=webkit-iphone --project=webkit-ipad --project=desktop --project=galaxy-css --retries=1
+
+      - name: Validate 3.3 digital paper recovery and storage integrity on Safari-style tablet
+        working-directory: study-os
+        env:
+          BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
+          APP_BASE: /
+        run: |
+          npx playwright install --with-deps webkit
+          npm run test:e2e -- tests/e2e/storage-readiness.spec.ts tests/e2e/digital-paper.spec.ts --project=webkit-ipad --retries=1
 
       - name: Checkout existing site branch
         uses: actions/checkout@v4
@@ -110,7 +119,7 @@ jobs:
           cp study-os/dist/index.html teambkit-site/tohesar-juggernaut-20261016.html
           printf 'teambkit.com\n' > teambkit-site/CNAME
           touch teambkit-site/.nojekyll
-          node -e 'require("node:fs").writeFileSync("teambkit-site/release.json", JSON.stringify({product:"BKIT STUDY OS 3.2",sourceCommit:process.env.SOURCE_SHA,verifiedSourceCommit:"db3cc1cc0df4de97b52b0be4308a2c0816fa4c99",publishedAt:new Date().toISOString()}))'
+          node -e 'require("node:fs").writeFileSync("teambkit-site/release.json", JSON.stringify({product:"BKIT STUDY OS 3.3",sourceCommit:process.env.SOURCE_SHA,verifiedSourceCommit:"13912ce35189a7ec542f30e1b5be5256a43c9466",publishedAt:new Date().toISOString()}))'
 
           # The new HTML no longer references the legacy CRASH//WEEK files.
           rm -f teambkit-site/app.js teambkit-site/styles.css
@@ -123,7 +132,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No changes to deploy.'
           else
-            git commit -m "deploy: BKIT STUDY OS 3.2 (${SOURCE_SHA})"
+            git commit -m "deploy: BKIT STUDY OS 3.3 (${SOURCE_SHA})"
             git push origin HEAD:main
           fi
 
