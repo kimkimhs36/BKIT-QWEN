@@ -27,3 +27,10 @@
 - 수정 파일: `git status --short` 확인. 연구 문서의 P1 계획에 따라 변경, 새 외부 API/분석 수집은 비활성.
 - 다음 명령: `npm run typecheck && npm test && npm run build`; 이어 Playwright 6개 프로필 전체 회귀.
 - 신규 verify-bkit-3-5.yml은 읽기 권한만 가지며 deploy 단계 없음. 운영 배포 없음.
+
+## 추가 P0 경계
+
+- ZIP 외의 legacy JSON 가져오기도 quick/active timer를 덮어쓸 수 있어 UI와 commit(force) 경계 모두 차단했다. 다른 탭의 실제 저장 상태도 확인한다.
+- JSON export는 live 상태를 바꾸지 않고 paused snapshot을 만든다. legacy JSON import는 저장된 구간만 유지하며 archive 보관 기간이 공부 시간으로 쌓이지 않도록 일시정지한다. 원본 파일은 수정하지 않음.
+- 1798274에서 clean CI 테스트 타입 오류 수정. 최종 source checkpoint는 다음 git log 확인. PR #15: https://github.com/kimkimhs36/BKIT-QWEN/pull/15
+- CI 중복 비용 방지를 위해 push/manual만 실행, 6개 전체 suite는 유지한다.

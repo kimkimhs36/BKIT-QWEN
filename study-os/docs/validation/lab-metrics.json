@@ -1,0 +1,60 @@
+{
+  "environment": "Debian 13 / Chromium headless / local Vite preview / cold isolated context / no CPU or network throttling / SW blocked / returning empty learner / 390x844 CSS",
+  "measuredAt": "2026-10-19T12:26:46.201Z",
+  "rows": [
+    {
+      "label": "baseline",
+      "sample": 1,
+      "lcp": 0,
+      "cls": 0,
+      "dcl": 990.7999999999302,
+      "load": 991.5,
+      "resourceBytes": 365121
+    },
+    {
+      "label": "baseline",
+      "sample": 2,
+      "lcp": 0,
+      "cls": 0,
+      "dcl": 661.2999999999302,
+      "load": 661.7999999999302,
+      "resourceBytes": 365121
+    },
+    {
+      "label": "baseline",
+      "sample": 3,
+      "lcp": 0,
+      "cls": 0,
+      "dcl": 892.5999999999767,
+      "load": 897.6999999999534,
+      "resourceBytes": 365121
+    },
+    {
+      "label": "current",
+      "sample": 1,
+      "lcp": 0,
+      "cls": 0,
+      "dcl": 858,
+      "load": 858.5,
+      "resourceBytes": 366133
+    },
+    {
+      "label": "current",
+      "sample": 2,
+      "lcp": 0,
+      "cls": 0,
+      "dcl": 681.1999999999534,
+      "load": 681.7999999999302,
+      "resourceBytes": 366133
+    },
+    {
+      "label": "current",
+      "sample": 3,
+      "lcp": 0,
+      "cls": 0,
+      "dcl": 500.0999999999767,
+      "load": 501.0999999999767,
+      "resourceBytes": 366133
+    }
+  ]
+}

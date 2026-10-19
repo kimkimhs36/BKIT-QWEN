@@ -1,6 +1,6 @@
 import type { State, Session } from './model';
 import { iso, dayKey } from './time';
-import { studySeconds } from './session';
+import { studySeconds, closeSegment } from './session';
 import { learning, moveProblem, resourceProgress } from './learningEngine';
 
 /** Only an explicit tap starts timing. Wall-clock timestamps survive Safari suspension. */
@@ -206,4 +206,10 @@ export function finishQuickResource(state: State, now: number): State {
         : session,
     ),
   };
+}
+
+/** Read-only export snapshot. Never alter the running device's state. */
+export function pausedStudySnapshot(state: State, now: number): State {
+  const paused = pauseQuick(state, now);
+  return state.active ? { ...paused, active: closeSegment(state.active, now) } : paused;
 }

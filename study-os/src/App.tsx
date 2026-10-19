@@ -1,6 +1,6 @@
 import { flushLearning } from './learningFlush';
 import { QuickStudyTimer } from './QuickStudyTimer';
-import { startQuick, pauseQuick, resumeQuick, finishQuick, attachQuickResource, finishQuickResource, labelQuick, quickSeconds, quickClock, quickDaySeconds } from './quickTimer';
+import { startQuick, pauseQuick, resumeQuick, finishQuick, attachQuickResource, finishQuickResource, labelQuick, quickSeconds, quickClock, quickDaySeconds, pausedStudySnapshot } from './quickTimer';
 import { learning, resourceProgress, resourceForTask, linkedTaskProgress, moveProblem, protectResourceTask, buildResourceReviews, isCompleted } from './learningEngine';
 import { sleepConstraints, studyFixedNow } from './sleepConstraints';
 import { addProblemRetest, buildProblemReviews, type AttemptMeta, type ErrorTag, type ProblemSourceMeta } from './problemReview';
@@ -97,7 +97,7 @@ import { needsSubmission, needsAttention, filteredTasks } from './tasks';
 import { inputError } from './input-error';
 import { apiEnabled, requestAI } from './ai';
 import { protectedBoundary, fixedConflicts } from './safety';
-import { KEY, readState, writeState, parseBackup, StorageConflict, LEARNING_BACKUP_KEY } from './storage';
+import { KEY, readState, writeState, parseBackup, pausedImportedState, StorageConflict, LEARNING_BACKUP_KEY } from './storage';
 const ResourceLibrary = lazy(()=>import('./ResourceLibrary').then(m=>({default:m.ResourceLibrary})));
 const MultiProblemWorkspace = lazy(()=>import('./MultiProblemWorkspace').then(m=>({default:m.MultiProblemWorkspace})));
 const ResourceReviews = lazy(()=>import('./ResourceReviews').then(m=>({default:m.ResourceReviews})));
@@ -402,6 +402,15 @@ export default function App() {
     return () => clearTimeout(t);
   }, [notice]);
   function commit(change: (v: State) => State, force = false) {
+    if (force) {
+      const live = readState(localStorage).state;
+      if (memory.current.active || memory.current.quickTimer || live.active || live.quickTimer) {
+        setFormError('진행 중이거나 일시정지한 타이머를 먼저 종료하세요. 기록은 유지됩니다.');
+        setNotice('타이머를 먼저 종료한 뒤 백업을 가져와 주세요.');
+        return false;
+      }
+      if (!flushLearning()) return false;
+    }
     if (readBlocked && !force) {
       setNotice('저장 잠금 상태입니다. 설정에서 백업을 먼저 보관하세요.');
       return false;
@@ -1178,7 +1187,7 @@ export default function App() {
             <div className="alert" role="alert">
               {storageError}
               <button
-                onClick={() => download('bkit-memory-backup.json', JSON.stringify(s, null, 2))}
+                onClick={() => download('bkit-memory-backup.json', JSON.stringify(pausedStudySnapshot(s, Date.now()), null, 2))}
               >
                 현재 기록 내보내기
               </button>
@@ -2075,7 +2084,7 @@ export default function App() {
                     <div className="button-stack">
                       <button
                         className="secondary"
-                        onClick={() => download(`bkit-${today}.json`, JSON.stringify(s, null, 2))}
+                        onClick={() => download(`bkit-${today}.json`, JSON.stringify(pausedStudySnapshot(s, Date.now()), null, 2))}
                       >
                         <Download size={17} /> JSON 백업 내보내기
                       </button>
@@ -2092,6 +2101,7 @@ export default function App() {
                         <Upload size={17} /> 백업 가져오기
                         <input
                           aria-label="JSON 백업 파일"
+                          disabled={!!s.active || !!s.quickTimer}
                           type="file"
                           accept="application/json,.json"
                           onChange={async (e) => {
@@ -2100,7 +2110,7 @@ export default function App() {
                             if (!file) return;
                             try {
                               if (file.size > 5_000_000) throw new Error();
-                              setImported(parseBackup(await file.text()));
+                              setImported(pausedImportedState(parseBackup(await file.text())));
                               open('import');
                             } catch {
                               setNotice(
@@ -2802,20 +2812,20 @@ export default function App() {
                 {imported.sessions.length}개를 가져옵니다.
               </p>
               <p className="warning">
-                현재 BKIT STUDY OS 기록을 교체합니다. 먼저 현재 기록을 내보내 보관하세요.
+                현재 BKIT STUDY OS 기록을 교체합니다. 먼저 현재 기록을 내보내 보관하세요. 가져온 타이머는 일시정지하며 구형 JSON은 마지막 저장된 시간만 복원합니다.
                 CRASH//WEEK 기록은 영향을 받지 않습니다.
               </p>
               <div className="modal-actions">
                 <button
                   className="secondary"
-                  onClick={() => download('bkit-before-import.json', JSON.stringify(s, null, 2))}
+                  onClick={() => download('bkit-before-import.json', JSON.stringify(pausedStudySnapshot(s, Date.now()), null, 2))}
                 >
                   현재 기록 백업
                 </button>
                 <button
                   className="primary"
                   onClick={() => {
-                    if (commit(() => ({ ...imported, undo: null }), true)) {
+                    if (commit(() => ({ ...pausedImportedState(imported), undo: null }), true)) {
                       setModal(null);
                       setNotice('검증된 백업을 가져왔습니다.');
                     }
