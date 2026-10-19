@@ -9,6 +9,7 @@ import { addVaultPhoto, readVaultPhoto } from '../src/photoVault';
 import {
   exportCompleteBackup,
   inspectCompleteBackup,
+  backupMatchesCurrent,
   restoreCompleteBackup,
   JOURNAL_PREFIX,
   mergeStudy,
@@ -130,6 +131,18 @@ describe('complete local archive preservation', () => {
     expect(target.getItem('crashweek.v3')).toBe('original crash bytes');
     expect(target.getItem(SLEEP_KEY)).toBe(source.getItem(SLEEP_KEY));
   });
+  it('distinguishes a verified archive from a backup covering the newest local edits', async () => {
+    const live = await fixture();
+    const zip = await exportCompleteBackup(live);
+    let preview = await inspectCompleteBackup(zip, live);
+    expect(backupMatchesCurrent(preview)).toEqual({ study: true, sleep: true, paper: true });
+    const next = JSON.parse(live.getItem(KEY)!);
+    next.revision += 1;
+    live.setItem(KEY, JSON.stringify(next));
+    preview = await inspectCompleteBackup(zip, live);
+    expect(backupMatchesCurrent(preview)).toEqual({ study: false, sleep: true, paper: true });
+  });
+
   it('rejects missing referenced photos without producing a success archive', async () => {
     const source = await fixture();
     const s = JSON.parse(source.getItem(KEY)!);
