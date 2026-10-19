@@ -26,6 +26,11 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   assert.equal(data.mission.running, true);
   await page.reload({waitUntil: 'domcontentloaded'});
   assert.match(await page.locator('#mission-title').innerText(), /영어/);
+  // Leaving the page may automatically pause the countdown; resume explicitly
+  // before checking that the pause button stores the stopped state.
+  if (!(await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.mock-rescue.20261020.v1')))).mission.running) {
+    await page.locator('#mission-pause').click();
+  }
   // English first question's answer is index 1; index 0 is wrong.
   await page.locator('#card .opt').first().click();
   await page.locator('.reason-list button').filter({ hasText: '문장·해석' }).click();
