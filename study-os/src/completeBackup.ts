@@ -42,7 +42,7 @@ const fileMeta = z.object({
 const manifestSchema = z.object({
   format: z.literal('BKIT-COMPLETE-LOCAL'),
   schemaVersion: z.literal(1),
-  appVersion: z.enum(['3.1', '3.2']),
+  appVersion: z.enum(['3.1', '3.2', '3.3', '3.4']),
   paper: paperManifestSchema.optional(),
   createdAt: z.string().datetime(),
   dataSha256: z.string().regex(/^[a-f0-9]{64}$/),
@@ -112,7 +112,7 @@ export async function exportCompleteBackup(
     manifest: Manifest = {
       format: 'BKIT-COMPLETE-LOCAL',
       schemaVersion: 1,
-      appVersion: '3.2',
+      appVersion: '3.4',
       createdAt: new Date().toISOString(),
       dataSha256: '',
       photos: [],
