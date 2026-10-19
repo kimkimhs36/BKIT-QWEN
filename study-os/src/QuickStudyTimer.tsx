@@ -63,7 +63,7 @@ export function QuickStudyTimer({
     onCloseEdit();
   };
   return (
-    <section className={'quick-timer panel ' + (timer ? 'quick-timer-active ' : '') + (compact ? 'quick-timer-compact' : '')} aria-label="바로 시작 타이머">
+    <section id={compact ? undefined : 'quick-timer-now'} className={'quick-timer panel ' + (timer ? 'quick-timer-active ' : '') + (compact ? 'quick-timer-compact' : '')} aria-label="바로 시작 타이머">
       <header className="quick-timer-head">
         <div className="quick-timer-intro">
           <span className="eyebrow">START FIRST · RECORD LATER</span>
