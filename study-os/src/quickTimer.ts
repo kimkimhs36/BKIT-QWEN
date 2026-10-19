@@ -80,16 +80,18 @@ export function labelQuick(
   subject: string,
   action: string,
   note: string,
+  linkedTaskId?: string,
 ): State {
   const current = state.sessions.find(s => s.id === id && s.quick);
   if (!current) return state;
-  const nextSubject = subject.trim().slice(0, 200) || '미분류';
-  const nextAction = action.trim().slice(0, 200) || '바로 시작한 공부';
+  const task = linkedTaskId ? state.tasks.find(t => t.id === linkedTaskId) : undefined;
+  const nextSubject = subject.trim().slice(0, 200) || task?.subject || '미분류';
+  const nextAction = action.trim().slice(0, 200) || task?.title || '바로 시작한 공부';
   const nextNote = note.trim().slice(0, 200);
   return {
     ...state,
     sessions: state.sessions.map(s => s.id === id
-      ? { ...s, subject: nextSubject, action: nextAction, concepts: nextNote }
+      ? { ...s, taskId: task?.id ?? null, subject: nextSubject, action: nextAction, concepts: nextNote }
       : s),
   };
 }
