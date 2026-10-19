@@ -1109,7 +1109,10 @@ export default function App() {
           {updateAvailable && (
             <div className="app-update-notice" role="status">
               <span>새 버전 준비 완료. 학습 기록은 유지돼.</span>
-              <button className="primary" onClick={() => window.location.reload()}>
+              <button className="primary" onClick={() => {
+                const reopen = () => window.location.reload();
+                if (flushLearning(reopen)) reopen();
+              }}>
                 새 버전 열기 <ArrowUpRight size={16} />
               </button>
             </div>
