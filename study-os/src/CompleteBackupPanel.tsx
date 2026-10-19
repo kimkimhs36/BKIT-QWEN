@@ -41,12 +41,13 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
   return (
     <section className="panel complete-backup" aria-label="사진 포함 전체 백업">
       <span className="eyebrow">COMPLETE LOCAL BACKUP</span>
-      <h2>사진까지, 내 공부 그대로</h2>
+      <h2>PDF와 필기까지, 내 공부 그대로</h2>
       <p>
-        과제·시간표·세션·자료·문제·오답·시험·수면 기록과 사진 원본을 기기 안에서 ZIP으로 묶습니다.
+        과제·시간표·세션·문제·정답·오답·복습·시험·수면 기록과 PDF·사진 원본, 편집 가능한 필기,
+        페이지·문제 영역을 ZIP으로 묶습니다.
       </p>
       <p className="muted">
-        사진 합계 250MB, 전체 파일 300MB까지 지원합니다. 한 장씩 검사하며 사진을 압축 해제하지
+        PDF·사진 합계 250MB, 전체 파일 300MB까지 지원합니다. 한 장씩 검사하며 사진을 압축 해제하지
         않습니다. 큰 파일은 PC에서 작업하세요. 백업 파일에는 개인 학습 기록과 사진이 포함됩니다.
       </p>
       <button
@@ -88,8 +89,9 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
           <h3>가져오기 전 확인</h3>
           <p>백업 생성: {new Date(inspected.manifest.createdAt).toLocaleString()}</p>
           <p>
-            원본 사진 {inspected.manifest.photos.length}장 · 겹치는 기록 ID{' '}
-            {inspected.conflicts.length}개 · 내용이 다른 사진 ID {inspected.photoConflicts.length}개
+            PDF·디지털 종이 {inspected.paper.documents.length}개 · 원본 사진{' '}
+            {inspected.manifest.photos.length}장 · 겹치는 기록 ID {inspected.conflicts.length}개 ·
+            내용이 다른 사진 ID {inspected.photoConflicts.length}개
           </p>
           {(inspected.conflicts.length > 0 || inspected.photoConflicts.length > 0) && (
             <details>
@@ -102,6 +104,12 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
                   ))}
               </ul>
             </details>
+          )}
+          {!inspected.manifest.paper && (
+            <p>
+              이 백업은 3.1 형식으로 PDF·필기를 포함하지 않습니다. 현재 기기의 디지털 종이는
+              유지합니다.
+            </p>
           )}
           <label>
             복원 방식

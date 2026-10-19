@@ -1,3 +1,4 @@
+import { flushLearning } from './learningFlush';
 import { learning, resourceProgress, resourceForTask, linkedTaskProgress, moveProblem, protectResourceTask, buildResourceReviews, isCompleted } from './learningEngine';
 import { sleepConstraints, studyFixedNow } from './sleepConstraints';
 import { addProblemRetest, buildProblemReviews, type AttemptMeta, type ErrorTag, type ProblemSourceMeta } from './problemReview';
@@ -243,7 +244,7 @@ export default function App() {
       | 'block'
       | 'import'
     >(null);
-  function setTab(route:string) {if(document.dispatchEvent(new Event('bkit:flush-learning-draft',{cancelable:true})))setTabState(route);}
+  function setTab(route:string) {if(flushLearning(()=>setTab(route)))setTabState(route);}
   const sleep = useSleepGuard(now, Boolean(s.active));
   const [energy,setEnergy] = useState<'low'|'normal'>('normal');
   const [editTask, setEditTask] = useState<Task | null>(null),
@@ -455,7 +456,7 @@ export default function App() {
       } : t) }));
   }
   function open(kind: NonNullable<typeof modal>) {
-    if(kind==='finish'&&!document.dispatchEvent(new Event('bkit:flush-learning-draft',{cancelable:true})))return;
+    if(kind==='finish'&&!flushLearning(()=>open(kind)))return;
     setFormError('');
     setModal(kind);
   }
@@ -536,6 +537,7 @@ export default function App() {
   const seconds = s.active ? elapsed(s.active, now) : 0;
   const late = delayMinutes(s, now);
   function start(minutes: number, task = selected || actionTask?.id || null, resourceId?: string, problemId?: string) {
+    if(!flushLearning(()=>start(minutes,task,resourceId,problemId)))return;
     if (s.active) {
       if(resourceId && resourceId!==s.active.resourceId) setNotice('현재 학습을 종료한 뒤 다른 자료를 열어 주세요.');
       else if(resourceId && problemId) commit(v=>moveProblem(v,resourceId,problemId));
@@ -589,7 +591,7 @@ export default function App() {
     if(r)start(5,r.linkedTaskId,id,problemId);
   }
   function finishResource() {
-    if(!document.dispatchEvent(new Event('bkit:flush-learning-draft',{cancelable:true})))return;
+    if(!flushLearning(finishResource))return;
     const a=memory.current.active;if(!a)return;
     if(commit(v=>({...v,active:closeSegment(a,Date.now())})))open('finish');
   }
@@ -978,14 +980,14 @@ export default function App() {
       >
         <WaterDrop className="water-object--brand" />
         <strong>
-          BKIT<small>STUDY OS 3.1</small>
+          BKIT<small>STUDY OS 3.2</small>
         </strong>
       </a>
       <div className="main-shell">
         <header className="topbar">
           <div>
             <span className="mobile-brand">
-              BKIT <small>STUDY OS 3.1</small>
+              BKIT <small>STUDY OS 3.2</small>
             </span>
             <span className="breadcrumb">
               BKIT <ChevronRight size={13} /> {(tab === 'sleep' ? 'Sleep Guard' : NAV.find((n) => n.id === tab)?.label)}
@@ -1965,7 +1967,7 @@ export default function App() {
                       기록은 우선 이 기기에 저장돼요. BKIT Private Cloud를 연결하면
                       과제·시간표·완료한 공부 세션 등을 본인 계정 아래에서 동기화할 수 있어요.
                       학습지 사진과 진행 중 타이머는 아직 이 기기에만 있으므로 원본을 보관해 주세요.
-                      기기 변경 전에는 사진 포함 전체 ZIP 백업을 권장합니다. JSON에는 사진 참조만 포함됩니다.
+                      기기 변경 전에는 사진 포함 전체 ZIP 백업을 사용하세요. 이 JSON에는 사진 원본·PDF 원본·필기·페이지 영역이 포함되지 않습니다.
                     </p>
                     <div className="button-stack">
                       <button

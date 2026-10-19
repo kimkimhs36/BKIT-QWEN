@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import { flushLearning } from './learningFlush';
+import { useEffect, useState, lazy, Suspense } from 'react';
+import { uid } from './model';
 import type { State } from './model';
 import type { LearningProblem, ResourceAttempt } from './learningModel';
 import {
@@ -15,6 +17,9 @@ import { ERROR_LABELS } from './problemReview';
 import { subjectTemplate } from './subjectTemplates';
 import { PrivatePhotoCard } from './StudyAtelier';
 import { iso } from './time';
+const ResourcePaper = lazy(() =>
+  import('./ResourcePaper').then((m) => ({ default: m.ResourcePaper })),
+);
 export function MultiProblemWorkspace({
   state,
   onChange,
@@ -77,6 +82,9 @@ function Problem({
     [showAnswer, setShowAnswer] = useState(false),
     [showExample, setShowExample] = useState(false),
     [showHistory, setShowHistory] = useState(false);
+  const [inkContext, setInkContext] = useState(
+    () => p.draftFields.__inkContext || (retry ? uid() : last?.fields.__inkContext || 'initial'),
+  );
   const [error, setError] = useState(''),
     [tag, setTag] = useState<ResourceAttempt['errorTag']>(last?.errorTag ?? 'unknown');
   const hint = fields.__hint === 'true',
@@ -107,7 +115,8 @@ function Problem({
     return !unsaved || patch({ draft, draftFields: fields });
   }
   function go(problemId: string) {
-    if (flush()) onChange((s) => moveProblem(s, r.id, problemId));
+    if (flush() && flushLearning(() => go(problemId)))
+      onChange((s) => moveProblem(s, r.id, problemId));
   }
   useEffect(() => {
     const save = (event: Event) => {
@@ -126,7 +135,11 @@ function Problem({
       window.removeEventListener('beforeunload', warn);
     };
   }, [draft, fields, p.draft, p.draftFields, onChange]);
+  let lastSubmittedAttemptId = '';
   const answerStage = !last || retry;
+  useEffect(() => {
+    if (answerStage && !fields.__inkContext) field('__inkContext', inkContext);
+  }, [answerStage, inkContext]);
   return (
     <section className="multi-workspace" aria-label="다중 문제 학습실">
       <div className="section-head">
@@ -193,6 +206,14 @@ function Problem({
           )}
         </details>
       )}
+      <Suspense fallback={<p>필기 학습실 준비 중…</p>}>
+        <ResourcePaper
+          resource={r}
+          problem={p}
+          attemptKey={inkContext}
+          onReference={() => !answerStage || markHint()}
+        />
+      </Suspense>
       <details>
         <summary>{template.name} 학습 순서</summary>
         <ol>
@@ -207,22 +228,37 @@ function Problem({
           onSubmit={(e) => {
             e.preventDefault();
             if (
-              onChange((s) =>
-                recordResourceAttempt(
+              !document.dispatchEvent(new Event('bkit:flush-learning-draft', { cancelable: true }))
+            )
+              return;
+            if (
+              onChange((s) => {
+                const next = recordResourceAttempt(
                   {
                     ...s,
                     learning: {
                       ...learning(s),
                       problems: learning(s).problems.map((x) =>
-                        x.id === p.id ? { ...x, draft, draftFields: fields } : x,
+                        x.id === p.id
+                          ? { ...x, draft, draftFields: { ...fields, __inkContext: inkContext } }
+                          : x,
                       ),
                     },
                   },
                   p.id,
                   { hintUsed: hint, confidence },
-                ),
-              )
+                );
+                lastSubmittedAttemptId = learning(next).attempts.at(-1)?.id ?? '';
+                return next;
+              })
             ) {
+              const submitted = document.querySelector('.multi-workspace');
+              if (submitted)
+                document.dispatchEvent(
+                  new CustomEvent('bkit:archive-ink-attempt', {
+                    detail: { problemId: p.id, attemptId: lastSubmittedAttemptId },
+                  }),
+                );
               setDraft('');
               setFields({});
               setRetry(false);
@@ -232,6 +268,44 @@ function Problem({
             } else setError('답을 저장하지 못했습니다. 입력 내용을 확인하세요.');
           }}
         >
+          <div className="learning-actions" role="group" aria-label="객관식 답 선택">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                type="button"
+                key={n}
+                aria-pressed={draft === String(n)}
+                onClick={() => {
+                  setDraft(String(n));
+                  patch({ draft: String(n) });
+                }}
+              >
+                {n}번 선택
+              </button>
+            ))}
+          </div>
+          <label>
+            숫자형 주관식
+            <input
+              aria-label="숫자형 주관식"
+              inputMode="decimal"
+              value={/^[-+]?\d*\.?\d*$/.test(draft) ? draft : ''}
+              onChange={(e) => {
+                if (/^[-+]?\d*\.?\d*$/.test(e.target.value)) {
+                  setDraft(e.target.value);
+                  patch({ draft: e.target.value });
+                }
+              }}
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => {
+              setDraft('필기 풀이 · 직접 확인');
+              patch({ draft: '필기 풀이 · 직접 확인' });
+            }}
+          >
+            답변에 필기 풀이 기록
+          </button>
           <label className="main-answer">
             {template.answerLabel}
             <textarea
@@ -341,6 +415,9 @@ function Problem({
           <div className="learning-actions">
             <button
               onClick={() => {
+                const key = uid();
+                setInkContext(key);
+                field('__inkContext', key);
                 setRetry(true);
                 setShowAnswer(false);
                 setShowHistory(false);

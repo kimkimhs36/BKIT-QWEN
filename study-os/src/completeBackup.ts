@@ -1,3 +1,11 @@
+import {
+  paperManifestSchema,
+  exportPaperBackup,
+  assertPaperUnchanged,
+  inspectPaperBackup,
+  restoreInspectedPaper,
+  type InspectedPaper,
+} from './paperBackup';
 import { z } from 'zod';
 import { stateSchema, newState, uid, type State } from './model';
 import { SLEEP_KEY, sleepSchema, type SleepState } from './sleep';
@@ -34,7 +42,8 @@ const fileMeta = z.object({
 const manifestSchema = z.object({
   format: z.literal('BKIT-COMPLETE-LOCAL'),
   schemaVersion: z.literal(1),
-  appVersion: z.literal('3.1'),
+  appVersion: z.enum(['3.1', '3.2']),
+  paper: paperManifestSchema.optional(),
   createdAt: z.string().datetime(),
   dataSha256: z.string().regex(/^[a-f0-9]{64}$/),
   photos: z.array(fileMeta).max(12000),
@@ -103,7 +112,7 @@ export async function exportCompleteBackup(
     manifest: Manifest = {
       format: 'BKIT-COMPLETE-LOCAL',
       schemaVersion: 1,
-      appVersion: '3.1',
+      appVersion: '3.2',
       createdAt: new Date().toISOString(),
       dataSha256: '',
       photos: [],
@@ -135,6 +144,8 @@ export async function exportCompleteBackup(
       });
       await writer.add(path, blob);
     }
+  const paper = await exportPaperBackup(writer, 250 * 1024 * 1024 - total);
+  manifest.paper = paper.manifest;
   assertReferences(keys, manifest);
   const data = new Blob([JSON.stringify({ keys })], { type: 'application/json' });
   if (data.size > 20 * 1024 * 1024) throw new Error('학습 JSON 데이터가 20MB를 초과합니다.');
@@ -143,7 +154,11 @@ export async function exportCompleteBackup(
   await writer.add('manifest.json', new Blob([JSON.stringify(manifest, null, 2)]));
   if (JSON.stringify(baseline) !== JSON.stringify(snapshotKeys(storage)))
     throw new Error('백업 중 학습 기록이 바뀌었습니다. 다시 내보내 주세요.');
-  return writer.finish();
+  await assertPaperUnchanged(paper.baseline);
+  const archive = writer.finish();
+  if (archive.size > 300 * 1024 * 1024)
+    throw new Error('전체 ZIP 300MB 한도 초과: 자료를 제외하지 않고 백업을 중단합니다.');
+  return archive;
 }
 export type InspectedBackup = {
   manifest: Manifest;
@@ -152,6 +167,7 @@ export type InspectedBackup = {
   baseline: StoredKeys;
   conflicts: string[];
   photoConflicts: string[];
+  paper: InspectedPaper;
 };
 export async function inspectCompleteBackup(
   file: Blob,
@@ -183,7 +199,11 @@ export async function inspectCompleteBackup(
       throw new Error(`${meta.name}: 사진 누락 또는 손상`);
     onProgress(`사진 무결성 검사 ${++i}/${manifest.photos.length}`);
   }
-  if (files.size !== manifest.photos.length + 2)
+  const paper = await inspectPaperBackup(manifest.paper, files);
+  if (
+    files.size !==
+    manifest.photos.length + 2 + (manifest.paper ? manifest.paper.originals.length + 1 : 0)
+  )
     throw new Error('목록과 다른 파일이 포함되어 있습니다.');
   assertReferences(parsed.keys, manifest);
   const baseline = snapshotKeys(storage),
@@ -222,7 +242,15 @@ export async function inspectCompleteBackup(
     if (local && (await sha256(new Blob([local.bytes]))) !== meta.sha256)
       photoConflicts.push(meta.vault + ':' + meta.id);
   }
-  return { manifest, keys: parsed.keys, files, baseline, conflicts, photoConflicts };
+  return {
+    manifest,
+    keys: parsed.keys,
+    files,
+    baseline,
+    conflicts: [...conflicts, ...paper.conflicts],
+    photoConflicts,
+    paper,
+  };
 }
 const union = <T>(a: T[], b: T[], key: (value: T) => string): T[] => {
   const ids = new Set(a.map(key));
@@ -280,6 +308,7 @@ export async function restoreCompleteBackup(
 ) {
   if (JSON.stringify(snapshotKeys(storage)) !== JSON.stringify(backup.baseline))
     throw new Error('검사 후 다른 탭 또는 학습 기록이 바뀌었습니다. 파일을 다시 검사하세요.');
+  await assertPaperUnchanged(backup.paper.baseline);
   const readLocal = localStudy(backup.baseline[KEY]);
   if (!readLocal && mode === 'merge')
     throw new Error(
@@ -358,6 +387,14 @@ export async function restoreCompleteBackup(
     throw new Error(
       '사진 복원 중 다른 탭에서 기록이 변경되었습니다. JSON은 변경하지 않았습니다. 파일을 다시 검사하세요.',
     );
+  const undoPaper = backup.manifest.paper
+    ? await restoreInspectedPaper(backup.paper, mode, journal)
+    : async () => {};
+  // A second local-key check follows async IndexedDB commit. Roll back metadata on conflict.
+  if (JSON.stringify(snapshotKeys(storage)) !== JSON.stringify(backup.baseline)) {
+    await undoPaper();
+    throw new Error('필기 복원 중 학습 기록이 변경되었습니다. 다시 검사하세요.');
+  }
   const changed: string[] = [];
   try {
     for (const key of BACKUP_KEYS) {
@@ -377,6 +414,7 @@ export async function restoreCompleteBackup(
         }
       }
     }
+    await undoPaper();
     throw new Error(`저장 공간 부족으로 복원을 중단했습니다. 원본 보존 위치: ${journal}`);
   }
   return journal;

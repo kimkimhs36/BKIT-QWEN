@@ -330,3 +330,10 @@
   max-width: 100%;
   box-sizing: border-box;
 }
+/* Numeric answer fields share the paper answer surface in every theme. */
+.learning-answer-form input:not([type='checkbox']) {
+  color: #25332f;
+  background: #fafbf7;
+  border: 1px solid #b9c4b8;
+  color-scheme: light;
+}

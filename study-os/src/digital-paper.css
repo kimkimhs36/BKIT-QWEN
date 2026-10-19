@@ -1,0 +1,192 @@
+.digital-paper {
+  --paper-border: #d7d9ce;
+  margin: 1rem 0;
+  color: #25332f;
+  background: #eeefe8;
+  border: 1px solid var(--paper-border);
+  border-radius: 16px;
+  padding: 12px;
+  min-width: 0;
+  max-width: 100%;
+}
+.paper-header,
+.paper-controls,
+.paper-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 0;
+}
+.paper-header strong {
+  flex: 1;
+  overflow-wrap: anywhere;
+  min-width: 120px;
+}
+.digital-paper button,
+.digital-library button {
+  min-height: 40px;
+  background: #fafbf7;
+  color: #25332f;
+  border: 1px solid #c3c8ba;
+  border-radius: 9px;
+  padding: 8px 10px;
+}
+.digital-paper button[aria-pressed='true'] {
+  background: #29473e;
+  color: #fff;
+  border-color: #29473e;
+}
+.digital-paper button:disabled {
+  opacity: 0.5;
+}
+.digital-paper label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  font-size: 13px;
+}
+.digital-paper select {
+  width: auto;
+  max-width: 150px;
+  color: #25332f;
+  background: #fff;
+}
+.digital-paper input[type='range'] {
+  width: 80px;
+}
+.digital-paper input[type='color'] {
+  width: 36px;
+  height: 34px;
+  padding: 2px;
+}
+.digital-paper input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+}
+.paper-scroll {
+  position: relative;
+  max-width: 100%;
+  height: min(70dvh, 900px);
+  min-height: 280px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: #dfe2d8;
+  border-radius: 6px;
+  padding: 16px;
+  scrollbar-gutter: stable;
+}
+.paper-view {
+  position: relative;
+  background: white;
+  box-shadow: 0 3px 14px #27362d25;
+}
+.paper-page {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  background: white;
+}
+.paper-source {
+  display: block;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.paper-ink {
+  position: absolute;
+  inset: 0;
+}
+.paper-ink.saved {
+  pointer-events: none;
+}
+.paper-region {
+  position: absolute;
+  border: 1px dashed #9b572f;
+  background: #c17c4510;
+  pointer-events: none;
+  z-index: 1;
+}
+.paper-delete-selection {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 3;
+}
+.paper-thumbnails {
+  display: flex;
+  gap: 8px;
+  overflow: auto;
+  padding: 8px;
+  max-height: 170px;
+}
+.paper-thumbnails button {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+.paper-thumbnails [aria-current='page'] {
+  outline: 2px solid #29473e;
+}
+.digital-library {
+  border-block: 1px solid #d7d9ce;
+  margin: 16px 0;
+  padding: 16px 0;
+  min-width: 0;
+}
+.digital-library input,
+.digital-library select {
+  max-width: 100%;
+  box-sizing: border-box;
+  color: #25332f;
+  background: #fafbf7;
+}
+.digital-library form {
+  display: grid;
+  gap: 12px;
+}
+.paper-document-list {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+}
+.paper-document-list article {
+  border: 1px solid #d7d9ce;
+  border-radius: 10px;
+  padding: 12px;
+  overflow-wrap: anywhere;
+}
+.exam-source-form {
+  margin: 14px 0;
+}
+@media (max-width: 600px) {
+  .digital-paper {
+    padding: 6px;
+    border-radius: 8px;
+  }
+  .paper-tools {
+    max-height: 180px;
+    overflow: auto;
+    align-content: flex-start;
+  }
+  .paper-tools button {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  .paper-scroll {
+    height: 65dvh;
+    padding: 8px;
+  }
+  .paper-header {
+    font-size: 13px;
+  }
+}
+
+fieldset.paper-tools {
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 6px 0;
+}

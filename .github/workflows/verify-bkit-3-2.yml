@@ -1,0 +1,64 @@
+name: Verify BKIT STUDY OS 3.2
+on:
+  push:
+    branches: [feat/bkit-3-2-worksheet-ink-pdf]
+    paths-ignore: ['**/*.md']
+  pull_request:
+    branches: [feat/bkit-3-2-worksheet-ink-pdf]
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Regression profile (all for release verification)'
+        type: choice
+        required: true
+        default: all
+        options: [all, iphone, ipad, desktop, webkit-iphone, webkit-ipad, galaxy-css]
+permissions:
+  contents: read
+jobs:
+  static-and-data:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+  release-regression:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
+    needs: static-and-data
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # PRs retain every profile. Manual debugging can rerun only the affected browser.
+        project: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.profile != 'all' && format('["{0}"]', inputs.profile) || '["iphone","ipad","desktop","webkit-iphone","webkit-ipad","galaxy-css"]') }}
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:e2e -- --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bkit-3-2-${{ matrix.project }}
+          path: study-os/test-results/
+          retention-days: 14

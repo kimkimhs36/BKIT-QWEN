@@ -13,6 +13,9 @@ import {
 import { storePhoto } from './atelierMedia';
 import { PrivatePhotoCard } from './StudyAtelier';
 import { iso } from './time';
+const DigitalLibrary = lazy(() =>
+  import('./DigitalLibrary').then((m) => ({ default: m.DigitalLibrary })),
+);
 const PhotoText = lazy(() => import('./PhotoText').then((m) => ({ default: m.PhotoText })));
 type Commit = (change: (s: State) => State) => boolean;
 export function ResourceLibrary({
@@ -127,6 +130,9 @@ export function ResourceLibrary({
         </button>
       </div>
       <p>실제 자료를 등록하고, 마지막 문제부터 이어 풀어요.</p>
+      <Suspense fallback={<p>디지털 종이 보관함 준비 중…</p>}>
+        <DigitalLibrary state={state} onChange={onChange} />
+      </Suspense>
       <label>
         자료 검색
         <input
@@ -507,42 +513,20 @@ export function ResourceLibrary({
                 onClick={() => {
                   if (
                     confirm(
-                      '자료를 라이브러리에서 삭제할까요? 풀이 이력이 있으면 보관함으로 옮기며 사진 원본은 보존합니다.',
+                      '자료를 보관함으로 옮길까요? PDF·사진·필기·문제·풀이 이력은 모두 보존합니다.',
                     )
                   ) {
-                    const ids = new Set(resourceProblems(d, current.id).map((p) => p.id));
-                    if (
-                      d.attempts.some((a) => ids.has(a.problemId)) ||
-                      state.sessions.some((session) => session.resourceId === current.id)
-                    ) {
-                      if (
-                        onChange((s) => ({
-                          ...s,
-                          learning: {
-                            ...learning(s),
-                            resources: learning(s).resources.map((r) =>
-                              r.id === current.id
-                                ? { ...r, archived: true, updatedAt: iso(Date.now()) }
-                                : r,
-                            ),
-                          },
-                        }))
-                      )
-                        setEditing(null);
-                      return;
-                    }
                     if (
                       onChange((s) => ({
                         ...s,
                         learning: {
                           ...learning(s),
-                          resources: learning(s).resources.filter((r) => r.id !== current.id),
-                          problems: learning(s).problems.filter((p) => p.resourceId !== current.id),
+                          resources: learning(s).resources.map((r) =>
+                            r.id === current.id
+                              ? { ...r, archived: true, updatedAt: iso(Date.now()) }
+                              : r,
+                          ),
                         },
-                        exams: s.exams?.map((e) => ({
-                          ...e,
-                          linkedResourceIds: e.linkedResourceIds?.filter((id) => id !== current.id),
-                        })),
                       }))
                     )
                       setEditing(null);

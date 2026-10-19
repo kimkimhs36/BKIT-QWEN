@@ -49,6 +49,10 @@ export class LocalZipWriter {
     this.offset += header.length + blob.size;
   }
   finish() {
+    if (this.directory.length > 12000)
+      throw new Error(
+        'ZIP 항목 12,000개 한도를 초과합니다. 자료를 제외하지 않고 백업을 중단합니다.',
+      );
     const size = this.directory.reduce<number>((n, x) => n + (x as Uint8Array).byteLength, 0),
       end = new Uint8Array(22),
       v = new DataView(end.buffer);
@@ -96,7 +100,7 @@ export async function readLocalZip(file: Blob): Promise<Map<string, Blob>> {
       bytes !== packed ||
       bytes > 25 * 1024 * 1024 ||
       files.has(name) ||
-      !/^((data\/local\.json)|(manifest\.json)|(media\/(study|sleep)\/[a-zA-Z0-9._-]+\.bin))$/.test(
+      !/^((data\/(local|paper)\.json)|(manifest\.json)|(media\/(study|sleep|paper)\/[a-zA-Z0-9._-]+\.bin))$/.test(
         name,
       )
     )

@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import { readdir, readFile, writeFile, mkdir, copyFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile, mkdir, copyFile, cp } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { OCR_ASSET_DIR } from './src/ocrAssets';
 export default defineConfig(({ mode }) => ({
@@ -34,6 +34,14 @@ export default defineConfig(({ mode }) => ({
           ocr + '/LANGUAGE-NOTICE.txt',
           'Korean and English traineddata: @tesseract.js-data/kor and @tesseract.js-data/eng 1.0.0.\nSource: https://github.com/naptha/tessdata\nPackage authors: Balearica and Jerome Wu. Package license: MIT.\nUnderlying Tesseract language models: https://github.com/tesseract-ocr/tessdata (Apache-2.0; see LICENSE-core).\n',
         );
+        // PDF.js CMaps and standard fonts are served locally, including Korean legacy PDFs.
+        await mkdir('dist/pdf-assets', { recursive: true });
+        await cp('node_modules/pdfjs-dist/cmaps', 'dist/pdf-assets/cmaps', { recursive: true });
+        await cp('node_modules/pdfjs-dist/standard_fonts', 'dist/pdf-assets/standard_fonts', {
+          recursive: true,
+        });
+        await copyFile('node_modules/pdfjs-dist/LICENSE', 'dist/pdf-assets/LICENSE');
+        await copyFile('node_modules/pdf-lib/LICENSE.md', 'dist/pdf-assets/LICENSE-pdf-lib.md');
         const assets = await readdir('dist/assets');
         const shell = [
           'index.html',
