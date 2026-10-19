@@ -14,10 +14,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
-          cache-dependency-path: study-os/package-lock.json
-      - run: npm ci
-        working-directory: study-os
+      # The published main branch contains only site assets, not the development lockfile.
+      - name: Install minimal browser-test dependencies
+        run: npm install --prefix study-os --no-save --package-lock=false @playwright/test
       - run: npx playwright install --with-deps chromium webkit
         working-directory: study-os
       - name: Serve independent exam-eve page
