@@ -156,7 +156,7 @@ export function attachQuickResource(state: State, resourceId: string, problemId?
       quickMode: timer.mode,
       taskId: resource.linkedTaskId,
       resourceId,
-      questionPace: { current, anchor: quickSeconds(timer, Date.now()), seconds: {}, target: 240, review: [] },
+      questionPace: { current, enteredAt: new Date().toISOString(), anchor: quickSeconds(timer, Date.now()), seconds: {}, target: 240, review: [] },
       subject: resource.subject,
       action: resource.title,
       target: timer.targetMinutes,
@@ -225,6 +225,7 @@ export function finishQuickResource(state: State, now: number): State {
             action: active.action,
             resourceId: active.resourceId,
             questionPace: active.questionPace,
+            exam: active.exam,
             problems: new Set(
               learning(state)
                 .attempts.filter((a) => a.sessionId === active.id && a.selfCheck !== 'unreviewed')

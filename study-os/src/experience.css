@@ -495,3 +495,4 @@ html[data-sleep-night='true'] dialog::backdrop {
 .more-hub-link > span {display:grid;gap:6px;flex:1;min-width:0;}
 .more-hub-link strong {font-size:16px;font-weight:600;}
 .more-hub-link small {font-size:13px;color:var(--os-muted);line-height:1.6;}
+.day-close{margin:18px 0;font-size:13px;}.day-close dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}.day-close dt{font-size:11px;}.day-close dd{margin:4px 0;font-size:22px;font-variant-numeric:tabular-nums;}.day-close-car{max-width:220px;margin:12px auto;}.jg-plan-subject{padding:14px;margin:12px 0;border:1px solid #81988955;border-radius:12px;}.jg-plan-subject p{white-space:pre-wrap;overflow-wrap:anywhere;}

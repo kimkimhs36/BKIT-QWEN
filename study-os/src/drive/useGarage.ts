@@ -18,8 +18,10 @@ export function useGarage(study: State, blocked: boolean) {
   const [garage, setGarage] = useState(initial.value);
   const [error, setError] = useState(initial.error);
   async function update(change: (value: GarageState) => GarageState) {
-    if (blocked || initial.error) {
-      setError(initial.error || '학습 저장 잠금 중에는 차고도 변경할 수 없어요.');
+    // Commerce has its own validated, locked ledger. A study-tab conflict only
+    // suppresses reward discovery; it must not freeze independent purchases.
+    if (initial.error) {
+      setError(initial.error);
       return false;
     }
     const persist = () => {

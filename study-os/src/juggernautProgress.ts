@@ -1,3 +1,4 @@
+import { fixedForDay, overlap } from './engine';
 import type { State, Session } from './model';
 import { dayKey, addDays, weekday, at } from './time';
 import { closeSegment } from './session';
@@ -99,7 +100,16 @@ export function juggernautProgress(s: State, now: number) {
   const plannedMinutes = s.plan
     .filter((b) => Date.parse(b.start) >= now && Date.parse(b.start) < now + 3 * 86400000)
     .reduce((n, b) => n + (Date.parse(b.end) - Date.parse(b.start)) / 60000, 0);
+  const conflicts:{id:string;title:string;start:number;end:number}[]=[];
+  const plans=s.plan.filter(b=>Date.parse(b.end)>now && Date.parse(b.start)<now+7*86400000);
+  const fixed=[...new Map(Array.from({length:8},(_,i)=>fixedForDay(s,addDays(today,i))).flat().map(f=>[f.id+':'+f.start,f])).values()];
+  for(let i=0;i<plans.length;i++) {
+    const p=plans[i],span={start:Date.parse(p.start),end:Date.parse(p.end)},title=s.tasks.find(t=>t.id===p.taskId)?.title??'학습 계획';
+    for(const f of fixed)if(overlap(span,f))conflicts.push({id:p.id+':'+f.id,title:title+' ↔ '+f.title,start:Math.max(span.start,f.start),end:Math.min(span.end,f.end)});
+    for(const other of plans.slice(i+1)){const o={start:Date.parse(other.start),end:Date.parse(other.end)};if(overlap(span,o))conflicts.push({id:p.id+':'+other.id,title:title+' ↔ '+(s.tasks.find(t=>t.id===other.taskId)?.title??'학습 계획'),start:Math.max(span.start,o.start),end:Math.min(span.end,o.end)});}
+  }
   return {
+    conflicts,
     todaySeconds: studySeconds(unique, today),
     weekSeconds,
     subjects,

@@ -11,3 +11,5 @@ test-results/
 public/pdf-assets/
 
 test-results-*/
+
+/public/awake/wasm/

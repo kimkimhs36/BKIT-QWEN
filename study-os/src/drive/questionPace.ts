@@ -1,5 +1,6 @@
 import type { State } from '../model';
 import { elapsed } from '../session';
+import { iso } from '../time';
 
 type Active = NonNullable<State['active']>;
 export function questionSeconds(a: Active, problemId: string, total: number): number {
@@ -17,7 +18,9 @@ export function switchQuestion(a: Active, problemId: string, now: number): Activ
   return {
     ...a,
     questionPace: {
+      ...previous,
       current: problemId,
+      enteredAt: iso(now),
       anchor: total,
       seconds: previous
         ? { ...previous.seconds, [previous.current]: questionSeconds(a, previous.current, total) }

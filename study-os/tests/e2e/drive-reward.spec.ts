@@ -166,12 +166,16 @@ test('race completes with acceleration and shifting without changing learning or
   await page.clock.runFor(10000);
   await page.keyboard.up('Space');
   await expect(race.getByRole('region', { name: '레이스 결과' })).toContainText('200m 완주');
-  expect(
-    await page.evaluate(() => [
-      localStorage.getItem('bkit.study-os.v1'),
-      localStorage.getItem('bkit.drive-garage.v1'),
-    ]),
-  ).toEqual(before);
+  const after = await page.evaluate(() => [
+    localStorage.getItem('bkit.study-os.v1'),
+    localStorage.getItem('bkit.drive-garage.v1'),
+  ]);
+  expect(after[0]).toBe(before[0]);
+  const oldGarage = JSON.parse(before[1]!),
+    savedGarage = JSON.parse(after[1]!);
+  expect({ ...savedGarage, raceRecords: oldGarage.raceRecords }).toEqual(oldGarage);
+  expect(savedGarage.raceRecords).toHaveLength(oldGarage.raceRecords.length + 1);
+  expect(savedGarage.raceRecords.at(-1)).toMatchObject({ distance: 200 });
   await race.getByRole('button', { name: '학습으로 복귀', exact: true }).click();
   await expect(race).not.toBeVisible();
 });
@@ -205,7 +209,11 @@ test('DRIVE problem cars, answer rewards and break return preserve the current d
     .poll(() =>
       page.evaluate(() => JSON.parse(localStorage.getItem('bkit.drive-garage.v1')!).credits),
     )
-    .toBe(5);
+    .toBe(7);
+  const rewards = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('bkit.drive-garage.v1')!).transactions,
+  );
+  expect(rewards.map((t: { reason: string }) => t.reason).sort()).toEqual(['answer', 'start']);
   await page.getByRole('button', { name: '다음 문제', exact: true }).click();
   await page.getByLabel('최종 답', { exact: true }).fill('둘째 문제 작성 중');
   await page.getByRole('button', { name: 'DRAG RACE · 3분 쉬기', exact: true }).click();
@@ -228,7 +236,7 @@ test('DRIVE problem cars, answer rewards and break return preserve the current d
   await expect(page.getByLabel('최종 답', { exact: true })).toHaveValue('둘째 문제 작성 중');
   expect(
     await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.drive-garage.v1')!).credits),
-  ).toBe(5);
+  ).toBe(7);
 });
 test('storage-full and concurrent tab purchases preserve balances and study bytes', async ({
   page,
@@ -258,7 +266,9 @@ test('storage-full and concurrent tab purchases preserve balances and study byte
     };
   });
   await page.getByRole('button', { name: '블루', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('저장하지 못했어요');
+  await expect(
+    page.getByRole('region', { name: 'TOHEŞAR GARAGE' }).getByRole('alert'),
+  ).toContainText('저장하지 못했어요');
   expect(await page.evaluate(() => localStorage.getItem('bkit.drive-garage.v1'))).toBe(before);
 });
 
@@ -275,7 +285,7 @@ test('shared car and reduced motion apply to DRIVE and the race', async ({ page 
   const drive = page.getByRole('region', { name: 'DRIVE 집중 계기판' });
   await expect(drive).toHaveAttribute('data-motion', 'none');
   await expect(drive.locator('.car-wheel').first()).toHaveCSS('animation-name', 'none');
-  await expect(drive.locator('path[fill="#85b0ce"]').first()).toBeAttached();
+  await expect(drive.locator('.tohesar-car')).toHaveAttribute('data-color', 'blue');
   await timer.getByRole('button', { name: 'DRAG RACE · 3분 쉬기', exact: true }).click();
   const race = page.getByRole('dialog', { name: 'DRAG RACE', exact: true });
   await expect
@@ -285,7 +295,7 @@ test('shared car and reduced motion apply to DRIVE and the race', async ({ page 
     })
     .toBe(true);
   await expect(race).toHaveAttribute('data-motion', 'none');
-  await expect(race.locator('path[fill="#85b0ce"]').first()).toBeAttached();
+  await expect(race.locator('.tohesar-car')).toHaveAttribute('data-color', 'blue');
   expect(await race.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
 });
 
@@ -387,7 +397,7 @@ test('question sprint measures actual time independently from solved output and 
     ['첫 문제', '둘째 문제'],
   );
   await page.clock.install({ time: t });
-  await page.clock.pauseAt(t);
+  await page.clock.pauseAt(new Date(+t + 1000));
   await page.addInitScript((value) => {
     if (!localStorage.getItem('bkit.study-os.v1'))
       localStorage.setItem('bkit.study-os.v1', JSON.stringify(value));

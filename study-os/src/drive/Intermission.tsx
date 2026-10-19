@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { GarageState } from './garage';
 import { useBreakDialog } from './useBreakDialog';
 import { quickClock } from '../quickTimer';
+import { AmbientControl } from './AmbientControl';
+import { useDriveMotion } from './useDriveMotion';
 import { Car } from './Car';
 import './drive.css';
 
@@ -32,6 +34,7 @@ export function Intermission({
   onDuration: (seconds: number) => void;
 }) {
   const { dialog, seconds } = useBreakDialog(until, onReturn);
+  const quiet = useDriveMotion(garage);
   const [room, setRoom] = useState<(typeof rooms)[number][0]>('forest');
   return (
     <dialog
@@ -42,7 +45,7 @@ export function Intermission({
         e.preventDefault();
         onReturn();
       }}
-      data-motion={garage.reduceMotion || garage.hideAnimations ? 'none' : 'auto'}
+      data-motion={quiet ? 'none' : 'auto'}
     >
       <header className="race-heading">
         <div>
@@ -77,8 +80,9 @@ export function Intermission({
         ))}
       </div>
       <p className="race-help">
-        오리지널 CSS 풍경 · 실제 장소의 사진·영상이 아닙니다. 소리는 재생하지 않아요.
+        오리지널 CSS 풍경 · 실제 장소의 사진·영상이 아닙니다. 환경음은 아래에서 선택해서 재생해요.
       </p>
+      <AmbientControl />
       <details>
         <summary>지금부터 쉴 시간 선택</summary>
         <div className="garage-actions">

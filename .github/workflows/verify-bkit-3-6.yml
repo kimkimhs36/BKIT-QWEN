@@ -43,8 +43,14 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium webkit
-      - run: >-
+      - name: Desktop full regression
+        if: matrix.project == 'desktop'
+        run: npm run test:e2e -- --project=desktop
+      - name: WebKit learning, drive and recovery flows
+        if: matrix.project != 'desktop'
+        run: >-
           npm run test:e2e --
+          tests/e2e/completion.spec.ts
           tests/e2e/drive-reward.spec.ts
           tests/e2e/dark-mode-settings.spec.ts
           tests/e2e/quick-timer.spec.ts
@@ -53,6 +59,7 @@ jobs:
           tests/e2e/storage-readiness.spec.ts
           tests/e2e/school-ready.spec.ts
           tests/e2e/assessment-readiness.spec.ts
+          tests/e2e/sleep-learning-integration.spec.ts
           --project=${{ matrix.project }}
       - uses: actions/upload-artifact@v4
         if: failure()

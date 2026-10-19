@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { Car } from './Car';
-import { catalog, DAILY_CAP, purchase, type GarageState, type Upgrade } from './garage';
+import {
+  catalog,
+  DAILY_CAP,
+  purchase,
+  stampLabels,
+  transactionLabels,
+  type GarageState,
+  type Upgrade,
+} from './garage';
 import type { GarageController } from './useGarage';
 import './drive.css';
 export function Garage({
@@ -17,6 +25,8 @@ export function Garage({
   const { garage: g, update, error } = controller;
   const [confirm, setConfirm] = useState<Upgrade | null>(null);
   const [busy, setBusy] = useState(false);
+  const [zoom, setZoom] = useState(false);
+  const [vehicleName, setVehicleName] = useState(g.car.name);
   const [message, setMessage] = useState('');
   async function buy(item: Upgrade) {
     setBusy(true);
@@ -64,11 +74,42 @@ export function Garage({
       </header>
       <p role="status">{message}</p>
       {error && <p role="alert">{error}</p>}
-      <div className={'garage-showroom scene-' + g.car.scene}>
+      <div
+        className={
+          'garage-showroom scene-' +
+          g.car.scene +
+          ' light-' +
+          g.car.lighting +
+          (zoom ? ' garage-zoom' : '')
+        }
+      >
         <span className="garage-edition">T·36 / YOUR STUDY, YOUR DRIVE</span>
-        <Car car={g.car} />
+        <Car
+          car={
+            confirm
+              ? {
+                  ...g.car,
+                  ...(confirm === 'aero'
+                    ? { wheels: 'aero' as const }
+                    : confirm === 'wing'
+                      ? { spoiler: true }
+                      : {}),
+                }
+              : g.car
+          }
+        />
+        <button
+          className="garage-zoom-button"
+          aria-pressed={zoom}
+          onClick={() => setZoom((v) => !v)}
+        >
+          {zoom ? '기본 크기' : '차량 확대'}
+        </button>
         <div className="garage-spec">
-          <span>TOURING 36</span>
+          <span>
+            {g.car.name}
+            {confirm ? ' · 부품 미리보기' : ''}
+          </span>
           <span>
             {g.car.tune === 'sprint' ? 'SPRINT / 빠른 가속 · 빠른 변속' : 'BALANCED / 편안한 변속'}
           </span>
@@ -79,6 +120,22 @@ export function Garage({
           <h3>
             01 <span>나의 사양</span>
           </h3>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (vehicleName.trim()) car({ name: vehicleName.trim() });
+            }}
+          >
+            <label>
+              차량 이름
+              <input
+                maxLength={32}
+                value={vehicleName}
+                onChange={(e) => setVehicleName(e.target.value)}
+              />
+            </label>
+            <button disabled={!vehicleName.trim() || vehicleName === g.car.name}>이름 저장</button>
+          </form>
           <fieldset>
             <legend>차체 색상 · 무료</legend>
             <div className="garage-options">
@@ -95,6 +152,72 @@ export function Garage({
               ))}
             </div>
           </fieldset>
+          <label>
+            도장 재질
+            <select
+              aria-label="도장 재질"
+              value={g.car.finish}
+              onChange={(e) => car({ finish: e.target.value as GarageState['car']['finish'] })}
+            >
+              <option value="metallic">METALLIC · 메탈릭</option>
+              <option value="gloss">GLOSS · 유광</option>
+              <option value="matte">MATTE · 무광</option>
+            </select>
+          </label>
+          <label>
+            타이어 스타일 · 외형
+            <select
+              aria-label="타이어 스타일 · 외형"
+              value={g.car.tires}
+              onChange={(e) => car({ tires: e.target.value as GarageState['car']['tires'] })}
+            >
+              <option value="street">STREET</option>
+              <option value="sport">SPORT · 사이드월 링</option>
+            </select>
+          </label>
+          <label>
+            범퍼 · 외형
+            <select
+              aria-label="범퍼 · 외형"
+              value={g.car.bumper}
+              onChange={(e) => car({ bumper: e.target.value as GarageState['car']['bumper'] })}
+            >
+              <option value="touring">TOURING</option>
+              <option value="sport">SPORT</option>
+            </select>
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={g.car.skirt}
+              onChange={(e) => car({ skirt: e.target.checked })}
+            />
+            사이드 스커트
+          </label>
+          <label>
+            데칼
+            <select
+              aria-label="데칼"
+              value={g.car.decal}
+              onChange={(e) => car({ decal: e.target.value as GarageState['car']['decal'] })}
+            >
+              <option value="none">CLEAN</option>
+              <option value="stripe">TOURING STRIPE</option>
+              <option value="number">NUMBER 36</option>
+            </select>
+          </label>
+          <label>
+            차고 조명
+            <select
+              aria-label="차고 조명"
+              value={g.car.lighting}
+              onChange={(e) => car({ lighting: e.target.value as GarageState['car']['lighting'] })}
+            >
+              <option value="studio">STUDIO</option>
+              <option value="warm">WARM</option>
+              <option value="cool">COOL</option>
+            </select>
+          </label>
           <label>
             휠
             <select
@@ -218,9 +341,7 @@ export function Garage({
             <summary>스탬프·크레딧 내역</summary>
             <p>스탬프 {g.stamps.length}개 · 교환하지 않는 학습 성취 기록</p>
             {g.stamps.map((s) => (
-              <p key={s.id}>
-                ✓ {s.id === 'first-answer' ? '첫 풀이 확인' : '5분 이상 학습·문제 기록 완료'}
-              </p>
+              <p key={s.id}>✓ {stampLabels[s.id]}</p>
             ))}
             <p>이전 잔액 {g.credits - g.transactions.reduce((n, t) => n + t.amount, 0)} CR</p>
             <ol>
@@ -229,18 +350,30 @@ export function Garage({
                 .reverse()
                 .map((t) => (
                   <li key={t.id}>
-                    {new Date(t.at).toLocaleDateString()} ·{' '}
-                    {t.reason === 'purchase'
-                      ? '부품 구매'
-                      : t.reason === 'session'
-                        ? '학습 세션 완료'
-                        : '풀이 확인'}{' '}
-                    · {t.amount > 0 ? '+' : ''}
+                    {new Date(t.at).toLocaleDateString()} · {transactionLabels[t.reason]} ·{' '}
+                    {t.amount > 0 ? '+' : ''}
                     {t.amount} CR
                   </li>
                 ))}
             </ol>
             <p>최근 20건 표시 · 무료·비현금성·양도 불가 · 현금 환전 불가</p>
+          </details>
+          <details className="garage-ledger">
+            <summary>나의 레이스 기록</summary>
+            {([200, 400] as const).map((distance) => {
+              const best = g.raceRecords
+                .filter((r) => r.distance === distance)
+                .sort((a, b) => a.elapsed - b.elapsed)[0];
+              return (
+                <p key={distance}>
+                  {distance}m ·{' '}
+                  {best
+                    ? best.elapsed.toFixed(3) + 's · ' + best.topSpeed.toFixed(1) + 'km/h'
+                    : '아직 기록 없음'}
+                </p>
+              );
+            })}
+            <p>레이스 시간은 학습 시간·크레딧에 포함하지 않아요.</p>
           </details>
           <details className="garage-ledger">
             <summary>BKIT × TOHEŞAR</summary>
@@ -254,7 +387,8 @@ export function Garage({
           </details>
           <p className="garage-policy">
             답안을 제출하고 직접 확인하면 문제당 5 CR, 1분 이상 학습 후 문제 수를 기록해 종료하면 10
-            CR. 자료·답안 학습은 중복 지급하지 않아요. 시간만 흐르거나 게임을 해서는 지급되지
+            CR. 과제 완료 10 CR·수행평가 15 CR, 다음날 오답 복습 5 CR, 주간 목표 15 CR. 첫 시작은 한
+            번만 2 CR. 자료·답안 학습은 중복 지급하지 않아요. 시간만 흐르거나 게임을 해서는 지급되지
             않아요. 하루 최대 100 CR · 설치 이후 활동부터 적용.
           </p>
           <div className="garage-actions">

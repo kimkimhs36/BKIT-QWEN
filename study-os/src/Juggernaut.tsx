@@ -176,7 +176,7 @@ export function Juggernaut({
   recommended,
   canStart,
   protectedReason,
-  state, onChange, onResumeResource, now,
+  state, onChange, onResumeResource, onStartMock, now,
 }: {
   onExit: () => void;
   onStart: (taskId: string | null) => void;
@@ -188,6 +188,7 @@ export function Juggernaut({
   now: number;
   onChange: (fn: (s: State) => State) => boolean;
   onResumeResource: (id: string) => void;
+  onStartMock: (id: string, minutes: number, count: number) => void;
 }) {
   const [stage, setStage] = useState<Stage>(() => (skipIntro() ? 'launch' : 'intro'));
   const [selected, setSelected] = useState(1);
@@ -505,7 +506,7 @@ export function Juggernaut({
             )}
             {stage === 'launch' && (
               <div className="jg-launch">
-                <JuggernautDashboard state={state} now={now} onChange={onChange} onResumeResource={onResumeResource}/>
+                <JuggernautDashboard state={state} now={now} onChange={onChange} onResumeResource={onResumeResource} onStartMock={onStartMock}/>
                 <div className="jg-section-top">
                   <span>CHAPTER V / THE FIRST MOVE</span>
                   <h2>

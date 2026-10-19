@@ -1,27 +1,31 @@
 import { useEffect, useRef, useState } from 'react';
+import { useDriveMotion } from './useDriveMotion';
 import { Car } from './Car';
-import type { GarageState } from './garage';
+import { saveRaceRecord } from './garage';
+import type { GarageController } from './useGarage';
 import { newRace, stageRace, launchRace, tickRace, shiftRace, revs } from './race';
 import './drive.css';
 const messages = {
-  finish: '200m 완주',
+  finish: '완주했어요',
   'false-start': '조금 빨랐어요 · 신호 후 출발',
   'late-start': '출발 신호를 놓쳤어요',
   timeout: '이번 주행 종료 · 다음에는 변속도 함께',
   interrupted: '화면 전환으로 주행을 안전하게 종료했어요',
 };
 export function DragRace({
-  garage,
+  controller,
   until,
   onReturn,
   onRoom,
 }: {
-  garage: GarageState;
+  controller: GarageController;
   until: number;
   onReturn: () => void;
   onRoom?: () => void;
 }) {
-  const [race, setRace] = useState(newRace);
+  const garage = controller.garage;
+  const [race, setRace] = useState(() => newRace());
+  const [recordMessage, setRecordMessage] = useState('');
   const live = useRef(race);
   live.current = race;
   const throttle = useRef(false);
@@ -29,16 +33,7 @@ export function DragRace({
   const dialog = useRef<HTMLDialogElement>(null);
   const returnRef = useRef(onReturn);
   returnRef.current = onReturn;
-  const [reduced, setReduced] = useState(
-    () => matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
-  useEffect(() => {
-    const m = matchMedia('(prefers-reduced-motion: reduce)');
-    const changed = () => setReduced(m.matches);
-    m.addEventListener('change', changed);
-    return () => m.removeEventListener('change', changed);
-  }, []);
-  const quiet = garage.reduceMotion || garage.hideAnimations || reduced;
+  const quiet = useDriveMotion(garage);
   function change(fn: (r: typeof race) => typeof race) {
     const next = fn(live.current);
     live.current = next;
@@ -125,6 +120,20 @@ export function DragRace({
     );
     return () => clearInterval(id);
   }, [until, garage.car.tune, quiet, race.phase]);
+  useEffect(() => {
+    if (race.phase === 'result' && race.result === 'finish') {
+      void controller
+        .update((g) => saveRaceRecord(g, race, Date.now()))
+        .then((ok) =>
+          setRecordMessage(
+            ok ? '레이스 기록 저장됨' : '기록을 저장하지 못했어요. 다시 저장할 수 있어요.',
+          ),
+        );
+    }
+  }, [race.phase, race.result]);
+  const best = garage.raceRecords
+    .filter((r) => r.distance === race.targetDistance)
+    .sort((a, b) => a.elapsed - b.elapsed)[0];
   const seconds = Math.max(0, Math.ceil((until - now) / 1000));
   return (
     <dialog
@@ -139,7 +148,7 @@ export function DragRace({
     >
       <header className="race-heading">
         <div>
-          <span className="eyebrow">INTERMISSION / 200 M</span>
+          <span className="eyebrow">INTERMISSION / {race.targetDistance} M</span>
           <h2 id="race-title">DRAG RACE</h2>
         </div>
         <button onClick={onReturn}>학습으로 돌아가기 ↗</button>
@@ -149,16 +158,23 @@ export function DragRace({
         위치로 돌아가요
       </p>
       {onRoom && <button onClick={onRoom}>INTERMISSION 공간 선택</button>}
-      <div className={'race-track scene-' + garage.car.scene}>
+      <div className={'race-track scene-' + garage.car.scene} data-racing={race.phase === 'racing'}>
+        <div className="race-skyline" />
         <div className="race-lane" />
         <div className="race-finish" />
         <div
           className={'race-vehicle ' + (race.phase === 'racing' ? 'cruising' : '')}
-          style={{ transform: quiet ? 'none' : `translateX(${(race.distance / 200) * 190}%)` }}
+          style={{
+            transform: quiet
+              ? 'none'
+              : `translateX(${(race.distance / race.targetDistance) * 190}%)`,
+          }}
         >
           <Car car={garage.car} />
         </div>
-        <span className="race-distance">{Math.floor(race.distance)} / 200 m</span>
+        <span className="race-distance">
+          {Math.floor(race.distance)} / {race.targetDistance} m
+        </span>
       </div>
       <div className="race-instruments">
         <div>
@@ -183,16 +199,42 @@ export function DragRace({
       {race.phase === 'ready' && (
         <div className="race-intro">
           <p>
+            {garage.car.name} · {garage.car.tune.toUpperCase()}
+          </p>
+          <label>
+            레이스 거리
+            <select
+              value={race.targetDistance}
+              onChange={(e) => change(() => newRace(Number(e.target.value) as 200 | 400))}
+            >
+              <option value="200">200m · 스프린트</option>
+              <option value="400">400m · 쿼터</option>
+            </select>
+          </label>
+          <p>
+            {best
+              ? `이 거리 최고 기록 ${best.elapsed.toFixed(3)}s`
+              : '이 거리의 첫 기록을 만들어 보세요.'}
+          </p>
+          <p>
             차고의 자동차로 잠깐 달려요. 3초 뒤 출발 신호에 맞춰 출발하고, 가속을 누른 채
             변속하세요.
           </p>
-          <button className="primary" onClick={() => change(() => stageRace(Date.now()))}>
+          <button
+            className="primary"
+            onClick={() => change(() => stageRace(Date.now(), race.targetDistance))}
+          >
             출발 준비
           </button>
         </div>
       )}
       {race.phase === 'countdown' && (
         <div className="race-start">
+          <div className="race-lights" aria-hidden="true">
+            {[2, 1, 0].map((n) => (
+              <i key={n} data-lit={now >= race.goAt - (n + 1) * 1000} data-go={now >= race.goAt} />
+            ))}
+          </div>
           <p role="status">
             {now < race.goAt
               ? `${Math.ceil((race.goAt - now) / 1000)} · 신호를 기다려요`
@@ -206,7 +248,7 @@ export function DragRace({
       {race.phase === 'racing' && (
         <>
           <label className="race-revs">
-            변속 구간 · 72–94%
+            RPM {Math.round(revs(race) * 7000)} · 변속 구간 5,040–6,580
             <meter value={revs(race)} min={0} max={1.1} low={0.72} high={0.94} optimum={0.84} />
           </label>
           <div className="race-controls">
@@ -241,17 +283,59 @@ export function DragRace({
               기어 ↑ 변속
             </button>
           </div>
+          {race.shiftLog.at(-1) && (
+            <p className="race-shift-feedback" role="status">
+              {race.shiftLog.at(-1)!.quality === 'perfect'
+                ? '좋은 변속'
+                : race.shiftLog.at(-1)!.quality === 'early'
+                  ? '조금 이른 변속'
+                  : '레드라인 · 다음에는 조금 일찍'}
+            </p>
+          )}
           <p className="race-help">키보드: Space 가속 · ↑ 변속 · {garage.car.tune.toUpperCase()}</p>
         </>
       )}
       {race.phase === 'result' && (
         <section className="race-result" aria-label="레이스 결과">
           <span className="eyebrow">FINISH / NO CREDIT REWARD</span>
-          <h3>{messages[race.result!]}</h3>
+          <h3>
+            {race.result === 'finish' ? race.targetDistance + 'm 완주' : messages[race.result!]}
+          </h3>
           <p>
             반응 {race.reaction === null ? '—' : race.reaction.toFixed(3) + 's'} · 주행{' '}
             {race.elapsed.toFixed(2)}s · 좋은 변속 {race.perfect}/{race.shifts}
           </p>
+          <p>
+            최고 속도 {(race.topSpeed * 3.6).toFixed(1)} km/h · 총 기록{' '}
+            {(race.elapsed + (race.reaction ?? 0)).toFixed(3)}s
+          </p>
+          {best && (
+            <p>
+              {race.targetDistance}m 최고 기록 {best.elapsed.toFixed(3)}s
+            </p>
+          )}
+          <details>
+            <summary>변속 기록</summary>
+            {race.shiftLog.map((s, i) => (
+              <p key={i}>
+                {s.gear}단 · {s.at.toFixed(2)}s · {Math.round(s.rpm * 7000)} RPM · {s.quality}
+              </p>
+            ))}
+          </details>
+          <p role="status">{recordMessage}</p>
+          {recordMessage.includes('못했') && (
+            <button
+              onClick={() =>
+                void controller
+                  .update((g) => saveRaceRecord(g, race, Date.now()))
+                  .then((ok) =>
+                    setRecordMessage(ok ? '레이스 기록 저장됨' : '저장 공간을 확인해 주세요.'),
+                  )
+              }
+            >
+              기록 저장 재시도
+            </button>
+          )}
           <p>레이스는 학습 기록과 크레딧에 영향을 주지 않아요.</p>
           <div className="garage-actions">
             <button className="primary" onClick={onReturn}>
@@ -260,7 +344,8 @@ export function DragRace({
             <button
               onClick={() => {
                 throttle.current = false;
-                change(newRace);
+                setRecordMessage('');
+                change(() => newRace(race.targetDistance));
               }}
             >
               다시 달리기 · 남은 휴식 안에서

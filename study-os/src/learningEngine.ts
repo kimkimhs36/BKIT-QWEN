@@ -157,6 +157,15 @@ export function recordResourceAttempt(
   const events = s.learningEvents ?? [];
   return {
     ...s,
+    active: s.active.questionPace
+      ? {
+          ...s.active,
+          questionPace: {
+            ...s.active.questionPace,
+            skipped: s.active.questionPace.skipped?.filter((id) => id !== problemId),
+          },
+        }
+      : s.active,
     learningEvents:
       events.some((e) => e.type === 'FirstLearningAttempt' && e.sessionId === s.active!.id) ||
       events.length >= 50000
@@ -193,9 +202,26 @@ export function moveProblem(
 ): State {
   const d = learning(s);
   if (!d.problems.some((p) => p.id === problemId && p.resourceId === resourceId)) return s;
+  let active =
+    s.active?.resourceId === resourceId ? switchQuestion(s.active, problemId, now) : s.active;
+  const previous = s.active?.questionPace?.current;
+  if (
+    active?.exam &&
+    active.questionPace &&
+    previous &&
+    previous !== problemId &&
+    !d.attempts.some((a) => a.sessionId === active!.id && a.problemId === previous)
+  )
+    active = {
+      ...active,
+      questionPace: {
+        ...active.questionPace,
+        skipped: [...new Set([...(active.questionPace.skipped ?? []), previous])],
+      },
+    };
   return {
     ...s,
-    active: s.active?.resourceId === resourceId ? switchQuestion(s.active, problemId, now) : s.active,
+    active,
     learning: {
       ...d,
       resources: d.resources.map((r) =>

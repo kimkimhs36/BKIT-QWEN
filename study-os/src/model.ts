@@ -50,6 +50,7 @@ export const taskSchema = z
     remaining: minutes,
     status: z.enum(['todo', 'doing', 'done']),
     submitted: z.boolean(),
+    completedAt: instant.optional(),
     submissionRequired: z.boolean().optional(),
     capture: z.object({source:z.enum(['text','photo','manual']),confirmedByUser:z.boolean()}).optional(),
     optional: z.boolean(),
@@ -130,6 +131,14 @@ export const questionPaceSchema = z.object({
   seconds: z.record(z.number().finite().nonnegative()).refine(v => Object.keys(v).length <= 10000),
   target: z.number().int().min(15).max(3600),
   review: z.array(id).max(10000),
+  skipped: z.array(id).max(10000).optional(),
+  targets: z.record(z.number().int().min(15).max(3600)).optional(),
+  enteredAt: instant.optional(),
+});
+export const mockExamSchema = z.object({
+  duration: z.number().int().min(60).max(28800),
+  problemIds: z.array(id).min(1).max(10000).refine(ids=>new Set(ids).size===ids.length,'시험 문항이 중복됐어요.'),
+  finishedAt: instant.nullable(),
 });
 export const activeSchema = z.object({
   id,
@@ -143,6 +152,7 @@ export const activeSchema = z.object({
   workspace: problemWorkspaceSchema.optional(),
   resourceId: id.optional(),
   questionPace: questionPaceSchema.optional(),
+  exam: mockExamSchema.optional(),
   segmentStart: instant.nullable(),
   elapsed: z.number().min(0),
   pauses: z.array(z.object({ at: instant, reason: text })).max(100),
@@ -159,6 +169,7 @@ export const sessionSchema = z.object({
   workspace: problemWorkspaceSchema.optional(),
   resourceId: id.optional(),
   questionPace: questionPaceSchema.optional(),
+  exam: mockExamSchema.optional(),
   seconds: z.number().min(0),
   target: minutes,
   problems: z.number().int().min(0).max(10000),
@@ -213,7 +224,11 @@ export const stateSchema = z
   .object({
     version: z.literal(1),
     learning: learningSchema.optional(),
-    juggernaut: z.object({ examDate: date.nullable(), weeklyMinutes: z.number().int().min(5).max(3000) }).optional(),
+    juggernaut: z.object({
+      examDate: date.nullable(), weeklyMinutes: z.number().int().min(5).max(3000),
+      subjects:z.array(z.object({subject:text.min(1),target:note,scope:note,review:note,weekly:note})).max(12).optional(),
+      preparation:z.array(z.object({id,text:text.min(1),done:z.boolean()})).max(20).optional(),
+    }).optional(),
     revision: z.number().int().min(0),
     tasks: z.array(taskSchema).max(500),
     schedules: z.array(scheduleSchema).max(300),
@@ -278,6 +293,11 @@ export const stateSchema = z
         )
           ctx.addIssue({ code: 'custom', message: '집중 구간과 타이머 합계가 일치하지 않습니다' });
       }
+    }
+    if(s.active?.exam) {
+      const a=s.active,exam=a.exam!;
+      if(!a.resourceId || exam.problemIds.some(id=>!s.learning?.problems.some(p=>p.id===id&&p.resourceId===a.resourceId)) || (a.questionPace && !exam.problemIds.includes(a.questionPace.current)) || (exam.finishedAt && a.segmentStart))
+        ctx.addIssue({code:'custom',message:'모의시험의 자료·문항 또는 종료 상태를 확인하세요.'});
     }
     if (s.plan.some((b) => !s.tasks.some((t) => t.id === b.taskId)))
       ctx.addIssue({ code: 'custom', message: '계획의 과제를 찾을 수 없습니다' });

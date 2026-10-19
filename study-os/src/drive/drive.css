@@ -955,3 +955,461 @@ html[data-bkit-theme='dark'] .wake-caffeine {
 [data-motion='none'] .question-track.cinematic .tohesar-car {
   animation: none;
 }
+.question-start,
+.question-finish {
+  position: absolute;
+  bottom: 0;
+  font:
+    8px 'DM Sans',
+    sans-serif;
+  letter-spacing: 0.06em;
+}
+.question-start {
+  left: 0;
+}
+.question-finish {
+  right: 0;
+}
+.question-track {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+}
+.question-note {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 12px;
+}
+.question-note textarea {
+  width: 100%;
+  min-height: 54px;
+  font-size: 16px;
+}
+.question-overtime {
+  border-left: 2px solid #9c875e;
+  padding-left: 12px;
+}
+.mock-exam-status {
+  border: 1px solid var(--motor-line, #b9c9b9);
+  border-radius: 16px;
+  padding: 18px;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.mock-exam-status strong {
+  font:
+    500 32px 'DM Sans',
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.mock-exam-status p {
+  font-size: 13px;
+  margin: 0;
+}
+.mock-exam-setup label {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+}
+.garage-showroom {
+  background:
+    radial-gradient(ellipse at 50% -25%, #ffffffbe, transparent 65%),
+    linear-gradient(180deg, #dfe5db 60%, #cbd4c3 60%, #e5e9df);
+}
+.garage-showroom.light-warm {
+  background:
+    radial-gradient(ellipse at 50% -25%, #fff3c8, transparent 65%),
+    linear-gradient(#e5ddcd 60%, #c9c0ac 60%, #e7e1d1);
+}
+.garage-showroom.light-cool {
+  background:
+    radial-gradient(ellipse at 50% -25%, #d7efff, transparent 65%),
+    linear-gradient(#d3e0e6 60%, #b6c7cf 60%, #d9e7eb);
+}
+.garage-showroom .tohesar-car {
+  max-width: 720px;
+  filter: drop-shadow(0 10px 8px #24392e0a);
+  transition: scale 0.3s ease;
+}
+.garage-showroom.garage-zoom .tohesar-car {
+  scale: 1.15;
+}
+.garage-zoom-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  min-height: 36px !important;
+  padding: 8px 10px;
+  font-size: 10px;
+  background: #f8faf2bc;
+  border-radius: 12px;
+  z-index: 1;
+}
+.garage-zoom .garage-edition {
+  max-width: 60%;
+}
+.garage-showroom .garage-edition {
+  max-width: 65%;
+}
+.garage-panel form {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+@media (min-width: 960px) {
+  .garage-showroom {
+    min-height: 360px;
+  }
+  .garage-panel:first-child {
+    position: relative;
+  }
+}
+.race-controls {
+  touch-action: none;
+  overscroll-behavior: contain;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.race-lights {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 16px;
+}
+.race-lights i {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #758078;
+  border: 3px solid #485b50;
+  transition: background 0.3s;
+}
+.race-lights i[data-lit='true'] {
+  background: #b5894f;
+}
+.race-lights i[data-go='true'] {
+  background: #78a98a;
+}
+.race-shift-feedback {
+  text-align: center;
+  font-size: 13px;
+  min-height: 20px;
+}
+.race-skyline {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 50px,
+    #849a9a33 50px 72px,
+    transparent 72px 90px
+  );
+  clip-path: polygon(
+    0 60%,
+    0 35%,
+    10% 35%,
+    10% 50%,
+    30% 50%,
+    30% 15%,
+    40% 15%,
+    40% 40%,
+    60% 40%,
+    60% 20%,
+    70% 20%,
+    70% 50%,
+    100% 50%,
+    100% 100%,
+    0 100%
+  );
+}
+.race-track[data-racing='true'] .race-skyline {
+  animation: race-parallax 6s linear infinite;
+}
+.race-track[data-racing='true'] .race-lane {
+  animation: race-parallax 0.65s linear infinite;
+}
+@keyframes race-parallax {
+  to {
+    translate: -24px 0;
+  }
+}
+[data-motion='none'] :is(.race-skyline, .race-lane) {
+  animation: none !important;
+}
+.drive-dashboard {
+  padding: clamp(14px, 3vw, 28px);
+  background: linear-gradient(150deg, var(--motor-paper), #dce3d922);
+  border-radius: 24px;
+}
+.drive-dials {
+  grid-template-columns: minmax(0, 1fr) minmax(100px, 0.8fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+.drive-dial {
+  width: 100%;
+  max-height: none;
+  box-shadow:
+    inset 0 0 0 5px #ffffff09,
+    0 6px 14px #20342708;
+}
+.drive-dial small {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  max-width: 65%;
+  text-align: center;
+  line-height: 1.5;
+}
+.drive-dial strong {
+  font-size: clamp(23px, 3.4vw, 42px);
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+}
+.drive-dial span {
+  font-size: 8px;
+  max-width: 64%;
+  text-align: center;
+}
+.drive-center strong {
+  font-size: clamp(12px, 1.5vw, 18px);
+  letter-spacing: 0.06em;
+}
+.drive-center small {
+  font-size: 10px;
+  line-height: 1.8;
+}
+.drive-telemetry {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  border-top: 1px solid var(--motor-line);
+  padding: 14px 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+.drive-dashboard[data-arrived='true'] {
+  border-color: #9f986e;
+}
+.drive-dashboard[data-arrived='true'][data-motion='auto'] .drive-route-label {
+  animation: drive-arrival 1.5s ease-out 1;
+}
+@keyframes drive-arrival {
+  50% {
+    opacity: 0.6;
+    translate: 0 -2px;
+  }
+}
+.drive-expand {
+  font-size: 11px;
+  min-height: 36px !important;
+  margin-bottom: 8px;
+}
+html[data-drive-focus='true'] :is(.topbar, .page-head, .v2-brand, .sidebar, body > .orbit-nav) {
+  display: none !important;
+}
+html[data-drive-focus='true'] .main-shell {
+  margin: 0 auto;
+  max-width: 1400px;
+  padding-top: 12px;
+}
+html[data-drive-focus='true'] .app-shell {
+  padding-top: 0;
+}
+.question-track-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.question-track {
+  padding-bottom: 0;
+  margin-bottom: 4px;
+}
+@media (max-width: 600px) {
+  .drive-dials {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .drive-center {
+    grid-column: 1/-1;
+    grid-row: 2;
+    padding: 8px;
+  }
+  .drive-dial-secondary {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .drive-dial strong {
+    font-size: clamp(20px, 6.8vw, 34px);
+  }
+  .drive-status {
+    font-size: 8px;
+  }
+  .drive-dial small {
+    font-size: 8px;
+  }
+  .drive-telemetry {
+    font-size: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drive-route-label {
+    animation: none !important;
+  }
+}
+.nature-forest .nature-orb {
+  animation: forest-light 12s ease-in-out infinite alternate;
+}
+.nature-sea .nature-horizon,
+.nature-river .nature-horizon {
+  animation: nature-water 10s ease-in-out infinite alternate;
+}
+.nature-rain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    110deg,
+    transparent 0 35px,
+    #d9e6ec44 36px 37px,
+    transparent 38px 78px
+  );
+  animation: rain-window 7s linear infinite;
+  pointer-events: none;
+}
+.nature-meadow .nature-horizon {
+  animation: forest-light 9s ease-in-out infinite alternate;
+}
+.nature-night .nature-orb {
+  animation: forest-light 20s ease-in-out infinite alternate;
+}
+@keyframes forest-light {
+  to {
+    opacity: 0.65;
+    transform: translate(3px, -3px);
+  }
+}
+@keyframes nature-water {
+  to {
+    transform: translateY(5px) scaleX(1.03);
+  }
+}
+@keyframes rain-window {
+  to {
+    translate: -12px 40px;
+  }
+}
+[data-motion='none'] .nature-room::after,
+[data-motion='none'] :is(.nature-horizon, .nature-orb) {
+  animation: none !important;
+}
+.ambient-control {
+  margin: 18px 0;
+  padding: 12px;
+  border: 1px solid var(--motor-line);
+  border-radius: 16px;
+}
+.ambient-control label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+}
+.wake-physical-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  border: 5px solid var(--motor-line);
+  background: radial-gradient(ellipse at 30% 15%, #ffffff66, transparent 60%), var(--motor-paper);
+  box-shadow:
+    0 8px 0 #56746755,
+    inset 0 2px #fff5,
+    0 18px 28px #24392b18;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 1.5, 0.4, 1),
+    box-shadow 0.3s;
+}
+.wake-physical-button:active {
+  transform: translateY(5px) scale(0.97);
+  box-shadow:
+    0 2px 0 #56746755,
+    inset 0 4px 12px #172e2622;
+}
+.wake-physical-button small {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+.wake-scene {
+  height: 90px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  margin: 12px auto;
+}
+.wake-word {
+  font-size: 30px;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  border-bottom: 2px solid #ad8c5b;
+  padding-bottom: 8px;
+}
+.wake-droplet {
+  width: 50px;
+  height: 64px;
+  background: radial-gradient(circle at 30% 25%, #fff, #8cc9cd66 50%, #4c98a755);
+  border-radius: 50% 50% 55% 45% / 65% 65% 35% 35%;
+  box-shadow: inset 2px 2px 8px #fff9;
+  animation: wake-breathe 5s ease-in-out infinite;
+}
+.wake-engine-lights {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.wake-engine-lights i {
+  height: 10px;
+  width: 24px;
+  border-radius: 3px;
+  background: #8cae76;
+  animation: forest-light 3s ease-in-out infinite alternate;
+}
+.wake-engine-lights strong {
+  font: 12px 'DM Sans';
+  letter-spacing: 0.16em;
+}
+.wake-book {
+  font-size: 64px;
+  line-height: 1;
+}
+.wake-scene svg {
+  height: 80px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  animation: wake-breathe 6s ease-in-out infinite;
+}
+@keyframes wake-breathe {
+  50% {
+    transform: scale(1.035);
+    opacity: 0.75;
+  }
+}
+[data-motion='none'] .wake-scene *,
+[data-motion='none'] .wake-physical-button {
+  animation: none !important;
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nature-room *,
+  .nature-room::after,
+  .wake-scene * {
+    animation: none !important;
+  }
+}

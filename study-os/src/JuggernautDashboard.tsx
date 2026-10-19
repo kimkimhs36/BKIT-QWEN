@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { ExamPlanEditor } from './ExamPlanEditor';
+import { MockExamSetup } from './MockExamSetup';
 import type { State } from './model';
 import { juggernautProgress } from './juggernautProgress';
-import { dayKey, at } from './time';
+import { dayKey, at, clock } from './time';
 import { quickClock } from './quickTimer';
 
 export function JuggernautDashboard({
@@ -9,11 +11,13 @@ export function JuggernautDashboard({
   now,
   onChange,
   onResumeResource,
+  onStartMock,
 }: {
   state: State;
   now: number;
   onChange: (fn: (s: State) => State) => boolean;
   onResumeResource: (id: string) => void;
+  onStartMock: (id: string, minutes: number, count: number) => void;
 }) {
   const data = juggernautProgress(state, now);
   const goal = state.juggernaut?.weeklyMinutes ?? 300;
@@ -86,8 +90,28 @@ export function JuggernautDashboard({
             {t.subject} · {t.title} · {t.deadline?.date ?? (t.due ? dayKey(t.due) : '날짜 미설정')}
           </p>
         ))}
-        <p>마감과 수능 공부 시간을 함께 살펴보세요. 자동 충돌 판정이나 성적 예측은 하지 않아요.</p>
+        <p>
+          마감과 수능 공부 시간을 함께 살펴보세요. 겹침은 아래에서 등록한 실제 시간 구간으로
+          확인해요.
+        </p>
       </details>
+      <section aria-label="실제 일정 겹침">
+        <h4>앞으로 7일 · 일정 겹침 {data.conflicts.length}건</h4>
+        {data.conflicts.length ? (
+          data.conflicts.map((c) => (
+            <p key={c.id}>
+              {c.title} · {dayKey(c.start)} {clock(c.start)}–{clock(c.end)}
+            </p>
+          ))
+        ) : (
+          <p>
+            등록한 시간 구간에서 겹침을 찾지 못했어요. 일정이 많다는 이유만으로 충돌을 표시하지
+            않아요.
+          </p>
+        )}
+      </section>
+      <ExamPlanEditor state={state} onChange={onChange} />
+      <MockExamSetup state={state} onStart={onStartMock} />
       <details>
         <summary>나의 시험 날짜·주간 목표 설정</summary>
         <label>
@@ -109,7 +133,7 @@ export function JuggernautDashboard({
           onClick={() => {
             const ok = onChange((s) => ({
               ...s,
-              juggernaut: { examDate: date || null, weeklyMinutes: minutes },
+              juggernaut: { ...s.juggernaut, examDate: date || null, weeklyMinutes: minutes },
             }));
             setMessage(
               ok ? '시험 날짜와 목표를 저장했어요.' : '저장하지 못했어요. 기존 설정을 유지했어요.',

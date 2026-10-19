@@ -1,10 +1,11 @@
 import { useDriveMotion } from './useDriveMotion';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { GarageController } from './useGarage';
 import { Car } from './Car';
 import { quickClock } from '../quickTimer';
 import type { State } from '../model';
 import { learning, resourceProblems } from '../learningEngine';
+import { juggernautProgress } from '../juggernautProgress';
 import './drive.css';
 export function DriveSwitch({ controller }: { controller: GarageController }) {
   return (
@@ -45,6 +46,13 @@ export function DriveDashboard({
 }) {
   const { garage: g } = controller;
   const quiet = useDriveMotion(g);
+  const [expanded, setExpanded] = useState(false);
+  useEffect(() => {
+    document.documentElement.dataset.driveFocus = String(expanded);
+    return () => {
+      delete document.documentElement.dataset.driveFocus;
+    };
+  }, [expanded]);
   const p = Math.min(1, Math.max(0, seconds / Math.max(1, target * 60)));
   const remaining = Math.max(0, target * 60 - seconds);
   const summary = useMemo(() => {
@@ -54,7 +62,12 @@ export function DriveDashboard({
     const ids = new Set(all.map((p) => p.id));
     const completed = new Set(
       data?.attempts
-        .filter((a) => ids.has(a.problemId) && a.selfCheck !== 'unreviewed')
+        .filter(
+          (a) =>
+            ids.has(a.problemId) &&
+            a.selfCheck !== 'unreviewed' &&
+            (!state?.active?.exam || a.sessionId === state.active.id),
+        )
         .map((a) => a.problemId),
     );
     return {
@@ -67,6 +80,7 @@ export function DriveDashboard({
     <section
       className="tohesar drive-dashboard"
       aria-label="DRIVE 집중 계기판"
+      data-arrived={!stopwatch && p >= 1}
       data-motion={quiet ? 'none' : 'auto'}
     >
       <div className="drive-status">
@@ -85,6 +99,25 @@ export function DriveDashboard({
           </strong>
           <span>{stopwatch ? '스톱워치' : `${target} MIN ROUTE`}</span>
         </div>
+        {state?.active ? (
+          <div className="drive-center">
+            <strong>{state.active.subject}</strong>
+            <span>{state.active.action}</span>
+            {summary.total > 0 && (
+              <small aria-label="문제별 자동차 진행">
+                {summary.ordinal ? summary.ordinal + '번 · ' : ''}풀이 확인 {summary.completed} ·
+                미완료 {summary.total - summary.completed} · 검토{' '}
+                {state.active.questionPace?.review.length ?? 0}
+              </small>
+            )}
+          </div>
+        ) : (
+          <div className="drive-center">
+            <strong>ONE SMALL STEP</strong>
+            <span>다음 5분에 집중해요</span>
+            <small>{g.car.name}</small>
+          </div>
+        )}
         <div className="drive-dial drive-dial-secondary">
           <Dial ratio={stopwatch ? 0 : 1 - p} />
           <small>REMAINING / 남은 시간</small>
@@ -121,19 +154,24 @@ export function DriveDashboard({
           </p>
         </>
       )}
-      {state?.active && (
-        <div className="drive-center">
-          <strong>{state.active.subject}</strong>
-          <span>{state.active.action}</span>
-          {summary.total > 0 && (
-            <small aria-label="문제별 자동차 진행">
-              {summary.ordinal ? summary.ordinal + '번 · ' : ''}풀이 확인 {summary.completed} ·
-              미완료 {summary.total - summary.completed} · 검토{' '}
-              {state.active.questionPace?.review.length ?? 0}
-            </small>
-          )}
-        </div>
-      )}
+      <div className="drive-telemetry">
+        <span>
+          {g.car.name} · {g.car.tune.toUpperCase()}
+        </span>
+        <span>{stopwatch ? '휴식은 필요할 때' : `다음 쉬어가기까지 ${quickClock(remaining)}`}</span>
+        {state && (
+          <span>
+            오늘 실제 학습 {quickClock(juggernautProgress(state, Date.now()).todaySeconds)}
+          </span>
+        )}
+      </div>
+      <button
+        className="drive-expand"
+        aria-pressed={expanded}
+        onClick={() => setExpanded((v) => !v)}
+      >
+        {expanded ? '기본 화면으로' : '집중 화면 넓게'}
+      </button>
       <details className="drive-options">
         <summary>모션 설정</summary>
         <label>
@@ -168,6 +206,29 @@ export function DriveDashboard({
 function Dial({ ratio }: { ratio: number }) {
   return (
     <svg className="drive-calibration" viewBox="0 0 200 200" aria-hidden="true">
+      <path
+        d="M40 159A84 84 0 1 1 160 159"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth=".6"
+        opacity=".24"
+      />
+      {[0, 25, 50, 75, 100].map((n, i) => {
+        const rad = ((-225 + i * 67.5) * Math.PI) / 180;
+        return (
+          <text
+            key={n}
+            x={100 + Math.cos(rad) * 63}
+            y={103 + Math.sin(rad) * 63}
+            textAnchor="middle"
+            fontSize="7"
+            fill="currentColor"
+            opacity=".55"
+          >
+            {n}
+          </text>
+        );
+      })}
       {Array.from({ length: 37 }, (_, i) => (
         <line
           key={i}

@@ -33,6 +33,7 @@ export const learningProblemSchema = z.object({
   concept: short,
   referenceAnswer: note,
   example: note,
+  paceNote: z.string().max(1000).optional(),
   draft: note,
   draftFields: z.record(z.string().max(1000)),
   createdAt: stamp,

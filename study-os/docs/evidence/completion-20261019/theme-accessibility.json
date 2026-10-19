@@ -1,0 +1,58 @@
+[
+  {
+    "name": "Peach Flow",
+    "violations": []
+  },
+  {
+    "name": "Liquid Glass",
+    "violations": []
+  },
+  {
+    "name": "Diamond",
+    "violations": []
+  },
+  {
+    "name": "Champagne Gold",
+    "violations": []
+  },
+  {
+    "name": "Soft Jelly",
+    "violations": []
+  },
+  {
+    "name": "Living Droplets",
+    "violations": []
+  },
+  {
+    "name": "Night Sprint",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "nodes": [
+          {
+            "html": "<span class=\"today-more-count\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.73 (foreground color: #606b63, background color: #1a2921, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Forest Dark",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "nodes": [
+          {
+            "html": "<span class=\"today-more-count\">",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.73 (foreground color: #606b63, background color: #1a2921, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Classic Light",
+    "violations": []
+  }
+]

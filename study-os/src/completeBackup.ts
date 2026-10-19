@@ -18,6 +18,8 @@ import { LocalZipWriter, readLocalZip, sha256 } from './localZip';
 import { photoIds, readVaultPhoto, addVaultPhoto, type Vault } from './photoVault';
 export const BACKUP_KEYS = [
   GARAGE_KEY,
+  'bkit.study-os.theme.v1',
+  'bkit.material.v1',
   KEY,
   SLEEP_KEY,
   'crashweek.v3',
@@ -279,6 +281,12 @@ export function mergeStudy(local: State, incoming: State): State {
     b = learning(incoming);
   return stateSchema.parse({
     ...local,
+    juggernaut: local.juggernaut && incoming.juggernaut ? {
+      ...local.juggernaut,
+      examDate:local.juggernaut.examDate??incoming.juggernaut.examDate,
+      subjects:union(local.juggernaut.subjects??[],incoming.juggernaut.subjects??[],x=>x.subject),
+      preparation:union(local.juggernaut.preparation??[],incoming.juggernaut.preparation??[],x=>x.id),
+    } : local.juggernaut??incoming.juggernaut,
     tasks: union(local.tasks, incoming.tasks, (x) => x.id),
     schedules: union(local.schedules, incoming.schedules, (x) => x.id),
     sessions: union(local.sessions, incoming.sessions, (x) => x.id),

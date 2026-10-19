@@ -1,5 +1,5 @@
 import { useDriveMotion } from './useDriveMotion';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { State } from '../model';
 import type { LearningProblem } from '../learningModel';
 import type { GarageController } from './useGarage';
@@ -15,6 +15,7 @@ export function QuestionRace({
   problem,
   onChange,
   onNext,
+  onNote,
 }: {
   state: State;
   controller: GarageController;
@@ -22,7 +23,10 @@ export function QuestionRace({
   problem: LearningProblem;
   onChange: (fn: (s: State) => State) => boolean;
   onNext?: () => void;
+  onNote: (value: string) => void;
 }) {
+  const [continuing, setContinuing] = useState(false);
+  const [note, setNote] = useState(problem.paceNote ?? '');
   const a = state.active;
   const quiet = useDriveMotion(controller.garage);
   useEffect(() => {
@@ -32,10 +36,14 @@ export function QuestionRace({
   if (!a) return null;
   const pace = a.questionPace;
   const seconds = questionSeconds(a, problem.id, totalSeconds);
-  const target = pace?.target ?? 240;
+  const target = pace?.targets?.[problem.id] ?? pace?.target ?? 240;
   const reached = seconds >= target;
   const marked = pace?.review.includes(problem.id) ?? false;
-  const done = isCompleted(learning(state), problem.id);
+  const done = a.exam
+    ? learning(state).attempts.some(
+        (x) => x.problemId === problem.id && x.sessionId === a.id && x.selfCheck !== 'unreviewed',
+      )
+    : isCompleted(learning(state), problem.id);
   const g = controller.garage;
   const visible = g.display !== 'classic';
   const cinematic = g.display === 'drive';
@@ -66,9 +74,12 @@ export function QuestionRace({
           >
             <Car car={g.car} />
           </div>
-          <span className="question-finish" aria-hidden="true">
-            ▥
-          </span>
+        </div>
+      )}
+      {visible && (
+        <div className="question-track-labels" aria-hidden="true">
+          <span>START</span>
+          <span>FINISH ▥</span>
         </div>
       )}
       <progress
@@ -77,7 +88,44 @@ export function QuestionRace({
         aria-label="현재 문제 목표 시간 진행"
       />
       {reached && !done && (
-        <p>목표 시간에 도착했어요. 실패가 아니에요. 계속 풀거나 검토 표시 후 이동하세요.</p>
+        <div className="question-overtime">
+          <p>목표보다 {quickClock(seconds - target)} 더 생각하고 있어요.</p>
+          {!continuing && (
+            <div className="garage-options">
+              <button onClick={() => setContinuing(true)}>계속 풀기</button>
+              {onNext && (
+                <button
+                  onClick={() => {
+                    if (
+                      onChange((s) =>
+                        s.active?.questionPace
+                          ? {
+                              ...s,
+                              active: {
+                                ...s.active,
+                                questionPace: {
+                                  ...s.active.questionPace,
+                                  review: [
+                                    ...new Set([...s.active.questionPace.review, problem.id]),
+                                  ],
+                                },
+                              },
+                            }
+                          : s,
+                      )
+                    )
+                      onNext();
+                  }}
+                >
+                  표시 후 다음 문제
+                </button>
+              )}
+              <button onClick={() => document.getElementById('pace-note-' + problem.id)?.focus()}>
+                풀이 메모
+              </button>
+            </div>
+          )}
+        </div>
       )}
       <details>
         <summary>문제 페이스·검토</summary>
@@ -93,7 +141,11 @@ export function QuestionRace({
                       ...s,
                       active: {
                         ...s.active,
-                        questionPace: { ...s.active.questionPace, target: value },
+                        questionPace: {
+                          ...s.active.questionPace,
+                          target: value,
+                          targets: { ...s.active.questionPace.targets, [problem.id]: value },
+                        },
                       },
                     }
                   : s,
@@ -130,9 +182,49 @@ export function QuestionRace({
         >
           {marked ? '검토 표시 해제' : '나중에 검토 표시'}
         </button>
-        {onNext && <button onClick={onNext}>풀이를 유지하고 넘어가기</button>}
+        {onNext && (
+          <button
+            onClick={() => {
+              if (
+                onChange((s) =>
+                  s.active?.questionPace
+                    ? {
+                        ...s,
+                        active: {
+                          ...s.active,
+                          questionPace: {
+                            ...s.active.questionPace,
+                            skipped: [
+                              ...new Set([...(s.active.questionPace.skipped ?? []), problem.id]),
+                            ],
+                          },
+                        },
+                      }
+                    : s,
+                )
+              )
+                onNext();
+            }}
+          >
+            풀이를 유지하고 넘어가기
+          </button>
+        )}
         <p>시간 진행과 풀이 완료는 별개예요. 목표를 넘어도 타이머는 계속 측정해요.</p>
       </details>
+      <label className="question-note" htmlFor={'pace-note-' + problem.id}>
+        풀이 메모
+        <textarea
+          id={'pace-note-' + problem.id}
+          rows={2}
+          maxLength={1000}
+          value={note}
+          onChange={(e) => {
+            const value = e.currentTarget.value;
+            setNote(value);
+            onNote(value);
+          }}
+        />
+      </label>
     </section>
   );
 }
