@@ -16,7 +16,10 @@ describe('safe service worker lifecycle', () => {
         URL,
         self: {
           location: { href: 'https://example.test/study-os/sw.js' },
-          addEventListener: (name: string, cb: (event: never) => void) => handlers.set(name, cb),
+          addEventListener: (
+            name: string,
+            cb: (event: { waitUntil: (promise: Promise<unknown>) => void }) => void,
+          ) => handlers.set(name, cb),
           skipWaiting: () => {
             forced = true;
           },
