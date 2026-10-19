@@ -1538,7 +1538,7 @@ export default function App() {
           )}
           {tab === 'study' && (
             <>
-              <QuickStudyTimer {...quickProps} compact/>
+              {!s.active && <QuickStudyTimer {...quickProps} compact/>}
               {!s.active&&<Suspense fallback={<p role="status">자료 라이브러리를 여는 중…</p>}><ResourceLibrary state={s} onChange={commit} onOpen={openResource}/></Suspense>}
               <div className="study-layout">
                 <section
