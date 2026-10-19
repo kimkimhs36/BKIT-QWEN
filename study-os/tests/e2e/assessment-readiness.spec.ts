@@ -19,7 +19,7 @@ test('sudden performance assessments and completed-but-unsubmitted work are imme
     fixture('a3',{id:'a3',subject:'화학',title:'보고서 제출',status:'done'}),
   ];
   await page.clock.install({time:new Date('2026-10-19T05:00:00Z')});
-  await page.addInitScript(s=>localStorage.setItem('bkit.study-os.v1',JSON.stringify(s)),state);
+  await page.addInitScript(s=>{ if(!localStorage.getItem('bkit.study-os.v1')) localStorage.setItem('bkit.study-os.v1',JSON.stringify(s)); },state);
   await page.goto('./');
   const radar=page.getByRole('region',{name:'수행평가 및 제출 준비'});
   await expect(radar).toContainText('영어 · 수행 발표 준비');
@@ -34,7 +34,7 @@ test('sudden performance assessments and completed-but-unsubmitted work are imme
 
 test('urgent performance button opens a preselected task, then saves without an invented deadline',async ({page})=>{
   await page.clock.install({time:new Date('2026-10-19T05:00:00Z')});
-  await page.addInitScript(s=>localStorage.setItem('bkit.study-os.v1',JSON.stringify(s)),newState());
+  await page.addInitScript(s=>{ if(!localStorage.getItem('bkit.study-os.v1')) localStorage.setItem('bkit.study-os.v1',JSON.stringify(s)); },newState());
   await page.goto('./');
   const radar=page.getByRole('region',{name:'수행평가 및 제출 준비'});
   await radar.getByRole('button',{name:'수행 등록'}).click();
