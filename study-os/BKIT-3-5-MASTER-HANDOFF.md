@@ -1,19 +1,19 @@
 # BKIT 3.5 MASTER HANDOFF
 
-## 현재 인수인계 (2026-10-19, 최종 검증 진행 중)
+## 현재 인수인계 (2026-10-19, 최종 검증 완료)
 
 - 작업 시작 HEAD: release/3.4 `efdaa7921fa28c72382b672aefb5955e57703ead`; feature 자산 `a5a1b517a448a74519d691a9b4bc9893870b9776` 통합.
 - 현재 브랜치: `feat/bkit-3-5-product-perfection`
 - 마지막 소스 커밋 SHA: `a7ff941335b0c6ea54d384371fac2e69fef19637` (320px P0 추가 수정 후 기능 동결).
-- 문서 갱신 직전 마지막 커밋: `a7ff941335b0c6ea54d384371fac2e69fef19637`; 이후 커밋은 문서만. 정확한 최신 문서 HEAD는 `git log -1 --format=%H`로 확인.
-- PR: https://github.com/kimkimhs36/BKIT-QWEN/pull/15 (초안; 자동 merge/deploy 금지).
-- CI: https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/39254199212 — **최종 320px 수정 후 정적·173개 단위·빌드 및 6개 전체 E2E 재검증 중**.
+- 문서 갱신 직전 마지막 커밋: `db8d938e79dcf3380fa45cb4945357962bb1c355`; 이후 커밋은 문서만. 정확한 최신 문서 HEAD는 `git log -1 --format=%H`로 확인.
+- PR: https://github.com/kimkimhs36/BKIT-QWEN/pull/15 (검토 준비 완료; 자동 merge/deploy 금지).
+- CI: https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/39254199212 — **SUCCESS** (2026-10-19 12:52:31 UTC). 동일 소스 SHA에서 TypeScript·173개 단위·빌드·6개 프로필 E2E 546/546 통과, 실패 0.
 - 완료: quickLabel, quick 자료 이어가기/모드/즉시 저장, 이전 quick 기록 편집·실패/미저장 보호, ZIP/JSON 실행 timer 보호, paused export/import, 102구간 경계 보강, 안전한 SW waiting, 터치/포커스·표시 버전 정리. 결함 목록 13건은 docs/BKIT-3-5-AUDIT.md.
 - 통과: 최종 로컬 iPhone Chromium/iPad WebKit 핵심 18/18. iPad WebKit 10페이지/105획·회전·문제8→9·ZIP 전송·편집/원본사진 검증 통과, local safety 14/14 통과. 320px exact geometry/axe 6/6 통과.
-- 실패 이력: 기준 TS2741·테스트 타입 오류·WebKit 라이브러리·동시 output 충돌·clock 1초 비결정성은 수정/재검증. 최종 전체 CI의 미완료를 통과로 간주하지 말 것.
-- 수정 중인 파일: 없음 (코드 동결); 검증 결과와 이 문서만 추가 갱신 예정. `git status --short` 확인.
-- 남은 문제: CI 실패 시 해당 trace/로그부터 수정. 이후 실기기 pen/PWA 두 버전/장시간 절전, 극단 시각 역행/동시 저장 경합. classic 기록 전체 편집·독립 문제 시간·AI는 후속.
-- 다음 첫 명령: `gh run view 39254199212 --repo kimkimhs36/BKIT-QWEN --json status,conclusion,jobs`
+- 실패 이력: 기준 TS2741·테스트 타입 오류·WebKit 라이브러리·동시 output 충돌·clock 1초 비결정성은 수정/재검증. 최종 a7ff941 CI는 546/546 통과. formatter 기존 80파일 문제는 미정리로 별도 공개.
+- 수정 중인 파일: 없음 (코드 동결); 이후는 인수인계·검증 문서만. `git status --short` 확인.
+- 남은 문제: 실기기 pen/PWA 두 버전/장시간 절전, 극단 시각 역행/동시 저장 경합. classic 기록 전체 편집·독립 문제 시간·AI는 후속.
+- 다음 첫 명령: `cd /workspace/BKIT-QWEN && git status --short && git log -1 --oneline` (그 후 docs/BKIT-3-5-DEVICE-QA.md의 실기기 검수; 배포 승인 아님)
 - 실패 시: `gh run view 39254199212 --repo kimkimhs36/BKIT-QWEN --log-failed`; artifacts의 trace 확인 후 해당 프로필/spec만 재현.
 - 운영 사이트 배포 여부: **배포하지 않음**. main `9be351a899cce55e96ad5d2af48354343c728fff` 그대로. 동일 원격 `checkpoint/pre-bkit-3-5-development-20261019` 보존. `/mock-rescue/`·`/exam-lab/` HTTP 200.
 - 연구: docs/BKIT-PRODUCT-RESEARCH.md; 결과/측정: docs/BKIT-3-5-VALIDATION.md; 기기 검수: docs/BKIT-3-5-DEVICE-QA.md.

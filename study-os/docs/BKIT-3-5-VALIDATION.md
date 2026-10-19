@@ -17,9 +17,11 @@
 | 단위 (`npm test`) | 27 파일, 173 테스트 통과. 기존 163개에서 10개 추가 |
 | production build | 통과; Node 24.19.0 로컬, CI Node 22 |
 | 신규 흐름+quick timer 로컬 최종 | iPhone Chromium/iPad WebKit 18/18 통과 |
-| 전체 E2E 6 프로필 | 총 546개, 최종 a7ff941 CI 재검증 중. 이전 CI의 320px 겹침 수정 후 기존 테스트 로컬 6/6 통과 |
+| 전체 E2E 6 프로필 | **546/546 통과, 실패 0**. 최종 a7ff941 CI SUCCESS, 2026-10-19 12:52:31 UTC 완료 |
 | 정적 스타일 | ESLint 설정 없음. `format:check` 기존 포함 80개 파일 문제; 기능 제거·전면 포맷으로 숨기지 않음 |
 | 접근성 | 신규 timer 범위 axe WCAG2/2.1/2.2 태그 검사와 회전·조작 확인. 전체 WCAG 인증 아님 |
+
+최종 프로필별 결과: iPhone Chromium 91/91, iPad Chromium 91/91, desktop Chromium 91/91, Galaxy CSS Chromium 91/91, iPhone WebKit 91/91, iPad WebKit 91/91. skip/fixme로 회귀를 제외하지 않았다. 이후 변경은 인수인계·검증 문서뿐이며 제품 소스/테스트/빌드 설정은 최종 검증 커밋과 동일하다.
 
 회귀 실행은 모든 기존 28개 E2E spec을 대상으로 한다. Chromium iPhone/iPad/desktop/Galaxy CSS와 WebKit iPhone/iPad. Galaxy는 1280×800 CSS @2x로 2560×1600 물리 화면을 모의하며 실제 S Pen 검증이 아니다.
 
@@ -34,7 +36,7 @@
 - WebKit runtime 라이브러리 누락 → 위 로컬 환경 준비; 앱 결함과 구분.
 - 동시 로컬 Playwright 두 실행의 기본 output 디렉터리 충돌 → 실행별 별도 output 디렉터리 사용. assertion은 수정하지 않음.
 - quick timer pause/reload exact `02:05` 기대에 실시간 1초 진행 → 테스트 clock을 pauseAt으로 고정. 초 단위 검증 유지; 해당 iPad WebKit 3개 및 최종 18개 통과.
-- 전체 CI가 320×740의 기존 home 버튼/dock 겹침을 발견 → 카드 여백만 수정, 기존 exact geometry·axe를 6개 프로필에서 통과. 새 소스로 전체 CI 재검증.
+- 전체 CI가 320×740의 기존 home 버튼/dock 겹침을 발견 → 카드 여백만 수정, 기존 exact geometry·axe를 6개 프로필에서 통과. 새 소스 a7ff941에서 전체 546개 CI 재검증 통과.
 - JSON 신규 테스트를 이전 dist에 실행한 결과 restore input disabled 실패 → 최종 빌드 후 재실행 통과. 운영이나 소스를 통과시키기 위해 assertion을 낮추지 않음.
 
 ## 실험실 성능과 화면 비교
