@@ -2,12 +2,17 @@ import { useMemo } from 'react';
 import type { State } from './model';
 import { weeklyLearningEvidence } from './learningEvidence';
 import { needsSubmission } from './tasks';
+import { buildResourceReviews } from './learningEngine';
 import { buildProblemReviews } from './problemReview';
 
 export function LearningEvidence({ state, today }: { state: State; today: string }) {
   const e = useMemo(() => weeklyLearningEvidence(state, today), [state, today]);
   const last = state.sessions[state.sessions.length - 1];
   const queue = useMemo(() => buildProblemReviews(state, today), [state, today]);
+  const resourceAnswers = (state.learning?.attempts ?? []).filter((a) => a.sessionId === last?.id);
+  const resourceNext = buildResourceReviews(state, today).find((c) =>
+    c.attempts.some((a) => a.sessionId === last?.id),
+  );
   const next = last
     ? [...queue.overdue, ...queue.today, ...queue.upcoming].find((c) => c.sessionId === last.id)
     : null;
@@ -66,18 +71,25 @@ export function LearningEvidence({ state, today }: { state: State; today: string
           <h2>{last.action}</h2>
           <p>
             실제 집중 기록 {Math.floor(last.seconds / 60)}분 {Math.floor(last.seconds % 60)}초 ·
-            완료한 문제 수 (직접 입력) {last.problems}개
+            {last.resourceId ? '직접 답을 확인한 문제 수' : '완료한 문제 수 (직접 입력)'}{' '}
+            {last.problems}개
           </p>
           <p>
-            저장한 답변 {last.workspace?.attempts.length ?? 0}회 · 정답 자가 확인{' '}
-            {last.workspace?.attempts.filter((a) => a.selfCheck === 'remembered').length ?? 0}회 ·
-            다시 풀기 {last.workspace?.attempts.filter((a) => a.selfCheck === 'retry').length ?? 0}
+            저장한 답변 {(last.workspace?.attempts.length ?? 0) + resourceAnswers.length}회 · 정답
+            자가 확인{' '}
+            {(last.workspace?.attempts.filter((a) => a.selfCheck === 'remembered').length ?? 0) +
+              resourceAnswers.filter((a) => a.selfCheck === 'correct').length}
+            회 · 다시 풀기{' '}
+            {(last.workspace?.attempts.filter((a) => a.selfCheck === 'retry').length ?? 0) +
+              resourceAnswers.filter((a) => a.selfCheck === 'incorrect').length}
             회
           </p>
           <p>
-            {next
-              ? `다음 복습 ${next.due} · ${next.problem.slice(0, 100)}`
-              : '문제를 기록하면 다음 복습도 이곳에서 확인할 수 있어요.'}
+            {resourceNext
+              ? `다음 복습 ${resourceNext.due} · ${resourceNext.resource.title} ${resourceNext.problem.ordinal}번`
+              : next
+                ? `다음 복습 ${next.due} · ${next.problem.slice(0, 100)}`
+                : '문제를 기록하면 다음 복습도 이곳에서 확인할 수 있어요.'}
           </p>
           <p>
             남은 학습 과제 {state.tasks.filter((t) => t.status !== 'done').length}개 · 완료 후 제출

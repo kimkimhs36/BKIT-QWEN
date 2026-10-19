@@ -1,6 +1,12 @@
 import { CalendarDays, ChevronRight, Moon, Plus, Settings, Sparkles, Target } from 'lucide-react';
 
 const TOOLS = [
+  {
+    id: 'exams',
+    label: '시험 관리',
+    detail: '확인된 범위·자료·실제 문제 복습',
+    icon: CalendarDays,
+  },
   { id: 'school', label: '시간표', detail: '학교·학원·이동·준비 일정', icon: CalendarDays },
   { id: 'progress', label: '기록', detail: '실제 답변·지연 재시험·학습 성과', icon: Target },
   { id: 'sleep', label: 'Sleep Guard', detail: '취침 준비·수면 회고', icon: Moon },

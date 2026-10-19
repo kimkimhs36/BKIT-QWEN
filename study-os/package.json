@@ -1,7 +1,7 @@
 {
   "name": "bkit-study-os",
   "private": true,
-  "version": "3.0.0",
+  "version": "3.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
@@ -34,6 +34,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "fake-indexeddb": "^6.2.6",
     "prettier": "^3.9.10",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",

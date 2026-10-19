@@ -1,3 +1,4 @@
+import { learning, resourceProgress } from './learningEngine';
 import { z } from 'zod';
 import { type State, type Block, blockSchema } from './model';
 import { MIN, at, dayKey, addDays, weekday, iso } from './time';
@@ -227,10 +228,19 @@ export function recover(
     .flatMap((d) => d.blocks)
     .filter((b) => dayKey(b.start) === dayKey(now) && +new Date(b.start) >= now)
     .sort((a, b) => a.start.localeCompare(b.start))[0];
+  const resource = first
+    ? learning(s).resources.find((r) => !r.archived && r.linkedTaskId === first.taskId)
+    : undefined;
+  const progress = resource ? resourceProgress(learning(s), resource.id) : undefined;
+  const problem = progress
+    ? learning(s).problems.find((p) => p.id === progress.currentProblemId)
+    : undefined;
   return {
     decisions,
     firstAction: first
-      ? `${s.tasks.find((t) => t.id === first.taskId)?.title}: 첫 문제 또는 첫 개념 하나를 5분 동안 시작하세요.`
+      ? resource && progress && problem
+        ? `${resource.title}: 남은 ${progress.remainingCount}문제 중 ${problem.ordinal}번부터, 확보된 시간에서 5분만 직접 풀어 보세요.`
+        : `${s.tasks.find((t) => t.id === first.taskId)?.title}: 첫 문제 또는 첫 개념 하나를 5분 동안 시작하세요.`
       : '지금 가능한 과제를 확인하고, 첫 개념 하나를 고르세요. 수면·고정 일정 중에는 쉬거나 이동을 준비하세요.',
   };
 }

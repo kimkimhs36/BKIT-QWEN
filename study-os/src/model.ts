@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { learningSchema } from './learningModel';
 const id = z.string().min(1).max(100),
   text = z.string().max(200),
   note = z.string().max(3000);
@@ -120,6 +121,7 @@ export const activeSchema = z.object({
   target: minutes,
   started: instant,
   workspace: problemWorkspaceSchema.optional(),
+  resourceId: id.optional(),
   segmentStart: instant.nullable(),
   elapsed: z.number().min(0),
   pauses: z.array(z.object({ at: instant, reason: text })).max(100),
@@ -133,6 +135,7 @@ export const sessionSchema = z.object({
   started: instant,
   ended: instant,
   workspace: problemWorkspaceSchema.optional(),
+  resourceId: id.optional(),
   seconds: z.number().min(0),
   target: minutes,
   problems: z.number().int().min(0).max(10000),
@@ -176,6 +179,7 @@ export const examSchema = z
     availableMaterials: note,
     missingMaterials: note,
     weakConcepts: note,
+    linkedResourceIds: z.array(id).max(1000).optional(),
     updatedAt: instant,
   })
   .refine(
@@ -185,6 +189,7 @@ export const examSchema = z
 export const stateSchema = z
   .object({
     version: z.literal(1),
+    learning: learningSchema.optional(),
     revision: z.number().int().min(0),
     tasks: z.array(taskSchema).max(500),
     schedules: z.array(scheduleSchema).max(300),

@@ -1,3 +1,4 @@
+import { learning, resourceProgress, buildResourceReviews } from './learningEngine';
 import { useState, type FormEvent } from 'react';
 import { uid, type State } from './model';
 import { iso } from './time';
@@ -8,11 +9,13 @@ export function ExamPanel({
   today,
   onSave,
   onStart,
+  onOpenResource,
 }: {
   state: State;
   today: string;
   onSave: (exam: Exam) => boolean;
   onStart: (taskId: string) => void;
+  onOpenResource?: (resourceId: string, problemId?: string) => void;
 }) {
   const [editing, setEditing] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -39,6 +42,7 @@ export function ExamPanel({
       availableMaterials: value('availableMaterials'),
       missingMaterials: value('missingMaterials'),
       weakConcepts: value('weakConcepts'),
+      linkedResourceIds: form.getAll('linkedResourceIds').map(String),
       updatedAt: iso(Date.now()),
     };
     if (onSave(exam)) {
@@ -101,6 +105,24 @@ export function ExamPanel({
               />
             </label>
           ))}
+          <fieldset>
+            <legend>시험 범위로 직접 확인한 자료 연결</legend>
+            {learning(state).resources.map((r) => (
+              <label className="sleep-check" key={r.id}>
+                <input
+                  type="checkbox"
+                  name="linkedResourceIds"
+                  value={r.id}
+                  defaultChecked={current?.linkedResourceIds?.includes(r.id)}
+                />
+                {r.subject} · {r.title}
+              </label>
+            ))}
+            <p className="muted">
+              체크한 자료만 시험 연계 복습에 사용합니다. 과목만 같다는 이유로 범위에 포함하지
+              않습니다.
+            </p>
+          </fieldset>
           {error && <p role="alert">{error}</p>}
           <div className="sleep-actions">
             <button className="primary" type="submit">
@@ -141,6 +163,30 @@ export function ExamPanel({
               <dt>출처</dt>
               <dd>{exam.source || '미확인'}</dd>
             </dl>
+            {(exam.linkedResourceIds ?? []).map((id) => {
+              const resource = learning(state).resources.find((r) => r.id === id);
+              if (!resource) return <p key={id}>이전 자료 연결 보존: {id}</p>;
+              const progress = resourceProgress(learning(state), id),
+                reviews = buildResourceReviews(state, today).filter((c) => c.resource.id === id);
+              return (
+                <div key={id} className="resource-review-card">
+                  <strong>{resource.title}</strong>
+                  <p>
+                    남은 문제 {progress.remainingCount}/{progress.total} · 복습 대상{' '}
+                    {reviews.length} · 실제 답변{' '}
+                    {
+                      learning(state).attempts.filter((a) =>
+                        learning(state).problems.some(
+                          (p) => p.id === a.problemId && p.resourceId === id,
+                        ),
+                      ).length
+                    }
+                    회
+                  </p>
+                  <button onClick={() => onOpenResource?.(id)}>시험 연결 자료 이어 풀기</button>
+                </div>
+              );
+            })}
             <details>
               <summary>자료와 취약 개념 확인</summary>
               <p>확보한 자료: {exam.availableMaterials || '미등록'}</p>

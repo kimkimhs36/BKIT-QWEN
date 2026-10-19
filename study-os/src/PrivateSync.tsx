@@ -12,6 +12,7 @@ export function portableStudyState(state: State): State {
     learningEvents: undefined,
     problemRetests: undefined,
     exams: undefined,
+    learning: undefined,
     revision: 0,
     tasks: state.tasks.map(({ attachmentIds: _privatePhotos, ...task }) => task),
     active: null,

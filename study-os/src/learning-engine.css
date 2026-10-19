@@ -1,0 +1,295 @@
+.resource-library,
+.multi-workspace,
+.resource-reviews,
+.complete-backup {
+  min-width: 0;
+  text-align: left;
+}
+.resource-library label,
+.multi-workspace label,
+.complete-backup label {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.9rem 0;
+  font-size: 0.9rem;
+}
+.resource-library input,
+.resource-library select,
+.resource-library textarea,
+.multi-workspace textarea,
+.multi-workspace select,
+.resource-reviews select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  font: inherit;
+}
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+.resource-card,
+.resource-editor,
+.resource-review-card {
+  background: var(--surface, #faf9f4);
+  border: 1px solid #dce0d3;
+  border-radius: 18px;
+  padding: 1.2rem;
+  margin: 0.8rem 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.resource-card h3 {
+  font-size: 1.15rem;
+  margin: 0.8rem 0;
+}
+.learning-actions {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.learning-actions button {
+  min-height: 44px;
+}
+.resource-pages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 1rem;
+}
+.resource-pages img {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+}
+.resource-problem-list {
+  padding-left: 1.5rem;
+}
+.resource-problem-list > li {
+  border-top: 1px solid #dce0d3;
+  padding: 1rem 0;
+}
+.resource-problem-list form {
+  padding-top: 1rem;
+}
+.multi-workspace {
+  border-top: 1px solid #dce0d3;
+  margin: 1rem 0;
+  padding-top: 1.2rem;
+}
+.multi-workspace h3.learning-problem-title {
+  font-size: 1.45rem;
+  margin: 1.5rem 0 1rem;
+}
+.learning-problem-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 1.08rem;
+  line-height: 1.85;
+  max-height: 65vh;
+  overflow: auto;
+  text-align: left;
+}
+.problem-navigation {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+.problem-navigation label {
+  margin: 0;
+}
+.problem-navigation button {
+  min-height: 44px;
+  padding: 0.7rem;
+}
+.multi-workspace progress,
+.resource-card progress {
+  width: 100%;
+  height: 7px;
+  accent-color: #60785a;
+}
+.learning-answer-form .main-answer {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.learning-answer-form .main-answer textarea {
+  font-size: 1.12rem;
+  line-height: 1.7;
+  min-height: 180px;
+  border: 1px solid #99aa8d;
+  border-radius: 14px;
+  padding: 1rem;
+  background: #fffef8;
+  color: #263b2e;
+  resize: vertical;
+  scroll-margin-bottom: 150px;
+}
+.multi-workspace details {
+  padding: 0.9rem 0;
+}
+.multi-workspace summary {
+  cursor: pointer;
+  min-height: 30px;
+  line-height: 1.5;
+}
+.learning-reference {
+  white-space: pre-wrap;
+  background: #eef2e8;
+  padding: 1rem;
+  border-radius: 12px;
+  color: #304331;
+  line-height: 1.8;
+}
+.learning-help {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+.learning-help p {
+  flex-basis: 100%;
+}
+.learning-result {
+  padding: 1rem;
+  background: #eef2e8;
+  border-radius: 14px;
+  margin: 1rem 0;
+}
+.learning-source img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.learning-end {
+  border-top: 1px solid #dce0d3;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+.focus-learning .focus-instrument,
+.focus-resource .focus-instrument {
+  transform: none;
+  min-height: 0;
+  max-height: 110px;
+  opacity: 0.7;
+  overflow: hidden;
+  margin: 0.7rem auto;
+}
+.focus-resource .focus-card {
+  display: block;
+}
+.focus-resource .focus-halo {
+  display: none;
+}
+.focus-resource .timer {
+  font-size: 2rem;
+}
+.focus-resource .focus-readout {
+  position: static;
+}
+.focus-resource .focus-card > h2 {
+  font-size: 1.1rem;
+}
+.focus-resource .study-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+.focus-resource .study-review-sidebar {
+  display: none;
+}
+.resource-resume {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1.1rem 1.3rem;
+  border: 1px solid #dce0d3;
+  background: #f6f7ef;
+  border-radius: 18px;
+  margin: 1rem 0;
+}
+.resource-resume p {
+  margin: 0.4rem 0;
+}
+.backup-status {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.complete-backup input[type='file'] {
+  max-width: 100%;
+}
+@media (max-width: 600px) {
+  .problem-navigation {
+    grid-template-columns: 1fr 1fr;
+  }
+  .problem-navigation label {
+    grid-column: 1/-1;
+    grid-row: 1;
+  }
+  .multi-workspace .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .resource-editor {
+    padding: 0.8rem;
+  }
+  .multi-workspace .section-head {
+    flex-wrap: wrap;
+  }
+  .focus-resource .focus-card {
+    padding: 1.1rem;
+  }
+  .learning-actions > button {
+    flex: 1 1 auto;
+  }
+  .main-answer textarea {
+    font-size: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .multi-workspace * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+/* Focus mode has legacy dark native controls; learning fields use a light study surface. */
+.focus-resource .multi-workspace select,
+.resource-library select,
+.resource-reviews select,
+.complete-backup select {
+  appearance: auto;
+  background: #fffef8;
+  color: #263b2e;
+  border: 1px solid #a6b29e;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  min-height: 44px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.focus-resource .multi-workspace,
+.focus-resource .multi-workspace label {
+  color: #263b2e;
+}
+.focus-resource .multi-workspace p,
+.focus-resource .multi-workspace .muted {
+  color: #50614a;
+}
+.focus-resource .multi-workspace .eyebrow,
+.focus-resource .multi-workspace .chip {
+  color: #50614a;
+}
+.focus-resource .multi-workspace button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.focus-resource .focus-quiet-tools,
+.focus-resource .focus-tip,
+.focus-resource .focus-card > .hint {
+  display: none;
+}
+.resource-problem-list > li {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 70px;
+}

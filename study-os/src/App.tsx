@@ -1,3 +1,4 @@
+import { learning, resourceProgress, linkedTaskProgress, moveProblem, protectResourceTask, buildResourceReviews, isCompleted } from './learningEngine';
 import { sleepConstraints, studyFixedNow } from './sleepConstraints';
 import { addProblemRetest, buildProblemReviews, type AttemptMeta, type ErrorTag, type ProblemSourceMeta } from './problemReview';
 import { appendLearningEvent, firstLearningAction, rankInstantTasks, canStartSprint } from './now';
@@ -93,6 +94,10 @@ import { inputError } from './input-error';
 import { apiEnabled, requestAI } from './ai';
 import { protectedBoundary, fixedConflicts } from './safety';
 import { KEY, readState, writeState, parseBackup, StorageConflict, LEARNING_BACKUP_KEY } from './storage';
+const ResourceLibrary = lazy(()=>import('./ResourceLibrary').then(m=>({default:m.ResourceLibrary})));
+const MultiProblemWorkspace = lazy(()=>import('./MultiProblemWorkspace').then(m=>({default:m.MultiProblemWorkspace})));
+const ResourceReviews = lazy(()=>import('./ResourceReviews').then(m=>({default:m.ResourceReviews})));
+const CompleteBackupPanel = lazy(()=>import('./CompleteBackupPanel').then(m=>({default:m.CompleteBackupPanel})));
 const SleepGuard = lazy(() => import('./SleepGuard').then(m => ({default:m.SleepGuard})));
 const MoreHub = lazy(()=>import('./MoreHub').then(m=>({default:m.MoreHub})));
 const ExamPanel = lazy(()=>import('./ExamPanel').then(m=>({default:m.ExamPanel})));
@@ -106,10 +111,11 @@ const NAV = [
   { id: 'study', en: 'LEARN', label: '집중', icon: Focus },
   { id: 'progress', en: 'PROGRESS', label: '기록', icon: Target },
   { id: 'settings', en: 'SETTINGS', label: '설정', icon: Settings },
+  { id: 'exams', en: 'EXAMS', label: '시험 관리', icon: CalendarDays },
   { id: 'more', en: 'MORE', label: '더보기', icon: Menu },
 ];
 const PRIMARY_NAV = ['today','study','tasks','more'].map(id=>NAV.find(n=>n.id===id)!);
-const MORE_ROUTES = ['school','progress','settings','sleep','juggernaut'];
+const MORE_ROUTES = ['school','progress','settings','sleep','juggernaut','exams'];
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 function Empty({ title, children }: { title: string; children: ReactNode }) {
@@ -219,7 +225,7 @@ export default function App() {
   const [atelierOpen, setAtelierOpen] = useState(false);
   const [atelierStep, setAtelierStep] = useState<'capture' | undefined>();
   function openAtelier(step?: 'capture') { setAtelierStep(step); setAtelierOpen(true); }
-  const [tab, setTab] = useState('today'),
+  const [tab, setTabState] = useState('today'),
     [now, setNow] = useState(Date.now()),
     [online, setOnline] = useState(navigator.onLine),
     [notice, setNotice] = useState(''),
@@ -237,6 +243,7 @@ export default function App() {
       | 'block'
       | 'import'
     >(null);
+  function setTab(route:string) {if(document.dispatchEvent(new Event('bkit:flush-learning-draft',{cancelable:true})))setTabState(route);}
   const sleep = useSleepGuard(now, Boolean(s.active));
   const [energy,setEnergy] = useState<'low'|'normal'>('normal');
   const [editTask, setEditTask] = useState<Task | null>(null),
@@ -280,7 +287,7 @@ export default function App() {
   }, []);
   // Stay on the study screen while studying: only the chrome fades, never the task or timer.
   useEffect(() => {
-    const canHide = shouldAutoHideFocusUi(tab === 'study', Boolean(s.active?.segmentStart), Boolean(modal)) && !!s.active && !s.active.workspace && elapsed(s.active, Date.now()) < s.active.target * 60;
+    const canHide = !s.active?.resourceId && shouldAutoHideFocusUi(tab === 'study', Boolean(s.active?.segmentStart), Boolean(modal)) && !!s.active && !s.active.workspace && elapsed(s.active, Date.now()) < s.active.target * 60;
     if (!canHide) {
       setFocusUiVisible(true);
       return;
@@ -381,6 +388,7 @@ export default function App() {
       const changed = change(previous);
       if (changed === previous) return false;
       const next = stateSchema.parse({ ...changed, revision: previous.revision + 1 });
+      if(!force) for(const task of next.tasks) if(task.status==='done' && previous.tasks.find(t=>t.id===task.id)?.status!=='done') protectResourceTask(next,task);
       storedRaw.current = writeState(localStorage, next, force ? undefined : storedRaw.current, force ? KEY+'.before-restore.'+Date.now()+'.'+uid() : undefined);
       memory.current = next;
       setS(next);
@@ -388,6 +396,7 @@ export default function App() {
       if (force) setReadBlocked(false);
       return true;
     } catch (e) {
+      if(e instanceof Error && e.message.includes('풀지 않은')) {setNotice(e.message);setFormError(e.message);return false;}
       if (e instanceof StorageConflict) {
         setReadBlocked(true); setStorageError(e.message); return false;
       }
@@ -405,6 +414,7 @@ export default function App() {
     learningEvents: v.learningEvents,
     problemRetests: v.problemRetests,
     exams: v.exams,
+    learning: v.learning,
     tasks: incoming.tasks.map(t => ({
       ...t,
       attachmentIds: v.tasks.find(local => local.id === t.id)?.attachmentIds,
@@ -445,6 +455,7 @@ export default function App() {
       } : t) }));
   }
   function open(kind: NonNullable<typeof modal>) {
+    if(kind==='finish'&&!document.dispatchEvent(new Event('bkit:flush-learning-draft',{cancelable:true})))return;
     setFormError('');
     setModal(kind);
   }
@@ -472,7 +483,9 @@ export default function App() {
       .sort((a, b) => a.start.localeCompare(b.start));
   const reviewQueue = buildReviewQueue(s, today);
   const problemQueue = useMemo(()=>buildProblemReviews(s,today),[s,today]);
-  const dueProblems = problemQueue.overdue.length + problemQueue.today.length;
+  const resourceDue = useMemo(()=>buildResourceReviews(s,today).filter(c=>c.due<=today),[s,today]);
+  const dueProblems = problemQueue.overdue.length + problemQueue.today.length + resourceDue.length;
+  const resumeResource = learning(s).resources.filter(r=>!r.archived&&resourceProgress(learning(s),r.id).remainingCount>0).sort((a,b)=>(b.lastOpenedAt??'').localeCompare(a.lastOpenedAt??''))[0];
   const ordered = [...pending].sort(
     (a, b) =>
       (a.due ? +new Date(a.due) : Infinity) - (b.due ? +new Date(b.due) : Infinity) ||
@@ -522,8 +535,10 @@ export default function App() {
   const canStudy = !current;
   const seconds = s.active ? elapsed(s.active, now) : 0;
   const late = delayMinutes(s, now);
-  function start(minutes: number, task = selected || actionTask?.id || null) {
+  function start(minutes: number, task = selected || actionTask?.id || null, resourceId?: string, problemId?: string) {
     if (s.active) {
+      if(resourceId && resourceId!==s.active.resourceId) setNotice('현재 학습을 종료한 뒤 다른 자료를 열어 주세요.');
+      else if(resourceId && problemId) commit(v=>moveProblem(v,resourceId,problemId));
       setTab('study');
       return;
     }
@@ -541,7 +556,8 @@ export default function App() {
       return;
     }
     const t = s.tasks.find((t) => t.id === task && t.status !== 'done');
-    if(t?.quantity?.remaining===0){setFilter('pending');setTab('tasks');setNotice('기록한 남은 분량은 0입니다. 학습 완료와 제출 여부를 직접 확인해 주세요.');return;}
+    const resource=learning(s).resources.find(r=>r.id===resourceId) ?? (!resourceId ? learning(s).resources.find(r=>!r.archived&&r.linkedTaskId===t?.id) : undefined);
+    if(t?.quantity?.remaining===0 && !resource){setFilter('pending');setTab('tasks');setNotice('기록한 남은 분량은 0입니다. 학습 완료와 제출 여부를 직접 확인해 주세요.');return;}
     const sessionId = uid();
     if (
       commit((v) => ({
@@ -550,8 +566,9 @@ export default function App() {
         active: {
           id: sessionId,
           taskId: t?.id || null,
-          subject: t?.subject || '자율 학습',
-          action: t?.title || '첫 개념을 가리고 떠올린 뒤, 문제 하나 풀기',
+          resourceId: resource?.id,
+          subject: resource?.subject || t?.subject || '자율 학습',
+          action: resource?.title || t?.title || '첫 개념을 가리고 떠올린 뒤, 문제 하나 풀기',
           target: minutes,
           started: iso(currentTime),
           segmentStart: iso(currentTime),
@@ -560,11 +577,21 @@ export default function App() {
           segments: [],
         },
         tasks: v.tasks.map((x) => (x.id === t?.id ? { ...x, status: 'doing' } : x)),
+        learning: resource ? learning(moveProblem(v,resource.id,problemId??resourceProgress(learning(v),resource.id).currentProblemId??'')) : v.learning,
       }))
     ) {
       setTab('study');
       setNotice('시작했어요. 첫 한 문제에 집중하세요.');
     }
+  }
+  function openResource(id:string,problemId?:string) {
+    const r=learning(memory.current).resources.find(r=>r.id===id);
+    if(r)start(5,r.linkedTaskId,id,problemId);
+  }
+  function finishResource() {
+    if(!document.dispatchEvent(new Event('bkit:flush-learning-draft',{cancelable:true})))return;
+    const a=memory.current.active;if(!a)return;
+    if(commit(v=>({...v,active:closeSegment(a,Date.now())})))open('finish');
   }
   function handleReview(sessionId: string, outcome: ReviewOutcome) {
     const saved = commit((v) => recordReviewOutcome(v, sessionId, outcome, Date.now()));
@@ -625,9 +652,14 @@ export default function App() {
       sec = elapsed(a, ended),
       complete = f.has('complete'),
       remaining = Number(f.get('remaining'));
+    if (a.resourceId && complete && linkedTaskProgress(memory.current,a.taskId??'').some(p=>p.remainingCount>0)) {setFormError('풀지 않은 문제가 있어 과제를 완료할 수 없습니다.');return;}
+    const actualProblems=a.resourceId ? new Set(learning(memory.current).attempts.filter(x=>x.sessionId===a.id&&x.selfCheck!=='unreviewed').map(x=>x.problemId)).size : Number(f.get('problems'));
+    const linked=a.resourceId ? learning(memory.current).resources.find(r=>r.id===a.resourceId) : undefined;
+    const nextProblem=linked ? learning(memory.current).problems.filter(p=>p.resourceId===linked.id).sort((a,b)=>a.ordinal-b.ordinal).find(p=>!isCompleted(learning(memory.current),p.id)) : undefined;
     if (
       commit((v) => ({
         ...v,
+        learning: linked && nextProblem ? learning(moveProblem(v,linked.id,nextProblem.id)) : v.learning,
         active: null,
         sessions: [
           ...v.sessions,
@@ -639,9 +671,10 @@ export default function App() {
             started: a.started,
             ended: iso(ended),
             workspace: a.workspace,
+            resourceId: a.resourceId,
             seconds: sec,
             target: a.target,
-            problems: Number(f.get('problems')),
+            problems: actualProblems,
             concepts: String(f.get('concepts')),
             rating: String(f.get('rating')) as '어려움' | '보통' | '이해함',
             reason: String(f.get('reason')),
@@ -653,7 +686,7 @@ export default function App() {
         ],
         tasks: v.tasks.map((t) =>
           t.id === a.taskId
-            ? applyStudyProgress(t, {complete, remainingMinutes:remaining, completedProblems:Number(f.get('problems')), quantityRemaining:f.get('quantityRemaining') ? Number(f.get('quantityRemaining')) : undefined})
+            ? applyStudyProgress(t, {complete, remainingMinutes:remaining, completedProblems:a.resourceId ? 0 : Number(f.get('problems')), quantityRemaining:a.resourceId ? undefined : f.get('quantityRemaining') ? Number(f.get('quantityRemaining')) : undefined})
             : t,
         ),
         plan: complete ? v.plan.filter((b) => b.taskId !== a.taskId) : v.plan,
@@ -801,6 +834,7 @@ export default function App() {
       learningEvents: undefined,
       problemRetests: undefined,
       exams: undefined,
+      learning: undefined,
       active: null,
       grades: [],
       reviewsDone: [],
@@ -924,7 +958,7 @@ export default function App() {
       className={
         'app-shell visual-v2 atelier-os page-' + tab +
         (tab === 'study' && s.active ? ' is-focusing' : '') +
-        (tab === 'study' && s.active?.workspace ? ' focus-learning' : '') +
+        (tab === 'study' && s.active?.workspace ? ' focus-learning' : '') + (tab==='study' && s.active?.resourceId ? ' focus-resource' : '') +
         (tab === 'study' && s.active?.segmentStart && !s.active.workspace && seconds < s.active.target * 60 && !focusUiVisible && !modal
           ? ' focus-quiet'
           : '')
@@ -944,14 +978,14 @@ export default function App() {
       >
         <WaterDrop className="water-object--brand" />
         <strong>
-          BKIT<small>STUDY OS 3.0</small>
+          BKIT<small>STUDY OS 3.1</small>
         </strong>
       </a>
       <div className="main-shell">
         <header className="topbar">
           <div>
             <span className="mobile-brand">
-              BKIT <small>STUDY OS 3.0</small>
+              BKIT <small>STUDY OS 3.1</small>
             </span>
             <span className="breadcrumb">
               BKIT <ChevronRight size={13} /> {(tab === 'sleep' ? 'Sleep Guard' : NAV.find((n) => n.id === tab)?.label)}
@@ -1024,6 +1058,7 @@ export default function App() {
                       settings: '설정',
                       sleep: 'Sleep Guard',
                       more: '더보기',
+                      exams:'시험 관리',
                     } as Record<string, string>
                   )[tab]
                 }
@@ -1038,6 +1073,7 @@ export default function App() {
                       study: '시간을 채우기보다, 한 문제를 이해하는 시간.',
                       progress: '직접 답한 문제와 지연 복습 기록을 확인해요.',
                       more: '시간표, 학습 증거, 수면과 데이터 관리를 한곳에서.',
+                      exams:'확인된 시험 범위와 실제 자료를 연결하세요.',
                       settings: '이 기기의 기록과 생활 리듬을 관리하세요.',
                     } as Record<string, string>
                   )[tab]
@@ -1106,6 +1142,7 @@ export default function App() {
               </div>
               <TaskCheckIn pending={pending.length} awaiting={awaiting.length} total={s.tasks.length}
                 onSubmission={() => {setFilter('submission');setTab('tasks');}} onAdd={() => openAtelier()}/>
+              {!s.active&&resumeResource&&<section className="resource-resume" aria-label="마지막 자료 이어하기"><div><strong>{resumeResource.title}</strong><p>남은 {resourceProgress(learning(s),resumeResource.id).remainingCount}문제 · 이어 풀 위치 저장됨</p></div><button className="primary" onClick={()=>openResource(resumeResource.id)}>마지막 문제부터 5분 시작</button></section>}
               {!s.active&&dueProblems>0&&<section className="task-check-in" aria-label="오늘 문제 복습"><BookOpen size={22} aria-hidden="true"/><div><h2>오늘 다시 풀 문제 {dueProblems}개</h2><p>직접 등록한 문제를 답을 가리고 다시 풀어봐요.</p></div><button onClick={()=>{setTab('study');requestAnimationFrame(()=>document.getElementById('learn-problem-reviews')?.scrollIntoView({block:'start',behavior:'auto'}));}}>답을 가리고 다시 풀기 <ArrowRight size={16}/></button></section>}
               <LandscapeNote/>
               <SleepSummary guard={sleep} onOpen={() => setTab('sleep')}/>
@@ -1403,6 +1440,7 @@ export default function App() {
               </section>
             </>
           )}
+          {tab==='exams'&&<Suspense fallback={<p>시험 정보를 여는 중…</p>}><ExamPanel state={s} today={today} onStart={id=>start(5,id)} onOpenResource={openResource} onSave={exam=>commit(v=>({...v,exams:[...(v.exams??[]).filter(e=>e.id!==exam.id),exam]}))}/></Suspense>}
           {tab === 'tasks' && (
             <>
               <div className="toolbar">
@@ -1435,7 +1473,8 @@ export default function App() {
                   </Empty>
                 )}
               </section>
-              <Suspense fallback={<p role="status">시험 정보를 여는 중…</p>}><ExamPanel state={s} today={today} onStart={id=>start(5,id)} onSave={exam=>commit(v=>({...v,exams:[...(v.exams??[]).filter(e=>e.id!==exam.id),exam]}))}/></Suspense>
+              {s.tasks.flatMap(task=>linkedTaskProgress(s,task.id).map(p=><section className="resource-resume" key={p.resource.id}><div><strong>{task.title} · {p.resource.title}</strong><p>실제 풀이 확인 {p.completedCount}/{p.total} · 미완료 {p.remainingCount} · 제출 {task.submitted?'완료':'별도 확인'}</p></div><button onClick={()=>openResource(p.resource.id)}>연결 자료 이어 풀기</button></section>))}
+              <Suspense fallback={<p role="status">시험 정보를 여는 중…</p>}><ExamPanel state={s} today={today} onStart={id=>start(5,id)} onOpenResource={openResource} onSave={exam=>commit(v=>({...v,exams:[...(v.exams??[]).filter(e=>e.id!==exam.id),exam]}))}/></Suspense>
               <p className="hint">
                 학습 완료와 제출 완료는 별개입니다. 과제를 열어 제출 상태를 확인하세요.
               </p>
@@ -1443,6 +1482,7 @@ export default function App() {
           )}
           {tab === 'study' && (
             <>
+              {!s.active&&<Suspense fallback={<p role="status">자료 라이브러리를 여는 중…</p>}><ResourceLibrary state={s} onChange={commit} onOpen={openResource}/></Suspense>}
               <div className="study-layout">
                 <section
                   className={
@@ -1467,7 +1507,7 @@ export default function App() {
                       </div>
                     </details>
                   )}
-                  {s.active && (
+                  {s.active && !s.active.resourceId && (
                     <ProblemWorkspace
                       active={s.active}
                       onSetProblem={setLearningProblem}
@@ -1475,6 +1515,7 @@ export default function App() {
                       onSelfCheck={markLearningAttempt}
                     />
                   )}
+                  {s.active?.resourceId && <Suspense fallback={<p role="status">자료 학습실을 여는 중…</p>}><MultiProblemWorkspace state={s} onChange={commit} onFinish={finishResource} onSleep={()=>{const a=memory.current.active;if(a&&commit(v=>({...v,active:closeSegment(a,Date.now())})))setTab('sleep');}}/></Suspense>}
                   <div className="focus-instrument">
                     <FocusHalo
                       progress={s.active ? seconds / (s.active.target * 60) : 0}
@@ -1623,12 +1664,13 @@ export default function App() {
                     <span>잠깐 막혔다면 기초 예제 하나로 돌아가세요.</span>
                   </div>
                 </section>
-                <div className="study-review-sidebar" id="learn-problem-reviews"><Suspense fallback={<p role="status">복습 문제를 여는 중…</p>}><ProblemReviewQueue state={s} today={today} onAttempt={recordProblemRetest} onCheck={checkProblemRetest}/></Suspense><ReviewDeck queue={reviewQueue} onReview={handleReview} /></div>
+                <div className="study-review-sidebar" id="learn-problem-reviews"><Suspense fallback={<p>자료 복습을 여는 중…</p>}><ResourceReviews state={s} today={today} onOpen={openResource}/></Suspense><Suspense fallback={<p role="status">복습 문제를 여는 중…</p>}><ProblemReviewQueue state={s} today={today} onAttempt={recordProblemRetest} onCheck={checkProblemRetest}/></Suspense><ReviewDeck queue={reviewQueue} onReview={handleReview} /></div>
               </div>
             </>
           )}
           {tab === 'progress' && (
             <>
+              <Suspense fallback={<p>자료 복습을 여는 중…</p>}><ResourceReviews state={s} today={today} onOpen={openResource}/></Suspense>
               <Suspense fallback={<p role="status">학습 증거를 여는 중…</p>}><LearningEvidence state={s} today={today}/></Suspense>
               <Suspense fallback={<p role="status">복습 문제를 여는 중…</p>}><ProblemReviewQueue state={s} today={today} onAttempt={recordProblemRetest} onCheck={checkProblemRetest}/></Suspense>
               {s.sessions.some(entry=>entry.workspace?.attempts.length) && (
@@ -1810,6 +1852,7 @@ export default function App() {
           )}
           {tab === 'settings' && (
             <>
+              <Suspense fallback={<p role="status">전체 백업을 여는 중…</p>}><CompleteBackupPanel studying={!!s.active}/></Suspense>
               <div className="settings-layout">
                 <section className="panel">
                   <div className="section-head">
@@ -1922,7 +1965,7 @@ export default function App() {
                       기록은 우선 이 기기에 저장돼요. BKIT Private Cloud를 연결하면
                       과제·시간표·완료한 공부 세션 등을 본인 계정 아래에서 동기화할 수 있어요.
                       학습지 사진과 진행 중 타이머는 아직 이 기기에만 있으므로 원본을 보관해 주세요.
-                      기기 변경 전에는 JSON 백업도 활용할 수 있어요.
+                      기기 변경 전에는 사진 포함 전체 ZIP 백업을 권장합니다. JSON에는 사진 참조만 포함됩니다.
                     </p>
                     <div className="button-stack">
                       <button
@@ -2464,10 +2507,11 @@ export default function App() {
                   required
                   min="0"
                   max="10000"
-                  defaultValue="0"
+                  readOnly={!!s.active.resourceId}
+                  defaultValue={s.active.resourceId ? new Set(learning(s).attempts.filter(a=>a.sessionId===s.active!.id&&a.selfCheck!=='unreviewed').map(a=>a.problemId)).size : 0}
                 />
               </Field>
-              {s.tasks.find(t => t.id === s.active?.taskId)?.quantity && <Field label="남은 실제 분량 (비우면 문제 수에서 차감)">
+              {!s.active.resourceId && s.tasks.find(t => t.id === s.active?.taskId)?.quantity && <Field label="남은 실제 분량 (비우면 문제 수에서 차감)">
                 <input type="number" name="quantityRemaining" min="0" max={s.tasks.find(t => t.id === s.active?.taskId)?.quantity?.total} placeholder="쪽·지문·단원은 직접 입력"/>
               </Field>}
               <Field label="떠올리거나 이해한 개념">
@@ -2502,7 +2546,7 @@ export default function App() {
               {s.active.taskId && (
                 <>
                   <label className="checkbox">
-                    <input type="checkbox" name="complete" /> 이 과제의 학습 분량을 모두 완료했어요
+                    <input type="checkbox" name="complete" disabled={!!s.active.resourceId && linkedTaskProgress(s,s.active.taskId??'').some(p=>p.remainingCount>0)} /> 이 과제의 학습 분량을 모두 완료했어요
                     (제출은 별도)
                   </label>
                   <Field label="아직 남은 분량 (분)">
