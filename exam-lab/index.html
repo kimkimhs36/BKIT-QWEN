@@ -229,55 +229,57 @@
               PDF는 서버로 전송되지 않아. 새로 접속하면 다시 선택해 줘.
               답안·메모는 자동 저장돼.
             </p>
-            <div id="file-preview" class="file-preview" hidden></div>
-            <div class="paper-workspace">
-              <div>
-                <p class="eyebrow">ANSWER SHEET</p>
-                <h3>풀고, 확인하고, 남기기.</h3>
-                <p class="muted">
-                  수학 22~30번은 단답형으로 기록할 수 있어. 실제 문제지에 맞춰
-                  입력해.
-                </p>
-              </div>
-              <div
-                id="past-grid"
-                class="past-grid"
-                aria-label="기출 문제 번호"
-              ></div>
-              <div class="answer-editor">
-                <strong id="answer-heading">1번 답안</strong>
-                <div
-                  class="answer-options"
-                  id="past-choices"
-                  role="group"
-                  aria-label="내가 선택한 답"
-                ></div>
-                <label id="short-answer-label" hidden
-                  >단답형 답
-                  <input
-                    id="short-answer"
-                    inputmode="numeric"
-                    maxlength="8"
-                    placeholder="예: 125"
-                /></label>
-                <div
-                  class="mark-options"
-                  role="group"
-                  aria-label="정답표 확인 결과"
-                >
-                  <button data-mark="correct">정답표 확인 · O</button
-                  ><button data-mark="wrong">정답표 확인 · X</button
-                  ><button data-mark="unsure">아직 미채점</button>
+            <div class="past-study-layout">
+              <div id="file-preview" class="file-preview" hidden></div>
+              <div class="paper-workspace">
+                <div>
+                  <p class="eyebrow">ANSWER SHEET</p>
+                  <h3>풀고, 확인하고, 남기기.</h3>
+                  <p class="muted">
+                    수학 22~30번은 단답형으로 기록할 수 있어. 실제 문제지에 맞춰
+                    입력해.
+                  </p>
                 </div>
-                <label class="note-label"
-                  >어디서 막혔어?<textarea
-                    id="past-note"
-                    rows="2"
-                    maxlength="180"
-                    placeholder="해석이 안 된 문장 / 놓친 조건"
-                  ></textarea>
-                </label>
-                <p id="past-status" class="hint"></p>
+                <div
+                  id="past-grid"
+                  class="past-grid"
+                  aria-label="기출 문제 번호"
+                ></div>
+                <div class="answer-editor">
+                  <strong id="answer-heading">1번 답안</strong>
+                  <div
+                    class="answer-options"
+                    id="past-choices"
+                    role="group"
+                    aria-label="내가 선택한 답"
+                  ></div>
+                  <label id="short-answer-label" hidden
+                    >단답형 답
+                    <input
+                      id="short-answer"
+                      inputmode="numeric"
+                      maxlength="8"
+                      placeholder="예: 125"
+                  /></label>
+                  <div
+                    class="mark-options"
+                    role="group"
+                    aria-label="정답표 확인 결과"
+                  >
+                    <button data-mark="correct">정답표 확인 · O</button
+                    ><button data-mark="wrong">정답표 확인 · X</button
+                    ><button data-mark="unsure">아직 미채점</button>
+                  </div>
+                  <label class="note-label"
+                    >어디서 막혔어?<textarea
+                      id="past-note"
+                      rows="2"
+                      maxlength="180"
+                      placeholder="해석이 안 된 문장 / 놓친 조건"
+                    ></textarea>
+                  </label>
+                  <p id="past-status" class="hint"></p>
+                </div>
               </div>
             </div>
           </section>

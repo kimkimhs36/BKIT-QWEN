@@ -35,11 +35,13 @@ cd exam-lab && npx playwright install --with-deps chromium webkit
 cd ..
 node exam-lab/tests/smoke.mjs
 node exam-lab/tests/safety.mjs
+node exam-lab/tests/ipad.mjs
 node exam-lab/tests/accessibility.mjs
 ```
 
 `BKIT_TEST_URL` can point these tests at the deployed `/exam-lab/`; all test answers use isolated browser profiles and localStorage only.
 
+- 11-inch iPad landscape has a two-column reading/choice desk and local PDF/answer sheet layout. Pro 11 (1194×834) and Air 11 (1180×820) touch scenarios also verify portrait rotation without losing feedback.
 - Six scenarios: iPhone WebKit, iPad portrait/landscape WebKit, desktop Chromium, Galaxy tablet CSS/touch emulation, small iPhone Chromium.
 - Learning: diagnosis, both hints, self-explanation, feedback restoration, tutor prompt, transfer, wrong-answer retest, vocabulary, focus screen.
 - Papers/data: local PDF selection, manual O/X, mathematics short answer, per-keystroke notes, refresh, JSON export and valid/invalid restore.

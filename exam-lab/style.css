@@ -1825,3 +1825,86 @@ dialog textarea {
     animation: none;
   }
 }
+/* Landscape reading desk: optimized for an 11-inch iPad and wide screens. */
+.question-layout,
+.reading-column,
+.response-column {
+  min-width: 0;
+}
+@media (min-width: 1000px) and (orientation: landscape) {
+  .question-shell.has-passage .question-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    gap: 27px;
+    align-items: start;
+  }
+  .question-shell.has-passage .question-reading {
+    padding: 20px;
+    font-size: 17px;
+    line-height: 1.95;
+    margin-bottom: 12px;
+  }
+  .question-shell.has-passage .question-stem {
+    font-size: 20px;
+    line-height: 1.75;
+    margin-bottom: 13px;
+  }
+  .question-shell.has-passage .understanding {
+    margin: 3px 0 13px;
+  }
+  .question-shell.has-passage .choices {
+    gap: 9px;
+  }
+  .question-shell.has-passage .choices > button {
+    padding: 11px 12px;
+    font-size: 16px;
+    gap: 10px;
+    min-height: 51px;
+  }
+  .question-shell.has-passage .confidence {
+    padding-top: 12px;
+    gap: 3px;
+  }
+  .question-shell.has-passage .confidence > span {
+    width: 100%;
+    margin-bottom: 1px;
+  }
+  .question-shell.has-passage .question-foot {
+    flex-wrap: wrap;
+    gap: 0;
+    margin-top: 9px;
+  }
+  .question-shell.has-passage .question-foot > span {
+    width: 100%;
+  }
+  .focus-mode .site {
+    max-width: 1240px;
+  }
+  .focus-mode .question-shell.has-passage .question-reading {
+    font-size: 18px;
+  }
+  .past-study-layout.with-paper {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+    margin-top: 20px;
+  }
+  .past-study-layout.with-paper .file-preview {
+    position: sticky;
+    top: 20px;
+    margin: 0;
+  }
+  .past-study-layout.with-paper .file-preview iframe {
+    height: calc(100dvh - 125px);
+    min-height: 480px;
+  }
+  .past-study-layout.with-paper .paper-workspace {
+    margin-top: 0;
+    padding: 20px;
+    min-width: 0;
+  }
+  .past-study-layout.with-paper .paper-workspace h3 {
+    font-size: 18px;
+  }
+}

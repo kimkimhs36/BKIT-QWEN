@@ -34,6 +34,7 @@ jobs:
           node --check exam-lab/learning.js
           node exam-lab/tests/smoke.mjs
           node exam-lab/tests/safety.mjs
+          node exam-lab/tests/ipad.mjs
           node exam-lab/tests/accessibility.mjs
 
       - name: Save responsive screenshots

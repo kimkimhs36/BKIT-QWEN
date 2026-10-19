@@ -5,7 +5,8 @@
   "scripts": {
     "test": "node tests/smoke.mjs",
     "test:safety": "node tests/safety.mjs",
-    "test:accessibility": "node tests/accessibility.mjs"
+    "test:accessibility": "node tests/accessibility.mjs",
+    "test:ipad": "node tests/ipad.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

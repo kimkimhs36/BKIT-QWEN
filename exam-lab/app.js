@@ -519,6 +519,7 @@
     const d = draft(q),
       answered = state.feedback?.id === q.id,
       lesson = window.BKIT_LESSONS[q.id];
+    box.classList.toggle("has-passage", !!q.passage);
     box.innerHTML =
       '<div class="question-meta"><span><i></i> ' +
       esc(q.subject) +
@@ -528,16 +529,18 @@
       (q.parent ? "유사 문항" : "Q. " + q.id.slice(3)) +
       " · " +
       (q.tier === 3 ? "도전" : "핵심") +
-      "</span></div>" +
+      '</span></div><div class="question-layout">' +
       (q.passage
-        ? '<div class="question-reading" aria-label="공통 지문">' +
+        ? '<div class="reading-column"><div class="question-reading" aria-label="공통 지문">' +
           (q.subject === "영어" ? wordMarkup(q.passage) : esc(q.passage)) +
+          "</div>" +
+          englishSupport(q) +
           "</div>"
         : "") +
-      '<h3 class="question-stem">' +
+      '<div class="response-column"><h3 class="question-stem">' +
       (q.subject === "영어" ? wordMarkup(q.stem) : esc(q.stem)) +
       "</h3>" +
-      englishSupport(q) +
+      (!q.passage ? englishSupport(q) : "") +
       (!answered
         ? '<details class="understanding"><summary>내가 이해한 내용 짚어보기 <small>선택</small></summary><label>주어진 조건·묻는 것을 한 줄로<textarea id="understanding-note" rows="2" maxlength="250" placeholder="예: 반대 방향 힘을 빼고, 질량으로 나누기">' +
           esc(d.note) +
@@ -609,7 +612,9 @@
                 : "") +
               "</div>"
             : "")
-        : makeFeedback(q));
+        : "") +
+      "</div></div>" +
+      (answered ? makeFeedback(q) : "");
     box.querySelectorAll("[data-word]").forEach(
       (b) =>
         (b.onclick = () => {
@@ -1414,6 +1419,7 @@
       box.appendChild(frame);
     }
     box.hidden = false;
+    box.parentElement.classList.add("with-paper");
     $("file-name").textContent =
       file.name +
       " · 이 기기에서만 열람 중. PDF가 잘리지 않게 보려면 전체 화면을 사용해.";
