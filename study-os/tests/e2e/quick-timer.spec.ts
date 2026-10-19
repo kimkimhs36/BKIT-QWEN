@@ -43,6 +43,9 @@ test('zero-input stopwatch can start, survive reload and save before entering su
   expect((await read(page)).sessions[0].subject).toBe('수학');
   await page.reload();
   expect((await read(page)).sessions[0].action).toBe('미적분 기초 3쪽');
+  await timer.getByRole('button', { name: /최근 공부 기록 정리하기/ }).click();
+  await expect(timer.getByLabel('과목 (선택)')).toHaveValue('수학');
+  await expect(timer.getByPlaceholder('예: 미적분 학습지 3쪽')).toHaveValue('미적분 기초 3쪽');
 });
 
 test('countdown reaches goal and retains time even if learner skips the after-study form', async ({ page }) => {
