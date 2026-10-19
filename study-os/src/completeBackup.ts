@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { stateSchema, newState, uid, type State } from './model';
 import { SLEEP_KEY, sleepSchema, type SleepState } from './sleep';
 import { KEY } from './storage';
+import { pauseQuick } from './quickTimer';
 import { learning } from './learningEngine';
 import { closeSegment } from './session';
 import { LocalZipWriter, readLocalZip, sha256 } from './localZip';
@@ -42,7 +43,7 @@ const fileMeta = z.object({
 const manifestSchema = z.object({
   format: z.literal('BKIT-COMPLETE-LOCAL'),
   schemaVersion: z.literal(1),
-  appVersion: z.enum(['3.1', '3.2']),
+  appVersion: z.enum(['3.1', '3.2', '3.3', '3.4']),
   paper: paperManifestSchema.optional(),
   createdAt: z.string().datetime(),
   dataSha256: z.string().regex(/^[a-f0-9]{64}$/),
@@ -105,14 +106,20 @@ export async function exportCompleteBackup(
   validateKeys(keys);
   if (keys[KEY]) {
     const state = stateSchema.parse(JSON.parse(keys[KEY]!));
-    if (state.active)
-      keys[KEY] = JSON.stringify({ ...state, active: closeSegment(state.active, Date.now()) });
+    const at = Date.now();
+    const paused = pauseQuick(state, at);
+    const restored = state.active
+      ? { ...paused, active: closeSegment(state.active, at) }
+      : paused;
+    // Export a paused snapshot: an imported quick stopwatch must never accrue
+    // hours on a different device while the archive sits unused.
+    if (restored !== state) keys[KEY] = JSON.stringify(restored);
   }
   const writer = new LocalZipWriter(),
     manifest: Manifest = {
       format: 'BKIT-COMPLETE-LOCAL',
       schemaVersion: 1,
-      appVersion: '3.2',
+      appVersion: '3.4',
       createdAt: new Date().toISOString(),
       dataSha256: '',
       photos: [],

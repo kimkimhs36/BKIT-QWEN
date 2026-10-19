@@ -18,6 +18,11 @@ type Props = {
   onStart: (taskId: string | null) => void;
   onFocus: () => void;
   onSchedule: () => void;
+  quickActive: boolean;
+  quickDuration: string;
+  quickLabel: string;
+  onQuickStart: () => void;
+  onQuickOpen: () => void;
   energy: 'low' | 'normal';
   onEnergyChange: (value: 'low' | 'normal') => void;
 };
@@ -35,6 +40,11 @@ export function NowFocus({
   onStart,
   onFocus,
   onSchedule,
+  quickActive,
+  quickDuration,
+  quickLabel,
+  onQuickStart,
+  onQuickOpen,
   energy,
   onEnergyChange,
 }: Props) {
@@ -54,7 +64,9 @@ export function NowFocus({
       : ready
         ? '시작 가능'
         : '다음 일정 준비';
-  const headline = active
+  const headline = quickActive
+    ? '일단 시작했어. 이제 공부만 하면 돼.'
+    : active
     ? active.action
     : current
       ? current.kind === 'sleep'
@@ -63,7 +75,9 @@ export function NowFocus({
       : !ready
         ? '다음 일정까지, 잠시 준비해요.'
         : (chosen?.title ?? '5분만, 가볍게.');
-  const explanation = active
+  const explanation = quickActive
+    ? quickDuration + ' · 먼저 시작한 공부 시간을 기록 중'
+    : active
     ? active.subject + ' · 타이머 기록 중'
     : current
       ? clock(current.end) + '까지 일정 보호 중'
@@ -81,6 +95,7 @@ export function NowFocus({
     <section className="now-action now-focus" aria-label="지금 할 일과 5분 집중">
       <div className="now-focus-top">
         <span className="now-focus-label">집중 시작</span>
+        {!active && !quickActive && <button type="button" className="now-focus-shortcut" onClick={onQuickStart} aria-label="스톱워치 바로 시작"><Clock3 size={15}/> 스톱워치</button>}
         {(active || !ready) && (
           <span className="now-focus-status">
             <span className="now-focus-dot" aria-hidden="true" /> {stateLabel}
@@ -89,7 +104,7 @@ export function NowFocus({
       </div>
       <h2>{headline}</h2>
       <p className="now-focus-description">{explanation}</p>
-      {!active && ready && (
+      {!active && !quickActive && ready && (
         <div className="instant-action">
           <strong>{firstLearningAction(chosen, energy === 'low')}</strong>
           {chosen && <p>{recommendationReason(chosen, now)}</p>}
@@ -116,7 +131,7 @@ export function NowFocus({
             <span style={{ width: progress + '%' }} />
           </div>
         </div>
-      ) : ready ? (
+      ) : quickActive ? null : ready ? (
         <div className="now-focus-ready">
           {tasks.length > 0 ? (
             <details className="now-task-options">
@@ -153,7 +168,11 @@ export function NowFocus({
         </div>
       )}
       <div className="command-actions now-focus-actions">
-        {active ? (
+        {quickActive ? (
+          <button className="primary now-focus-primary" onClick={onQuickOpen}>
+            <Clock3 size={17}/> {quickLabel} {quickDuration} · 보기
+          </button>
+        ) : active ? (
           <button className="primary now-focus-primary" onClick={onFocus}>
             집중 화면으로 <ArrowUpRight size={17} />
           </button>
@@ -173,7 +192,7 @@ export function NowFocus({
           </button>
         )}
       </div>
-      {!active && ready && !!chosen && (
+      {!active && !quickActive && ready && !!chosen && (
         <details className="now-energy-options">
           <summary>오늘 에너지 (선택)</summary>
           <label className="now-focus-picker">

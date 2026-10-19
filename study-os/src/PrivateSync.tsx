@@ -16,6 +16,7 @@ export function portableStudyState(state: State): State {
     revision: 0,
     tasks: state.tasks.map(({ attachmentIds: _privatePhotos, ...task }) => task),
     active: null,
+    quickTimer: null, // device-only live stopwatch must not sync or leak timer metadata
     plan: [],
     undo: null,
   };
