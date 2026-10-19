@@ -415,6 +415,7 @@ export default function App() {
     ...incoming,
     // Device-only active timer and private photos never leave the device.
     active: v.active,
+    quickTimer: v.quickTimer, // never overwrite a running local stopwatch from a remote snapshot
     learningEvents: v.learningEvents,
     problemRetests: v.problemRetests,
     exams: v.exams,
