@@ -58,13 +58,18 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             const blob = await exportCompleteBackup(localStorage, setMessage);
             saveBlob(blob, `bkit-complete-${new Date().toISOString().slice(0, 10)}.zip`);
             setMessage(
-              `전체 백업 파일 생성 완료 · ${(blob.size / 1024 / 1024).toFixed(1)}MB · 다운로드한 파일을 안전하게 보관하세요.`,
+              `ZIP 생성 및 다운로드 요청 완료 · ${(blob.size / 1024 / 1024).toFixed(1)}MB. 브라우저의 다운로드/파일 앱에서 실제 파일 저장을 확인한 뒤, 아래 '전체 ZIP 백업 검사'로 다시 열어 무결성을 확인하세요.`,
             );
           })
         }
       >
         사진 포함 전체 ZIP 내보내기
       </button>
+      <p className="muted">
+        브라우저 안의 로컬 자료는 다른 기기에 자동 백업·동기화되지 않습니다. 특히 PDF와 필기 원본은
+        백업 ZIP을 외부에 보관해야 기기나 브라우저 저장소가 지워져도 복원할 수 있습니다. 다운로드
+        요청만으로 파일 저장이 확인되는 것은 아니니 실제 파일을 다시 선택해 검사하세요.
+      </p>
       <label>
         전체 ZIP 백업 검사
         <input
