@@ -4,9 +4,9 @@ const ROOT = new URL('./', self.location.href).href;
 const PRECACHE = __PRECACHE__;
 self.addEventListener('install', (e) =>
   e.waitUntil(
-    caches.open(CACHE)
-      .then((c) => c.addAll(PRECACHE.map((path) => new URL(path, ROOT).href)))
-      .then(() => self.skipWaiting()),
+    caches.open(CACHE).then((c) => c.addAll(PRECACHE.map((path) => new URL(path, ROOT).href))),
+    // Wait until existing clients close: old screens may still lazy-load
+    // their version's PDF/ink chunks. Activating early would delete them.
   ),
 );
 self.addEventListener('activate', (e) =>

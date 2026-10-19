@@ -331,7 +331,7 @@ export async function restoreCompleteBackup(
       '현재 학습 JSON이 손상되어 병합할 수 없습니다. 원본을 내보낸 뒤 교체를 선택하세요.',
     );
   const local = readLocal ?? newState();
-  if (local.active) throw new Error('작성 중인 학습을 먼저 종료하세요.');
+  if (local.active || local.quickTimer) throw new Error('진행 중이거나 일시정지한 타이머를 먼저 종료하세요. 시간 기록은 그대로 유지됩니다.');
   const map = new Map<string, string>();
   // Resolve every conflicting photo to a new ID, preserving both original byte sequences.
   for (const meta of backup.manifest.photos) {

@@ -1,6 +1,6 @@
 import { flushLearning } from './learningFlush';
 import { QuickStudyTimer } from './QuickStudyTimer';
-import { startQuick, pauseQuick, resumeQuick, finishQuick, labelQuick, quickSeconds, quickClock, quickDaySeconds } from './quickTimer';
+import { startQuick, pauseQuick, resumeQuick, finishQuick, attachQuickResource, finishQuickResource, labelQuick, quickSeconds, quickClock, quickDaySeconds } from './quickTimer';
 import { learning, resourceProgress, resourceForTask, linkedTaskProgress, moveProblem, protectResourceTask, buildResourceReviews, isCompleted } from './learningEngine';
 import { sleepConstraints, studyFixedNow } from './sleepConstraints';
 import { addProblemRetest, buildProblemReviews, type AttemptMeta, type ErrorTag, type ProblemSourceMeta } from './problemReview';
@@ -23,6 +23,7 @@ import { PrivateSyncPanel, usePrivateStudySync } from './PrivateSync';
 import {useStudyCloud} from './useStudyCloud';
 import { ProblemWorkspace } from './ProblemWorkspace';
 import {captureDeadline,formatTaskDeadline,formatQuantity} from './capture';
+import { QuickSessionEditor } from './QuickSessionEditor';
 import { NowFocus } from './NowFocus';
 import { DeadlinePulse } from './DeadlinePulse';
 import { StudyRhythm } from './StudyRhythm';
@@ -332,15 +333,33 @@ export default function App() {
     };
   }, [tab, s.active?.id, s.active?.segmentStart, s.active?.target, modal, Boolean(s.active?.workspace), Boolean(s.active && elapsed(s.active, now) >= s.active.target * 60)]);
 
-  // Never reload a running timer. The owner decides when to refresh.
+  // Default worker lifecycle protects old lazy chunks until all old tabs close.
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
-    const wasControlled = Boolean(navigator.serviceWorker.controller);
-    const onControllerChange = () => {
-      if (wasControlled) setUpdateAvailable(true);
+    let disposed = false;
+    let registration: ServiceWorkerRegistration | undefined;
+    let installing: ServiceWorker | null = null;
+    const report = () => {
+      if (!disposed && registration?.waiting && navigator.serviceWorker.controller)
+        setUpdateAvailable(true);
     };
-    navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
-    return () => navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
+    const found = () => {
+      installing?.removeEventListener('statechange', report);
+      installing = registration?.installing ?? null;
+      installing?.addEventListener('statechange', report);
+      report();
+    };
+    void navigator.serviceWorker.ready.then(value => {
+      if (disposed) return;
+      registration = value;
+      registration.addEventListener('updatefound', found);
+      found();
+    });
+    return () => {
+      disposed = true;
+      registration?.removeEventListener('updatefound', found);
+      installing?.removeEventListener('statechange', report);
+    };
   }, []);
 
   const [foregroundId,setForegroundId] = useState(0);
@@ -541,17 +560,23 @@ export default function App() {
   const seconds = s.active ? elapsed(s.active, now) : 0;
   const quickElapsed = s.quickTimer ? quickSeconds(s.quickTimer, now) : 0;
   const quickRecent = [...s.sessions].reverse().find(entry => entry.quick);
+  const [historyEditingId, setHistoryEditingId] = useState<string | null>(null);
   const quickToday = quickDaySeconds(s, now);
   function beginQuick(mode: 'stopwatch' | 'countdown', target: number) {
+    if (!flushLearning(() => beginQuick(mode, target))) return;
     if (s.active || s.quickTimer) { setNotice('기존 타이머가 진행 중입니다. 먼저 마무리해 주세요.'); return; }
     const started = Date.now();
     if (commit(v => startQuick(v, mode, target, started, uid())))
       setNotice('기록 없이 바로 시작! 공부가 끝나면 시간을 먼저 저장할게요.');
   }
   function pauseQuickNow() { commit(v => pauseQuick(v, Date.now())); }
-  function resumeQuickNow() { commit(v => resumeQuick(v, Date.now())); }
+  function resumeQuickNow() {
+    if (s.quickTimer && s.quickTimer.segments.length >= 10000) { setNotice('이 세션의 구간 한도에 도달했어요. 시간을 저장한 뒤 새 공부를 시작하세요.'); return; }
+    commit(v => resumeQuick(v, Date.now()));
+  }
   function finishQuickNow() {
     if (!flushLearning(finishQuickNow)) return;
+    if (memory.current.sessions.length >= 5000) { setNotice('기록 한도 5,000개에 도달했어요. 타이머는 유지됩니다. 설정에서 ZIP 백업을 보관하세요.'); return; }
     const id = memory.current.quickTimer?.id;
     if (id && commit(v => finishQuick(v, Date.now()))) {
       setQuickEditingId(id);
@@ -566,7 +591,7 @@ export default function App() {
     now,
     todaySeconds: quickToday,
     last: quickRecent,
-    tasks: s.tasks.filter(task => task.status !== 'done'),
+    tasks: s.tasks,
     editingId: quickEditingId,
     focusBusy: !!s.active,
     onStart: beginQuick,
@@ -579,6 +604,12 @@ export default function App() {
   const late = delayMinutes(s, now);
   function start(minutes: number, task = selected || actionTask?.id || null, resourceId?: string, problemId?: string) {
     if(!flushLearning(()=>start(minutes,task,resourceId,problemId)))return;
+    if (s.quickTimer && resourceId) {
+      if (commit(v => attachQuickResource(v, resourceId, problemId))) {
+        setTab('study'); setNotice('먼저 시작한 시간 그대로, 자료를 이어서 공부해요.');
+      }
+      return;
+    }
     if (s.quickTimer) {
       setNotice('바로 시작 타이머를 먼저 마무리하세요. 기록한 시간은 남아 있어요.');
       setTab('today');
@@ -639,6 +670,13 @@ export default function App() {
   function finishResource() {
     if(!flushLearning(finishResource))return;
     const a=memory.current.active;if(!a)return;
+    if (a.quick) {
+      if (commit(v => finishQuickResource(v, Date.now()))) {
+        setQuickEditingId(a.id); setTab('today');
+        setNotice('공부 시간과 문제 기록을 저장했어요. 메모는 나중에 적어도 돼요.');
+      } else if (memory.current.sessions.length >= 5000) setNotice('기록 한도에 도달했어요. 타이머와 답안은 유지됩니다. ZIP 백업을 보관하세요.');
+      return;
+    }
     if(commit(v=>({...v,active:closeSegment(a,Date.now())})))open('finish');
   }
   function handleReview(sessionId: string, outcome: ReviewOutcome) {
@@ -1154,12 +1192,11 @@ export default function App() {
           )}
           {updateAvailable && (
             <div className="app-update-notice" role="status">
-              <span>새 버전 준비 완료. 학습 기록은 유지돼.</span>
+              <span>새 버전이 준비됐어요. 공부를 마치고 모든 BKIT 탭을 닫은 뒤 다시 열면 적용돼요.</span>
               <button className="primary" onClick={() => {
-                const reopen = () => window.location.reload();
-                if (flushLearning(reopen)) reopen();
+                if (flushLearning()) setNotice('작성 중인 내용을 확인했어요. 모든 BKIT 탭을 닫고 다시 열어 주세요.');
               }}>
-                새 버전 열기 <ArrowUpRight size={16} />
+                업데이트 전 저장 확인 <ArrowUpRight size={16} />
               </button>
             </div>
           )}
@@ -1896,6 +1933,11 @@ export default function App() {
                           타이머 · {x.problems}문제 · {x.rating}
                         </p>
                         {x.concepts && <p>개념: {x.concepts}</p>}
+                        {x.quick && <button type="button" className="secondary" aria-expanded={historyEditingId === x.id}
+                          onClick={() => setHistoryEditingId(historyEditingId === x.id ? null : x.id)}>공부 기록 수정</button>}
+                        {x.quick && historyEditingId === x.id && <QuickSessionEditor key={x.id} session={x} tasks={s.tasks}
+                          onSave={saveQuickLabel} onClose={() => setHistoryEditingId(null)} />}
+
                         {x.reason && <p>종료 사유: {x.reason}</p>}
                         {x.pauses.map((p, i) => (
                           <p key={i}>
@@ -1915,7 +1957,7 @@ export default function App() {
           )}
           {tab === 'settings' && (
             <>
-              <Suspense fallback={<p role="status">전체 백업을 여는 중…</p>}><CompleteBackupPanel studying={!!s.active}/></Suspense>
+              <Suspense fallback={<p role="status">전체 백업을 여는 중…</p>}><CompleteBackupPanel studying={!!s.active || !!s.quickTimer}/></Suspense>
               <div className="settings-layout">
                 <section className="panel">
                   <div className="section-head">

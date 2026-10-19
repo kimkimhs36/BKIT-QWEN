@@ -1,10 +1,14 @@
 import type { State, Session } from './model';
 import { iso, dayKey } from './time';
 import { studySeconds } from './session';
+import { learning, moveProblem, resourceProgress } from './learningEngine';
 
 /** Only an explicit tap starts timing. Wall-clock timestamps survive Safari suspension. */
 export function quickSeconds(timer: NonNullable<State['quickTimer']>, now: number): number {
-  return timer.elapsed + (timer.segmentStart ? Math.max(0, (now - Date.parse(timer.segmentStart)) / 1000) : 0);
+  return (
+    timer.elapsed +
+    (timer.segmentStart ? Math.max(0, (now - Date.parse(timer.segmentStart)) / 1000) : 0)
+  );
 }
 export function quickClock(seconds: number): string {
   const n = Math.max(0, Math.floor(seconds));
@@ -20,12 +24,26 @@ export function startQuick(
   now: number,
   id: string,
 ): State {
-  if (state.active || state.quickTimer || !Number.isInteger(targetMinutes) ||
-      targetMinutes < 1 || targetMinutes > 480) return state;
+  if (
+    state.active ||
+    state.quickTimer ||
+    !Number.isInteger(targetMinutes) ||
+    targetMinutes < 1 ||
+    targetMinutes > 480
+  )
+    return state;
   const started = iso(now);
   return {
     ...state,
-    quickTimer: { id, mode, targetMinutes, started, segmentStart: started, elapsed: 0, segments: [] },
+    quickTimer: {
+      id,
+      mode,
+      targetMinutes,
+      started,
+      segmentStart: started,
+      elapsed: 0,
+      segments: [],
+    },
   };
 }
 export function pauseQuick(state: State, now: number): State {
@@ -36,14 +54,16 @@ export function pauseQuick(state: State, now: number): State {
   return {
     ...state,
     quickTimer: {
-      ...timer, segmentStart: null, elapsed: timer.elapsed + duration,
+      ...timer,
+      segmentStart: null,
+      elapsed: timer.elapsed + duration,
       segments: [...timer.segments, ...segment],
     },
   };
 }
 export function resumeQuick(state: State, now: number): State {
   const timer = state.quickTimer;
-  if (!timer || timer.segmentStart) return state;
+  if (!timer || timer.segmentStart || timer.segments.length >= 10000) return state;
   return { ...state, quickTimer: { ...timer, segmentStart: iso(now) } };
 }
 /** Save the session *before* asking what was studied. Skipping the label loses nothing. */
@@ -52,7 +72,8 @@ export function finishQuick(state: State, now: number): State {
   if (!timer || state.sessions.length >= 5000) return state;
   const stopped = pauseQuick(state, now).quickTimer!;
   const seconds = stopped.segments.reduce(
-    (sum, segment) => sum + (Date.parse(segment.end) - Date.parse(segment.start)) / 1000, 0,
+    (sum, segment) => sum + (Date.parse(segment.end) - Date.parse(segment.start)) / 1000,
+    0,
   );
   const result: Session = {
     id: timer.id,
@@ -63,7 +84,10 @@ export function finishQuick(state: State, now: number): State {
     started: timer.started,
     ended: iso(now),
     seconds,
-    target: timer.mode === 'stopwatch' ? Math.max(1, Math.min(480, Math.ceil(seconds / 60))) : timer.targetMinutes,
+    target:
+      timer.mode === 'stopwatch'
+        ? Math.max(1, Math.min(480, Math.ceil(seconds / 60)))
+        : timer.targetMinutes,
     problems: 0,
     concepts: '',
     rating: '보통',
@@ -83,21 +107,103 @@ export function labelQuick(
   note: string,
   linkedTaskId?: string,
 ): State {
-  const current = state.sessions.find(s => s.id === id && s.quick);
+  const current = state.sessions.find((s) => s.id === id && s.quick);
   if (!current) return state;
-  const task = linkedTaskId ? state.tasks.find(t => t.id === linkedTaskId) : undefined;
+  const task = linkedTaskId ? state.tasks.find((t) => t.id === linkedTaskId) : undefined;
   const nextSubject = subject.trim().slice(0, 200) || task?.subject || '미분류';
   const nextAction = action.trim().slice(0, 200) || task?.title || '바로 시작한 공부';
   const nextNote = note.trim().slice(0, 200);
   return {
     ...state,
-    sessions: state.sessions.map(s => s.id === id
-      ? { ...s, taskId: task?.id ?? null, subject: nextSubject, action: nextAction, concepts: nextNote }
-      : s),
+    sessions: state.sessions.map((s) =>
+      s.id === id
+        ? {
+            ...s,
+            taskId: task?.id ?? (linkedTaskId === current.taskId ? current.taskId : null),
+            subject: nextSubject,
+            action: nextAction,
+            concepts: nextNote,
+          }
+        : s,
+    ),
   };
 }
 export function quickDaySeconds(state: State, now: number): number {
   // Existing study-time accounting splits sessions crossing midnight into the
   // correct local study day; quick sessions follow the same rule.
-  return studySeconds(state.sessions.filter(session => session.quick), dayKey(now));
+  return studySeconds(
+    state.sessions.filter((session) => session.quick),
+    dayKey(now),
+  );
+}
+
+/** Carry the same wall-clock session into real material, without a second timer. */
+export function attachQuickResource(state: State, resourceId: string, problemId?: string): State {
+  const timer = state.quickTimer;
+  const data = learning(state);
+  const resource = data.resources.find((r) => r.id === resourceId && !r.archived);
+  if (!timer || state.active || !resource) return state;
+  const current = problemId ?? resourceProgress(data, resource.id).currentProblemId;
+  if (!current || !data.problems.some((p) => p.id === current && p.resourceId === resource.id))
+    return state;
+  const moved = moveProblem(state, resource.id, current);
+  return {
+    ...moved,
+    quickTimer: null,
+    active: {
+      id: timer.id,
+      quick: true,
+      taskId: resource.linkedTaskId,
+      resourceId,
+      subject: resource.subject,
+      action: resource.title,
+      target: timer.targetMinutes,
+      started: timer.started,
+      segmentStart: timer.segmentStart,
+      elapsed: timer.elapsed,
+      segments: timer.segments,
+      pauses: [],
+    },
+  };
+}
+/** Quick-start material sessions still finish before any optional form. */
+export function finishQuickResource(state: State, now: number): State {
+  const active = state.active;
+  if (!active?.quick || state.quickTimer) return state;
+  const finished = finishQuick(
+    {
+      ...state,
+      active: null,
+      quickTimer: {
+        id: active.id,
+        mode: 'countdown',
+        targetMinutes: active.target,
+        started: active.started,
+        segmentStart: active.segmentStart,
+        elapsed: active.elapsed,
+        segments: active.segments ?? [],
+      },
+    },
+    now,
+  );
+  if (finished.quickTimer) return state; // capacity failure must preserve the live timer
+  return {
+    ...finished,
+    sessions: finished.sessions.map((session) =>
+      session.id === active.id
+        ? {
+            ...session,
+            taskId: active.taskId,
+            subject: active.subject,
+            action: active.action,
+            resourceId: active.resourceId,
+            problems: new Set(
+              learning(state)
+                .attempts.filter((a) => a.sessionId === active.id && a.selfCheck !== 'unreviewed')
+                .map((a) => a.problemId),
+            ).size,
+          }
+        : session,
+    ),
+  };
 }

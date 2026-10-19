@@ -121,10 +121,11 @@ export const quickTimerSchema = z.object({
   started: instant,
   segmentStart: instant.nullable(),
   elapsed: z.number().min(0),
-  segments: z.array(segmentSchema).max(102),
+  segments: z.array(segmentSchema).max(10000),
 });
 export const activeSchema = z.object({
   id,
+  quick: z.boolean().optional(),
   taskId: id.nullable(),
   subject: text,
   action: text.min(1),
@@ -135,7 +136,7 @@ export const activeSchema = z.object({
   segmentStart: instant.nullable(),
   elapsed: z.number().min(0),
   pauses: z.array(z.object({ at: instant, reason: text })).max(100),
-  segments: z.array(segmentSchema).max(102).optional(),
+  segments: z.array(segmentSchema).max(10000).optional(),
 });
 export const sessionSchema = z.object({
   id,
@@ -156,7 +157,7 @@ export const sessionSchema = z.object({
   pauses: z.array(z.object({ at: instant, reason: text })),
   mistake: note,
   reviewDate: date.nullable(),
-  segments: z.array(segmentSchema).max(102).optional(),
+  segments: z.array(segmentSchema).max(10000).optional(),
 });
 export const settingsSchema = z
   .object({

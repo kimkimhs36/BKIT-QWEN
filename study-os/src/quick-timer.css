@@ -37,3 +37,9 @@
 .now-focus-shortcut{position:absolute;top:12px;right:14px;max-width:46%;display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(86,131,104,.25);border-radius:999px;padding:7px 10px;background:rgba(108,151,117,.10);color:inherit;font:inherit;font-size:12px;line-height:1.2;cursor:pointer;white-space:nowrap}
 .now-focus-shortcut:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 @media(max-width:360px){.now-focus-shortcut{font-size:11px;right:8px;padding:6px 8px}}
+
+/* Touch and keyboard access for post-study editing, including history rows. */
+.quick-timer-review,.quick-timer-reopen,.now-focus-shortcut{min-height:44px}
+.quick-timer-modes button,.quick-timer-lengths button,.quick-timer-actions button{min-height:44px}
+.quick-timer button:focus-visible,.quick-timer-form :is(input,select,textarea,button):focus-visible{outline:2px solid currentColor;outline-offset:3px}
+.session-row .quick-timer-form{margin-top:12px;max-width:640px}
