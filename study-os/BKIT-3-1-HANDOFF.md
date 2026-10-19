@@ -13,16 +13,25 @@
 
 | Area | Scope | Final status |
 | --- | --- | --- |
-| Multi-problem workspace | Single, 5, 20 and 35+ question sets; batch registration; ordered question IDs; previous/next/select; drafts; answer-before-self-check; error tagging; retry; per-problem history; saved cursor; safe session finish | Implemented, final regression in progress |
-| Resource library | Five real source kinds; subject and task linking; manual questions; multiple local photo pages; page/question reorder; source page/number; concepts; hidden reference answers/translations; editable examples; search; edit/delete/archive | Implemented, final regression in progress |
-| Subject learning | Shared mathematics, physics, chemistry, English, economics and general recall templates; subject-specific fields and optional labeled method examples; manual checking | Implemented, final regression in progress |
-| Review and concepts | Overdue/today/upcoming, wrong/hint/low-confidence/independent filters; attempt-first retests; editable eight error classes; day-based intervals; observed records separated from inferred concept evidence | Implemented, final regression in progress |
-| Exams | MORE and TASKS exam access; confirmed/uncertain scope and provenance retained; explicit resource selection; real remaining problems/answer counts; bounded review adjustment before linked exams | Implemented, final regression in progress |
-| Complete local backup | Standard uncompressed ZIP, manifest, JSON, both original photo vaults, SHA-256 and ZIP CRC; preview/conflicts; keep/merge/replace; photo collision remapping; original JSON journal; rollback on write failure | Implemented, final regression in progress |
-| Existing integration | NOW resume and direct review, Instant Start/task/JUGGERNAUT enter linked material, TASKS actual progress and separate submission, MORE tools, Recovery first action from remaining problems, Sleep Guard draft protection | Implemented, final regression in progress |
-| Responsive/accessibility/PWA | Light study controls, mobile navigation, keyboard-friendly answer fields, deferred screens/OCR, existing versioned offline shell, reduced-motion styling, draft flush guards | Implemented, final regression in progress |
+| Multi-problem workspace | Single, 5, 20 and 35+ question sets; batch registration; ordered question IDs; previous/next/select; drafts; answer-before-self-check; error tagging; retry; per-problem history; saved cursor; safe session finish | 구현 완료·자동 검증 완료 |
+| Resource library | Five real source kinds; subject and task linking; manual questions; multiple local photo pages; page/question reorder; source page/number; concepts; hidden reference answers/translations; editable examples; search; edit/delete/archive | 구현 완료·자동 검증 완료 |
+| Subject learning | Shared mathematics, physics, chemistry, English, economics and general recall templates; subject-specific fields and optional labeled method examples; manual checking | 구현 완료·자동 검증 완료 |
+| Review and concepts | Overdue/today/upcoming, wrong/hint/low-confidence/independent filters; attempt-first retests; editable eight error classes; day-based intervals; observed records separated from inferred concept evidence | 구현 완료·자동 검증 완료 |
+| Exams | MORE and TASKS exam access; confirmed/uncertain scope and provenance retained; explicit resource selection; real remaining problems/answer counts; bounded review adjustment before linked exams | 구현 완료·자동 검증 완료 |
+| Complete local backup | Standard uncompressed ZIP, manifest, JSON, both original photo vaults, SHA-256 and ZIP CRC; preview/conflicts; keep/merge/replace; photo collision remapping; original JSON journal; rollback on write failure | 구현 완료·자동 검증 완료 |
+| Existing integration | NOW resume and direct review, Instant Start/task/JUGGERNAUT enter linked material, TASKS actual progress and separate submission, MORE tools, Recovery first action from remaining problems, Sleep Guard draft protection | 구현 완료·자동 검증 완료 |
+| Responsive/accessibility/PWA | Light study controls, mobile navigation, keyboard-friendly answer fields, deferred screens/OCR, existing versioned offline shell, reduced-motion styling, draft flush guards | 구현 완료·자동 검증 완료 |
 
 No external AI provider or automatic grading was added. Subject examples are clearly marked method examples, never represented as extracted worksheet content or actual exam scope. A blank numbered problem refers to the user's original material and is not an invented problem.
+
+## 빠른 사용·검수 순서
+
+1. LEARN → 자료 라이브러리 → 자료 추가. 과목·과제·원본 사진과 실제 문제 수(예: 20)를 지정하고 자료를 저장합니다. 텍스트를 일괄 입력하면 한 줄이 한 문제입니다.
+2. `1번부터 이어 풀기` → 답 작성 → `내 답 저장 · 직접 확인하기` → 정답/오답 자가 확인 → 다음 문제. 8번까지 마치고 종료하면 미완료 9번을 선택해 둡니다.
+3. NOW의 `마지막 문제부터 5분 시작` 또는 LEARN의 해당 자료에서 다시 시작합니다. 오답을 당일 바로 고쳐도 다음 날 재시험이 남습니다.
+4. 자료 수정의 문제 관리에서 원문·출처 번호·개념·참고 번역·연결 페이지를 편집합니다. 영어 참고 번역은 직접 시도한 뒤 확인합니다.
+5. MORE → 시험 관리에서 확인한 범위·출처와 실제 자료를 선택합니다. TASKS에서는 풀이 확인 수와 제출 상태를 따로 확인합니다.
+6. MORE → 설정 → `사진 포함 전체 ZIP 내보내기`. 다른 브라우저에서 ZIP을 검사하고 병합/교체를 선택합니다. 진행 중인 타이머까지 가져올 때는 교체를 사용하고, 복원 뒤 앱을 다시 엽니다.
 
 ## Data model and progress rules
 
@@ -53,7 +62,7 @@ Spaced intervals are product defaults, not a universal optimum. A same-day succe
 - ZIP STORE is intentional: already compressed photos avoid inflation and a new runtime dependency. Standard CRC and SHA checks precede success. Each photo is read individually; the final Blob still retains the archive, so this is bounded-memory browser backup, not streaming directly to disk.
 - Supported cap: photos total 250 MiB, archive 300 MiB, one original 20 MiB, JSON 20 MiB. Larger collections are explicitly rejected without changing records. Mobile memory behavior at these upper caps has not been measured; use a PC for large archives.
 - Any missing referenced study/sleep/landscape/draft photo, corrupted entry, inconsistent manifest, duplicate/unsafe ZIP path, unsupported compressed ZIP, or bad JSON causes failure. No partial archive is labeled complete.
-- **Keep** cancels import. **Merge** keeps current settings/IDs/record versions and adds new IDs; same-ID versions are not deeply reconciled. Existing sleep dates win. Schema conflicts such as duplicate problem ordinals refuse the merge; use an inspected replacement or a separate browser instead.
+- **Keep** cancels import. **Merge** keeps current settings/IDs/record versions and adds new IDs; same-ID versions are not deeply reconciled. Existing sleep dates win. The current active-timer slot is retained even when empty: use **Replace** to restore an unfinished timer from another device. Saved answers, drafts and resource cursors are imported by both modes. Schema conflicts such as duplicate problem ordinals refuse the merge; use an inspected replacement or a separate browser instead.
 - **Replace** uses the keys present in the archive. Keys absent/null in it remain on the device. It never clears storage first and never deletes old photos.
 - Same photo ID with different bytes receives a new imported ID, with incoming study/sleep/draft/landscape references remapped. Old bytes remain untouched. Failed imports can leave extra unlinked imported photos; these are deliberately retained rather than garbage-collected.
 - Before adding imported photos or changing live JSON, exact previous values are saved to `bkit.complete-backup.recovery.<timestamp>.<uuid>`. Quota failure at this step stops the import. A later live-key write failure rolls back changed keys; the original journal also remains available if rollback itself fails.
@@ -76,15 +85,29 @@ Existing `readState`, `writeState`, corrupted-JSON blocking, raw compare-and-swa
 ## Verification record
 
 - Implementation policy: no baseline 408-case E2E run at intake; implemented the major features first. Focused schema/backup tests ran immediately because they protect data. Integration then ran TypeScript, production build, full units and targeted browser flows.
-- Current unit result: **134/134 passing, 22 files**. TypeScript and production build pass.
+- Final unit result: **134/134 passing, 22 files**. TypeScript and production build pass.
 - Initial focused Chromium desktop/iPhone flows passed; WebKit iPad passed 20-problem/resume, draft/sleep, five-template, exam and layout flows. A transient Playwright download/trace streaming error on a concurrent run was retried in isolation; WebKit photo ZIP export/fresh-context restore passed. Do not rebuild served `dist` or overlap test runs sharing an output directory.
 - The new workspace's Chromium mobile axe scan reported **zero violations**. Automated layouts are CSS/browser emulations, not actual devices.
 - The first local full-regression attempt stopped after identifying real contrast defects in the new library search and backup picker (70 passed, one failure, three interrupted; 382 not run). These partial counts are not a full pass.
 - Corrected all new native field backgrounds, constrained the backup picker width (which otherwise caused mobile viewport expansion and blocked dock hit testing), and removed unmeasured content-visibility from sortable question rows after a WebKit reorder failure. Isolated iPhone/WebKit iPad seven-screen WCAG and library CRUD/reorder checks then passed **4/4**. No scenario or assertion was removed or skipped.
 - Source `d641571` validation was superseded after the delayed-retry rule review. Manual run 39190488561 was intentionally cancelled, not reported as passing. The local older-source cross-check stopped with 70 passed / 2 interrupted / 80 not run.
-- Final full six-profile GitHub regression at `077ebce`: **RUNNING**, [run 39190879182](https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/39190879182). Each matrix job runs the entire 76-case suite; total 456 cases.
+- Full six-profile GitHub regression at `077ebce`, [run 39190879182](https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/39190879182): five complete profiles passed 76/76 each (380). WebKit iPhone passed 75 and failed one new test because `page.evaluate` raced the explicit app reload after restoration. This run is **not** reported as a 456-case pass.
+- The test now awaits DOMContentLoaded and the restored NOW resume button before inspecting JSON/photo bytes. All original assertions remain, with an additional UI readiness assertion. The corrected WebKit iPhone photo transfer test passed **3/3 consecutive local executions**.
+- Commit `00bd9da39ae5a803252f64ff91818789bc396c54` changes only test synchronization and the 3.1 CI workflow. Application source, assets, dependencies and configuration are byte-for-byte unchanged from verified application source `077ebce` (`git diff 077ebce -- src/public/package/index` is empty).
+- Final affected-profile full regression: **76/76 PASS**, WebKit iPhone, [successful run 39191741223](https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/39191741223). The five other profiles retain their complete successful results on identical app code. No tests were deleted or skipped.
+- Final result is six complete passing profile suites, **456 distinct profile/scenario combinations** (380 + affected-profile 76). This is the verified aggregate after the test-only fix, not a claim that the earlier failed run was wholly green.
+
+| Automated profile | Final complete result | Evidence |
+| --- | --- | --- |
+| Chromium iPhone | 76/76 PASS | 39190879182 |
+| Chromium iPad | 76/76 PASS | 39190879182 |
+| Chromium desktop | 76/76 PASS | 39190879182 |
+| Chromium Galaxy CSS viewport | 76/76 PASS | 39190879182 |
+| WebKit iPad | 76/76 PASS | 39190879182 |
+| WebKit iPhone | 76/76 PASS after explicit reload synchronization | 39191741223 |
+
 - Final local learning scenarios: **16/16 PASS**, eight complete new scenarios each in desktop and WebKit iPhone, output `/workspace/scratch/bkit31-final-learning`. The separate updated 20-problem/quick-retry/next-day-retest scenario passed before the final push.
-- GitHub Actions: the source commit's static-and-data job passed TypeScript, 134 unit tests and production build. Push workflow also runs only these lightweight checks; the six-profile matrix runs on manual dispatch/PR, not per development push.
+- GitHub Actions: both the application commit and the final test/workflow commit passed TypeScript, all 134 unit tests and production build in static-and-data. The targeted final workflow completed successfully. Push workflow also runs only these lightweight checks; the six-profile matrix runs on PR or manual dispatch with default `profile=all`, not per development push. Manual debugging can select one profile (such as `profile=webkit-iphone`) while PRs always retain all six. Existing production validation/publication workflows were not changed.
 
 Commands from `study-os`:
 
@@ -98,6 +121,14 @@ npm run test:e2e -- --project=desktop --project=webkit-iphone --workers=4 --outp
 ```
 
 The executor has no sudo/system install capability. Playwright Chromium/WebKit were downloaded. Missing Debian Trixie GTK/Graphene/Harfbuzz/Manette/Hyphen/GLES/HID libraries were extracted under `/workspace/scratch/webkit-libs` and copied to the downloaded WebKit private `sys/lib` directories. Local commands set `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1` because ldconfig cannot see those private libraries; an actual WebKit launch and app execution were verified. This does **not** skip tests. CI uses ordinary `playwright install --with-deps chromium webkit` and does not bypass host validation.
+
+## Final Git and validation state
+
+- All application implementation is on `feat/bkit-3-1-learning-engine` and pushed without rewriting earlier commits. The last application change is `077ebcec7c77b43808dff3e583534e57d0107f3c`; later changes affect tests/workflow/docs only.
+- Test/workflow verification commit: `00bd9da39ae5a803252f64ff91818789bc396c54`. The latest documentation commit is newer; use `git rev-parse HEAD` for its exact SHA.
+- `main` remains `d1bb50934b3ec23384e0b5e9648f0f8683d957c2`; the original 3.0 development/production checkpoints remain ancestors and their checkpoint refs are unchanged.
+- No known blocking automated-test failure remains. The intermediate failed/cancelled runs are preserved above for auditability. No test deletion, skip, force push, production workflow dispatch, external AI call or backend change was used.
+- Final handoff is committed and pushed. No uncommitted source changes remain; ignored generated build/test files are local artifacts, not release source.
 
 ## Remaining scope and next priorities
 
