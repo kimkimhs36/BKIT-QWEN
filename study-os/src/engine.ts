@@ -1,4 +1,4 @@
-import { learning, resourceProgress } from './learningEngine';
+import { learning, resourceProgress, resourceForTask } from './learningEngine';
 import { z } from 'zod';
 import { type State, type Block, blockSchema } from './model';
 import { MIN, at, dayKey, addDays, weekday, iso } from './time';
@@ -228,9 +228,7 @@ export function recover(
     .flatMap((d) => d.blocks)
     .filter((b) => dayKey(b.start) === dayKey(now) && +new Date(b.start) >= now)
     .sort((a, b) => a.start.localeCompare(b.start))[0];
-  const resource = first
-    ? learning(s).resources.find((r) => !r.archived && r.linkedTaskId === first.taskId)
-    : undefined;
+  const resource = first ? resourceForTask(s, first.taskId) : undefined;
   const progress = resource ? resourceProgress(learning(s), resource.id) : undefined;
   const problem = progress
     ? learning(s).problems.find((p) => p.id === progress.currentProblemId)

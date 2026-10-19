@@ -306,3 +306,17 @@ export function conceptEvidence(s: State) {
     };
   });
 }
+
+/** Resume unfinished material first when a task has several linked worksheets. */
+export function resourceForTask(s: State, taskId: string | undefined) {
+  if (!taskId) return undefined;
+  const data = learning(s);
+  return data.resources
+    .filter((r) => !r.archived && r.linkedTaskId === taskId)
+    .sort(
+      (a, b) =>
+        Number(resourceProgress(data, b.id).remainingCount > 0) -
+          Number(resourceProgress(data, a.id).remainingCount > 0) ||
+        (b.lastOpenedAt ?? '').localeCompare(a.lastOpenedAt ?? ''),
+    )[0];
+}

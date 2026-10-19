@@ -4,6 +4,7 @@ import {
   addResource,
   learning,
   resourceProgress,
+  resourceForTask,
   moveProblem,
   recordResourceAttempt,
   checkResourceAttempt,
@@ -57,6 +58,33 @@ function fixture() {
   return s;
 }
 describe('additive resource learning', () => {
+  it('opens unfinished material first for a task with several worksheets', () => {
+    let s = addResource(
+      newState(),
+      {
+        title: '첫 자료',
+        subject: '수학',
+        sourceType: 'school-worksheet',
+        linkedTaskId: 'task',
+        linkedMediaIds: [],
+      },
+      [],
+    );
+    s = addResource(
+      s,
+      {
+        title: '남은 자료',
+        subject: '수학',
+        sourceType: 'school-worksheet',
+        linkedTaskId: 'task',
+        linkedMediaIds: [],
+      },
+      ['실제 문제'],
+    );
+    expect(resourceForTask(s, 'task')?.title).toBe('남은 자료');
+    expect(resourceForTask(s, undefined)).toBeUndefined();
+  });
+
   it('supports 1, 5 and 35 real question slots without invented bodies', () => {
     for (const n of [1, 5, 35]) {
       const s = addResource(

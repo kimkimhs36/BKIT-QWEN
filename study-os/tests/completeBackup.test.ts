@@ -79,6 +79,38 @@ async function fixture() {
   });
 }
 describe('complete local archive preservation', () => {
+  it('exports a running session as a resumable paused snapshot without mutating live study', async () => {
+    const source = await fixture();
+    const state = JSON.parse(source.getItem(KEY)!);
+    const started = new Date(Date.now() - 5000).toISOString();
+    state.active = {
+      id: 'active-session',
+      taskId: null,
+      resourceId: state.learning.resources[0].id,
+      subject: '수학',
+      action: '풀이',
+      target: 5,
+      started,
+      segmentStart: started,
+      elapsed: 0,
+      segments: [],
+      pauses: [],
+    };
+    const original = JSON.stringify(state);
+    source.setItem(KEY, original);
+    const zip = await exportCompleteBackup(source);
+    expect(source.getItem(KEY)).toBe(original);
+    const target = storage(),
+      preview = await inspectCompleteBackup(zip, target);
+    await restoreCompleteBackup(preview, 'replace', target);
+    const restored = JSON.parse(target.getItem(KEY)!);
+    expect(restored.active.id).toBe('active-session');
+    expect(restored.active.segmentStart).toBeNull();
+    expect(restored.active.elapsed).toBeGreaterThanOrEqual(5);
+    expect(restored.active.segments).toHaveLength(1);
+    expect(restored.sessions).toHaveLength(0);
+  });
+
   it('roundtrips both photo vaults and resources into a separate storage environment', async () => {
     const source = await fixture(),
       zip = await exportCompleteBackup(source);

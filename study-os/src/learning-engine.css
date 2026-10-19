@@ -293,3 +293,33 @@
   content-visibility: auto;
   contain-intrinsic-size: auto 70px;
 }
+/* Native fields on library/backup screens also inherit the old night form palette. */
+.resource-library input:not([type='checkbox']),
+.resource-library textarea,
+.multi-workspace textarea,
+.complete-backup input:not([type='checkbox']) {
+  background: #fffef8;
+  color: #263b2e;
+  border: 1px solid #a6b29e;
+  border-radius: 10px;
+  padding: 0.7rem;
+  min-height: 44px;
+  line-height: 1.5;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+.resource-library input::placeholder,
+.resource-library textarea::placeholder,
+.multi-workspace textarea::placeholder {
+  color: #5c6a58;
+  opacity: 1;
+}
+.complete-backup input[type='file']::file-selector-button,
+.resource-library input[type='file']::file-selector-button {
+  background: #e9efdf;
+  color: #263b2e;
+  border: 1px solid #a6b29e;
+  border-radius: 6px;
+  min-height: 36px;
+  margin-right: 0.6rem;
+}

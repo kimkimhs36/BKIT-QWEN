@@ -1,4 +1,4 @@
-import { learning, resourceProgress, linkedTaskProgress, moveProblem, protectResourceTask, buildResourceReviews, isCompleted } from './learningEngine';
+import { learning, resourceProgress, resourceForTask, linkedTaskProgress, moveProblem, protectResourceTask, buildResourceReviews, isCompleted } from './learningEngine';
 import { sleepConstraints, studyFixedNow } from './sleepConstraints';
 import { addProblemRetest, buildProblemReviews, type AttemptMeta, type ErrorTag, type ProblemSourceMeta } from './problemReview';
 import { appendLearningEvent, firstLearningAction, rankInstantTasks, canStartSprint } from './now';
@@ -556,7 +556,7 @@ export default function App() {
       return;
     }
     const t = s.tasks.find((t) => t.id === task && t.status !== 'done');
-    const resource=learning(s).resources.find(r=>r.id===resourceId) ?? (!resourceId ? learning(s).resources.find(r=>!r.archived&&r.linkedTaskId===t?.id) : undefined);
+    const resource=learning(s).resources.find(r=>r.id===resourceId) ?? (!resourceId ? resourceForTask(s,t?.id) : undefined);
     if(t?.quantity?.remaining===0 && !resource){setFilter('pending');setTab('tasks');setNotice('기록한 남은 분량은 0입니다. 학습 완료와 제출 여부를 직접 확인해 주세요.');return;}
     const sessionId = uid();
     if (
