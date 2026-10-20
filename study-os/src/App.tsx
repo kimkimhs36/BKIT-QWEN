@@ -1199,7 +1199,7 @@ export default function App() {
                 {
                   (
                     {
-                      today: '오늘도, 한 걸음.',
+                      today: '오늘의 공부',
                       school: '시간표',
                       tasks: '할 일',
                       study: '집중',
@@ -1428,22 +1428,20 @@ export default function App() {
                 {visibleTasks.length ? (
                   visibleTasks.map(taskRow)
                 ) : (
-                  <Empty title="여기에 할 일을 모아두세요">
-                    마감일을 모르면 비워두세요. 확인 필요로 저장됩니다.
-                  </Empty>
+                  <div className="compact-no-tasks"><strong>아직 할 일이 없어요.</strong><span>과제를 등록하면 여기에 표시됩니다.</span></div>
                 )}
               </section>
               {s.tasks.flatMap(task=>linkedTaskProgress(s,task.id).map(p=><section className="resource-resume" key={p.resource.id}><div><strong>{task.title} · {p.resource.title}</strong><p>실제 풀이 확인 {p.completedCount}/{p.total} · 미완료 {p.remainingCount} · 제출 {task.submitted?'완료':'별도 확인'}</p></div><button onClick={()=>openResource(p.resource.id)}>연결 자료 이어 풀기</button></section>))}
-              <Suspense fallback={<p role="status">시험 정보를 여는 중…</p>}><ExamPanel state={s} today={today} onStart={id=>start(5,id)} onOpenResource={openResource} onSave={exam=>commit(v=>({...v,exams:[...(v.exams??[]).filter(e=>e.id!==exam.id),exam]}))}/></Suspense>
-              <p className="hint">
-                학습 완료와 제출 완료는 별개입니다. 과제를 열어 제출 상태를 확인하세요.
-              </p>
+              <details className="compact-section compact-task-exams">
+                <summary>시험 일정 · 준비 항목 <ChevronRight size={16}/></summary>
+                <Suspense fallback={<p role="status">시험 정보를 여는 중…</p>}><ExamPanel state={s} today={today} onStart={id=>start(5,id)} onOpenResource={openResource} onSave={exam=>commit(v=>({...v,exams:[...(v.exams??[]).filter(e=>e.id!==exam.id),exam]}))}/></Suspense>
+              </details>
             </>
           )}
           {tab === 'study' && (
             <>
               {!s.active && <QuickStudyTimer {...quickProps} compact/>}
-              {!s.active&&<details className="study-library-disclosure" open={!s.quickTimer}><summary>내 학습 자료 <ChevronRight size={16}/></summary><Suspense fallback={<p role="status">자료 라이브러리를 여는 중…</p>}><ResourceLibrary state={s} onChange={commit} onOpen={openResource}/></Suspense></details>}
+              {!s.active&&<details className="study-library-disclosure"><summary>내 학습 자료 <ChevronRight size={16}/></summary><Suspense fallback={<p role="status">자료 라이브러리를 여는 중…</p>}><ResourceLibrary state={s} onChange={commit} onOpen={openResource}/></Suspense></details>}
               <details className="study-advanced-focus" open={!!s.active}><summary>{s.active ? '진행 중인 집중' : '과제에 연결해 집중하기 · 복습 도구'}<ChevronRight size={16}/></summary><div className="study-layout">
                 <section
                   className={
@@ -1634,6 +1632,17 @@ export default function App() {
           )}
           {tab === 'progress' && (
             <>
+              <section className="compact-record-overview" aria-label="학습 기록 요약">
+                <div className="compact-record-stats">
+                  <div><span>최근 7일 공부</span><strong>{Math.floor(Array.from({length:7},(_,i)=>studySeconds(s.sessions,addDays(today,-i))).reduce((a,b)=>a+b,0)/60)}<small>분</small></strong></div>
+                  <div><span>푼 문제</span><strong>{s.sessions.reduce((n,x)=>n+x.problems,0)}<small>문제</small></strong></div>
+                </div>
+                {!s.sessions.length ? <div className="compact-record-empty"><span>아직 공부 기록이 없어요.</span><button type="button" onClick={()=>setTab('study')}>공부 시작 <ArrowRight size={16}/></button></div>
+                  : <StudyRhythm sessions={s.sessions} today={today}/>}
+              </section>
+              <details className="compact-section compact-progress-detail">
+                <summary>상세 통계 · 복습 · 시험 기록 <ChevronRight size={16}/></summary>
+                <div className="compact-progress-content">
               <Suspense fallback={<p>자료 복습을 여는 중…</p>}><ResourceReviews state={s} today={today} onOpen={openResource}/></Suspense>
               <Suspense fallback={<p role="status">학습 증거를 여는 중…</p>}><LearningEvidence state={s} today={today}/></Suspense>
               <Suspense fallback={<p role="status">복습 문제를 여는 중…</p>}><ProblemReviewQueue state={s} today={today} onAttempt={recordProblemRetest} onCheck={checkProblemRetest}/></Suspense>
@@ -1818,6 +1827,8 @@ export default function App() {
                   </Empty>
                 )}
               </section>
+                </div>
+              </details>
             </>
           )}
           {tab === 'settings' && (
