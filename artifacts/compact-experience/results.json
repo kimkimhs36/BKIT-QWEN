@@ -1,0 +1,146 @@
+{
+  "sourceCommit": "ce5bfac9108887995277ab9e769b19e9733db280",
+  "unitTests": {
+    "passed": 223,
+    "files": 37
+  },
+  "ios": {
+    "uniqueScenarios": 30,
+    "successfulLocalExecutions": 39,
+    "devices": [
+      "WebKit iPhone 13",
+      "WebKit iPad Pro 11 portrait",
+      "WebKit iPad Pro 11 landscape"
+    ],
+    "screenshots": 45,
+    "metrics": {
+      "webkit-ipad": [
+        {
+          "screen": "home",
+          "width": 834,
+          "height": 1194,
+          "scrollWidth": 834,
+          "scrollHeight": 1194
+        },
+        {
+          "screen": "focus",
+          "width": 834,
+          "height": 1194,
+          "scrollWidth": 834,
+          "scrollHeight": 1194
+        },
+        {
+          "screen": "tasks",
+          "width": 834,
+          "height": 1194,
+          "scrollWidth": 834,
+          "scrollHeight": 1194
+        },
+        {
+          "screen": "records",
+          "width": 834,
+          "height": 1194,
+          "scrollWidth": 834,
+          "scrollHeight": 1194
+        },
+        {
+          "screen": "tools",
+          "width": 834,
+          "height": 1194,
+          "scrollWidth": 834,
+          "scrollHeight": 1194
+        }
+      ],
+      "webkit-iphone": [
+        {
+          "screen": "home",
+          "width": 390,
+          "height": 664,
+          "scrollWidth": 390,
+          "scrollHeight": 664
+        },
+        {
+          "screen": "focus",
+          "width": 390,
+          "height": 664,
+          "scrollWidth": 390,
+          "scrollHeight": 664
+        },
+        {
+          "screen": "tasks",
+          "width": 390,
+          "height": 664,
+          "scrollWidth": 390,
+          "scrollHeight": 664
+        },
+        {
+          "screen": "records",
+          "width": 390,
+          "height": 664,
+          "scrollWidth": 390,
+          "scrollHeight": 664
+        },
+        {
+          "screen": "tools",
+          "width": 390,
+          "height": 664,
+          "scrollWidth": 390,
+          "scrollHeight": 664
+        }
+      ],
+      "webkit-ipad-landscape": [
+        {
+          "screen": "home",
+          "width": 1194,
+          "height": 834,
+          "scrollWidth": 1194,
+          "scrollHeight": 834
+        },
+        {
+          "screen": "focus",
+          "width": 1194,
+          "height": 834,
+          "scrollWidth": 1194,
+          "scrollHeight": 834
+        },
+        {
+          "screen": "tasks",
+          "width": 1194,
+          "height": 834,
+          "scrollWidth": 1194,
+          "scrollHeight": 834
+        },
+        {
+          "screen": "records",
+          "width": 1194,
+          "height": 834,
+          "scrollWidth": 1194,
+          "scrollHeight": 834
+        },
+        {
+          "screen": "tools",
+          "width": 1194,
+          "height": 834,
+          "scrollWidth": 1194,
+          "scrollHeight": 834
+        }
+      ]
+    }
+  },
+  "checks": [
+    "9 instant themes and saved preferences",
+    "running/paused timers across routes and reload",
+    "7-day time/problem period consistency",
+    "independent task completion/submission",
+    "keyboard visual viewport bounds and long text",
+    "PDF/original ink metadata/private attachment preservation",
+    "sensor gesture permission/grant/deny, calibration and low power",
+    "full-color liquid shader across 25 samples before/after touch",
+    "all tool routes, backup audit and planning recovery",
+    "worker cache scope isolation"
+  ],
+  "limits": [
+    "WebKit device emulation; physical hardware, real sensor values and the OS keyboard require device confirmation",
+    "Android and desktop verification deferred at owner request"
+  ]
+}
