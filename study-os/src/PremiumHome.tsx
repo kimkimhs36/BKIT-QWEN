@@ -69,17 +69,11 @@ export function PremiumHome({
   return (
     <div className="study-home">
       <section className="study-start" aria-label="바로 공부 시작">
-        <div className="study-start-meta">
-          <span>
-            <i /> YOUR STUDY SPACE
-          </span>
-          <span>{busy ? '공부의 흐름을 이어가요' : '작게 시작해도 충분해요'}</span>
-        </div>
         <div className="study-start-copy">
           <span className="study-kicker">
             {busy ? active?.subject || '나의 집중 시간' : '지금, 한 가지에 집중'}
           </span>
-          <h2>{busy ? '좋은 흐름을\n이어가세요.' : '시작하면,\n몰입은 따라와요.'}</h2>
+          <h2>{busy ? '공부 이어하기' : '공부 시작'}</h2>
           <p>
             {busy
               ? active?.action || '타이머가 공부 시간을 차곡차곡 기록하고 있어요.'
@@ -103,29 +97,11 @@ export function PremiumHome({
             </button>
           )}
         </div>
-        <div className="study-start-foot">
-          <Clock3 size={14} />
-          <span>
-            {busy
-              ? `${quickClock(activeSeconds)} · ${active?.segmentStart || quick?.segmentStart ? '집중 중' : '잠시 멈춤'}`
-              : '설정 없이 바로 시작 · 끝나면 시간 저장'}
-          </span>
-        </div>
-        <div className="study-arc" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-          <div>
-            {busy ? 'FOCUS' : 'A LITTLE'}
-            <b>{busy ? '지금' : '매일'}</b>
-            {busy ? 'AT YOUR PACE' : 'GOES A LONG WAY'}
-          </div>
-        </div>
       </section>
       <section className="study-agenda" aria-label="오늘 해야 할 일">
         <div className="study-section-heading">
           <div>
-            <span className="study-kicker">TODAY’S PRIORITIES</span>
+            
             <h2>
               오늘의 할 일 <span>{pending.length}</span>
             </h2>
@@ -159,14 +135,14 @@ export function PremiumHome({
         ) : (
           <div className="study-agenda-empty">
             <CheckCheck size={25} />
-            <h3>가벼운 마음으로 시작해요.</h3>
-            <p>오늘 해야 할 숙제나 공부를 적어 두세요.</p>
+            <h3>아직 할 일이 없어요.</h3>
+            
             <button onClick={onAdd}>
               첫 할 일 추가 <Plus size={15} />
             </button>
           </div>
         )}
-        <button
+        {awaiting.length>0 && <button
           className={'study-submission ' + (awaiting.length ? 'has-pending' : '')}
           onClick={onSubmissions}
         >
@@ -175,7 +151,7 @@ export function PremiumHome({
             제출 확인 {awaiting.length ? `${awaiting.length}개 남았어요` : '모두 확인했어요'}
           </span>
           <ChevronRight size={16} />
-        </button>
+        </button>}
         <button className="study-assessment-add" onClick={onAssessment}>
           <Plus size={14} /> 수행 등록
         </button>
@@ -183,7 +159,7 @@ export function PremiumHome({
           할 일 전체 보기 <ArrowRight size={15} />
         </button>
       </section>
-      <section className="study-next" aria-label="다음 일정">
+      {(current || next) && <section className="study-next" aria-label="다음 일정">
         <span className="study-small-icon">
           <Clock3 size={20} />
         </span>
@@ -205,8 +181,8 @@ export function PremiumHome({
         >
           <ArrowUpRight size={20} />
         </button>
-      </section>
-      <section className="study-recent" aria-label="최근 공부 이어하기">
+      </section>}
+      {(resource || recent) && <section className="study-recent" aria-label="최근 공부 이어하기">
         <span className="study-small-icon">
           <BookOpen size={20} />
         </span>
@@ -231,7 +207,7 @@ export function PremiumHome({
         >
           <ArrowUpRight size={20} />
         </button>
-      </section>
+      </section>}
       {(quick || recent?.quick) && (
         <div className="study-home-timer">
           {quick ? (
@@ -248,7 +224,7 @@ export function PremiumHome({
       )}
       <div className="study-bottom-line">
         <button className="study-day-summary" onClick={() => onNavigate('progress')}>
-          <span className="study-kicker">오늘 쌓인 시간</span>
+<span className="study-kicker">오늘 공부</span>
           <strong>
             <motion.span
               key={minutes}
@@ -265,7 +241,7 @@ export function PremiumHome({
           </span>
         </button>
         <section className="study-tool-shelf" aria-label="학습 도구">
-          <span className="study-kicker">필요할 때, 가까이에</span>
+
           <div>
             <button onClick={onMaterials}>
               <FileText size={18} />
