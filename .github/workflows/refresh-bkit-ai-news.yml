@@ -1,0 +1,40 @@
+name: Refresh BKIT AI news from official RSS feeds
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/bkit-ai-zone-20261020
+    paths:
+      - .github/workflows/refresh-bkit-ai-news.yml
+permissions:
+  contents: write
+concurrency:
+  group: bkit-ai-news-feed-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch official feeds and validate article source links
+        run: python study-os/scripts/refresh-ai-news.py
+      - name: Commit feed only after successful parsing
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add study-os/public/ai-news.json
+          if ! git diff --cached --quiet; then
+            git diff --cached --check
+            git commit -m "data(ai-zone): refresh official AI news digest"
+            git push origin HEAD:$GITHUB_REF_NAME
+          else
+            echo "No changes"
+          fi
