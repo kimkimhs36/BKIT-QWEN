@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { StudyClock } from '../src/timerClock';
 import { elapsed, resumeSegment } from '../src/session';
 import type { State } from '../src/model';
+import { newState, stateSchema } from '../src/model';
+import { startQuick, pauseQuick, resumeQuick, finishQuick } from '../src/quickTimer';
 
 describe('session timestamp calibration', () => {
   it('keeps elapsed time through foreground clock changes in both directions', () => {
@@ -43,4 +45,18 @@ it('repeated resume actions do not restart an active segment or overlap committe
   expect(resumeSegment(running, 40_000)).toBe(running);
   expect(elapsed(running, 50_000)).toBe(30);
   expect(resumeSegment(active, 15_000).segmentStart).toBe(new Date(20_000).toISOString());
+});
+
+it('keeps exact saved segment sums through hundreds of fractional monotonic samples', () => {
+  const clock = new StudyClock(1_000, 0);
+  let state = startQuick(newState(), 'stopwatch', 480, 1_000, 'fractional');
+  for (let i = 1; i <= 200; i++) {
+    const pauseAt = clock.read(1_000 + i * 2_000, i * 2_000 + i * 0.125).time;
+    state = pauseQuick(state, pauseAt);
+    expect(stateSchema.safeParse(state).success).toBe(true);
+    const resumeAt = clock.read(2_000 + i * 2_000, i * 2_000 + 1_000 + i * 0.125).time;
+    state = resumeQuick(state, resumeAt);
+  }
+  const finished = finishQuick(state, clock.read(403_000, 402_025).time);
+  expect(stateSchema.safeParse(finished).success).toBe(true);
 });
