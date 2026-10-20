@@ -14,7 +14,7 @@ export function pdfEngine() {
 }
 export async function openPdf(bytes: ArrayBuffer) {
   const pdf = await pdfEngine();
-  return pdf.getDocument({
+  const loading = pdf.getDocument({
     data: new Uint8Array(bytes.slice(0)),
     isEvalSupported: false,
     disableAutoFetch: true,
@@ -22,7 +22,15 @@ export async function openPdf(bytes: ArrayBuffer) {
     cMapUrl: import.meta.env.BASE_URL + 'pdf-assets/cmaps/',
     cMapPacked: true,
     standardFontDataUrl: import.meta.env.BASE_URL + 'pdf-assets/standard_fonts/',
-  }).promise;
+  });
+  try {
+    return await loading.promise;
+  } catch (error) {
+    // A rejected load has no PDFDocumentProxy for the caller to dispose.
+    // Destroy the loading task here, preserving the original import error.
+    await loading.destroy().catch(() => {});
+    throw error;
+  }
 }
 export async function importPaper(
   file: File,

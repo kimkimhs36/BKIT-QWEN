@@ -65,6 +65,7 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
   const local = useRef(localState), apply = useRef(applyIncoming);
   const token = useRef(''), version = useRef(0), baseline = useRef('');
   const busyRef = useRef(false);
+  const connection = useRef(0);
   local.current = localState;
   apply.current = applyIncoming;
 
@@ -86,7 +87,7 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
       setMessage(e instanceof Error ? e.message : 'Google 연결 준비에 실패했어요.');
     } finally { preparing.current = false; }
   }
-  useEffect(() => () => { token.current=''; }, []);
+  useEffect(() => () => { connection.current++; token.current=''; }, []);
 
   async function readCloud() {
     const res = await fetch(API_URL + '/api/sync', {
@@ -121,13 +122,17 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
   }
   async function connect() {
     if (busyRef.current || !prepared || !clientId) return;
+    const ticket = ++connection.current;
     // This call opens the Google popup from the original click/tap (Safari).
     const authorization = authorizeGoogleIdentity(clientId);
     busyRef.current = true;
     setBusy(true);setStatus('connecting');setMessage('Google 본인 계정을 확인하고 있어요…');
     try {
-      token.current = await authorization;
+      const authorized = await authorization;
+      if (ticket !== connection.current) return;
+      token.current = authorized;
       const remote = await readCloud();
+      if (ticket !== connection.current) return;
       if (remote.state) {
         if (hasStudyRecords(local.current) && signature(local.current) !== signature(remote.state)) {
           version.current = remote.version;
@@ -140,19 +145,23 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
       } else {
         const snapshot = portableStudyState(local.current);
         const next = await writeCloud(0, snapshot);
+        if (ticket !== connection.current) return;
         markSuccess(next, snapshot, '첫 개인 클라우드가 준비됐어요. 이제 공부를 시작해 보세요.');
       }
     } catch (e) {
+      if (ticket !== connection.current) return;
       token.current = '';
       setStatus('error');
       setMessage(e instanceof Error ? e.message : '클라우드 연결을 확인하지 못했어요.');
-    } finally { busyRef.current = false;setBusy(false); }
+    } finally { if (ticket === connection.current) { busyRef.current = false;setBusy(false); } }
   }
   async function sync() {
     if (busyRef.current || !token.current || !baseline.current || status !== 'connected') return;
+    const ticket = connection.current;
     busyRef.current = true;setBusy(true);
     try {
       const remote = await readCloud();
+      if (ticket !== connection.current) return;
       const current = portableStudyState(local.current);
       const localSig = signature(current);
       const cloudSig = remote.state ? signature(remote.state) : '';
@@ -166,12 +175,14 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
         markSuccess(remote.version, remote.state, '다른 기기의 학습 변경사항을 불러왔어요.');
       } else if (ourChange) {
         const next = await writeCloud(remote.version, current);
+        if (ticket !== connection.current) return;
         markSuccess(next, current, '이 기기의 새 공부 기록을 동기화했어요.');
       } else {
         version.current = remote.version;
         setLastSynced(new Date().toLocaleTimeString('ko-KR'));
       }
     } catch (e) {
+      if (ticket !== connection.current) return;
       const msg = e instanceof Error ? e.message : '동기화를 확인하지 못했어요.';
       if (msg.includes('다른 기기에서')) {
         setStatus('conflict');
@@ -179,23 +190,26 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
         setStatus('error');
       }
       setMessage(msg);
-    } finally {busyRef.current=false;setBusy(false);}
+    } finally {if (ticket === connection.current) {busyRef.current=false;setBusy(false);}}
   }
   async function resolve(which:'cloud'|'this') {
     if (busyRef.current || !token.current) return;
+    const ticket = connection.current;
     busyRef.current=true;setBusy(true);
     try {
       const remote = await readCloud();
+      if (ticket !== connection.current) return;
       if (which === 'cloud') {
         if (!remote.state || !apply.current(remote.state)) throw new Error('가져올 클라우드 기록이 없어요.');
         markSuccess(remote.version, remote.state, '클라우드 기록을 가져왔어요.');
       } else {
         const current = portableStudyState(local.current);
         const next = await writeCloud(remote.version,current);
+        if (ticket !== connection.current) return;
         markSuccess(next,current,'이 기기의 기록을 개인 클라우드에 저장했어요.');
       }
-    } catch (e) {setStatus('error');setMessage(e instanceof Error?e.message:'동기화 실패');}
-    finally {busyRef.current=false;setBusy(false);}
+    } catch (e) {if (ticket === connection.current) {setStatus('error');setMessage(e instanceof Error?e.message:'동기화 실패');}}
+    finally {if (ticket === connection.current) {busyRef.current=false;setBusy(false);}}
   }
   const contentSignature = useMemo(() => signature(localState), [localState]);
   useEffect(() => {
@@ -212,6 +226,7 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
     return () => {window.clearInterval(timer);document.removeEventListener('visibilitychange',onVisible);window.removeEventListener('online',onVisible);};
   }, [status]);
   function disconnect() {
+    connection.current++;busyRef.current=false;setBusy(false);
     token.current='';baseline.current='';version.current=0;
     setStatus('disconnected');setMessage('연결을 끊었어요. 이 기기의 기록은 그대로 있어요.');
   }
