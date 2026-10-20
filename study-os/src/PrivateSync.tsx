@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { Cloud, CheckCircle2, DownloadCloud, RefreshCw, ShieldCheck, UploadCloud } from 'lucide-react';
 import { z } from 'zod';
 import { API_URL } from './ai';
@@ -197,7 +197,7 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
     } catch (e) {setStatus('error');setMessage(e instanceof Error?e.message:'동기화 실패');}
     finally {busyRef.current=false;setBusy(false);}
   }
-  const contentSignature = signature(localState);
+  const contentSignature = useMemo(() => signature(localState), [localState]);
   useEffect(() => {
     if (status !== 'connected') return;
     const t = window.setTimeout(() => void sync(), 1800);

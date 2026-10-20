@@ -10,7 +10,7 @@ import {
 import { z } from 'zod';
 import { stateSchema, newState, uid, type State } from './model';
 import { SLEEP_KEY, sleepSchema, type SleepState } from './sleep';
-import { KEY } from './storage';
+import { KEY, pausedImportedState } from './storage';
 import { pauseQuick } from './quickTimer';
 import { learning } from './learningEngine';
 import { closeSegment } from './session';
@@ -104,13 +104,14 @@ function assertReferences(keys: StoredKeys, manifest: Manifest) {
 export async function exportCompleteBackup(
   storage: Storage,
   onProgress: (message: string) => void = () => {},
+  timestamp = Date.now(),
 ) {
   const baseline = snapshotKeys(storage),
     keys = { ...baseline };
   validateKeys(keys);
   if (keys[KEY]) {
     const state = stateSchema.parse(JSON.parse(keys[KEY]!));
-    const at = Date.now();
+    const at = timestamp;
     const paused = pauseQuick(state, at);
     const restored = state.active
       ? { ...paused, active: closeSegment(state.active, at) }
@@ -363,9 +364,8 @@ export async function restoreCompleteBackup(
       let state = stateSchema.parse(JSON.parse(incoming[key]!));
       if (mode === 'merge') state = mergeStudy(local, state);
       state = {
-        ...state,
+        ...pausedImportedState(state),
         revision: local.revision + 1,
-        active: state.active ? { ...state.active, segmentStart: null } : null,
       };
       next[key] = JSON.stringify(stateSchema.parse(state));
     } else if (key === SLEEP_KEY && mode === 'merge' && next[key]) {

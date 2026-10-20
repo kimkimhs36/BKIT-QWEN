@@ -276,6 +276,28 @@ describe('restore while quick study is in progress', () => {
   );
 });
 
+it('pauses a running quick timer in an older ZIP instead of accruing the age of the archive', async () => {
+  const began = Date.parse('2026-01-01T03:00:00Z');
+  const source = storage({ [KEY]: JSON.stringify(newState()) });
+  const entries = await readLocalZip(await exportCompleteBackup(source));
+  // Rebuild a valid, checksummed archive with a live timer, as older exporters
+  // and externally assembled backups can contain. No live storage is mutated.
+  const running = startQuick(newState(), 'stopwatch', 480, began, 'old-running');
+  const data = new Blob([JSON.stringify({ keys: { [KEY]: JSON.stringify(running) } })]);
+  const manifest = JSON.parse(await entries.get('manifest.json')!.text());
+  manifest.dataSha256 = await sha256(data);
+  entries.set('data/local.json', data);
+  entries.set('manifest.json', new Blob([JSON.stringify(manifest)]));
+  const writer = new LocalZipWriter();
+  for (const [path, blob] of entries) await writer.add(path, blob);
+  const target = storage();
+  await restoreCompleteBackup(await inspectCompleteBackup(writer.finish(), target), 'replace', target);
+  const restored = stateSchema.parse(JSON.parse(target.getItem(KEY)!));
+  expect(restored.quickTimer?.segmentStart).toBeNull();
+  expect(restored.quickTimer?.elapsed).toBe(0);
+  expect(restored.quickTimer?.id).toBe('old-running');
+});
+
 // Cosmetic state is an additive archive entry; it must never prevent rescuing study data.
 describe('3.6 garage archive compatibility', () => {
   it('round-trips car and credits, and preserves current garage when an older archive has none', async () => {

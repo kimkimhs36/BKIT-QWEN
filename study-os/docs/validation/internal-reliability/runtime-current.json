@@ -1,0 +1,15 @@
+{
+  "label": "current",
+  "url": "http://127.0.0.1:4173/study-os/",
+  "measuredAt": "2026-10-20T17:56:25.575Z",
+  "browser": "156.0.8078.4",
+  "environment": "Linux Chromium headless, 390x844, 1000 saved sessions, active stopwatch, no CPU/network throttling, service worker blocked",
+  "wallSeconds": 60.49363751599999,
+  "studySerializations": 0,
+  "serializationMs": 0,
+  "taskSeconds": 60.286381,
+  "scriptSeconds": 0.5493750000000001,
+  "heapStart": 8723752,
+  "heapEnd": 8292716,
+  "errors": []
+}

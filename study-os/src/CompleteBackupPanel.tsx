@@ -16,7 +16,11 @@ function saveBlob(blob: Blob, name: string) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
-export function CompleteBackupPanel({ studying }: { studying: boolean }) {
+export function CompleteBackupPanel({ studying, readOnly = false, studyTimestamp = Date.now }: {
+  studying: boolean;
+  readOnly?: boolean;
+  studyTimestamp?: () => number;
+}) {
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState(''),
     [error, setError] = useState(''),
@@ -109,7 +113,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
         disabled={busy || restored}
         onClick={() =>
           void work(async () => {
-            const blob = await exportCompleteBackup(localStorage, setMessage);
+            const blob = await exportCompleteBackup(localStorage, setMessage, studyTimestamp());
             saveBlob(blob, `bkit-complete-${new Date().toISOString().slice(0, 10)}.zip`);
             setMessage(
               `ZIP 생성 및 다운로드 요청 완료 · ${(blob.size / 1024 / 1024).toFixed(1)}MB. 브라우저의 다운로드/파일 앱에서 실제 파일 저장을 확인한 뒤, 아래 '전체 ZIP 백업 검사'로 다시 열어 무결성을 확인하세요.`,
@@ -276,7 +280,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
           <div className="learning-actions">
             <button
               className="primary"
-              disabled={busy || studying || restored}
+              disabled={busy || studying || readOnly || restored}
               onClick={() => {
                 if (
                   mode === 'replace' &&

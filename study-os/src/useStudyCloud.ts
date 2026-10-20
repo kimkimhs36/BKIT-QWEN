@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import type { State } from './model';
 import {
   authorizeGoogle, loadCloudConfig, storeCloudConfig,
@@ -142,7 +142,7 @@ export function useStudyCloud(state:State, applyRemote:(remote:StudyCloudData)=>
     }catch(e){setStatus('error');setMessage(e instanceof Error?e.message:'동기화 실패');}
     finally{busy.current=false;}
   }
-  const sig=localSignature(state);
+  const sig=useMemo(()=>localSignature(state),[state.tasks,state.schedules,state.settings.goal]);
   useEffect(()=>{
     if(status!=='connected'||sig===lastLocal.current)return;
     const handle=setTimeout(()=>{void refresh();},1400);

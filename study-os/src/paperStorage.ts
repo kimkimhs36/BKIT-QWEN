@@ -1,3 +1,4 @@
+import { guardedTransaction } from './indexedDb';
 import { sha256 } from './localZip';
 import { documentSchema, type PaperDocument } from './paperModel';
 export const PAPER_DB = 'bkit-digital-paper-v1';
@@ -18,7 +19,7 @@ async function database() {
 export async function paperSnapshot(): Promise<{ documents: PaperDocument[]; files: PaperFile[] }> {
   const db = await database();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(['documents', 'originals'], 'readonly');
+    const tx = guardedTransaction(db, ['documents', 'originals'], 'readonly');
     const docs = tx.objectStore('documents').getAll(),
       files = tx.objectStore('originals').getAll();
     tx.oncomplete = () => {
@@ -41,7 +42,7 @@ export async function paperSnapshot(): Promise<{ documents: PaperDocument[]; fil
 export async function listPaperDocuments(): Promise<PaperDocument[]> {
   const db = await database();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction('documents', 'readonly'),
+    const tx = guardedTransaction(db, 'documents', 'readonly'),
       r = tx.objectStore('documents').getAll();
     tx.oncomplete = () => {
       db.close();
@@ -60,7 +61,7 @@ export async function listPaperDocuments(): Promise<PaperDocument[]> {
 export async function readPaperFile(id: string): Promise<ArrayBuffer> {
   const db = await database();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction('originals', 'readonly'),
+    const tx = guardedTransaction(db, 'originals', 'readonly'),
       r = tx.objectStore('originals').get(id);
     tx.oncomplete = () => {
       db.close();
@@ -87,7 +88,7 @@ export async function savePaperDocument(
     throw new Error('원본 무결성 검사가 실패했습니다. 문서를 저장하지 않았습니다.');
   const db = await database();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(['documents', 'originals'], 'readwrite');
+    const tx = guardedTransaction(db, ['documents', 'originals'], 'readwrite');
     const store = tx.objectStore('documents'),
       r = store.get(value.id);
     let result: PaperDocument,
@@ -142,7 +143,7 @@ export async function restorePaperSnapshot(
 ) {
   const db = await database();
   return new Promise<void>((resolve, reject) => {
-    const tx = db.transaction(['documents', 'originals', 'recovery'], 'readwrite');
+    const tx = guardedTransaction(db, ['documents', 'originals', 'recovery'], 'readwrite');
     const store = tx.objectStore('documents'),
       r = store.getAll();
     let reason = '문서 복원 실패. 기존 필기는 보존됩니다.';
@@ -185,7 +186,7 @@ export async function restorePaperSnapshot(
 export async function rollbackPaperSnapshot(recoveryId: string, imported: PaperDocument[]) {
   const db = await database();
   return new Promise<void>((resolve, reject) => {
-    const tx = db.transaction(['documents', 'recovery'], 'readwrite'),
+    const tx = guardedTransaction(db, ['documents', 'recovery'], 'readwrite'),
       store = tx.objectStore('documents'),
       r = tx.objectStore('recovery').get(recoveryId);
     r.onsuccess = () => {

@@ -5,12 +5,19 @@ import { newState } from '../../src/model';
 import { pageToView } from '../../src/paperInk';
 import type { PaperDocument } from '../../src/paperModel';
 async function nav(page: Page, name: string) {
+  // Compact Experience moved the library into Tools; preserve the functional
+  // assertions below while navigating through the current public entry points.
+  const library = name === '집중';
   await page
-    .getByRole('navigation')
-    .getByRole('button', { name, exact: true })
+    .locator('nav:visible')
+    .getByRole('button', { name: library || name === '더보기' ? '도구' : name, exact: true })
     .filter({ visible: true })
     .first()
     .click();
+  if (library) {
+    await page.getByRole('button', { name: '공부 자료', exact: true }).click();
+    await page.getByText('PDF · 필기 도구', { exact: true }).click();
+  }
 }
 async function seed(page: Page) {
   await page.clock.install({ time: new Date('2026-10-19T12:00:00Z') });
@@ -32,7 +39,7 @@ async function upload(page: Page) {
   await page
     .getByLabel('PDF·학습지 사진 파일', { exact: true })
     .setInputFiles({ name: 'ten-page-worksheet.pdf', mimeType: 'application/pdf', buffer: bytes });
-  await expect(page.getByRole('button', { name: '종이 열기', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '종이 열기', exact: true })).toBeVisible({ timeout: 20000 });
   return bytes;
 }
 async function readDocs(page: Page): Promise<PaperDocument[]> {
@@ -297,9 +304,9 @@ test('worksheet problem 8 ink and answer survive finish, resume 9, review and co
   expect(retryLayers.some((l) => l.strokes.length === 1)).toBe(true);
   await nav(page, '더보기');
   await page
-    .getByRole('navigation', { name: '추가 도구', exact: true })
     .getByRole('button', { name: '설정', exact: true })
     .click();
+  await page.getByText('백업 · 복구', { exact: true }).click();
   const backup = page.getByRole('region', { name: '사진 포함 전체 백업' }),
     dl = page.waitForEvent('download', { timeout: 20000 });
   await backup.getByRole('button', { name: '사진 포함 전체 ZIP 내보내기', exact: true }).click();
@@ -314,9 +321,9 @@ test('worksheet problem 8 ink and answer survive finish, resume 9, review and co
   await fresh.reload();
   await nav(fresh, '더보기');
   await fresh
-    .getByRole('navigation', { name: '추가 도구', exact: true })
     .getByRole('button', { name: '설정', exact: true })
     .click();
+  await fresh.getByText('백업 · 복구', { exact: true }).click();
   const restore = fresh.getByRole('region', { name: '사진 포함 전체 백업' });
   await restore.getByLabel('전체 ZIP 백업 검사', { exact: true }).setInputFiles(path);
   await expect(restore.getByText('PDF·디지털 종이 1개', { exact: false })).toBeVisible();

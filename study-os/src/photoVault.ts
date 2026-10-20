@@ -1,3 +1,4 @@
+import { guardedTransaction } from './indexedDb';
 export type Vault = 'study' | 'sleep';
 export type VaultPhoto = {
   id: string;
@@ -26,7 +27,7 @@ async function run<T>(
 ) {
   const db = await database(vault);
   return new Promise<T>((resolve, reject) => {
-    const tx = db.transaction('photos', mode),
+    const tx = guardedTransaction(db, 'photos', mode),
       req = fn(tx.objectStore('photos'));
     tx.oncomplete = () => {
       db.close();
