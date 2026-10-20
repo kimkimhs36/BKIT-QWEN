@@ -1469,7 +1469,7 @@ export default function App() {
         .replace(/[-:]/g, '')
         .replace(/\.\d{3}/, '');
     const esc = (v: string) =>
-      v.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/[,;]/g, '\\$&');
+      v.replace(/\\/g, '\\\\').replace(/\r\n|\r|\n/g, '\\n').replace(/[,;]/g, '\\$&');
     const events = Array.from({ length: 14 }, (_, i) => fixedForDay(s, addDays(today, i)))
       .flat()
       .filter((f) => !['sleep', 'meal'].includes(f.kind))

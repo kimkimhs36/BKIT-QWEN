@@ -143,3 +143,17 @@ test('only one tab writes study records, and closing it allows a fresh second ta
   await expect(second.locator('.quick-timer-active')).toBeVisible();
   expect((await read(second)).quickTimer).not.toBeNull();
 });
+
+test('all themes preserve the same running study document and completed history', async ({ page }) => {
+  await prepare(page);
+  const before = await read(page);
+  await page.getByRole('button', { name: 'BKIT 로고 · 테마 선택', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '나의 공부 공간', exact: true });
+  for (const name of ['Peach Flow', 'Liquid Glass', 'Diamond', 'Champagne Gold', 'Soft Jelly', 'Living Droplets', 'Night Sprint', 'Forest Dark', 'Classic Light']) {
+    await dialog.getByRole('button', { name, exact: true }).click();
+    const current = await read(page);
+    expect(current.quickTimer).toEqual(before.quickTimer);
+    expect(current.tasks).toEqual(before.tasks);
+    expect(current.sessions).toEqual(before.sessions);
+  }
+});
