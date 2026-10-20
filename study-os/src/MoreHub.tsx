@@ -1,5 +1,6 @@
 import {
   Car,
+  LibraryBig,
   CalendarDays,
   ChevronRight,
   Moon,
@@ -10,6 +11,7 @@ import {
 } from 'lucide-react';
 
 const TOOLS = [
+  {id:'sites',label:'공부 사이트 백과사전',detail:'EBSi·메가스터디·공교육 자료·즐겨찾기',icon:LibraryBig},
   {
     id: 'garage',
     label: 'TOHEŞAR GARAGE',
