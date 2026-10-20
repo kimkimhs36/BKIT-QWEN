@@ -83,6 +83,7 @@ export const FEATURE_DESTINATIONS: readonly {id:string;name:string;route:string;
   {id:'juggernaut',name:'JUGGERNAUT',route:'juggernaut',description:'학습 동기와 장기 목표',keywords:'저거너트 수능'},
   {id:'sleep',name:'Sleep Guard',route:'sleep',description:'수면과 휴식 루틴',keywords:'잠 취침'},
   {id:'sites',name:'공부 사이트 백과사전',route:'sites',description:'EBSi·메가스터디·기출·학습 도구 즐겨찾기',keywords:'웹사이트 링크 검색 바로가기'},
+  {id:'ai-zone',name:'BKIT AI ZONE',route:'ai-zone',description:'AI 사용법·모델 버전·한도·분야별 세계 순위',keywords:'AI 리더보드 뉴스 소식 Sora 영상 생성 NotebookLM GPT Claude Gemini Runway'},
   {id:'settings',name:'설정 · 백업',route:'settings',description:'테마, 백업, 앱 설정',keywords:'다크모드 테마 동기화'},
 ];
 
