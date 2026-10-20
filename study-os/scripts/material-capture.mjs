@@ -24,7 +24,13 @@ await context.addInitScript(
 );
 const page = await context.newPage();
 const errors = [];
-page.on('pageerror', (e) => errors.push(e.stack || e.message));
+const networkIssues = [];
+page.on('pageerror', (e) => {
+  const message = e.stack || e.message;
+  if (message.includes('bkit-api.vercel.app/api/config') && message.includes('access control'))
+    networkIssues.push(message);
+  else errors.push(message);
+});
 await page.goto(process.env.MATERIAL_BASE_URL || 'http://127.0.0.1:4173/study-os/', {
   waitUntil: 'networkidle',
 });
@@ -120,9 +126,15 @@ await page.setViewportSize({ width: 1440, height: 1000 });
 await page.screenshot({ path: output + '/garage-' + themes.at(-1)[0] + '-desktop.png' });
 await fs.writeFile(
   output + '/smoke.json',
-  JSON.stringify({ engine: useWebkit ? 'WebKit' : 'Chromium', checks, errors }, null, 2),
+  JSON.stringify(
+    { engine: useWebkit ? 'WebKit' : 'Chromium', checks, errors, networkIssues },
+    null,
+    2,
+  ),
 );
-console.log(JSON.stringify({ engine: useWebkit ? 'WebKit' : 'Chromium', checks, errors }));
+console.log(
+  JSON.stringify({ engine: useWebkit ? 'WebKit' : 'Chromium', checks, errors, networkIssues }),
+);
 if (errors.length || checks.some((c) => !c.persisted || !c.studyRecordsPreserved || c.overflow))
   throw new Error('Material smoke failed; see smoke.json');
 await browser.close();

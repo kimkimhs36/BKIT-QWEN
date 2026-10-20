@@ -1619,3 +1619,99 @@ html[data-material] .home-primary .command-stage:before {
 html[data-material] .home-primary .command-left {
   z-index: 1;
 }
+/* These destinations already carry their own full editorial heading. */
+html[data-material] .app-shell.atelier-os:is(.page-garage, .page-ai-zone) .page-head {
+  display: none !important;
+}
+html[data-material] .garage-zoom-button {
+  background: var(--mat-button) !important;
+  color: var(--mat-ink) !important;
+  border: 1px solid var(--mat-line) !important;
+  border-radius: var(--mat-button-radius) !important;
+  box-shadow: inset 0 1px #ffffff22 !important;
+  min-height: 44px;
+}
+@media (max-width: 719px) {
+  html[data-material] .garage-heading {
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  html[data-material] .garage-heading h2 {
+    font-size: 27px;
+    line-height: 1.15;
+    margin: 9px 0;
+  }
+  html[data-material] .garage-heading h2 em {
+    font-size: 13px;
+    letter-spacing: 0.19em;
+    margin-top: 5px;
+    line-height: 1.3;
+  }
+  html[data-material] .garage-heading > div > p {
+    font-size: 11px;
+    line-height: 1.65;
+    margin: 8px 0 0;
+  }
+  html[data-material] .garage-heading .eyebrow {
+    font-size: 8px;
+    letter-spacing: 0.12em;
+  }
+  html[data-material] .credit-wallet {
+    padding: 13px;
+    min-width: 108px;
+    flex: none;
+  }
+  html[data-material] .credit-wallet small {
+    font-size: 8px;
+    letter-spacing: 0.04em;
+  }
+  html[data-material] .credit-wallet strong {
+    font-size: 28px;
+  }
+  html[data-material] .credit-wallet span {
+    font-size: 10px;
+  }
+  html[data-material] .garage-zoom-button {
+    font-size: 10px;
+    padding: 8px 12px;
+  }
+}
+@media (max-width: 719px) {
+  /* Keep the return control in flow; the old fixed brand must not cover it. */
+  html[data-material] .app-shell.atelier-os:not(.page-today) > .v2-brand {
+    display: none !important;
+  }
+  html[data-material] .app-shell.atelier-os:not(.page-today) .topbar .mobile-brand {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    white-space: nowrap;
+    font-size: 15px;
+    line-height: 1.2;
+  }
+  html[data-material] .app-shell.atelier-os:not(.page-today) .topbar .mobile-brand small {
+    display: block;
+    margin: 4px 0 0;
+    font-size: 7px;
+    letter-spacing: 0.08em;
+  }
+  html[data-material] .app-shell.atelier-os .topbar-leading {
+    gap: 6px;
+  }
+  html[data-material] .app-shell.atelier-os .topbar .topbar-back {
+    position: static !important;
+    inset: auto !important;
+    flex: 0 0 44px;
+    width: 44px;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    transform: none !important;
+  }
+  html[data-material]
+    .app-shell.atelier-os
+    .topbar
+    :is(.topbar-assistant-action, .topbar-add-action) {
+    display: none;
+  }
+}

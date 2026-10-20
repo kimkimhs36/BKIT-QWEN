@@ -1,0 +1,68 @@
+{
+  "typecheck": "passed (npm run typecheck; final TS state also passed npm run build)",
+  "productionBuild": "passed (npm run build; final CSS finish rebuilt with vite build)",
+  "chromiumThemes": {
+    "appliedAndRestored": [
+      "classic",
+      "forest",
+      "glass",
+      "peach",
+      "diamond",
+      "gold",
+      "jelly",
+      "droplets",
+      "night"
+    ],
+    "horizontalOverflow": false
+  },
+  "webkit": {
+    "coreMaterialChecks": [
+      {
+        "id": "glass",
+        "persisted": true,
+        "studyRecordsPreserved": true,
+        "overflow": false
+      },
+      {
+        "id": "jelly",
+        "persisted": true,
+        "studyRecordsPreserved": true,
+        "overflow": false
+      },
+      {
+        "id": "droplets",
+        "persisted": true,
+        "studyRecordsPreserved": true,
+        "overflow": false
+      }
+    ],
+    "touchAndTimer": {
+      "engine": "WebKit",
+      "pressed": {
+        "transform": "translateY(1.292919px) scale(0.982749, 0.980175) skew(-0.32537deg, 0.101009deg) rotate(-0.135571deg)",
+        "press": "0.8619"
+      },
+      "released": {
+        "transform": "",
+        "press": ""
+      },
+      "timerAdvanced": "00:01",
+      "quietWhileRunning": true,
+      "resumesAfterPause": true,
+      "errors": []
+    },
+    "localOriginNetworkLimitations": [
+      "/bkit-api.vercel.app/api/config due to access control checks.",
+      "/bkit-api.vercel.app/api/config due to access control checks.",
+      "/bkit-api.vercel.app/api/config due to access control checks.",
+      "/bkit-api.vercel.app/api/config due to access control checks."
+    ]
+  },
+  "storageKeysAndStudySchemasChanged": false,
+  "newDependencies": [],
+  "previewDeployment": {
+    "status": "blocked",
+    "reason": "Vercel preview project team scope returned HTTP 403; no deployment or production configuration changed"
+  },
+  "hardwareSafariAndSensors": "not verified on a physical iPhone"
+}

@@ -1,0 +1,21 @@
+{
+  "engine": "Chromium",
+  "viewport": {
+    "width": 390,
+    "height": 664
+  },
+  "deviceScaleFactor": 3,
+  "actualApplicationRenders": true,
+  "createdAt": "2026-10-20T12:22:08.523Z",
+  "themes": [
+    "classic",
+    "forest",
+    "glass",
+    "peach",
+    "diamond",
+    "gold",
+    "jelly",
+    "droplets",
+    "night"
+  ]
+}

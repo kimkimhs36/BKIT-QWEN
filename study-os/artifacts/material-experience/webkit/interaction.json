@@ -1,0 +1,15 @@
+{
+  "engine": "WebKit",
+  "pressed": {
+    "transform": "translateY(1.292919px) scale(0.982749, 0.980175) skew(-0.32537deg, 0.101009deg) rotate(-0.135571deg)",
+    "press": "0.8619"
+  },
+  "released": {
+    "transform": "",
+    "press": ""
+  },
+  "timerAdvanced": "00:01",
+  "quietWhileRunning": true,
+  "resumesAfterPause": true,
+  "errors": []
+}
