@@ -1,3 +1,4 @@
+import { dayKey } from '../time';
 import { useState } from 'react';
 import { Car } from './Car';
 import {
@@ -67,8 +68,7 @@ export function Garage({
             {g.credits} <span>CR</span>
           </strong>
           <small>
-            오늘 {g.day === new Date().toISOString().slice(0, 10) ? g.earnedToday : 0} / {DAILY_CAP}{' '}
-            CR
+            오늘 {g.day === dayKey(Date.now()) ? g.earnedToday : 0} / {DAILY_CAP} CR
           </small>
         </div>
       </header>

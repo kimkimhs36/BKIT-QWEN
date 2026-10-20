@@ -63,6 +63,15 @@ export function QuestionRace({
         <span>
           / 목표 {quickClock(target)} · {a.segmentStart ? '측정 중' : '일시정지'}
         </span>
+        <button
+          type="button"
+          className="question-display-toggle"
+          onClick={() =>
+            controller.update((v) => ({ ...v, display: visible ? 'classic' : 'mini' }))
+          }
+        >
+          {visible ? '차량 숨기기' : '차량 켜기'}
+        </button>
       </div>
       {visible && (
         <div className={'question-track ' + (cinematic ? 'cinematic scene-' + g.car.scene : '')}>

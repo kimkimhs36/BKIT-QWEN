@@ -1,0 +1,23 @@
+BKIT 3.6, local verification, 2026-10-19/20 UTC
+
+TypeScript + Vite production build: PASS
+Vitest: 221 tests, 37 files PASS
+Existing desktop regression: 102/102 PASS
+New completion flows: 12/12 PASS (desktop + WebKit iPad)
+Mock exam incl. inline car hiding, persistence and expiry: 3/3 PASS (desktop + WebKit iPhone/iPad)
+PDF editable tools/pinch/cancellation/save protection: 3/3 PASS (desktop + WebKit iPhone/iPad)
+Critical material/concurrent purchase/audio/quota replay: 4/4 PASS (WebKit iPad), 4/4 PASS (desktop)
+Layout: 9 screens x 7 sizes = 63 combinations, no horizontal overflow, clipped inputs or page errors.
+Theme accessibility: 9 home themes, no WCAG A/AA/2.1 AA violations in the inspected main content.
+Synthesized audio: actual start/stop verified in Chromium and WebKit.
+Camera: synthetic camera, actual local model init/inference/stop; no foreign requests or uploads. No human video artifacts.
+Initial precache: no awake-engine, MaterialEffects, MaterialSettings or materials entries.
+
+Remote code checkpoint a0afee9, Actions 39343570904:
+compile-and-data PASS; desktop 121/121 PASS; WebKit iPhone 50/50 PASS.
+WebKit iPad 49/50: pinch assertion read the old saved cursor before its asynchronous write.
+The strengthened visible 150% + durable 1.5x assertions passed in all three browser profiles above.
+Latest final remote results are linked from PR #20 Checks (https://github.com/kimkimhs36/BKIT-QWEN/pull/20).
+
+All fixtures are synthetic/local. Device emulation does not certify physical iOS camera/sensors, battery or Pencil behavior.
+No main/release merge or production deployment.

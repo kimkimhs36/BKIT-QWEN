@@ -9,7 +9,9 @@ export function expireMockExam(s: State, now: number): State {
   if (!a?.exam || a.exam.finishedAt || elapsed(a, now) < a.exam.duration) return s;
   const boundary = a.segmentStart
     ? +new Date(a.segmentStart) + Math.max(0, a.exam.duration - a.elapsed) * 1000
-    : now;
+    : a.segments?.at(-1)?.end
+      ? Date.parse(a.segments.at(-1)!.end)
+      : now;
   return {
     ...s,
     active: { ...closeSegment(a, boundary), exam: { ...a.exam, finishedAt: iso(boundary) } },

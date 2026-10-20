@@ -429,8 +429,10 @@ test('editable tools, two-finger navigation, pointer cancellation and unsaved-in
       e('pointerup', 31, 50);
       e('pointerup', 32, 200);
     });
-  await saved(page);
-  expect((await readDocs(page))[0].cursor.zoom).toBeGreaterThan(1);
+  // Cursor autosave is asynchronous; the ink status may still describe the
+  // preceding stroke. Verify both visible pinch response and durable scale.
+  await expect(room(page).locator('output').first()).toHaveText('150%');
+  await expect.poll(async () => (await readDocs(page))[0].cursor.zoom).toBeCloseTo(1.5, 4);
   expect((await readDocs(page))[0].layers[0].strokes).toHaveLength(1);
   // At native iPhone sizes, a 600x800 PDF can still fit vertically after a 1.5x
   // pinch. Make the viewport genuinely scrollable before asserting a 50px pan.

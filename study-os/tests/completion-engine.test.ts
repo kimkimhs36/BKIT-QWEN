@@ -50,6 +50,18 @@ function exam() {
   return s;
 }
 describe('shared-clock mock exams', () => {
+  it('caps a pause or question switch arriving after the deadline before the next UI tick', () => {
+    let s = exam();
+    const [p, q] = s.learning!.problems;
+    s = moveProblem(s, p.resourceId, q.id, time + 75000);
+    expect(questionSeconds(s.active!, p.id, 75)).toBe(60);
+    expect(questionSeconds(s.active!, q.id, 75)).toBe(0);
+    s.active = closeSegment(s.active!, time + 76000);
+    expect(s.active.elapsed).toBe(60);
+    expect(s.active.segments!.at(-1)!.end).toBe(new Date(time + 60000).toISOString());
+    s = expireMockExam(s, time + 77000);
+    expect(s.active!.exam!.finishedAt).toBe(new Date(time + 60000).toISOString());
+  });
   it('rejects corrupted exam references while leaving the input untouched', () => {
     const s = exam();
     s.active!.exam!.problemIds = ['missing'];
@@ -133,6 +145,60 @@ describe('race physics and archive', () => {
   });
 });
 describe('event rewards and compatibility', () => {
+  it('grants the five-minute stamp for real material output without paying a duplicate session reward', () => {
+    const s = exam(),
+      a = s.active!;
+    delete a.exam;
+    s.active = null;
+    s.sessions = [
+      {
+        ...a,
+        ended: new Date(time + 301000).toISOString(),
+        seconds: 301,
+        segments: [{ start: a.started, end: new Date(time + 301000).toISOString() }],
+        problems: 1,
+        concepts: '',
+        rating: '보통',
+        reason: '',
+        mistake: '',
+        reviewDate: null,
+      },
+    ];
+    const g = rewardLearning(newGarage(time), s, time + 302000);
+    expect(g.credits).toBe(0);
+    expect(g.stamps.map((s) => s.id)).toEqual(['first-five-minutes']);
+    expect(rewardLearning(g, s, time + 303000)).toBe(g);
+  });
+  it('keeps a capped Seoul day through UTC midnight and migrates old UTC wallets conservatively', () => {
+    const before = Date.parse('2026-10-19T23:59:00Z'),
+      after = Date.parse('2026-10-20T00:01:00Z');
+    const s = newState();
+    s.tasks = [
+      taskSchema.parse({
+        id: 'midnight-task',
+        subject: '수학',
+        title: '완료한 과제',
+        kind: '숙제',
+        due: null,
+        priority: 2,
+        minutes: 5,
+        remaining: 1,
+        status: 'done',
+        submitted: false,
+        optional: false,
+        notes: '',
+        link: '',
+        completedAt: new Date(after - 1000).toISOString(),
+      }),
+    ];
+    const g = { ...newGarage(before), credits: 100, day: '2026-10-20', earnedToday: 100 };
+    expect(rewardLearning(g, s, after).credits).toBe(100);
+    const legacy = { ...g, rewardZone: undefined, day: '2026-10-19' };
+    s.tasks[0].completedAt = new Date(before + 1000).toISOString();
+    const migrated = rewardLearning(legacy, s, before + 2000);
+    expect(migrated.credits).toBe(100);
+    expect(migrated.rewardZone).toBe('Asia/Seoul');
+  });
   it('merges incoming exam plans without overwriting the local subject plan', () => {
     const local = newState(),
       incoming = newState();

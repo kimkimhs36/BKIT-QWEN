@@ -1413,3 +1413,9 @@ html[data-drive-focus='true'] .app-shell {
     animation: none !important;
   }
 }
+
+.question-display-toggle {
+  font-size: 10px;
+  padding: 4px 10px;
+  margin-left: auto;
+}

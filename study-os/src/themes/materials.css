@@ -475,3 +475,34 @@ html[data-material]:not([data-material='classic']):not([data-material='forest'])
 html[data-material='night'] .sleep-summary small {
   color: var(--mat-ink) !important;
 }
+
+.material-preview-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.material-apply {
+  align-self: stretch;
+}
+@media (min-width: 720px) {
+  .material-comparison {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .material-comparison .material-choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 0;
+  }
+}
+@media (max-width: 719px) {
+  .material-apply {
+    order: -1;
+    position: sticky;
+    top: 12px;
+    z-index: 2;
+    margin: 0 0 14px;
+    box-shadow: 0 3px 12px #283d2a18;
+  }
+}

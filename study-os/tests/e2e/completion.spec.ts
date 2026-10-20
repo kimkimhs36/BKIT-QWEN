@@ -154,6 +154,14 @@ test('mock exam preserves shared timing, notes, skipped questions and answers af
   await clockVisible(page, race);
   await page.getByRole('button', { name: 'MINI', exact: true }).click();
   await page.clock.fastForward(15000);
+  const beforeDisplayChange = await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'));
+  await race.getByRole('button', { name: '차량 숨기기', exact: true }).click();
+  await expect(race.locator('.question-track')).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'))).toBe(
+    beforeDisplayChange,
+  );
+  await race.getByRole('button', { name: '차량 켜기', exact: true }).click();
+  await expect(race.locator('.question-track')).toBeVisible();
   await race.getByLabel('풀이 메모', { exact: true }).fill('조건을 다시 확인');
   await page.getByLabel('최종 답', { exact: true }).fill('보관할 답안');
   await race.getByText('문제 페이스·검토', { exact: true }).click();
@@ -268,8 +276,12 @@ test('two tabs claim one completion reward and buy one part from the same ledger
   // Native clicks preserve disabled-button behavior when the other tab wins first.
   // Playwright's actionability retry would wait for an intentionally disabled button.
   await Promise.all([
-    page.getByRole('button', { name: '구매 확정', exact: true }).evaluate(el=>(el as HTMLButtonElement).click()),
-    other.getByRole('button', { name: '구매 확정', exact: true }).evaluate(el=>(el as HTMLButtonElement).click()),
+    page
+      .getByRole('button', { name: '구매 확정', exact: true })
+      .evaluate((el) => (el as HTMLButtonElement).click()),
+    other
+      .getByRole('button', { name: '구매 확정', exact: true })
+      .evaluate((el) => (el as HTMLButtonElement).click()),
   ]);
   await expect
     .poll(() =>

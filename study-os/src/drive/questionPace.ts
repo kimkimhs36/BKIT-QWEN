@@ -4,6 +4,7 @@ import { iso } from '../time';
 
 type Active = NonNullable<State['active']>;
 export function questionSeconds(a: Active, problemId: string, total: number): number {
+  total = a.exam ? Math.min(total, a.exam.duration) : total;
   const pace = a.questionPace;
   if (!pace) return 0;
   return (

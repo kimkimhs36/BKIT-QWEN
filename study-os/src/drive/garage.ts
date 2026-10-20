@@ -54,6 +54,7 @@ export const garageSchema = z
     since: z.number().finite().nonnegative(),
     credits: z.number().int().min(0).max(1000000),
     claimed: z.array(z.string().max(220)).max(60000),
+    rewardZone: z.literal('Asia/Seoul').optional(),
     day: z.string(),
     earnedToday: z.number().int().min(0).max(DAILY_CAP),
     transactions: z.array(transactionSchema).max(60003).default([]),
@@ -102,6 +103,7 @@ export const newGarage = (now = Date.now()): GarageState => ({
   transactions: [],
   stamps: [],
   claimed: [],
+  rewardZone: 'Asia/Seoul',
   day: '',
   earnedToday: 0,
   owned: [],
@@ -139,7 +141,7 @@ export function purchase(g: GarageState, item: Upgrade, now = Date.now()): Garag
 }
 /** Rewards require explicit learning output. Timer ticks, idle time and race results never pay. */
 export function rewardLearning(g: GarageState, study: State, now: number): GarageState {
-  const day = new Date(now).toISOString().slice(0, 10);
+  const day = dayKey(now);
   if (day < g.day || now < g.since) return g;
   const candidates: {
     key: string;
@@ -171,6 +173,15 @@ export function rewardLearning(g: GarageState, study: State, now: number): Garag
         at: Date.parse(s.ended),
         amount: economy.completedSession,
       });
+  }
+  for (const session of study.sessions) {
+    if (
+      session.seconds >= 300 &&
+      (session.resourceId || session.workspace) &&
+      (session.problems > 0 ||
+        session.workspace?.attempts.some((a) => a.selfCheck !== 'unreviewed' && a.answer.trim()))
+    )
+      candidates.push({ key: 'session:' + session.id, at: Date.parse(session.ended), amount: 0 });
   }
   for (const task of study.tasks)
     if (task.status === 'done' && task.completedAt && task.kind !== '개인 일정')
@@ -231,7 +242,23 @@ export function rewardLearning(g: GarageState, study: State, now: number): Garag
       reason: 'weekly',
     });
   const seen = new Set(g.claimed);
-  let earned = g.day === day ? g.earnedToday : 0;
+  // Legacy wallets used UTC. Keep their current cap conservatively on migration,
+  // and use the same Seoul day as the study ledger for all subsequent events.
+  const localLedger = g.transactions
+    .filter((t) => t.amount > 0 && dayKey(t.at) === day)
+    .reduce((n, t) => n + t.amount, 0);
+  let earned =
+    g.rewardZone === 'Asia/Seoul'
+      ? g.day === day
+        ? g.earnedToday
+        : 0
+      : Math.min(
+          DAILY_CAP,
+          Math.max(
+            localLedger,
+            g.day === new Date(now).toISOString().slice(0, 10) ? g.earnedToday : 0,
+          ),
+        );
   let credits = g.credits;
   const transactions = [...g.transactions];
   const stamps = [...g.stamps];
@@ -246,7 +273,7 @@ export function rewardLearning(g: GarageState, study: State, now: number): Garag
       continue;
     // Mark capped events too: they cannot be saved up and claimed on another day.
     seen.add(c.key);
-    const sameDay = new Date(c.at).toISOString().slice(0, 10) === day;
+    const sameDay = dayKey(c.at) === day;
     const amount = sameDay ? Math.min(c.amount, DAILY_CAP - earned, 1000000 - credits) : 0;
     transactions.push({
       id: c.key,
@@ -285,7 +312,16 @@ export function rewardLearning(g: GarageState, study: State, now: number): Garag
   }
   return seen.size === g.claimed.length
     ? g
-    : { ...g, credits, claimed: [...seen], day, earnedToday: earned, transactions, stamps };
+    : {
+        ...g,
+        rewardZone: 'Asia/Seoul',
+        credits,
+        claimed: [...seen],
+        day,
+        earnedToday: earned,
+        transactions,
+        stamps,
+      };
 }
 
 /** Records and purchases use the same atomic garage write. No race rewards. */
