@@ -425,11 +425,8 @@ input::placeholder, textarea::placeholder, .capture-input textarea::placeholder 
   .assistant-presence { padding-right: 10px; gap: 4px; }
   .assistant-presence h3 { font-size: 16px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  main, .water-drop, .water-rings i, .assistant-message, .today-more-content,
-  .check-button.checked, .nature-assistant-entry:active .water-drop { animation: none !important; }
-  button, .water-drop { transition: none !important; }
-}
+html[data-effects='none'] main, html[data-effects='none'] .water-drop, html[data-effects='none'] .water-rings i, html[data-effects='none'] .assistant-message, html[data-effects='none'] .today-more-content, html[data-effects='none'] .check-button.checked, html[data-effects='none'] .nature-assistant-entry:active .water-drop { animation: none !important; }
+html[data-effects='none'] button, html[data-effects='none'] .water-drop { transition: none !important; }
 @media (prefers-reduced-transparency: reduce) {
   body > .orbit-nav, html[data-bkit-glass-engine='svg-backdrop'] body > .orbit-nav { background: #f5f8ee; -webkit-backdrop-filter: none; backdrop-filter: none; }
   .panel, .now-focus.now-action, .deadline-pulse, .research-quick-capture { background-color: #fcfdf7; }

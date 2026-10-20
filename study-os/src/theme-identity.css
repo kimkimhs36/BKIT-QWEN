@@ -1,0 +1,1123 @@
+/* Each material owns its light, geometry and motion. Device motion settings never override BKIT. */
+html[data-material='classic'],
+[data-preview='classic'] {
+  --mat-bg: #f5f3ec;
+  --mat-paper: #fffefb;
+  --mat-panel: #f9f7f1;
+  --mat-control: #f3f1e9;
+  --mat-ink: #2d3b32;
+  --mat-muted: #6d7569;
+  --mat-accent: #3e5c45;
+  --mat-on-accent: #fffff7;
+  --mat-line: #dedfd2;
+  --mat-soft: #e9eddf;
+  --mat-radius: 14px;
+  --mat-button-radius: 9px;
+  --mat-shadow: 0 4px 15px -12px #253e3126;
+  --identity-surface: #fffefb;
+  --identity-button: linear-gradient(180deg, #fffefa, #f1f0e7);
+  --identity-page: identity-paper-enter;
+  --identity-speed: 260ms;
+  --identity-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+html[data-material='forest'],
+[data-preview='forest'] {
+  --mat-bg: #0e1914;
+  --mat-paper: #18281f;
+  --mat-panel: #14231a;
+  --mat-control: #101f17;
+  --mat-ink: #e8eedf;
+  --mat-muted: #a6b6a0;
+  --mat-accent: #c3d4a8;
+  --mat-on-accent: #1a2d19;
+  --mat-line: #314632;
+  --mat-soft: #263b29;
+  --mat-radius: 20px;
+  --mat-button-radius: 12px;
+  --mat-shadow: inset 0 1px #eaffd00a, 0 14px 32px -23px #000b;
+  --identity-surface: linear-gradient(145deg, #20322570, transparent 65%), #17261d;
+  --identity-button: linear-gradient(145deg, #2b4130, #1b2d20);
+  --identity-page: identity-forest-enter;
+  --identity-speed: 380ms;
+  --identity-ease: cubic-bezier(0.16, 0.6, 0.24, 1);
+}
+html[data-material='glass'],
+[data-preview='glass'] {
+  --mat-bg: #dcecf6;
+  --mat-paper: #f7fcff99;
+  --mat-panel: #f4fbff80;
+  --mat-control: #f7fcff9c;
+  --mat-ink: #1d3b53;
+  --mat-muted: #4e6b80;
+  --mat-accent: #196cc1;
+  --mat-on-accent: #fff;
+  --mat-line: #ffffffbd;
+  --mat-soft: #e6f4ffb3;
+  --mat-radius: 32px;
+  --mat-button-radius: 24px;
+  --mat-blur: 22px;
+  --mat-shadow:
+    inset 0 1px 1px #fff, inset 1px 0 1px #ffffffa6, inset -1px -1px 1px #5d8ca323,
+    0 14px 35px -24px #345f805e;
+  --identity-surface: linear-gradient(135deg, #ffffffbf, #f1faff5e 65%, #ffffff87);
+  --identity-button: linear-gradient(170deg, #ffffffd9, #ffffff54 55%, #d6e9ff80);
+  --identity-page: identity-glass-enter;
+  --identity-speed: 430ms;
+  --identity-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+html[data-material='jelly'],
+[data-preview='jelly'] {
+  --mat-bg: #f1e9f5;
+  --mat-paper: #fff8ff;
+  --mat-panel: #f9f0fd;
+  --mat-control: #eee3f5;
+  --mat-ink: #51385f;
+  --mat-muted: #80698d;
+  --mat-accent: #895da6;
+  --mat-on-accent: #fff6ff;
+  --mat-line: #e3d2ed;
+  --mat-soft: #eadcf3;
+  --mat-radius: 34px;
+  --mat-button-radius: 22px;
+  --mat-shadow: inset 0 3px 2px #fff, 0 6px 0 #d9c8e64d, 0 15px 28px -20px #8d669b55;
+  --identity-surface: linear-gradient(145deg, #fffaff, #f7effc);
+  --identity-button: linear-gradient(165deg, #fffaff, #efdefa);
+  --identity-page: identity-jelly-enter;
+  --identity-speed: 520ms;
+  --identity-ease: cubic-bezier(0.18, 0.9, 0.27, 1.15);
+}
+.theme-scenery {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  display: none;
+  contain: strict;
+}
+.theme-scenery i {
+  display: block;
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+html[data-material='glass'] .theme-scenery {
+  display: block;
+  background: linear-gradient(145deg, #eaf6ff, #d7e6fa 50%, #e5eff9);
+}
+html[data-material='glass'] .theme-scenery i:nth-child(1) {
+  width: 85vw;
+  height: 85vw;
+  max-width: 1000px;
+  max-height: 1000px;
+  left: -25vw;
+  top: -30vh;
+  background: radial-gradient(circle, #85d3f587, transparent 68%);
+}
+html[data-material='glass'] .theme-scenery i:nth-child(2) {
+  width: 75vw;
+  height: 100vh;
+  right: -25vw;
+  top: 5vh;
+  background: radial-gradient(ellipse, #c1a7ef83, transparent 65%);
+}
+html[data-material='glass'] .theme-scenery i:nth-child(3) {
+  width: 75vw;
+  height: 80vh;
+  bottom: -20vh;
+  left: 5vw;
+  background: radial-gradient(ellipse, #99e4d679, transparent 65%);
+}
+html[data-material='jelly'] .theme-scenery {
+  display: block;
+  background: linear-gradient(135deg, #f8edf6, #ede8fa 55%, #f5e5ef);
+}
+html[data-material='jelly'] .theme-scenery i:nth-child(1) {
+  width: 70vw;
+  height: 75vh;
+  left: -30vw;
+  top: -25vh;
+  background: radial-gradient(ellipse, #ffd0e57a, transparent 70%);
+}
+html[data-material='jelly'] .theme-scenery i:nth-child(2) {
+  width: 70vw;
+  height: 65vh;
+  right: -25vw;
+  top: 20vh;
+  background: radial-gradient(ellipse, #d6c1ff70, transparent 65%);
+}
+html[data-material='jelly'] .theme-scenery i:nth-child(3) {
+  width: 60vw;
+  height: 65vh;
+  bottom: -25vh;
+  left: 10vw;
+  background: radial-gradient(ellipse, #d7efde80, transparent 70%);
+}
+html[data-material='forest'] body {
+  background: radial-gradient(ellipse at 10% 0%, #1b3023, #0e1914 65%) !important;
+}
+html[data-material]
+  .app-shell.premium-os
+  :is(
+    .panel,
+    .focus-card,
+    .study-agenda,
+    .study-next,
+    .study-recent,
+    .ai-zone-tool,
+    .ai-zone-news-grid > a,
+    .ai-zone-articles > a,
+    .resource-resume,
+    .note-card,
+    .recovery-card
+  ) {
+  background: var(--identity-surface, var(--mat-paper)) !important;
+  border: 1px solid var(--mat-line) !important;
+  border-radius: var(--mat-radius) !important;
+  box-shadow: var(--mat-shadow) !important;
+  color: var(--mat-ink) !important;
+}
+html[data-material]
+  .app-shell.premium-os
+  :is(
+    .primary,
+    .secondary,
+    .quick-timer-begin,
+    .study-start-primary,
+    .study-tool-shelf button,
+    .quick-timer-modes button,
+    .quick-timer-lengths button,
+    .duration-options button
+  ) {
+  border-radius: var(--mat-button-radius) !important;
+  transition:
+    transform var(--identity-speed) var(--identity-ease),
+    background 0.18s,
+    box-shadow 0.18s !important;
+}
+html[data-material]
+  .app-shell.premium-os
+  :is(
+    .secondary,
+    .study-tool-shelf button,
+    .quick-timer-modes button,
+    .quick-timer-lengths button
+  ) {
+  background: var(--identity-button, var(--mat-control)) !important;
+  border: 1px solid var(--mat-line) !important;
+  box-shadow: var(--mat-shadow) !important;
+}
+html[data-material] .app-shell.premium-os :is(input, select, textarea) {
+  background: var(--mat-control) !important;
+  color: var(--mat-ink) !important;
+  border: 1px solid var(--mat-line) !important;
+  border-radius: var(--mat-button-radius) !important;
+  box-shadow: none !important;
+}
+html[data-material]
+  .app-shell.premium-os
+  :is(.study-task-copy, .study-text-link, .study-assessment-add) {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html[data-material] .app-shell.premium-os main {
+  animation: var(--identity-page, study-page-in) var(--identity-speed, 300ms)
+    var(--identity-ease, ease-out) both !important;
+}
+html[data-material] .app-shell.premium-os .page-head h1 {
+  animation-duration: var(--identity-speed) !important;
+  animation-timing-function: var(--identity-ease) !important;
+}
+html[data-material] .app-shell.premium-os .study-start-copy {
+  animation-duration: var(--identity-speed) !important;
+  animation-timing-function: var(--identity-ease) !important;
+}
+/* Paper: quiet structure, precise corners and tactile, matte controls. */
+html[data-material='classic'] .app-shell.premium-os .study-start {
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2c4f3c, #284832);
+  box-shadow: 0 14px 25px -25px #1b3e31;
+}
+html[data-material='classic'] .app-shell.premium-os .study-small-icon {
+  border-radius: 9px;
+}
+html[data-material='classic'] .study-dialog {
+  border-radius: 16px;
+  background: #fffefb;
+  box-shadow: 0 20px 65px #1b302a30;
+  animation: identity-paper-dialog 230ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+html[data-material='classic'] .app-shell.premium-os button:active {
+  transform: translateY(1px) scale(0.985);
+}
+/* Forest: deep, opaque velvet. Light lives at the edges, never behind the text. */
+html[data-material='forest'] .app-shell.premium-os .study-start {
+  background: radial-gradient(ellipse at 95% 20%, #3b593b44, transparent 70%), #1c3323;
+  border: 1px solid #40583d;
+  border-radius: 20px;
+  box-shadow:
+    inset 0 1px #cde8a610,
+    0 15px 30px -20px #0009;
+}
+html[data-material='forest'] .app-shell.premium-os .study-start-primary {
+  background: linear-gradient(155deg, #d2dfb8, #b2c895) !important;
+  color: #1b301c !important;
+  box-shadow:
+    inset 0 1px #f1ffd9,
+    0 4px 12px #0003 !important;
+}
+html[data-material='forest'] .app-shell.premium-os .tablet-primary-nav {
+  background: #15251bbd !important;
+  border: 1px solid #31432d !important;
+  border-radius: 16px !important;
+  padding: 5px 12px !important;
+  gap: 22px;
+  margin-top: 6px !important;
+}
+html[data-material='forest'] .app-shell.premium-os .tablet-primary-nav button {
+  padding: 0 12px !important;
+}
+.app-shell.premium-os .study-clock-digits {
+  font-weight: inherit;
+}
+html[data-material='forest'] .app-shell.premium-os .tablet-primary-nav button.active {
+  background: #2d432d !important;
+  border-radius: 11px !important;
+  color: #d9e9c2 !important;
+}
+html[data-material='forest'] .app-shell.premium-os .tablet-primary-nav button.active:after {
+  display: none;
+}
+html[data-material='forest'] .app-shell.premium-os .bkit-quick-search-field {
+  background: #17281d !important;
+  border-color: #334932;
+  box-shadow: inset 0 1px #e3ffca08;
+}
+html[data-material='forest'] .app-shell.premium-os .quick-timer-display {
+  font-weight: 400;
+  letter-spacing: -0.045em;
+  color: #daeac1;
+}
+html[data-material='forest'] .study-dialog {
+  background: linear-gradient(140deg, #22372a, #17271e);
+  border-color: #435c40;
+  border-radius: 22px;
+  box-shadow:
+    inset 0 1px #d5f5b815,
+    0 28px 100px #0008;
+  animation: identity-forest-dialog 330ms cubic-bezier(0.16, 0.6, 0.24, 1);
+}
+html[data-material='forest'] .study-dialog-overlay {
+  background: #020e09a6;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+html[data-material='forest'] .app-shell.premium-os button:active {
+  transform: translateY(1px) scale(0.98);
+}
+/* Liquid Glass: a complete optical surface, with a colorful environment behind it. */
+html[data-material='glass'] .app-shell.premium-os {
+  --hero-ink: #183e59;
+  --hero-soft: #3c6784;
+}
+html[data-material='glass'] .app-shell.premium-os :is(h1, h2, h3, .timer) {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Apple SD Gothic Neo', 'DM Sans',
+    sans-serif !important;
+  font-weight: 600;
+}
+html[data-material='glass']
+  .app-shell.premium-os
+  :is(
+    .panel,
+    .focus-card,
+    .study-agenda,
+    .study-next,
+    .study-recent,
+    .ai-zone-tool,
+    .resource-resume
+  ) {
+  border-color: #ffffffe0 !important;
+  -webkit-backdrop-filter: blur(22px) saturate(1.32);
+  backdrop-filter: blur(22px) saturate(1.32);
+  box-shadow: var(--mat-shadow) !important;
+}
+html[data-material='glass'] .app-shell.premium-os .study-start {
+  background: linear-gradient(132deg, #ffffff9e, #f0faff4a 60%, #e1ecff70) !important;
+  color: #183e59;
+  border: 1px solid #ffffffe6;
+  border-radius: 34px !important;
+  box-shadow:
+    inset 0 2px 2px #fff,
+    inset 1px 0 1px #fff,
+    0 16px 45px -30px #2c5f8a80;
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+}
+html[data-material='glass'] .app-shell.premium-os .study-start:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(125deg, #fff8, transparent 35%, #fff0 70%, #ffffff50);
+  border-radius: inherit;
+  pointer-events: none;
+}
+html[data-material='glass'] .app-shell.premium-os .study-start-meta i {
+  background: #2a86b1;
+  box-shadow: 0 0 0 3px #ffffff59;
+}
+html[data-material='glass'] .app-shell.premium-os .study-start-primary {
+  background: linear-gradient(160deg, #3e99f5, #0966c4) !important;
+  color: #fff !important;
+  border: 1px solid #ffffff5e;
+  box-shadow:
+    inset 0 1px #ffffff6e,
+    0 5px 12px #2a70b940 !important;
+  border-radius: 26px !important;
+}
+html[data-material='glass'] .app-shell.premium-os .study-start-five {
+  color: #285e87;
+  border-radius: 24px;
+  padding: 10px 13px;
+  background: #ffffff4f;
+  border: 1px solid #ffffff7d;
+}
+html[data-material='glass'] .app-shell.premium-os .study-arc {
+  opacity: 0.85;
+  right: -20px;
+  top: 90px;
+}
+html[data-material='glass'] .app-shell.premium-os .study-arc > span {
+  border-color: #ffffffd6;
+  box-shadow:
+    inset 0 1px 2px #fafdff,
+    0 2px 3px #3e71821a;
+  background: linear-gradient(135deg, #ffffff18, transparent);
+}
+html[data-material='glass'] .app-shell.premium-os .study-arc > div {
+  color: #4c7894;
+}
+html[data-material='glass'] .app-shell.premium-os .bkit-quick-search-field {
+  background: linear-gradient(150deg, #ffffffa8, #e9f7ff6b) !important;
+  border: 1px solid #ffffffd9;
+  border-radius: 27px;
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow:
+    inset 0 1px #fff,
+    0 4px 16px -10px #3c769d55;
+}
+html[data-material='glass'] .app-shell.premium-os .tablet-primary-nav {
+  border: 1px solid #ffffffd1 !important;
+  border-radius: 29px !important;
+  padding: 5px 8px !important;
+  background: linear-gradient(140deg, #ffffff7d, #ecf5ff4f) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.35) !important;
+  backdrop-filter: blur(18px) saturate(1.35) !important;
+  gap: 10px;
+  box-shadow:
+    inset 0 1px #fff,
+    0 6px 20px -15px #285e8c4d !important;
+}
+html[data-material='glass'] .app-shell.premium-os .tablet-primary-nav button {
+  padding: 0 18px !important;
+  min-height: 45px;
+}
+html[data-material='glass'] .app-shell.premium-os .tablet-primary-nav button.active {
+  border-radius: 25px !important;
+  background: linear-gradient(160deg, #ffffffcf, #dcedff91) !important;
+  box-shadow:
+    inset 0 1px #fff,
+    0 3px 8px #5c89b422 !important;
+  color: #145c9c !important;
+}
+html[data-material='glass'] .app-shell.premium-os .tablet-primary-nav button.active:after {
+  display: none;
+}
+html[data-material='glass'] .app-shell.premium-os .study-small-icon {
+  border: 1px solid #ffffffe0;
+  background: linear-gradient(145deg, #fff9, #badff366);
+  box-shadow:
+    inset 0 1px #fff,
+    0 3px 8px #3b7c9f16;
+  border-radius: 16px;
+  color: #286696;
+}
+html[data-material='glass'] .app-shell.premium-os :is(.primary, .quick-timer-begin) {
+  background: linear-gradient(165deg, #489ef5, #0d69c8) !important;
+  color: #fff !important;
+  box-shadow:
+    inset 0 1px #ffffff70,
+    0 3px 12px #347dc330 !important;
+}
+html[data-material='glass'] .app-shell.premium-os .study-submission {
+  background: #ffffff7c;
+  border: 1px solid #ffffffb8;
+  border-radius: 20px;
+  color: #2d658d;
+}
+html[data-material='glass'] .app-shell.premium-os .bkit-search-results,
+html[data-material='glass'] .study-dialog {
+  background: linear-gradient(140deg, #fffffff0, #edf8ffd9) !important;
+  border: 1px solid #ffffffed;
+  border-radius: 32px;
+  box-shadow:
+    inset 0 2px 2px #fff,
+    inset 1px 0 1px #fff9,
+    0 25px 85px #15466a35;
+  -webkit-backdrop-filter: blur(28px) saturate(1.35);
+  backdrop-filter: blur(28px) saturate(1.35);
+}
+html[data-material='glass'] .study-dialog {
+  animation: identity-glass-dialog 430ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+html[data-material='glass'] .study-dialog-overlay {
+  background: #386a9a22;
+  -webkit-backdrop-filter: blur(12px) saturate(0.85);
+  backdrop-filter: blur(12px) saturate(0.85);
+}
+html[data-material='glass'] .study-dialog .modal-head {
+  background: #f5fbffe8;
+  border-radius: 15px 15px 0 0;
+}
+html[data-material='glass'] .app-shell.premium-os button:active {
+  transform: scale(0.96);
+}
+/* Soft Jelly: thick edges, creamy pastel surfaces and an elastic release. */
+html[data-material='jelly'] .app-shell.premium-os {
+  --hero-ink: #56345f;
+  --hero-soft: #84658e;
+}
+html[data-material='jelly'] .app-shell.premium-os .study-start {
+  background:
+    radial-gradient(ellipse at 90% 0%, #fbd6e9a1, transparent 70%),
+    linear-gradient(135deg, #fdf0fa, #dfcef3) !important;
+  border: 2px solid #fff5ff;
+  border-radius: 38px !important;
+  box-shadow:
+    inset 0 4px 3px #fff9,
+    inset 0 -5px 0 #cdb5df3b,
+    0 8px 0 #d5c1e63d,
+    0 18px 30px -18px #976da333;
+  color: #56345f;
+}
+html[data-material='jelly'] .app-shell.premium-os .study-start-primary {
+  background: linear-gradient(165deg, #a979c1, #8756a5) !important;
+  border: 1px solid #e5bcf1;
+  border-radius: 23px !important;
+  color: #fff7ff !important;
+  box-shadow:
+    inset 0 2px #eac8fc69,
+    0 4px 0 #71468b33,
+    0 7px 14px #8b5da32b !important;
+}
+html[data-material='jelly'] .app-shell.premium-os .study-start-meta i {
+  background: #9d7eb2;
+  box-shadow: 0 0 0 3px #fff4;
+}
+html[data-material='jelly'] .app-shell.premium-os .study-start-five {
+  color: #714c84;
+}
+html[data-material='jelly'] .app-shell.premium-os .study-arc {
+  opacity: 0.7;
+}
+html[data-material='jelly'] .app-shell.premium-os .study-arc > span {
+  border: 1px solid #ffffff9c;
+  background: linear-gradient(140deg, #fff1, #e6cdef15);
+  box-shadow:
+    inset 0 2px 1px #fff5,
+    0 3px 0 #bb91d216;
+}
+html[data-material='jelly'] .app-shell.premium-os .study-arc > div {
+  color: #9270a1;
+}
+html[data-material='jelly'] .app-shell.premium-os .study-small-icon {
+  border-radius: 17px;
+  background: linear-gradient(145deg, #f6ddec, #e2d5f7);
+  box-shadow:
+    inset 0 2px #fff9,
+    0 3px 0 #c4a7d230;
+}
+html[data-material='jelly'] .app-shell.premium-os .tablet-primary-nav {
+  padding: 8px !important;
+  border-radius: 26px !important;
+  border: 1px solid #fff8 !important;
+  background: #fff6ff80 !important;
+  box-shadow:
+    inset 0 2px #fff,
+    0 5px 0 #d1bfdf50 !important;
+  gap: 12px;
+}
+html[data-material='jelly'] .app-shell.premium-os .tablet-primary-nav button {
+  padding: 0 17px !important;
+}
+html[data-material='jelly'] .app-shell.premium-os .tablet-primary-nav button.active {
+  background: linear-gradient(160deg, #ead7f4, #dec9ed) !important;
+  border-radius: 19px !important;
+  box-shadow:
+    inset 0 2px #fef4ff,
+    0 3px 0 #b79bc833 !important;
+  color: #694282 !important;
+}
+html[data-material='jelly'] .app-shell.premium-os .tablet-primary-nav button.active:after {
+  display: none;
+}
+html[data-material='jelly'] .app-shell.premium-os .bkit-quick-search-field {
+  border: 1px solid #fff7ff;
+  border-radius: 24px;
+  background: linear-gradient(165deg, #fffaff, #f0e3fa) !important;
+  box-shadow:
+    inset 0 2px #fff,
+    0 5px 0 #d1bddf66,
+    0 12px 20px -15px #9361a42b;
+}
+html[data-material='jelly'] .app-shell.premium-os :is(.primary, .quick-timer-begin) {
+  background: linear-gradient(160deg, #b18ac8, #8355a1) !important;
+  border: 1px solid #c9a4db !important;
+  box-shadow:
+    inset 0 2px #eecffd70,
+    0 4px 0 #6a418d2e !important;
+}
+html[data-material='jelly'] .app-shell.premium-os .more-hub {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+html[data-material='jelly'] .app-shell.premium-os .more-hub nav {
+  gap: 15px !important;
+}
+html[data-material='jelly'] .app-shell.premium-os .more-hub-link {
+  border-radius: 26px !important;
+  border: 1px solid #fff4ff !important;
+  background: var(--identity-surface) !important;
+  padding: 18px !important;
+  box-shadow: var(--mat-shadow) !important;
+}
+html[data-material='jelly'] .app-shell.premium-os .study-submission {
+  border-radius: 18px;
+  background: linear-gradient(160deg, #f0e2f7, #e6d4f0);
+  box-shadow:
+    inset 0 1px #fff8,
+    0 3px 0 #d9c6e62b;
+}
+html[data-material='jelly'] .study-dialog {
+  background: linear-gradient(150deg, #fff8ff, #f3e9fb);
+  border: 2px solid #fffaff;
+  border-radius: 36px;
+  box-shadow:
+    inset 0 4px #fff,
+    0 8px 0 #aa87bf38,
+    0 30px 80px #6044783b;
+  animation: identity-jelly-dialog 520ms cubic-bezier(0.2, 1.25, 0.3, 1);
+}
+html[data-material='jelly'] .study-dialog-overlay {
+  background: #78598d32;
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+}
+html[data-material='jelly'] .app-shell.premium-os button {
+  transition:
+    transform 420ms cubic-bezier(0.2, 1.6, 0.3, 1),
+    box-shadow 220ms !important;
+  transform-origin: 50% 60%;
+}
+html[data-material='jelly'] .app-shell.premium-os button:active {
+  transform: translateY(2px) scale(0.94);
+}
+/* Portal forms and sheets inherit the complete material, including controls. */
+html[data-material] .study-dialog :is(input, select, textarea) {
+  background: var(--mat-control) !important;
+  color: var(--mat-ink) !important;
+  border: 1px solid var(--mat-line) !important;
+  border-radius: var(--mat-button-radius) !important;
+}
+html[data-material] .study-dialog :is(.primary, .secondary) {
+  border-radius: var(--mat-button-radius) !important;
+}
+html[data-material] .study-dialog .primary {
+  background: var(--mat-accent) !important;
+  color: var(--mat-on-accent) !important;
+}
+html[data-material] .study-dialog :is(.quick-capture-field, .quick-capture-fields > label) {
+  background: var(--mat-soft) !important;
+  border: 1px solid var(--mat-line) !important;
+  border-radius: var(--mat-button-radius) !important;
+  color: var(--mat-ink) !important;
+  box-shadow: none !important;
+}
+html[data-material] .study-dialog.tools-dialog {
+  animation: study-fade 180ms ease-out !important;
+  border-radius: var(--mat-radius) !important;
+}
+html[data-material] .study-dialog :is(.modal-head h2, h3) {
+  color: var(--mat-ink) !important;
+}
+html[data-material='jelly'] .study-dialog button {
+  transition: transform 420ms cubic-bezier(0.2, 1.6, 0.3, 1);
+}
+html[data-material='jelly'] .study-dialog button:active {
+  transform: scale(0.95);
+}
+html[data-material='glass'] .study-dialog .primary {
+  background: linear-gradient(165deg, #489ef5, #0d69c8) !important;
+  box-shadow:
+    inset 0 1px #fff7,
+    0 3px 12px #347dc330 !important;
+}
+html[data-material='jelly'] .study-dialog .primary {
+  background: linear-gradient(165deg, #ad82c7, #81529d) !important;
+  box-shadow:
+    inset 0 2px #efcdfb77,
+    0 4px 0 #78558c33 !important;
+}
+/* The preview is a miniature of each scene, not an unrelated color swatch. */
+.study-theme-preview[data-preview='classic'] {
+  background: #f3f1e8;
+  border-radius: 12px;
+}
+.study-theme-preview[data-preview='classic'] .study-preview-focus {
+  border-radius: 10px;
+  background: #fffef9;
+}
+.study-theme-preview[data-preview='forest'] {
+  background: radial-gradient(ellipse at 0 0, #304a2e, #101e16);
+  border-radius: 20px;
+}
+.study-theme-preview[data-preview='forest'] .study-preview-focus {
+  border-radius: 16px;
+  background: linear-gradient(145deg, #253b2a, #17281d);
+  box-shadow:
+    inset 0 1px #e6ffba13,
+    0 10px 20px #0003;
+}
+.study-theme-preview[data-preview='glass'] {
+  background:
+    radial-gradient(ellipse at 0 0, #a9e6f4, transparent 70%),
+    radial-gradient(ellipse at 100% 50%, #c9b7f0, transparent 70%), #d7e6fa;
+  border-radius: 30px;
+  border-color: #fff;
+}
+.study-theme-preview[data-preview='glass'] .study-preview-focus {
+  background: linear-gradient(140deg, #ffffffba, #ecf8ff6b);
+  border: 1px solid #fffe;
+  border-radius: 26px;
+  box-shadow:
+    inset 0 2px #fff,
+    0 10px 25px -15px #2f668850;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.study-theme-preview[data-preview='glass'] .study-preview-button {
+  border-radius: 22px;
+  background: linear-gradient(160deg, #489ef5, #0d69c8);
+}
+.study-theme-preview[data-preview='jelly'] {
+  background: radial-gradient(ellipse at 0 0, #fbdfeb, transparent 70%), #ede3f9;
+  border-radius: 28px;
+}
+.study-theme-preview[data-preview='jelly'] .study-preview-focus {
+  border-radius: 28px;
+  border: 2px solid #fff7ff;
+  background: linear-gradient(155deg, #fff6ff, #eddbf8);
+  box-shadow:
+    inset 0 3px #fff8,
+    0 6px 0 #cbb3de6b,
+    0 12px 20px -15px #84649b55;
+}
+.study-theme-preview[data-preview='jelly'] .study-preview-button {
+  border-radius: 18px;
+  box-shadow:
+    inset 0 1px #fff4,
+    0 3px 0 #77528e3d;
+}
+@keyframes identity-paper-enter {
+  from {
+    opacity: 1;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes identity-forest-enter {
+  from {
+    opacity: 1;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes identity-glass-enter {
+  from {
+    opacity: 1;
+    transform: translateY(12px) scale(0.992);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes identity-jelly-enter {
+  0% {
+    opacity: 1;
+    transform: translateY(10px) scale(0.985);
+  }
+  72% {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.002);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes identity-paper-dialog {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 6px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+@keyframes identity-forest-dialog {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 10px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+@keyframes identity-glass-dialog {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 18px)) scale(0.96);
+    filter: blur(1px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    filter: none;
+  }
+}
+@keyframes identity-jelly-dialog {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 24px)) scale(0.94);
+  }
+  72% {
+    opacity: 1;
+    transform: translate(-50%, calc(-50% - 2px)) scale(1.004);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+@media (max-width: 650px) {
+  html[data-material='glass'] body > .orbit-nav {
+    background: linear-gradient(145deg, #ffffffa6, #e5f4ff70) !important;
+    border: 1px solid #ffffffe0 !important;
+    border-radius: 34px !important;
+    box-shadow:
+      inset 0 2px 1px #fff,
+      0 12px 35px -15px #2f699c3b !important;
+    -webkit-backdrop-filter: blur(24px) saturate(1.5) !important;
+    backdrop-filter: blur(24px) saturate(1.5) !important;
+  }
+  html[data-material='glass'] body > .orbit-nav button.active {
+    background: linear-gradient(150deg, #ffffffd9, #c9e3fa70) !important;
+    border-radius: 26px !important;
+    box-shadow:
+      inset 0 1px #fff,
+      0 2px 5px #4b7e9b25 !important;
+    color: #135b9d !important;
+  }
+  html[data-material='forest'] body > .orbit-nav {
+    background: #17271ee6 !important;
+    border: 1px solid #47613f !important;
+    border-radius: 20px !important;
+    box-shadow:
+      inset 0 1px #e1ffc014,
+      0 10px 25px #0005 !important;
+  }
+  html[data-material='forest'] body > .orbit-nav button.active {
+    background: #31472e !important;
+    border-radius: 14px !important;
+    color: #d8e8c2 !important;
+  }
+  html[data-material='jelly'] body > .orbit-nav {
+    border-radius: 30px !important;
+    background: linear-gradient(165deg, #fffaffeb, #f0e4fae8) !important;
+    border: 2px solid #fffaff !important;
+    box-shadow:
+      inset 0 2px #fff,
+      0 5px 0 #bfa1d342,
+      0 10px 25px -15px #80529966 !important;
+  }
+  html[data-material='jelly'] body > .orbit-nav button.active {
+    background: linear-gradient(160deg, #f3e0fa, #dac1ed) !important;
+    border-radius: 22px !important;
+    box-shadow:
+      inset 0 2px #fff9,
+      0 3px 0 #ac85c433 !important;
+    color: #6e4287 !important;
+  }
+  html[data-material='classic'] body > .orbit-nav {
+    border-radius: 17px !important;
+    background: #fffef9ed !important;
+    box-shadow: 0 4px 25px #23413114 !important;
+  }
+  html[data-material='classic'] body > .orbit-nav button.active {
+    border-radius: 12px !important;
+  }
+  html[data-material='glass'] .app-shell.premium-os .study-arc {
+    right: -95px;
+    top: 85px;
+    opacity: 0.65;
+  }
+  html[data-material='jelly'] .app-shell.premium-os .study-start {
+    border-radius: 31px !important;
+  }
+  html[data-material='glass'] .app-shell.premium-os .study-start {
+    border-radius: 29px !important;
+  }
+}
+/* Explicit app preferences always win over the material's choreography. */
+html[data-effects='none']
+  :is(.theme-scenery, .study-dialog, .study-dialog-overlay, .app-shell.premium-os *),
+html[data-effects='none'] body > .orbit-nav {
+  animation: none !important;
+  transition: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html[data-motion='reduced'] .app-shell.premium-os main {
+  animation: study-fade 120ms ease-out both !important;
+}
+html[data-motion='off'] .app-shell.premium-os main {
+  animation: none !important;
+}
+/* Lists, directories, editors, badges and native sheets belong to the same material. */
+html[data-material]
+  .app-shell.premium-os
+  :is(
+    .study-site-card,
+    .resource-card,
+    .resource-editor,
+    .ai-zone-source-detail,
+    .sleep-card,
+    .problem-workspace,
+    .session-receipt
+  ) {
+  background: var(--identity-surface, var(--mat-paper)) !important;
+  color: var(--mat-ink) !important;
+  border: 1px solid var(--mat-line) !important;
+  border-radius: var(--mat-radius) !important;
+  box-shadow: var(--mat-shadow) !important;
+}
+html[data-material]
+  .app-shell.premium-os
+  :is(.segmented, .ai-zone-switch, .study-directory-search, .ai-zone-find) {
+  background: var(--mat-control) !important;
+  color: var(--mat-ink) !important;
+  border-color: var(--mat-line) !important;
+  border-radius: var(--mat-button-radius) !important;
+  box-shadow: var(--mat-shadow) !important;
+}
+html[data-material]
+  .app-shell.premium-os
+  :is(
+    .segmented button.selected,
+    .ai-zone-switch button.active,
+    .study-directory-categories button[aria-pressed='true'],
+    .ai-zone-filters button.active
+  ) {
+  background: var(--mat-soft) !important;
+  color: var(--mat-accent) !important;
+  border-color: var(--mat-line) !important;
+  border-radius: calc(var(--mat-button-radius) - 3px) !important;
+  box-shadow: var(--mat-shadow) !important;
+}
+html[data-material]
+  .app-shell.premium-os
+  :is(
+    .study-directory-categories button,
+    .ai-zone-filters button,
+    .subject,
+    .ai-zone-type,
+    .study-site-category
+  ) {
+  border-color: var(--mat-line) !important;
+  border-radius: var(--mat-button-radius) !important;
+  color: var(--mat-accent) !important;
+  background: var(--mat-soft) !important;
+}
+html[data-material] dialog:not(.race-dialog):not(.juggernaut-dialog) {
+  background: var(--identity-surface, var(--mat-paper)) !important;
+  color: var(--mat-ink) !important;
+  border: 1px solid var(--mat-line) !important;
+  border-radius: var(--mat-radius) !important;
+  box-shadow:
+    var(--mat-shadow),
+    0 25px 80px #10271f25 !important;
+}
+html[data-material] dialog:not(.race-dialog):not(.juggernaut-dialog) :is(input, select, textarea) {
+  background: var(--mat-control) !important;
+  color: var(--mat-ink) !important;
+  border: 1px solid var(--mat-line) !important;
+  border-radius: var(--mat-button-radius) !important;
+}
+html[data-material] .study-dialog :is(.capture-input, .capture-chips input, .capture-method) {
+  background: var(--mat-control) !important;
+  color: var(--mat-ink) !important;
+  border-color: var(--mat-line) !important;
+  border-radius: var(--mat-button-radius) !important;
+}
+html[data-material] .study-dialog :is(.capture-chips label, .capture-v2-indicators span) {
+  background: var(--mat-soft) !important;
+  color: var(--mat-ink) !important;
+  border: 1px solid var(--mat-line) !important;
+  border-radius: var(--mat-button-radius) !important;
+}
+html[data-material='glass'] .app-shell.premium-os :is(.quick-timer-display, .focus-readout .timer) {
+  color: #245b87 !important;
+  font-weight: 350 !important;
+  text-shadow: 0 1px #fff9;
+  letter-spacing: -0.06em;
+}
+html[data-material='jelly'] .app-shell.premium-os :is(.quick-timer-display, .focus-readout .timer) {
+  color: #714486 !important;
+  font-weight: 650 !important;
+  text-shadow: 0 3px #fff9;
+  letter-spacing: -0.065em;
+}
+html[data-material='forest']
+  .app-shell.premium-os
+  :is(.quick-timer-display, .focus-readout .timer) {
+  color: #d9e8be !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.045em;
+}
+html[data-material='jelly'] .app-shell.premium-os :is(.study-section-heading h2, .page-head h1) {
+  font-weight: 650 !important;
+  letter-spacing: -0.05em;
+}
+html[data-material='forest'] .app-shell.premium-os :is(.study-section-heading h2, .page-head h1) {
+  font-weight: 500 !important;
+}
+html[data-material='glass'] .app-shell.premium-os :is(.study-section-heading h2, .page-head h1) {
+  font-weight: 600 !important;
+  letter-spacing: -0.06em;
+}
+html[data-effects='none']
+  .app-shell.premium-os
+  :is(.panel, .focus-card, .study-agenda, .study-next, .study-recent) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+/* Readable frosted sheets: optical edges remain clear; text behind the form stays quiet. */
+html[data-material='glass'] .study-dialog {
+  background: linear-gradient(140deg, #fffffff7, #edf8fff2) !important;
+}
+html[data-material] .study-dialog .icon-button {
+  color: var(--mat-accent);
+  background: var(--mat-soft);
+}
+html[data-material] .study-dialog :is(input, textarea)::placeholder {
+  color: var(--mat-muted) !important;
+  opacity: 0.75;
+}
+html[data-material] .study-dialog input[type='file'] {
+  padding: 7px !important;
+  min-height: 44px;
+  max-width: 100%;
+  font-size: 12px;
+}
+html[data-material] .study-dialog input[type='file']::file-selector-button {
+  background: var(--mat-soft);
+  color: var(--mat-accent);
+  border: 1px solid var(--mat-line);
+  border-radius: var(--mat-button-radius);
+  padding: 8px 10px;
+  margin-right: 8px;
+  font: inherit;
+}
+.study-task-materials,
+.study-task-details {
+  border: 1px solid var(--mat-line);
+  border-radius: var(--mat-button-radius);
+  margin: 0 0 18px;
+  padding: 0 13px;
+  background: var(--mat-control);
+}
+.study-task-materials > summary,
+.study-task-details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 12px 0;
+  font-size: 12px;
+  color: var(--mat-muted);
+  cursor: pointer;
+  list-style: none !important;
+}
+.study-task-materials > summary:before,
+.study-task-details > summary:before,
+.study-task-materials > summary::marker,
+.study-task-details > summary::marker {
+  content: none !important;
+}
+.study-task-materials[open],
+.study-task-details[open] {
+  padding-bottom: 15px;
+}
+.study-task-materials[open] > summary,
+.study-task-details[open] > summary {
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--mat-line);
+}
+.study-task-materials > summary > svg,
+.study-task-details > summary > svg {
+  transition: transform 0.18s;
+}
+.study-task-materials[open] > summary > svg,
+.study-task-details[open] > summary > svg {
+  transform: rotate(90deg);
+}
+/* Content stays readable even if a browser pauses an entrance animation. */
+html[data-material] .app-shell.premium-os main {
+  opacity: 1 !important;
+  animation-fill-mode: backwards !important;
+}
+/* Reserve expensive optical blur for the first layer of navigation, home and sheets. */
+html[data-material='glass']
+  .app-shell.premium-os
+  :is(.panel, .focus-card, .ai-zone-tool, .resource-resume, .study-site-card, .resource-card) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+@media (pointer: coarse) {
+  html[data-material='glass']
+    .app-shell.premium-os
+    :is(.study-start, .study-agenda, .study-next, .study-recent) {
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    backdrop-filter: blur(16px) saturate(1.3);
+  }
+}
+html[data-effects='none']
+  .app-shell.premium-os
+  :is(.study-start, .study-agenda, .study-next, .study-recent) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}

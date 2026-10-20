@@ -1,15 +1,13 @@
+import { AnimatedClock } from './AnimatedClock';
+import { PremiumHome } from './PremiumHome';
+import { Modal } from './Modal';
+import { MotionConfig } from 'motion/react';
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, useMemo, type ReactNode, type FormEvent } from 'react';
 import { TaskMaterials, emptyTaskMaterials, type TaskMaterialDraft } from './TaskMaterials';
 import { flushLearning } from './learningFlush';
 import { QuickStudyTimer } from './QuickStudyTimer';
 import { useGarage } from './drive/useGarage';
-import { DriveSwitch, DriveDashboard } from './drive/DriveDashboard';
-import { RaceBoundary } from './drive/RaceBoundary';
 import { BREAK_KEY, restoreBrowserBreak, type StudyBreak, type BreakActivity } from './drive/break';
-const Intermission = lazy(() => import('./drive/Intermission').then(m => ({ default: m.Intermission })));
-const WakeBomb = lazy(() => import('./drive/WakeBomb').then(m => ({ default: m.WakeBomb })));
-const DragRace = lazy(() => import('./drive/DragRace').then(m => ({ default: m.DragRace })));
-const Garage = lazy(() => import('./drive/Garage').then(m => ({ default: m.Garage })));
 import { startQuick, pauseQuick, resumeQuick, finishQuick, attachQuickResource, attachQuickTask, finishQuickResource, labelQuick, quickSeconds, quickClock, quickDaySeconds, pausedStudySnapshot } from './quickTimer';
 import { learning, resourceProgress, resourceForTask, linkedTaskProgress, moveProblem, protectResourceTask, buildResourceReviews, isCompleted } from './learningEngine';
 import { expireMockExam } from './mockExam';
@@ -52,7 +50,6 @@ import { WaterDrop } from './WaterDrop';
 import { MaterialObject } from './themes/MaterialObject';
 import { materialCharacter } from './themes/material';
 import { DayTimeline } from './DayTimeline';
-const DayOrbit = lazy(() => import('./DayOrbit').then(m=>({default:m.DayOrbit})));
 import { createPortal } from 'react-dom';
 import {
   ArrowUpRight,
@@ -125,14 +122,11 @@ const MoreHub = lazy(()=>import('./MoreHub').then(m=>({default:m.MoreHub})));
 const ExamPanel = lazy(()=>import('./ExamPanel').then(m=>({default:m.ExamPanel})));
 const LearningEvidence = lazy(()=>import('./LearningEvidence').then(m=>({default:m.LearningEvidence})));
 const ProblemReviewQueue = lazy(()=>import('./ProblemReviewQueue').then(m=>({default:m.ProblemReviewQueue})));
-const DayClose=lazy(()=>import('./DayClose').then(m=>({default:m.DayClose})));
 const AwakeAssist=lazy(()=>import('./AwakeAssist').then(m=>({default:m.AwakeAssist})));
 const GlobalSearch = lazy(() => import('./GlobalSearch').then(m=>({default:m.GlobalSearch})));
 const StudyDirectory = lazy(() => import('./StudyDirectory').then(m=>({default:m.StudyDirectory})));
 const AIZone = lazy(() => import('./AIZone').then(m=>({default:m.AIZone})));
 const MaterialSettings = lazy(() => import('./themes/MaterialSettings').then(m=>({default:m.MaterialSettings})));
-const MaterialEffects = lazy(() => import('./themes/MaterialEffects').then(m=>({default:m.MaterialEffects})));
-const Juggernaut = lazy(() => import('./Juggernaut').then(m => ({default:m.Juggernaut})));
 const NAV = [
   { id: 'today', en: 'NOW', label: '오늘', icon: Home },
   { id: 'school', en: 'SCHOOL', label: '시간표', icon: CalendarDays },
@@ -141,13 +135,12 @@ const NAV = [
   { id: 'progress', en: 'PROGRESS', label: '기록', icon: Target },
   { id: 'settings', en: 'SETTINGS', label: '설정', icon: Settings },
   { id: 'exams', en: 'EXAMS', label: '시험 관리', icon: CalendarDays },
-  { id: 'garage', en: 'MOTOR CLUB', label: 'TOHEŞAR GARAGE', icon: Sparkles },
   { id: 'sites', en: 'STUDY LIBRARY', label: '공부 사이트', icon: BookOpen },
   { id: 'ai-zone', en: 'AI INDEX', label: 'BKIT AI ZONE', icon: Sparkles },
-  { id: 'more', en: 'MORE', label: '더보기', icon: Menu },
+  { id: 'more', en: 'TOOLS', label: '도구', icon: Menu },
 ];
-const PRIMARY_NAV = ['today','study','tasks','more'].map(id=>NAV.find(n=>n.id===id)!);
-const MORE_ROUTES = ['garage','school','progress','settings','sleep','juggernaut','exams','sites','ai-zone'];
+const PRIMARY_NAV = ['today','study','tasks','progress','more'].map(id=>NAV.find(n=>n.id===id)!);
+const MORE_ROUTES = ['school','settings','sleep','exams','sites','ai-zone'];
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 function Empty({ title, children }: { title: string; children: ReactNode }) {
@@ -175,86 +168,14 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
     </label>
   );
 }
-function Modal({
-  title,
-  children,
-  onClose,
-  nonModal = false,
-}: {
-  title: string;
-  children: ReactNode;
-  onClose: () => void;
-  nonModal?: boolean;
-}) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const element = ref.current;
-    const returnTo = nonModal ? document.querySelector<HTMLElement>('.home-tools-button') : document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const previousOverflow = document.body.style.overflow;
-    if (!nonModal) document.body.style.overflow = 'hidden';
-    if (nonModal) ref.current?.show();
-    else ref.current?.showModal();
-    return () => {
-      const restore = document.activeElement === document.body || !!element?.contains(document.activeElement);
-      if (element?.open) element.close();
-      if (!nonModal) document.body.style.overflow = previousOverflow;
-      if (restore && returnTo?.isConnected) returnTo.focus({preventScroll:true});
-    };
-  }, [nonModal]);
-  useEffect(() => {
-    if (!nonModal) return;
-    const outside = (event: PointerEvent) => {
-      const target = event.target;
-      if (!(target instanceof Node)) return;
-      if (ref.current?.contains(target)) return;
-      // The same menu trigger must receive the click so it can close itself.
-      if (target instanceof Element && target.closest('.home-tools-button')) return;
-      onClose();
-    };
-    const escape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-      }
-    };
-    document.addEventListener('pointerdown', outside);
-    document.addEventListener('keydown', escape);
-    return () => {
-      document.removeEventListener('pointerdown', outside);
-      document.removeEventListener('keydown', escape);
-    };
-  }, [nonModal, onClose]);
-  return (
-    <dialog
-      ref={ref}
-      id={nonModal ? 'bkit-tools-menu' : undefined}
-      className={nonModal ? 'tools-dialog' : undefined}
-      aria-modal={nonModal ? 'false' : undefined}
-      onCancel={onClose}
-      onClick={(e) => {
-        if (e.target !== ref.current || nonModal) return;
-        const bounds = ref.current.getBoundingClientRect();
-        if (e.clientX < bounds.left || e.clientX > bounds.right || e.clientY < bounds.top || e.clientY > bounds.bottom) onClose();
-      }}
-      aria-labelledby="modal-title"
-    >
-      <div className="modal-head">
-        <h2 id="modal-title">{title}</h2>
-        <button className="icon-button" aria-label="닫기" onClick={onClose}>
-          <X />
-        </button>
-      </div>
-      {children}
-    </dialog>
-  );
-}
 export default function App() {
+  const modalTrigger = useRef<HTMLElement | null>(null);
   useViewport();
   const [initial] = useState(() => readState(localStorage));
   const [s, setS] = useState<State>(initial.state),
     [storageError, setStorageError] = useState(initial.error),
     [readBlocked, setReadBlocked] = useState(!!initial.error);
-  const garageController = useGarage(s, readBlocked);
+  const garageController = useGarage(s, readBlocked, false);
   const [theme, setTheme] = useState(() => restoreTheme(window.localStorage));
   const [material,setMaterial] = useState(()=>restoreMaterial(window.localStorage,theme));
   useEffect(() => { applyTheme(theme); }, [theme]);
@@ -263,7 +184,8 @@ export default function App() {
     document.documentElement.style.removeProperty('background-color');
     const background = getComputedStyle(document.documentElement).getPropertyValue('--mat-bg').trim();
     if (background) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', background);
-    document.documentElement.dataset.effects = material.lowPower || material.motion !== 'auto' || matchMedia('(prefers-reduced-motion: reduce)').matches ? 'none' : 'auto';
+    document.documentElement.dataset.effects = material.lowPower || material.motion !== 'auto' ? 'none' : 'auto';
+    document.documentElement.dataset.motion = material.lowPower ? 'off' : material.motion;
     window.dispatchEvent(new Event('bkit:effects'));
   },[material]);
   function changeMaterial(next:MaterialPreferences) {
@@ -284,9 +206,7 @@ export default function App() {
   const [atelierOpen, setAtelierOpen] = useState(false);
   const [atelierStep, setAtelierStep] = useState<'capture' | undefined>();
   function openAtelier(step?: 'capture') { setAtelierStep(step); setAtelierOpen(true); }
-  const [studyBreak, setStudyBreak] = useState<StudyBreak | null>(() => restoreBrowserBreak());
-  const breakFocus = useRef<HTMLElement | null>(null);
-  const [tab, setTabState] = useState<string>(() => restoreBrowserBreak()?.route ?? 'today'),
+  const [tab, setTabState] = useState<string>(() => 'today'),
     [now, setNow] = useState(Date.now()),
     [online, setOnline] = useState(navigator.onLine),
     [notice, setNotice] = useState(''),
@@ -307,7 +227,7 @@ export default function App() {
   // A route trail, not browser history: back must never leave the study app.
   const routeTrail = useRef<string[]>([]);
   function setTab(route:string, remember = true) {
-    if (route === tab) return;
+    if (['garage','juggernaut'].includes(route) || route === tab) return;
     if (flushLearning(() => setTab(route, remember))) {
       if (remember) routeTrail.current = [...routeTrail.current.slice(-39), tab];
       setTabState(route);
@@ -360,7 +280,7 @@ export default function App() {
   useEffect(() => {
     const shortcut = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        if (document.querySelector('dialog[open]')) return;
+        if (document.querySelector('dialog[open], [role="dialog"][data-state="open"]')) return;
         e.preventDefault();
         setModal('capture');
         setFormError('');
@@ -457,7 +377,7 @@ export default function App() {
   // The full learning shell is large: do not re-render it every second when
   // the student is only browsing. Any running study, exam or break keeps the
   // precise 1-second clock; idle screens refresh every 15 seconds instead.
-  const precisionClock = Boolean(s.active || s.quickTimer || studyBreak);
+  const precisionClock = Boolean(s.active || s.quickTimer);
   useEffect(() => {
     const tick = () => {
       // Time accounting uses wall-clock timestamps; hidden Safari tabs need no
@@ -687,10 +607,6 @@ export default function App() {
     return commit(v => labelQuick(v, id, subject, action, note, taskId));
   }
   const quickProps = {
-    controller: garageController,
-    onBreak: beginStudyBreak,
-    onIntermission: () => beginBreak('intermission', 180),
-    onWake: () => beginBreak('wake', 30),
     timer: s.quickTimer,
     now,
     todaySeconds: quickToday,
@@ -706,39 +622,6 @@ export default function App() {
     onLabel: saveQuickLabel,
     onCloseEdit: () => setQuickEditingId(null),
   };
-  function beginStudyBreak() { beginBreak('race', 180); }
-  function beginBreak(activity: BreakActivity, duration: number) {
-    if (studyBreak) return;
-    if (!flushLearning(() => beginBreak(activity, duration))) return;
-    const current = memory.current;
-    if (current.active?.segmentStart || current.quickTimer?.segmentStart) {
-      if (!commit(v => ({...pauseQuick(v, Date.now()), active: v.active ? closeSegment(v.active,Date.now()) : null}))) return;
-    }
-    const route = (tab === 'today' || tab === 'study') ? tab : current.active ? 'study' : 'today';
-    const problem = learning(current).problems.find(p => p.id === current.active?.questionPace?.current);
-    const returnLabel = current.active ? `${current.active.subject} ${problem ? problem.ordinal + '번 문제' : current.active.action}로 돌아가기` : '공부 타이머로 돌아가기';
-    const next: StudyBreak = {until:Date.now()+duration*1000,scroll:tab===route ? window.scrollY : 0,route,activity,returnLabel};
-    breakFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    try { sessionStorage.setItem(BREAK_KEY,JSON.stringify(next)); } catch { /* In-memory deadline still applies. */ }
-    if (tab !== route) setTab(route);
-    setStudyBreak(next);
-  }
-  function changeBreak(activity: BreakActivity, seconds?: number) {
-    if (!studyBreak) return;
-    const next = { ...studyBreak, activity, until: seconds ? Date.now() + seconds * 1000 : studyBreak.until };
-    try { sessionStorage.setItem(BREAK_KEY, JSON.stringify(next)); } catch { /* Memory deadline remains authoritative. */ }
-    setStudyBreak(next);
-  }
-  useEffect(() => {
-    if (studyBreak && now >= studyBreak.until) returnFromBreak();
-  }, [now, studyBreak?.until]);
-  function returnFromBreak() {
-    const position = studyBreak?.scroll ?? 0;
-    try { sessionStorage.removeItem(BREAK_KEY); } catch { /* Keep local study intact. */ }
-    setStudyBreak(null);
-    requestAnimationFrame(() => { window.scrollTo(0,position); if(breakFocus.current?.isConnected) breakFocus.current.focus({preventScroll:true}); else document.getElementById('main')?.focus({preventScroll:true}); });
-    setNotice(`${studyBreak?.returnLabel ?? '학습으로 돌아가기'} · 준비되면 타이머를 이어가세요.`);
-  }
   const late = delayMinutes(s, now);
   function start(minutes: number, task = selected || actionTask?.id || null, resourceId?: string, problemId?: string, examCount?: number) {
     if(!flushLearning(()=>start(minutes,task,resourceId,problemId,examCount)))return;
@@ -1006,7 +889,8 @@ export default function App() {
         }))
       ) {
         setModal(null);
-        setNotice('과제를 저장했습니다. 변경된 마감과 분량은 계획 복구에 반영됩니다.');
+        if(!editTask && t.kind === '수행평가'){setFilter('pending');setTab('tasks');}
+        setNotice(t.kind === '수행평가' ? '수행평가를 저장했어요. 할 일 목록에서 확인하세요.' : '과제를 저장했습니다. 변경된 마감과 분량은 계획 복구에 반영됩니다.');
       }
     } catch (e) {
       setFormError(inputError(e));
@@ -1204,9 +1088,9 @@ export default function App() {
     </div>
   );
   return (
-    <div
+    <MotionConfig reducedMotion={material.motion !== 'auto' || material.lowPower ? 'always' : 'never'}><div onPointerDownCapture={event => {const target = event.target instanceof Element ? event.target.closest<HTMLElement>('button,a') : null;if(target) modalTrigger.current = target;}}
       className={
-        'app-shell visual-v2 atelier-os page-' + tab +
+        'app-shell visual-v2 atelier-os premium-os page-' + tab +
         (tab === 'study' && s.active ? ' is-focusing' : '') +
         (tab === 'study' && s.active?.workspace ? ' focus-learning' : '') + (tab==='study' && s.active?.resourceId ? ' focus-resource' : '') +
         (tab === 'study' && s.active?.segmentStart && !s.active.workspace && seconds < s.active.target * 60 && !focusUiVisible && !modal
@@ -1214,8 +1098,8 @@ export default function App() {
           : '')
       }
     >
-      <Suspense fallback={null}><MaterialEffects prefs={material} studying={!!s.active?.segmentStart || !!s.quickTimer?.segmentStart}/></Suspense>
-      {material.id === 'glass' && <LiquidOptics />}
+
+      <div className="theme-scenery" aria-hidden="true"><i/><i/><i/></div>
       <a className="skip" href="#main">
         본문으로 이동
       </a>
@@ -1229,7 +1113,7 @@ export default function App() {
       >
         <WaterDrop className="water-object--brand" />
         <strong>
-          BKIT<small>STUDY OS 3.6</small>
+          BKIT<small>STUDY OS</small>
         </strong>
       </a>
       <div className="main-shell">
@@ -1242,7 +1126,7 @@ export default function App() {
             )}
             <div className="topbar-titles">
               <span className="mobile-brand">
-                BKIT <small>STUDY OS 3.6</small>
+                BKIT <small>STUDY OS</small>
               </span>
               <span className="breadcrumb">
                 BKIT <ChevronRight size={13} /> {(tab === 'sleep' ? 'Sleep Guard' : NAV.find((n) => n.id === tab)?.label)}
@@ -1252,6 +1136,7 @@ export default function App() {
           {tab === 'today' ? <div className="home-top-tools">
             <button type="button" className="icon-button theme-toggle" aria-label={theme === 'dark' ? '라이트모드로 전환' : '다크모드로 전환'} title={theme === 'dark' ? '라이트모드' : '다크모드'} aria-pressed={theme === 'dark'} onClick={changeTheme}>{theme === 'dark' ? <Sun size={20}/> : <Moon size={20}/>}</button>
             {!online && <span>오프라인</span>}
+            <button type="button" className="icon-button" aria-label="설정 열기" onClick={toggleSettings}><SlidersHorizontal size={20}/></button>
             <button type="button" className="icon-button home-tools-button" aria-label="더 보기" aria-expanded={modal === 'tools'} aria-controls="bkit-tools-menu" onClick={() => modal === 'tools' ? setModal(null) : open('tools')}><Menu size={22}/></button>
           </div> :           <div className="top-meta">
             <button type="button" className="icon-button theme-toggle" aria-label={theme === 'dark' ? '라이트모드로 전환' : '다크모드로 전환'} title={theme === 'dark' ? '라이트모드' : '다크모드'} aria-pressed={theme === 'dark'} onClick={changeTheme}>{theme === 'dark' ? <Sun size={20}/> : <Moon size={20}/>}</button>
@@ -1310,7 +1195,7 @@ export default function App() {
                 {
                   (
                     {
-                      today: '오늘',
+                      today: '오늘도, 한 걸음.',
                       school: '시간표',
                       tasks: '할 일',
                       study: '집중',
@@ -1318,7 +1203,7 @@ export default function App() {
                       garage: 'TOHEŞAR GARAGE',
                       settings: '설정',
                       sleep: 'Sleep Guard',
-                      more: '더보기',
+                      more: '학습 도구',
                       exams:'시험 관리',
                       sites:'공부 사이트 백과사전',
                       'ai-zone':'BKIT AI ZONE',
@@ -1339,7 +1224,7 @@ export default function App() {
                       more: '시간표, 학습 증거, 수면과 데이터 관리를 한곳에서.',
                       exams:'확인된 시험 범위와 실제 자료를 연결하세요.',
                       sites:'필요한 강의·기출·자료로 한 번에 이동해요.',
-                      'ai-zone':'전 세계 AI 도구·공식 순위·새로운 소식을 한곳에서.',
+                      'ai-zone':'이해와 정리를 도와줄 AI 도구를 찾아보세요.',
                       settings: '이 기기의 기록과 생활 리듬을 관리하세요.',
                     } as Record<string, string>
                   )[tab]
@@ -1387,228 +1272,12 @@ export default function App() {
           )}
           {tab === 'sites' && <Suspense fallback={<p role="status">사이트 목록을 여는 중…</p>}><StudyDirectory onNotice={setNotice}/></Suspense>}
           {tab === 'ai-zone' && <Suspense fallback={<p role="status">BKIT AI ZONE을 여는 중…</p>}><AIZone/></Suspense>}
-          {tab === 'garage' && <Suspense fallback={<p role="status">차고를 여는 중…</p>}><Garage controller={garageController} onStudy={() => setTab('study')} onRace={beginStudyBreak} canRace={true}/></Suspense>}
           {tab === 'more' && <Suspense fallback={<p role="status">학습 도구를 여는 중…</p>}><MoreHub onNavigate={setTab} onCapture={()=>taskEditor()}/></Suspense>}
-          {tab === 'today' && (
-            <>
-              <div className="home-primary">
-
-              <section className="command-stage">
-                <div className="command-left">
-                  <div className="home-material-study" aria-hidden="true"><MaterialObject id={material.id}/><span>{materialCharacter[material.id].finish}</span></div>
-                  <NowFocus
-                    now={now}
-                    energy={energy}
-                    onEnergyChange={setEnergy}
-                    current={current}
-                    nextFixed={fixed.find((item) => item.start > now)}
-                    active={s.active}
-                    seconds={seconds}
-                    tasks={ordered}
-                    recommended={actionTask}
-                    selection={selected}
-                    onSelectionChange={setSelected}
-                    onStart={(taskId) => start(5, taskId)}
-                    onFocus={() => setTab('study')}
-                    onSchedule={() => setTab('school')}
-                    quickActive={!!s.quickTimer}
-                    quickLabel={s.quickTimer?.mode === 'countdown' ? '카운트다운' : '스톱워치'}
-                    quickDuration={quickClock(quickElapsed)}
-                    onQuickStart={() => beginQuick('stopwatch', 480)}
-                    onQuickOpen={() => document.getElementById('quick-timer-now')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-                  />
-                </div>
-
-              </section>
-                <HomeEntry onBriefing={() => openAtelier()} onMaterials={() => openAtelier('capture')}/>
-              </div>
-              <QuickStudyTimer {...quickProps}/>
-              <TaskCheckIn pending={pending.length} awaiting={awaiting.length} total={s.tasks.length}
-                onSubmission={() => {setFilter('submission');setTab('tasks');}} onAdd={() => openAtelier()}/>
-              <AssessmentRadar tasks={s.tasks} now={now} onAdd={addAssessmentNow}
-                onEdit={taskEditor} onAll={() => {setFilter('pending');setTab('tasks');}}/>
-              {!s.active&&resumeResource&&<section className="resource-resume" aria-label="마지막 자료 이어하기"><div><strong>{resumeResource.title}</strong><p>남은 {resourceProgress(learning(s),resumeResource.id).remainingCount}문제 · 이어 풀 위치 저장됨</p></div><button className="primary" onClick={()=>openResource(resumeResource.id)}>마지막 문제부터 5분 시작</button></section>}
-              {!s.active&&dueProblems>0&&<section className="task-check-in" aria-label="오늘 문제 복습"><BookOpen size={22} aria-hidden="true"/><div><h2>오늘 다시 풀 문제 {dueProblems}개</h2><p>직접 등록한 문제를 답을 가리고 다시 풀어봐요.</p></div><button onClick={()=>{setTab('study');requestAnimationFrame(()=>document.getElementById('learn-problem-reviews')?.scrollIntoView({block:'start',behavior:'auto'}));}}>답을 가리고 다시 풀기 <ArrowRight size={16}/></button></section>}
-              <LandscapeNote/>
-              <Suspense fallback={null}><DayClose state={s} garage={garageController.garage} now={now} onStart={()=>start(5)}/></Suspense>
-              <SleepSummary guard={sleep} onOpen={() => setTab('sleep')}/>
-              <details ref={todayDetailsRef} className="today-more">
-                <summary>
-                  <span>오늘 일정과 기록</span>
-                  <span className="today-more-count">남은 과제 {attention.length}개 <ChevronRight size={16} /></span>
-                </summary>
-                <div className="today-more-content">
-                  <AtelierMissions tasks={ordered} onStart={id => start(5, id)} onEdit={taskEditor}/>
-              {reviewQueue.due.length > 0 && (
-                <button className="review-today-nudge" onClick={() => {
-                  if (todayDetailsRef.current) todayDetailsRef.current.open = true;
-                  requestAnimationFrame(() => {
-                    document.getElementById('today-review-deck')?.scrollIntoView({
-                      behavior: 'smooth', block: 'start',
-                    });
-                  });
-                }}>
-                  <div>
-                    <span>RECALL / READY TODAY</span>
-                    <strong>오늘 복습할 오답 {reviewQueue.due.length}개</strong>
-                    <small>{reviewQueue.due[0].subject} · 정답 없이 먼저 떠올려 보기</small>
-                  </div>
-                  <span className="review-today-link">복습하기 <ArrowRight size={16} /></span>
-                </button>
-              )}
-              <DeadlinePulse tasks={s.tasks} now={now} onTasks={() => setTab('tasks')} onAdd={() => openAtelier()} />
-                  <button type="button" className="research-next-context" aria-label="다음 고정 일정 확인" onClick={() => setTab('school')}>
-                    <Clock size={17}/><span>{next ? `${clock(next.start)} ${next.title}` : '학교·학원 시간표 확인'}</span><ChevronRight size={17}/>
-                  </button>
-
-                  <div className="day-strip">
-                <button className="strip-next" onClick={() => setTab('school')}>
-                  <span className="section-number">
-                    <span>다음 일정</span>
-                  </span>
-                  <strong>
-                    {next?.title || '다음 일정을 설계하세요'} <ArrowUpRight size={16} />
-                  </strong>
-                  <small>
-                    {next
-                      ? `${clock(next.start)} 준비 · ${clock(next.depart)} 출발${now < next.start ? ` · ${Math.ceil((next.start - now) / MIN)}분 후` : ' · 진행 중'}`
-                      : '시간표에 학교·학원 일정 추가'}
-                  </small>
-                </button>
-                <div className="strip-stat">
-                  <span>오늘 집중</span>
-                  <strong>
-                    {Math.floor(studySeconds(s.sessions, today) / 60)}
-                    <small>min</small>
-                  </strong>
-                </div>
-                <div className="strip-stat">
-                  <span>남은 과제</span>
-                  <strong>
-                    {attention.length.toString().padStart(2, '0')}
-                    <small>tasks</small>
-                  </strong>
-                </div>
-                <button className="strip-recover" onClick={recovery} disabled={!pending.length}>
-                  <RotateCcw size={19} />
-                  <span>
-                    {late ? `${late}분 지연 · 계획 복구` : '오늘 계획 정리'}
-                    <small>RECALIBRATE YOUR DAY</small>
-                  </span>
-                  <ArrowUpRight size={17} />
-                </button>
-              </div>
-              <details className="orbit-disclosure" onToggle={event => setOrbitOpen(event.currentTarget.open)}>
-                <summary>
-                  <span>24시간 일정 그래프</span>
-                  <span>펼쳐 보기 <ChevronRight size={15} /></span>
-                </summary>
-                {orbitOpen && <Suspense fallback={<p role="status">일정 그래프를 여는 중…</p>}><DayOrbit
-                  now={now}
-                  events={[
-                    ...fixed,
-                    ...todayBlocks.map((b) => ({
-                      id: b.id,
-                      title: s.tasks.find((t) => t.id === b.taskId)?.title || '학습',
-                      start: +new Date(b.start),
-                      end: +new Date(b.end),
-                      kind: 'study',
-                    })),
-                  ]}
-                /></Suspense>}
-              </details>
-              {reviewQueue.due.length > 0 && (
-                <div id="today-review-deck" className="today-review-deck">
-                  <ReviewDeck queue={reviewQueue} onReview={handleReview} />
-                </div>
-              )}
-              <div className="dashboard-bottom">
-                <section className="panel">
-                  <div className="section-head">
-                    <h2>
-                      오늘의 흐름 <span>TIMELINE</span>
-                    </h2>
-                    <button className="text-button" onClick={() => setTab('school')}>
-                      시간표 <ArrowUpRight size={15} />
-                    </button>
-                  </div>
-                  {planErrors.length > 0 && (
-                    <p className="warning">{planErrors[0]} 계획을 복구하세요.</p>
-                  )}
-                  <DayTimeline
-                    now={now}
-                    onOpen={() => setTab('school')}
-                    events={[
-                      ...fixed.filter((f) => f.id !== 'sleep-am' || f.end > now),
-                      ...todayBlocks.map((b) => ({
-                        id: b.id,
-                        start: +new Date(b.start),
-                        end: +new Date(b.end),
-                        title: s.tasks.find((t) => t.id === b.taskId)?.title || '학습',
-                        kind: 'study',
-                      })),
-                    ]}
-                  />
-                  {!s.schedules.length && !s.plan.length && (
-                    <p className="hint">
-                      실제 시간표는 아직 등록되지 않았어요. 식사·수면은 설정의 기본 생활 리듬입니다.
-                    </p>
-                  )}
-                </section>
-                <div className="right-stack">
-                  <section className="panel">
-                    <div className="section-head">
-                      <h2>
-                        먼저 챙길 과제 <span>{attention.length.toString().padStart(2, '0')}</span>
-                      </h2>
-                      <button
-                        className="icon-button"
-                        aria-label="과제 추가"
-                        onClick={() => taskEditor()}
-                      >
-                        <Plus size={18} />
-                      </button>
-                    </div>
-                    {attentionOrdered.length ? (
-                      attentionOrdered.slice(0, 3).map(taskRow)
-                    ) : (
-                      <Empty
-                        title={
-                          s.tasks.length ? '지금 챙길 과제가 없어요' : '아직 등록된 과제가 없어요'
-                        }
-                      >
-                        {s.tasks.length
-                          ? '등록한 과제의 학습과 제출을 확인했어요.'
-                          : '숙제 하나부터 입력하면 충분해요.'}
-                      </Empty>
-                    )}
-                    <button className="text-button all-tasks" onClick={() => setTab('tasks')}>
-                      모든 과제 보기 <ArrowRight size={15} />
-                    </button>
-                  </section>
-                  <section className="recovery-card">
-                    <div className="recovery-icon">
-                      <Sparkles size={21} />
-                    </div>
-                    <div>
-                      <span className="eyebrow">A FRESH START</span>
-                      <h3>계획이 밀렸나요?</h3>
-                      <p>
-                        지금부터 가능한 일정으로 다시 정리해요.
-                        <br />
-                        수업과 수면은 그대로 지킵니다.
-                      </p>
-                      <button className="text-button" disabled={!pending.length} onClick={recovery}>
-                        오늘 계획 복구 <ArrowRight size={16} />
-                      </button>
-                    </div>
-                  </section>
-                </div>
-              </div>
-                </div>
-              </details>
-            </>
-          )}
+          {tab === 'today' && <PremiumHome state={s} now={now} tasks={ordered} next={next} current={current}
+            resource={resumeResource} timer={<QuickStudyTimer {...quickProps}/>}
+            onStart={id => start(5,id)} onQuick={minutes => {beginQuick(minutes ? 'countdown' : 'stopwatch', minutes ?? 480);setTab('study');}}
+            onNavigate={setTab} onAdd={() => taskEditor()} onAssessment={addAssessmentNow} onMaterials={() => openAtelier('capture')}
+            onEdit={taskEditor} onSubmissions={() => {setFilter('submission');setTab('tasks');}} onResource={openResource}/>}
           {tab === 'school' && (
             <>
               <div className="toolbar">
@@ -1746,6 +1415,7 @@ export default function App() {
                     </button>
                   ))}
                 </div>
+                <button className="secondary" onClick={addAssessmentNow}><Plus size={16}/> 수행 등록</button>
                 <button className="primary" onClick={() => taskEditor()}>
                   <Plus size={16} /> 과제 등록
                 </button>
@@ -1769,8 +1439,8 @@ export default function App() {
           {tab === 'study' && (
             <>
               {!s.active && <QuickStudyTimer {...quickProps} compact/>}
-              {!s.active&&<Suspense fallback={<p role="status">자료 라이브러리를 여는 중…</p>}><ResourceLibrary state={s} onChange={commit} onOpen={openResource}/></Suspense>}
-              <div className="study-layout">
+              {!s.active&&<details className="study-library-disclosure" open={!s.quickTimer}><summary>내 학습 자료 <ChevronRight size={16}/></summary><Suspense fallback={<p role="status">자료 라이브러리를 여는 중…</p>}><ResourceLibrary state={s} onChange={commit} onOpen={openResource}/></Suspense></details>}
+              <details className="study-advanced-focus" open={!!s.active}><summary>{s.active ? '진행 중인 집중' : '과제에 연결해 집중하기 · 복습 도구'}<ChevronRight size={16}/></summary><div className="study-layout">
                 <section
                   className={
                     'focus-card ' +
@@ -1803,10 +1473,8 @@ export default function App() {
                     />
                   )}
                   {s.active?.resourceId && <Suspense fallback={<p role="status">자료 학습실을 여는 중…</p>}><MultiProblemWorkspace controller={garageController} totalSeconds={seconds} state={s} onChange={commit} onFinish={finishResource} onSleep={()=>{const a=memory.current.active;if(a&&commit(v=>({...v,active:closeSegment(a,Date.now())})))setTab('sleep');}}/></Suspense>}
-                  {s.active && <Suspense fallback={null}><AwakeAssist onRest={()=>beginBreak('intermission',180)}/></Suspense>}
-                  <DriveSwitch controller={garageController}/>
-                  {s.active && <div className="race-return-bar"><button onClick={beginStudyBreak}>DRAG RACE · 3분 쉬기</button><button onClick={() => beginBreak('intermission',180)}>INTERMISSION · 쉬기</button><button className="wake-bomb-trigger" onClick={() => beginBreak('wake',30)}>WAKE BOMB · 30초 리셋</button></div>}
-                  {s.active && ['drive', 'dashboard'].includes(garageController.garage.display) ? <DriveDashboard controller={garageController} seconds={seconds} target={s.active.target} running={!!s.active.segmentStart} stopwatch={s.active.quickMode === 'stopwatch'} state={s}/> : <div className="focus-instrument">
+
+                  <div className="focus-instrument">
                     <FocusHalo
                       progress={s.active ? seconds / (s.active.target * 60) : 0}
                       running={!!s.active?.segmentStart}
@@ -1821,10 +1489,10 @@ export default function App() {
                               : 'PAUSED'
                           : 'READY WHEN YOU ARE'}
                       </span>
-                      <div className="timer" aria-label="집중 타이머">
-                        {s.active
+                      <div className="timer" role="timer" aria-label="집중 타이머">
+                        <AnimatedClock value={s.active
                           ? s.active.quickMode === 'stopwatch' ? quickClock(seconds) : `${String(Math.floor(Math.max(0, s.active.target * 60 - seconds) / 60)).padStart(2, '0')}:${String(Math.floor(Math.max(0, s.active.target * 60 - seconds) % 60)).padStart(2, '0')}`
-                          : `${String(duration).padStart(2, '0')}:00`}
+                          : `${String(duration).padStart(2, '0')}:00`}/>
                       </div>
                       <small className="focus-counter">
                         {s.active
@@ -1832,7 +1500,7 @@ export default function App() {
                           : '오직 하나에 집중하는 시간'}
                       </small>
                     </div>
-                  </div>}
+                  </div>
                   {s.active?.segmentStart && (
                     <div className="focus-quiet-tools" aria-label="몰입 화면 옵션">
                       <button type="button" className="text-button quiet-now" onClick={() => setFocusUiVisible(false)}>
@@ -1957,7 +1625,7 @@ export default function App() {
                   </div>
                 </section>
                 <div className="study-review-sidebar" id="learn-problem-reviews"><Suspense fallback={<p>자료 복습을 여는 중…</p>}><ResourceReviews state={s} today={today} onOpen={openResource}/></Suspense><Suspense fallback={<p role="status">복습 문제를 여는 중…</p>}><ProblemReviewQueue state={s} today={today} onAttempt={recordProblemRetest} onCheck={checkProblemRetest}/></Suspense><ReviewDeck queue={reviewQueue} onReview={handleReview} /></div>
-              </div>
+              </div></details>
             </>
           )}
           {tab === 'progress' && (
@@ -2161,6 +1829,7 @@ export default function App() {
               </section>
               <Suspense fallback={<p role="status">테마 미리보기를 여는 중…</p>}><MaterialSettings prefs={material} onChange={changeMaterial}/></Suspense>
               <Suspense fallback={<p role="status">전체 백업을 여는 중…</p>}><CompleteBackupPanel studying={!!s.active || !!s.quickTimer}/></Suspense>
+              <section className="panel experimental-settings"><span className="eyebrow">EXPERIMENTAL · 기본 OFF</span><h2>실험실</h2><p>기기와 환경에 따라 정확도가 달라지는 보조 도구예요.</p><Suspense fallback={<p role="status">실험 도구를 여는 중…</p>}><AwakeAssist onRest={() => setTab('sleep')}/></Suspense></section>
               <div className="settings-layout">
                 <section className="panel">
                   <div className="section-head">
@@ -2395,11 +2064,6 @@ export default function App() {
           return { duplicates: merged.duplicates };
         }}/>, document.body,
       )}
-      {studyBreak && createPortal(<RaceBoundary onReturn={returnFromBreak}><Suspense fallback={<dialog open className="tohesar race-dialog"><p>휴식 레이스를 여는 중…</p><button onClick={returnFromBreak}>학습으로 복귀</button></dialog>}>{studyBreak.activity === 'intermission' ? <Intermission garage={garageController.garage} until={studyBreak.until} returnLabel={studyBreak.returnLabel} onReturn={returnFromBreak} onRace={() => changeBreak('race')} onWake={() => changeBreak('wake',30)} onDuration={seconds => changeBreak('intermission',seconds)}/> : studyBreak.activity === 'wake' ? <WakeBomb garage={garageController.garage} until={studyBreak.until} returnLabel={studyBreak.returnLabel} onReturn={returnFromBreak} onDuration={seconds => changeBreak('wake', seconds)}/> : <DragRace controller={garageController} until={studyBreak.until} onReturn={returnFromBreak} onRoom={() => changeBreak('intermission')}/>}</Suspense></RaceBoundary>,document.body)}
-      {tab === 'juggernaut' && createPortal(
-        <Suspense fallback={<p role="status">JUGGERNAUT를 여는 중…</p>}><Juggernaut now={now} state={s} onChange={commit} onResumeResource={openResource} onStartMock={startMockExam} onExit={() => setTab('today')} tasks={ordered} recommended={actionTask} canStart={!!s.active||recommendationReady} protectedReason={current?.title??'다음 일정 준비'} onStart={id => start(5,id)} /></Suspense>,
-        document.body,
-      )}
       {createPortal(
         <nav
           className={'orbit-nav' + (tab === 'study' && s.active ? ' orbit-nav--hidden' : '')}
@@ -2429,7 +2093,7 @@ export default function App() {
               capture: '무엇부터 해야 할까요?',
               tools: '도구와 설정',
               assistant: 'BKIT 멀티 비서',
-              task: editTask ? '과제 수정' : '새 과제',
+              task: editTask ? '과제 수정' : taskPresetKind === '수행평가' ? '수행평가 등록' : '새 과제',
               schedule: editSchedule ? '일정 수정' : '고정 일정 등록',
               finish: '집중을 기록으로 남기기',
               recover: '지금부터, 다시 시작',
@@ -2441,6 +2105,7 @@ export default function App() {
           }
           onClose={() => { if (taskMaterialBusy) {setFormError('원본 보관 중이에요. 잠시 기다려 주세요.'); return;} setModal(null); }}
           nonModal={modal === 'tools'}
+          returnFocus={modalTrigger.current}
         >
           {formError && (
             <p role="alert" className="warning form-error">
@@ -2452,7 +2117,6 @@ export default function App() {
             <button onClick={() => open('capture')}><Plus size={21}/><span>빠른 한 줄 입력</span><ChevronRight size={18}/></button>
             <button aria-label="BKIT 비서 열기" onClick={() => open('assistant')}><BookOpen size={21}/><span>BKIT 비서</span><ChevronRight size={18}/></button>
             <button aria-label="설정 열기" onClick={() => {setModal(null);setTab('settings');}}><Settings size={21}/><span>설정</span><ChevronRight size={18}/></button>
-            <button onClick={() => {setModal(null);setTab('juggernaut');}}><Sparkles size={21}/><span>JUGGERNAUT · 시네마틱 아카이브</span><ChevronRight size={18}/></button>
           </div>}
           {modal === 'assistant' && (
             <AssistantPanel state={s} getAccessToken={cloud.getAccessToken} onAction={applyAssistantAction}
@@ -2476,8 +2140,10 @@ export default function App() {
           )}
           {modal === 'task' && (
             <form onSubmit={saveTask}>
+              <details className="study-task-materials"><summary>학교 공지 · 사진·PDF 첨부 (선택) <ChevronRight size={16}/></summary>
               <TaskMaterials key={taskDraftId} taskId={taskDraftId} value={taskMaterials}
                 onChange={setTaskMaterials} onBusy={setTaskMaterialBusy}/>
+              </details>
               <div className="form-grid">
                 <Field label="과목">
                   <input
@@ -2522,6 +2188,7 @@ export default function App() {
                     defaultValue={editTask?.due && (!editTask.deadline || editTask.deadline.precision==='exact-time') ? clock(editTask.due) : ''}/>
                 </Field>
               </div>
+              <details className="study-task-details"><summary>학습 분량·시간·상태 · 제출 설정 <ChevronRight size={16}/></summary>
               <div className="form-grid">
                 <Field label="학습 분량 단위">
                   <select name="quantityUnit" defaultValue={editTask?.quantity?.unit ?? ''}>
@@ -2585,6 +2252,7 @@ export default function App() {
                 <input type="checkbox" name="optional" defaultChecked={editTask?.optional} /> 선택
                 활동 (마감이 없을 때만 계획에서 생략 가능)
               </label>
+              </details>
               <Field label="메모">
                 <textarea name="notes" maxLength={3000} defaultValue={editTask?.notes} />
               </Field>
@@ -3111,6 +2779,6 @@ export default function App() {
           )}
         </div>
       )}
-    </div>
+    </div></MotionConfig>
   );
 }

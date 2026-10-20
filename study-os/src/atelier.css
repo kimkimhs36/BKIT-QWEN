@@ -1027,14 +1027,13 @@ dialog.atelier-photo-dialog {
     font-size: 9px;
   }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .atelier-workspace {
+html[data-effects='auto'] .atelier-workspace {
     animation: atelier-arrive 0.5s ease both;
   }
-  .atelier-task {
+html[data-effects='auto'] .atelier-task {
     animation: atelier-arrive 0.45s ease both;
   }
-  @keyframes atelier-arrive {
+@keyframes atelier-arrive {
     from {
       opacity: 0.75;
       transform: translateY(8px);
@@ -1044,15 +1043,12 @@ dialog.atelier-photo-dialog {
       transform: none;
     }
   }
-}
-@media (prefers-reduced-motion: reduce) {
-  .atelier *,
-  .atelier-os * {
+html[data-effects='none'] .atelier *,
+  html[data-effects='none'] .atelier-os * {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
   }
-}
 /* Desktop/iOS legacy skin selectors are intentionally overridden at the shell. */
 .app-shell.atelier-os .main-shell .page-head h1 {
   color: #f2ece0;

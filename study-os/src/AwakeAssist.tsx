@@ -141,12 +141,13 @@ export function AwakeAssist({ onRest }: { onRest: () => void }) {
     }
   }
   return (
-    <details className="awake-assist">
-      <summary>실험 · AWAKE ASSIST</summary>
+    <details className="awake-assist" onToggle={e => { if (!e.currentTarget.open) stop(); }}>
+      <summary>Awake Assist <span>실험 · 기본 OFF</span></summary>
       <p>
         카메라로 눈 감김의 가능성만 살펴보는 실험이에요. 조명·안경·자세에 따라 부정확하며, 실제 기기
         정확도는 검증하지 않았어요. 수면 부족을 해결하거나 졸음을 진단하지 않아요.
       </p>
+      <div className="awake-status"><span>카메라 <b>{running ? '연결됨' : busy ? '준비 중' : 'OFF'}</b></span><span>분석 <b>{running ? '기기 내 관찰 중' : '중지'}</b></span><span>감도 <b>보수적 · 고정</b></span></div>
       <video
         ref={video}
         playsInline

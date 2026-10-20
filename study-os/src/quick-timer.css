@@ -29,7 +29,7 @@
 .quick-timer-compact .quick-timer-intro p{display:none}
 .quick-timer-top-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;border:1px solid rgba(82,126,92,.25);background:rgba(97,146,110,.12);color:inherit;font:inherit;font-size:12px;font-variant-numeric:tabular-nums;cursor:pointer}
 @media(max-width:500px){.quick-timer{border-radius:20px;padding:18px}.quick-timer-today{align-items:flex-start}.quick-timer-form{grid-template-columns:minmax(0,1fr)}.quick-timer-form label:has(textarea){grid-column:auto}.quick-timer-actions button{flex:1}.quick-timer-modes button{flex:1;justify-content:center}}
-@media(prefers-reduced-motion:reduce){.quick-timer *{animation:none!important;transition:none!important}}
+html[data-effects='none'] .quick-timer *{animation:none!important;transition:none!important}
 
 /* Above-the-fold shortcut is positioned inside the existing NOW card without
    changing the height or displacing its three established primary actions. */

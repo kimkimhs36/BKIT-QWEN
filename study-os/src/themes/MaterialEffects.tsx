@@ -85,9 +85,7 @@ export function MaterialEffects({
 }) {
   const [sensor, setSensor] = useState(false);
   const [hidden, setHidden] = useState(document.hidden);
-  const [reduce, setReduce] = useState(
-    () => matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
+  const reduce = false;
   const quiet = hidden || reduce || studying || prefs.lowPower || prefs.motion !== 'auto';
   useEffect(() => {
     const root = document.documentElement;
@@ -97,16 +95,12 @@ export function MaterialEffects({
     window.dispatchEvent(new Event('bkit:effects'));
   }, [quiet, studying, prefs.intensity]);
   useEffect(() => {
-    const media = matchMedia('(prefers-reduced-motion: reduce)');
     const visibility = () => setHidden(document.hidden);
-    const change = () => setReduce(media.matches);
     const enable = (event: Event) => setSensor(Boolean((event as CustomEvent).detail));
     document.addEventListener('visibilitychange', visibility);
-    media.addEventListener('change', change);
     window.addEventListener(SENSOR_EVENT, enable);
     return () => {
       document.removeEventListener('visibilitychange', visibility);
-      media.removeEventListener('change', change);
       window.removeEventListener(SENSOR_EVENT, enable);
     };
   }, []);

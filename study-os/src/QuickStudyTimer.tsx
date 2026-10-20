@@ -1,5 +1,5 @@
-import type { GarageController } from './drive/useGarage';
-import { DriveSwitch, DriveDashboard } from './drive/DriveDashboard';
+import { AnimatedClock } from './AnimatedClock';
+
 import { useEffect, useState } from 'react';
 import { Check, Pause, Play, RotateCcw, Timer, Clock3, ChevronDown } from 'lucide-react';
 import type { State, Session, Task } from './model';
@@ -8,10 +8,6 @@ import './quick-timer.css';
 import { QuickSessionEditor } from './QuickSessionEditor';
 
 type Props = {
-  controller: GarageController;
-  onBreak: () => void;
-  onIntermission: () => void;
-  onWake: () => void;
   timer: State['quickTimer'];
   now: number;
   todaySeconds: number;
@@ -35,10 +31,6 @@ type Props = {
   compact?: boolean;
 };
 export function QuickStudyTimer({
-  controller,
-  onBreak,
-  onIntermission,
-  onWake,
   timer,
   now,
   todaySeconds,
@@ -81,17 +73,16 @@ export function QuickStudyTimer({
     >
       <header className="quick-timer-head">
         <div className="quick-timer-intro">
-          <span className="eyebrow">START FIRST · RECORD LATER</span>
+          <span className="eyebrow">FOCUS AT YOUR PACE</span>
           <h2>
-            <Timer size={20} aria-hidden="true" /> 먼저 시작하는 공부
+            <Timer size={20} aria-hidden="true" /> 나의 집중 시간
           </h2>
-          <p>과목과 목표는 나중에. 지금 바로 시작해.</p>
+          <p>가볍게 시작하고, 차분히 이어가세요.</p>
         </div>
         <span className="quick-timer-today">
-          오늘 바로 시작 <strong>{quickClock(todaySeconds)}</strong>
+          오늘 기록한 시간 <strong>{quickClock(todaySeconds)}</strong>
         </span>
       </header>
-      <DriveSwitch controller={controller} />
       {!timer ? (
         <div className="quick-timer-idle">
           <div className="quick-timer-modes" role="group" aria-label="빠른 타이머 종류">
@@ -148,6 +139,7 @@ export function QuickStudyTimer({
           >
             <Play size={20} fill="currentColor" /> 지금 시작
           </button>
+          <button className="study-text-link" disabled={focusBusy} onClick={() => onStart('countdown',5)}>5분만 시작하기 <Play size={14}/></button>
           {focusBusy && (
             <p className="muted" role="status">
               기존 집중 타이머를 종료한 뒤 시작할 수 있어요.
@@ -156,23 +148,13 @@ export function QuickStudyTimer({
         </div>
       ) : (
         <div className="quick-timer-running">
-          {['drive', 'dashboard'].includes(controller.garage.display) ? (
-            <DriveDashboard
-              controller={controller}
-              seconds={seconds}
-              target={timer.targetMinutes}
-              running={running}
-              stopwatch={timer.mode === 'stopwatch'}
-            />
-          ) : (
             <div
               className="quick-timer-display"
               role="timer"
-              aria-label={timer.mode === 'countdown' ? '남은 집중 시간' : '공부한 시간'}
+              aria-label={(timer.mode === 'countdown' ? '남은 집중 시간 ' : '공부한 시간 ') + quickClock(remaining)}
             >
-              {quickClock(remaining)}
+              <AnimatedClock value={quickClock(remaining)}/>
             </div>
-          )}
           <div className="quick-timer-under" role="status">
             {timer.mode === 'stopwatch'
               ? running
@@ -205,14 +187,6 @@ export function QuickStudyTimer({
               </select>
             </label>
           )}
-          <button type="button" className="secondary" onClick={onBreak}>
-            DRAG RACE · 3분 쉬기
-          </button>
-          <div className="garage-actions">
-            <button onClick={onIntermission}>INTERMISSION · 쉬기</button>
-            <button className="wake-bomb-trigger" onClick={onWake}>WAKE BOMB · 30초 리셋</button>
-          </div>
-          <small className="race-break-note">학습 타이머를 멈추고 시작해요.</small>
           <div className="quick-timer-actions">
             <button type="button" className="secondary" onClick={running ? onPause : onResume}>
               {running ? (

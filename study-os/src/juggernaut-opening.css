@@ -72,4 +72,6 @@
 @keyframes jg-op-car-drift{from{opacity:.3;transform:translate(-54%,-49%) scale(1.2)}to{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
 @keyframes jg-op-reality-in{from{opacity:0;filter:blur(12px)}to{opacity:1;filter:blur(0)}}
 @media(max-height:650px){.juggernaut .jg-op-signal>strong{font-size:23vh}.juggernaut .jg-op-dream-copy{padding-top:12vh}.juggernaut .jg-op-dream-copy h2{font-size:clamp(25px,7vh,58px)}}
-@media(prefers-reduced-motion:reduce){.juggernaut .jg-op *{animation:none!important;transition:none!important}.juggernaut .jg-op .jg-op-tunnel{display:none}.juggernaut .jg-op-reality{opacity:1}}
+html[data-effects='none'] .juggernaut .jg-op *{animation:none!important;transition:none!important}
+html[data-effects='none'] .juggernaut .jg-op .jg-op-tunnel{display:none}
+html[data-effects='none'] .juggernaut .jg-op-reality{opacity:1}

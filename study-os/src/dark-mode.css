@@ -238,9 +238,7 @@ html[data-bkit-theme="dark"] .theme-preferences-action {
  .theme-preferences { align-items: flex-start; flex-direction: column; }
  .theme-preferences-action { width: 100%; justify-content: center; }
 }
-@media(prefers-reduced-motion: reduce) {
- html[data-bkit-theme="dark"] * { transition-duration: 0s !important; }
-}
+html[data-effects='none'][data-bkit-theme="dark"] * { transition-duration: 0s !important; }
 /* Home rhythm cards stay legible in the preserved night palette. */
 html[data-bkit-theme='dark'] .sleep-summary {background:#1b2a22;color:#e2eadf;border-color:#3d5043;}
 html[data-bkit-theme='dark'] .sleep-summary small {color:#b8c8bb;opacity:1;}

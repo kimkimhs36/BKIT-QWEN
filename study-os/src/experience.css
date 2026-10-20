@@ -64,16 +64,14 @@ dialog .field {
     max-height: calc(var(--os-viewport-height, 100dvh) - 20px);
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+html[data-effects='none'] *,
+  html[data-effects='none'] *::before,
+  html[data-effects='none'] *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
 /* Use full input tracks with real gutters instead of letting native iPad
    time controls expand past their grid cell. */
 .app-shell.atelier-os.page-settings .form-grid {
@@ -499,4 +497,4 @@ html[data-sleep-night='true'] dialog::backdrop {
 
 /* Motion reduction also applies to long settings comparisons and navigation. */
 html[data-effects='none'] { scroll-behavior:auto!important; }
-@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto!important; } }
+html[data-effects='none'] { scroll-behavior:auto!important; }

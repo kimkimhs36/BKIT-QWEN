@@ -247,12 +247,10 @@
     font-size: 16px;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .multi-workspace * {
+html[data-effects='none'] .multi-workspace * {
     scroll-behavior: auto !important;
     transition: none !important;
   }
-}
 /* Focus mode has legacy dark native controls; learning fields use a light study surface. */
 .focus-resource .multi-workspace select,
 .resource-library select,

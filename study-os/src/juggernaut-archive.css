@@ -29,4 +29,4 @@
 .juggernaut .jg-archive-disclaimer{display:flex;gap:8px;align-items:flex-start;color:#91b1b5;font-size:12px;line-height:1.65;margin:16px auto 0}
 .juggernaut .jg-archive-disclaimer svg{flex:none;margin-top:2px}
 @media(max-width:390px){.juggernaut .jg-archive-ruler button{padding:10px 7px;min-height:66px}.juggernaut .jg-archive-ruler button span{font-size:22px}.juggernaut .jg-archive-ruler button small{font-size:7px}.juggernaut .jg-file-meta{font-size:9px}}
-@media(prefers-reduced-motion:reduce){.juggernaut .jg-file-orbits,.juggernaut .jg-file{animation:none!important}}
+html[data-effects='none'] .juggernaut .jg-file-orbits,html[data-effects='none'] .juggernaut .jg-file{animation:none!important}

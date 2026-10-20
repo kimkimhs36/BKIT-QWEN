@@ -505,11 +505,8 @@ dialog::backdrop { background: rgba(27,39,71,.30); -webkit-backdrop-filter: blur
   .is-focusing .focus-card { padding-top: max(90px,env(safe-area-inset-top)); }
   .is-focusing .focus-instrument { width: min(76vw,42dvh,345px); }
 }
-@media (prefers-reduced-motion: reduce) {
-  button, .panel, .now-focus, .deadline-pulse, .review-deck-card,
-  .now-focus-track > span { transition: none !important; }
-  .running .focus-aura { animation: none !important; }
-}
+html[data-effects='none'] button, html[data-effects='none'] .panel, html[data-effects='none'] .now-focus, html[data-effects='none'] .deadline-pulse, html[data-effects='none'] .review-deck-card, html[data-effects='none'] .now-focus-track > span { transition: none !important; }
+html[data-effects='none'] .running .focus-aura { animation: none !important; }
 @media (prefers-reduced-transparency: reduce) {
   .now-focus.now-action, .panel, .topbar, .orbit-nav, dialog, .deadline-pulse {
     -webkit-backdrop-filter: none;

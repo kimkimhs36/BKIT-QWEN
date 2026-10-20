@@ -83,8 +83,6 @@ html, body { overscroll-behavior-x: none; }
  .problem-workspace-count { font-size:10px; padding:6px 8px; }
  .problem-selfcheck-actions { flex-direction:column; }
 }
-@media (prefers-reduced-motion:reduce) {
- .problem-workspace *, .is-focusing .focus-card { transition:none!important; animation:none!important; }
-}/* A running learning session keeps the review queue available after exit,
+html[data-effects='none'] .problem-workspace *, html[data-effects='none'] .is-focusing .focus-card { transition:none!important; animation:none!important; }/* A running learning session keeps the review queue available after exit,
    without placing another exercise below the active problem. */
 .is-focusing .study-review-sidebar { display: none; }

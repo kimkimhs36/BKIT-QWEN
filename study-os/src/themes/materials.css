@@ -747,20 +747,18 @@ html[data-effects='none'] .nature-room:after {
   animation: none !important;
   transition: none !important;
 }
-@media (prefers-reduced-motion: reduce) {
-  .material-object * {
+html[data-effects='none'] .material-object * {
     transform: none !important;
     animation: none !important;
     transition: none !important;
   }
-  .material-ambience {
+html[data-effects='none'] .material-ambience {
     display: none;
   }
-  .material-settings * {
+html[data-effects='none'] .material-settings * {
     scroll-behavior: auto !important;
     animation: none !important;
   }
-}
 /* A local contact bridge suggests surface tension without a fluid simulation. */
 .material-specimen-touch [data-object='droplets'] .object-satellite {
   transform: translate(

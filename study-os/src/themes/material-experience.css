@@ -1547,14 +1547,12 @@ html[data-material][data-effects='none'] .material-ambience {
     display: none;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  html[data-material] .app-shell.atelier-os main {
+html[data-effects='none'][data-material] .app-shell.atelier-os main {
     animation: none !important;
   }
-  html[data-material] :is(.drive-needle, .material-controls input[type='checkbox']:after) {
+html[data-effects='none'][data-material] :is(.drive-needle, .material-controls input[type='checkbox']:after) {
     transition: none !important;
   }
-}
 /* Search fields remain one continuous, readable control. */
 html[data-material] .app-shell.atelier-os :is(.bkit-quick-search-field, .bkit-search-results) {
   background: var(--mat-paper) !important;

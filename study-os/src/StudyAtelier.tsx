@@ -12,7 +12,6 @@ import {
   X,
 } from 'lucide-react';
 import type { Task } from './model';
-import { JuggernautOpening } from './JuggernautOpening';
 import {
   DRAFT_KEY,
   createMission,
@@ -163,7 +162,7 @@ export function StudyAtelier({
   const [draft, setDraft] = useState(initial.draft);
   const draftRef = useRef(draft);
   const blocked = useRef(!!initial.error);
-  const prelude = useRef(!hasVisited() && initial.draft.step === 'briefing');
+  const prelude = useRef(false);
   const [intro, setIntro] = useState(prelude.current);
   const [error, setError] = useState(initial.error);
   const [savedDraft, setSavedDraft] = useState(!initial.error);
@@ -337,7 +336,7 @@ export function StudyAtelier({
     <dialog
       ref={dialog}
       className="atelier"
-      aria-label="TOHEŞAR 학습 준비실"
+      aria-label="BKIT 학습 준비실"
       onCancel={(e) => {
         e.preventDefault();
         if (!busyRef.current) {
@@ -348,7 +347,7 @@ export function StudyAtelier({
     >
       <header className="atelier-header">
         <div className="atelier-wordmark">
-          TOHEŞAR<small>PRIVATE STUDY ATELIER</small>
+          BKIT<small>STUDY MATERIALS</small>
         </div>
         <button
           type="button"
@@ -378,29 +377,6 @@ export function StudyAtelier({
         }
       >
         <aside className="atelier-aside">
-          {prelude.current && draft.step === 'briefing' ? (
-            intro ? (
-              <div className="juggernaut jg-heritage atelier-inline-opening">
-                <JuggernautOpening embedded onComplete={finishIntro} />
-                <button
-                  className="atelier-inline-skip"
-                  type="button"
-                  onClick={finishIntro}
-                  aria-label="오프닝 건너뛰기"
-                >
-                  건너뛰기 <ArrowRight size={16} />
-                </button>
-              </div>
-            ) : (
-              <div className="atelier-prelude-still" aria-label="TOHEŞAR JUGGERNAUT">
-                <AtelierScene />
-                <span>
-                  TOHEŞAR<small>JUGGERNAUT · THE NEXT CHAPTER</small>
-                </span>
-              </div>
-            )
-          ) : (
-            <>
               <span className="atelier-eyebrow">THE ART OF GETTING READY</span>
               <h2>
                 큰 미래를 위한,
@@ -409,15 +385,13 @@ export function StudyAtelier({
               </h2>
               <AtelierScene />
               <div className="atelier-aside-note">
-                <span>JUGGERNAUT × BKIT</span>
+                <span>나의 공부 준비</span>
                 <p>
                   머릿속에 흩어진 오늘을 내려놓으면,
                   <br />
                   시작할 한 가지가 선명해집니다.
                 </p>
               </div>
-            </>
-          )}
         </aside>
         <section key={draft.step} className="atelier-workspace" aria-label="오늘의 학습 준비">
           <h1 ref={heading} tabIndex={-1}>
@@ -858,7 +832,7 @@ export function StudyAtelier({
         </section>
       </div>
       <footer className="atelier-footer">
-        <span>TOHEŞAR / JUGGERNAUT</span>
+        <span>BKIT / STUDY SPACE</span>
         <span>PREPARE WITH INTENTION. BEGIN WITH ONE.</span>
         <span>BKIT STUDY OS</span>
       </footer>

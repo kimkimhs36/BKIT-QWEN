@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { State } from '../model';
 import { GARAGE_KEY, garageSchema, newGarage, rewardLearning, type GarageState } from './garage';
 
-export function useGarage(study: State, blocked: boolean) {
+export function useGarage(study: State, blocked: boolean, rewardsEnabled = true) {
   const [initial] = useState(() => {
     try {
       const raw = localStorage.getItem(GARAGE_KEY);
@@ -50,8 +50,8 @@ export function useGarage(study: State, blocked: boolean) {
     }
   }
   useEffect(() => {
-    if (!blocked && !initial.error) update((g) => rewardLearning(g, study, Date.now()));
-  }, [study, blocked]);
+    if (rewardsEnabled && !blocked && !initial.error) update((g) => rewardLearning(g, study, Date.now()));
+  }, [study, blocked, rewardsEnabled]);
   useEffect(() => {
     const sync = (e: StorageEvent) => {
       if (e.key !== GARAGE_KEY) return;

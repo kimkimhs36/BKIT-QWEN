@@ -162,7 +162,7 @@ function skipIntro() {
     return (
       localStorage.getItem(VISITED) === '1' ||
       localStorage.getItem('bkit.juggernaut.skip-intro.v1') === '1' ||
-      matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      document.documentElement.dataset.effects === 'none' ||
       document.documentElement.dataset.sleepNight === 'true'
     );
   } catch {

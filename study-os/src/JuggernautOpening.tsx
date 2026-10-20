@@ -47,7 +47,7 @@ export function JuggernautOpening({
   const [phase, setPhase] = useState<Phase>('signal');
   const [reduceMotion, setReduceMotion] = useState(false);
   useEffect(() => {
-    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const query = {matches: document.documentElement.dataset.effects === 'none'};
     setReduceMotion(query.matches);
     if (query.matches) {
       setPhase('reality');

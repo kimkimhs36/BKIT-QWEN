@@ -154,11 +154,9 @@
  .juggernaut .jg-world{transform:scale(.89);margin:-16px auto}
  .juggernaut .jg-arrival h1{font-size:42px}
 }
-@media(prefers-reduced-motion:reduce){
- .juggernaut .jg-ring,.juggernaut .jg-launch-ring,.jg-home-entry::after{animation:none!important}
- .juggernaut .jg-core,.juggernaut button{transition:none!important}
- .juggernaut *{scroll-behavior:auto!important}
-}
+html[data-effects='none'] .juggernaut .jg-ring,html[data-effects='none'] .juggernaut .jg-launch-ring,html[data-effects='none'] .jg-home-entry::after{animation:none!important}
+html[data-effects='none'] .juggernaut .jg-core,html[data-effects='none'] .juggernaut button{transition:none!important}
+html[data-effects='none'] .juggernaut *{scroll-behavior:auto!important}
 
 .juggernaut .jg-steps{grid-template-columns:repeat(5,minmax(0,1fr))}
 .juggernaut .jg-steps button{font-size:11px;gap:3px}

@@ -266,7 +266,7 @@
  .jg-heritage .jg-breakout>div{min-height:auto}
 }
 @media(max-width:370px){.jg-heritage .jg-chapter-line>span:last-child{display:none}.jg-heritage .jg-masthead>strong span{display:none}}
-@media(prefers-reduced-motion:reduce){.jg-heritage .jg-heraldic-seal,.jg-heritage .jg-file,.jg-heritage .jg-world,.jg-home-entry{animation:none!important;transition:none!important}}
+html[data-effects='none'] .jg-heritage .jg-heraldic-seal,html[data-effects='none'] .jg-heritage .jg-file,html[data-effects='none'] .jg-heritage .jg-world,html[data-effects='none'] .jg-home-entry{animation:none!important;transition:none!important}
 
 /* Brand legibility pass — the TOHEŞAR signature must be unmistakable on iPhone. */
 .jg-home-entry .jg-home-copy{gap:5px}

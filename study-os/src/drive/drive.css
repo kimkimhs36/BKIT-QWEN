@@ -487,13 +487,11 @@ html[data-bkit-theme='dark'] .tohesar {
 [data-motion='none'] .car-wheel {
   animation: none;
 }
-@media (prefers-reduced-motion: reduce) {
-  .tohesar * {
+html[data-effects='none'] .tohesar * {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
   }
-}
 @media (max-width: 420px) {
   .drive-dashboard {
     padding: 12px;
@@ -694,11 +692,9 @@ html[data-bkit-theme='dark'] .tohesar {
 .tohesar[data-motion='none'] .drive-car {
   left: 0 !important;
 }
-@media (prefers-reduced-motion: reduce) {
-  .tohesar .drive-car {
+html[data-effects='none'] .tohesar .drive-car {
     left: 0 !important;
   }
-}
 html .tohesar .garage-panel select {
   background: var(--motor-paper) !important;
   color: var(--motor-ink) !important;
@@ -919,14 +915,12 @@ html[data-bkit-theme='dark'] .wake-caffeine {
   --motor-paper: #30281e;
   --motor-ink: #f1e2c5;
 }
-@media (prefers-reduced-motion: reduce) {
-  .wake-bomb-trigger {
+html[data-effects='none'] .wake-bomb-trigger {
     transition: none;
   }
-  .wake-bomb-trigger:active {
+html[data-effects='none'] .wake-bomb-trigger:active {
     transform: none;
   }
-}
 
 .question-track.cinematic::before {
   content: '';
@@ -1255,11 +1249,9 @@ html[data-drive-focus='true'] .app-shell {
     font-size: 9px;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .drive-route-label {
+html[data-effects='none'] .drive-route-label {
     animation: none !important;
   }
-}
 .nature-forest .nature-orb {
   animation: forest-light 12s ease-in-out infinite alternate;
 }
@@ -1406,13 +1398,11 @@ html[data-drive-focus='true'] .app-shell {
   animation: none !important;
   transition: none !important;
 }
-@media (prefers-reduced-motion: reduce) {
-  .nature-room *,
-  .nature-room::after,
-  .wake-scene * {
+html[data-effects='none'] .nature-room *,
+  html[data-effects='none'] .nature-room::after,
+  html[data-effects='none'] .wake-scene * {
     animation: none !important;
   }
-}
 
 .question-display-toggle {
   font-size: 10px;

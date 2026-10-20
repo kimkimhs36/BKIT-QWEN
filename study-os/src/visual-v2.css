@@ -988,15 +988,13 @@ dialog::backdrop {
     flex-wrap: wrap;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+html[data-effects='none'] *,
+  html[data-effects='none'] *::before,
+  html[data-effects='none'] *::after {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
   }
-}
 /* Checkpoint 02 / capture, temporal inspection & immersive focus */
 main {
   animation: page-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1455,18 +1453,16 @@ main {
     margin-left: 79px;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  main,
-  .command-stage,
-  .running .focus-aura,
-  .temporal-detail,
-  .capture-saved {
+html[data-effects='none'] main,
+  html[data-effects='none'] .command-stage,
+  html[data-effects='none'] .running .focus-aura,
+  html[data-effects='none'] .temporal-detail,
+  html[data-effects='none'] .capture-saved {
     animation: none;
   }
-  .focus-progress {
+html[data-effects='none'] .focus-progress {
     transition: none;
   }
-}
 .toast {
   bottom: auto;
   height: auto;
@@ -1876,12 +1872,10 @@ main {
     padding: 8px 12px;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .clock-second,
-  .session-receipt > svg {
+html[data-effects='none'] .clock-second,
+  html[data-effects='none'] .session-receipt > svg {
     animation: none;
   }
-}
 
 /* NOW / Five-minute starting point — Study OS v2 iterative upgrade */
 .now-focus {
@@ -2046,11 +2040,9 @@ main {
     justify-content: center;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .now-focus-track span {
+html[data-effects='none'] .now-focus-track span {
     transition: none;
   }
-}
 
 /* Immersive focus — controls softly disappear, but the task and timer never do. */
 .is-focusing .focus-exit,
@@ -2075,15 +2067,13 @@ main {
   visibility: visible;
   opacity: 1;
 }
-@media (prefers-reduced-motion: reduce) {
-  .is-focusing .focus-exit,
-  .is-focusing .focus-card > .eyebrow,
-  .is-focusing .focus-card > .muted,
-  .is-focusing .focus-card > .hint,
-  .is-focusing .focus-actions {
+html[data-effects='none'] .is-focusing .focus-exit,
+  html[data-effects='none'] .is-focusing .focus-card > .eyebrow,
+  html[data-effects='none'] .is-focusing .focus-card > .muted,
+  html[data-effects='none'] .is-focusing .focus-card > .hint,
+  html[data-effects='none'] .is-focusing .focus-actions {
     transition: none;
   }
-}
 
 /* Memory through recall, not arbitrary streaks. */
 .review-today-nudge {
@@ -2190,13 +2180,11 @@ main {
  .is-focusing .focus-instrument {width:min(88vw,49dvh,480px);}
  .is-focusing .focus-readout .timer {font-size:clamp(56px,16vw,90px);}
 }
-@media(prefers-reduced-motion:reduce) {
- .is-focusing .focus-quiet-tools,
- .is-focusing .focus-card > p:not(.hint),
- .is-focusing .focus-readout > span,
- .is-focusing .focus-counter,
- .rhythm-fill {transition:none;}
-}
+html[data-effects='none'] .is-focusing .focus-quiet-tools,
+ html[data-effects='none'] .is-focusing .focus-card > p:not(.hint),
+ html[data-effects='none'] .is-focusing .focus-readout > span,
+ html[data-effects='none'] .is-focusing .focus-counter,
+ html[data-effects='none'] .rhythm-fill {transition:none;}
 
 /* BKIT 03.1 — an explicit, accessible restore control */
 .focus-reveal-control { display: none; }

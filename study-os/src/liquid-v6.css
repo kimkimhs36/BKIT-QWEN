@@ -379,13 +379,10 @@ dialog::backdrop {
   .now-focus.now-action { padding: 19px 16px; }
   .now-focus.now-action h2 { font-size: 20px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .orbit-nav *, .primary, .secondary, .now-focus, .panel,
-  .deadline-pulse, .review-deck-card, .liquid-pressed {
+html[data-effects='none'] .orbit-nav *, html[data-effects='none'] .primary, html[data-effects='none'] .secondary, html[data-effects='none'] .now-focus, html[data-effects='none'] .panel, html[data-effects='none'] .deadline-pulse, html[data-effects='none'] .review-deck-card, html[data-effects='none'] .liquid-pressed {
     animation: none !important;
     transition: none !important;
   }
-}
 @media (prefers-reduced-transparency: reduce) {
   .orbit-nav, .now-focus.now-action, .panel,
   .deadline-pulse, dialog {

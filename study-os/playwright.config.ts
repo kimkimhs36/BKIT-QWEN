@@ -63,6 +63,14 @@ export default defineConfig({
       },
     },
     {
+      name: 'ipad-landscape',
+      use: { ...devices['iPad Pro 11 landscape'], defaultBrowserType: 'chromium', launchOptions: chromiumLaunchOptions },
+    },
+    {
+      name: 'webkit-ipad-landscape',
+      use: { ...devices['iPad Pro 11 landscape'], browserName: 'webkit', defaultBrowserType: 'webkit' },
+    },
+    {
       name: 'webkit-ipad',
       use: { ...devices['iPad Pro 11'], browserName: 'webkit', defaultBrowserType: 'webkit' },
     },

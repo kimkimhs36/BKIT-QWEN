@@ -684,14 +684,12 @@ body > .orbit-nav button:not(.active):hover {
     font-size: 29px;
   }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .home-entry-action:hover .home-entry-icon {
+html[data-effects='auto'] .home-entry-action:hover .home-entry-icon {
     transform: translateX(2px);
   }
-  .home-entry-icon {
+html[data-effects='auto'] .home-entry-icon {
     transition: transform 0.2s ease;
   }
-}
 @media (prefers-reduced-transparency: reduce) {
   body > .orbit-nav,
   html[data-bkit-glass-engine] body > .orbit-nav {
@@ -832,9 +830,7 @@ body > .orbit-nav button:not(.active):hover {
 }
 
 /* Keep text contrast stable throughout page entrance, including on slower devices. */
-@media (prefers-reduced-motion: no-preference) {
-  .app-shell.atelier-os main { animation-name: atelier-readable-enter; }
-}
+html[data-effects='auto'] .app-shell.atelier-os main { animation-name: atelier-readable-enter; }
 @keyframes atelier-readable-enter {
   from { transform: translateY(7px); }
   to { transform: translateY(0); }
