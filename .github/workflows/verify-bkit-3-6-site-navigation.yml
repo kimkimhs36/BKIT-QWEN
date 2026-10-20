@@ -52,6 +52,7 @@ jobs:
           npm run test:e2e --
           tests/e2e/back-navigation.spec.ts
           tests/e2e/study-directory.spec.ts
+          tests/e2e/idle-performance.spec.ts
           tests/e2e/dark-mode-settings.spec.ts
           --project=${{ matrix.profile }}
       - uses: actions/upload-artifact@v4
