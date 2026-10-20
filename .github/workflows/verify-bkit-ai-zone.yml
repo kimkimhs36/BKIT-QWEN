@@ -1,0 +1,56 @@
+name: Verify BKIT AI ZONE (no production deploy)
+on:
+  push:
+    branches:
+      - feat/bkit-ai-zone-20261020
+permissions:
+  contents: read
+concurrency:
+  group: bkit-ai-zone-verify-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  unit-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: APP_BASE=/ npm run build
+  browser-tests:
+    needs: unit-and-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [desktop, webkit-iphone, webkit-ipad]
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: APP_BASE=/ npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:e2e -- tests/e2e/ai-zone.spec.ts --project=${{ matrix.profile }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ai-zone-failure-${{ matrix.profile }}
+          path: study-os/test-results/
+          retention-days: 7
