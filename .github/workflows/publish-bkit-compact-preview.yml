@@ -1,0 +1,89 @@
+name: Publish BKIT Compact UX Isolated Preview
+on:
+  push:
+    branches: [feat/bkit-compact-ux-20261021]
+    paths:
+      - .github/workflows/publish-bkit-compact-preview.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: bkit-compact-isolated-preview
+  cancel-in-progress: false
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - name: Build isolated preview with its own asset paths
+        working-directory: study-os
+        env:
+          APP_BASE: /preview-compact/
+        run: |
+          npm ci
+          npm run build
+          test -f dist/index.html
+          grep -q '/preview-compact/assets/' dist/index.html
+      - name: Checkout current public Pages tree without modifying root
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: public-site
+          fetch-depth: 1
+          persist-credentials: true
+      - name: Commit only preview directory
+        id: publish
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test -f public-site/index.html
+          test -f public-site/CNAME
+          test -f public-site/release.json
+          cp public-site/index.html /tmp/bkit-root-index-before
+          cp public-site/release.json /tmp/bkit-release-before
+          rm -rf public-site/preview-compact
+          mkdir -p public-site/preview-compact
+          cp -a study-os/dist/. public-site/preview-compact/
+          test -f public-site/preview-compact/index.html
+          cmp -s public-site/index.html /tmp/bkit-root-index-before
+          cmp -s public-site/release.json /tmp/bkit-release-before
+          cd public-site
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- preview-compact
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "preview: BKIT compact UX only (root production unchanged)"
+            git push origin HEAD:main
+          fi
+          echo "site_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Request Pages build and verify preview link
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SITE_SHA: ${{ steps.publish.outputs.site_sha }}
+        run: |
+          set -euo pipefail
+          gh api -X POST "repos/${GITHUB_REPOSITORY}/pages/builds" >/tmp/preview-pages-build.json || true
+          for i in $(seq 1 40); do
+            if curl -fLsS "https://teambkit.com/preview-compact/index.html?test=${SITE_SHA}" > /tmp/compact-live.html; then
+              if grep -q '/preview-compact/assets/' /tmp/compact-live.html; then
+                echo "PREVIEW_LIVE=https://teambkit.com/preview-compact/"
+                echo "PAGES_COMMIT=${SITE_SHA}"
+                exit 0
+              fi
+            fi
+            sleep 10
+          done
+          echo "Could not verify preview after Pages build."
+          exit 1
