@@ -10,13 +10,13 @@
           d = localStorage.getItem('bkit.study-os.theme.v1') === 'dark',
           p = JSON.parse(localStorage.getItem('bkit.material.v1') || 'null'),
           c = {
-            classic: '#f3f2eb',
-            forest: '#101e19',
-            glass: '#e7edef',
+            classic: '#f5f3ec',
+            forest: '#0e1914',
+            glass: '#dcecf6',
             peach: '#f4eae1',
             diamond: '#edf0f5',
             gold: '#eee9dd',
-            jelly: '#ece8f2',
+            jelly: '#f1e9f5',
             droplets: '#e5efeb',
             night: '#111923',
           },
@@ -33,10 +33,10 @@
         r.dataset.bkitTheme = d ? 'dark' : 'light';
         r.dataset.material = id;
         r.dataset.effects =
-          (valid && (p.lowPower || p.motion !== 'auto')) ||
-          matchMedia('(prefers-reduced-motion: reduce)').matches
+          valid && (p.lowPower || p.motion !== 'auto')
             ? 'none'
             : 'auto';
+        r.dataset.motion = valid ? p.lowPower ? 'off' : p.motion : 'auto';
         r.style.backgroundColor = c[id];
         document.querySelector('meta[name="theme-color"]').content = c[id];
       } catch {
@@ -48,11 +48,11 @@
     <link rel="icon" href="./icon.svg" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <link rel="manifest" href="./manifest.webmanifest" />
-    <title>BKIT STUDY OS 3.6 — DRIVE & REWARD</title>
-    <script type="module" crossorigin src="/assets/index-DB4IFkaj.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/react-vendor-DVGOrvbP.js">
+    <title>BKIT STUDY OS — 나의 공부 공간</title>
+    <script type="module" crossorigin src="/assets/index-D3TQIKSY.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-vendor-DENrKhsk.js">
     <link rel="modulepreload" crossorigin href="/assets/schema-vendor-DYuAzjeD.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-DnqAqNCM.css">
+    <link rel="stylesheet" crossorigin href="/assets/index-CnkANRHc.css">
   </head>
   <body>
     <div id="root"></div>

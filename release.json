@@ -1,9 +1,9 @@
 {
-  "product": "BKIT STUDY OS 3.6 · Material Experience + AI Zone",
-  "sourceCommit": "dc12014119e16078a41215bef9f31e655747fd1f",
-  "publishedAt": "2026-10-20T12:35:01.842Z",
-  "validation": "TypeScript + production Vite build; prior captured Chromium/WebKit smoke tests",
-  "previousSource": "03e3ddbb84ce6a856d4ef32f63b092738601f295",
-  "rollbackCommit": "eee964eddb3151045de20636a6b2cda7a95c235b",
-  "notes": "User study records stored in same-origin browser storage; no storage clearing or migrations"
+  "product": "BKIT STUDY OS 3.7 · Premium Study Space",
+  "sourceCommit": "d3c99662a82df23332f7bb895e61649bc46c2773",
+  "publishedAt": "2026-10-20T13:29:11.613573+00:00",
+  "validation": "TypeScript + production Vite build; 27 storage/timer/theme unit checks; WebKit iPhone and iPad landscape study, assessment and independent motion workflows; four material identities captured",
+  "previousSource": "dc12014119e16078a41215bef9f31e655747fd1f",
+  "rollbackCommit": "93426e50cb044e16291e41082d804658f672a427",
+  "notes": "Existing same-origin learning storage/schema, private materials, CNAME, exam-lab/mock-rescue routes and previous hashed assets preserved. Device reduced motion is independent; choose motion in BKIT settings. Camera assistance remains experimental and off by default."
 }
