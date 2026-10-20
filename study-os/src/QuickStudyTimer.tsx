@@ -1,3 +1,5 @@
+import type { GarageController } from './drive/useGarage';
+import { DriveSwitch, DriveDashboard } from './drive/DriveDashboard';
 import { useEffect, useState } from 'react';
 import { Check, Pause, Play, RotateCcw, Timer, Clock3, ChevronDown } from 'lucide-react';
 import type { State, Session, Task } from './model';
@@ -6,6 +8,10 @@ import './quick-timer.css';
 import { QuickSessionEditor } from './QuickSessionEditor';
 
 type Props = {
+  controller: GarageController;
+  onBreak: () => void;
+  onIntermission: () => void;
+  onWake: () => void;
   timer: State['quickTimer'];
   now: number;
   todaySeconds: number;
@@ -29,6 +35,10 @@ type Props = {
   compact?: boolean;
 };
 export function QuickStudyTimer({
+  controller,
+  onBreak,
+  onIntermission,
+  onWake,
   timer,
   now,
   todaySeconds,
@@ -81,6 +91,7 @@ export function QuickStudyTimer({
           오늘 바로 시작 <strong>{quickClock(todaySeconds)}</strong>
         </span>
       </header>
+      <DriveSwitch controller={controller} />
       {!timer ? (
         <div className="quick-timer-idle">
           <div className="quick-timer-modes" role="group" aria-label="빠른 타이머 종류">
@@ -103,7 +114,7 @@ export function QuickStudyTimer({
           </div>
           {mode === 'countdown' && (
             <div className="quick-timer-lengths" aria-label="타이머 목표">
-              {[10, 25, 45, 60].map((n) => (
+              {[5, 10, 25, 45, 60].map((n) => (
                 <button
                   type="button"
                   key={n}
@@ -145,13 +156,23 @@ export function QuickStudyTimer({
         </div>
       ) : (
         <div className="quick-timer-running">
-          <div
-            className="quick-timer-display"
-            role="timer"
-            aria-label={timer.mode === 'countdown' ? '남은 집중 시간' : '공부한 시간'}
-          >
-            {quickClock(remaining)}
-          </div>
+          {['drive', 'dashboard'].includes(controller.garage.display) ? (
+            <DriveDashboard
+              controller={controller}
+              seconds={seconds}
+              target={timer.targetMinutes}
+              running={running}
+              stopwatch={timer.mode === 'stopwatch'}
+            />
+          ) : (
+            <div
+              className="quick-timer-display"
+              role="timer"
+              aria-label={timer.mode === 'countdown' ? '남은 집중 시간' : '공부한 시간'}
+            >
+              {quickClock(remaining)}
+            </div>
+          )}
           <div className="quick-timer-under" role="status">
             {timer.mode === 'stopwatch'
               ? running
@@ -184,6 +205,14 @@ export function QuickStudyTimer({
               </select>
             </label>
           )}
+          <button type="button" className="secondary" onClick={onBreak}>
+            DRAG RACE · 3분 쉬기
+          </button>
+          <div className="garage-actions">
+            <button onClick={onIntermission}>INTERMISSION · 쉬기</button>
+            <button className="wake-bomb-trigger" onClick={onWake}>WAKE BOMB · 30초 리셋</button>
+          </div>
+          <small className="race-break-note">학습 타이머를 멈추고 시작해요.</small>
           <div className="quick-timer-actions">
             <button type="button" className="secondary" onClick={running ? onPause : onResume}>
               {running ? (

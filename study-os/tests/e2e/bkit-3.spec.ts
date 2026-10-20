@@ -283,8 +283,7 @@ test('local study flow edits quantities, saves one session, restores photos, and
   await page.reload();
   await menu.getByRole('button', { name: '과제', exact: true }).click();
   await page.locator('.task-content').filter({ hasText: '수학 20문제 복습' }).click();
-  await page.locator('.atelier-source > summary').click();
-  await expect(page.locator('.atelier-source img')).toBeVisible();
+  await expect(page.getByRole('region',{name:'과제 사진 및 PDF 첨부'}).locator('img')).toBeVisible();
   await expect(page.getByLabel('남은 실제 분량', { exact: true })).toHaveValue('14');
   page.once('dialog', (dialog) => dialog.accept());
   await page.getByRole('button', { name: '삭제', exact: true }).click();

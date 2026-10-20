@@ -241,3 +241,9 @@ html[data-bkit-theme="dark"] .theme-preferences-action {
 @media(prefers-reduced-motion: reduce) {
  html[data-bkit-theme="dark"] * { transition-duration: 0s !important; }
 }
+/* Home rhythm cards stay legible in the preserved night palette. */
+html[data-bkit-theme='dark'] .sleep-summary {background:#1b2a22;color:#e2eadf;border-color:#3d5043;}
+html[data-bkit-theme='dark'] .sleep-summary small {color:#b8c8bb;opacity:1;}
+html[data-bkit-theme='dark'] .today-more>summary span {color:#c0d0c1;opacity:1;}
+
+html[data-bkit-theme='dark'] .app-shell.atelier-os .today-more-count {color:#c0d0c1!important;opacity:1!important;}

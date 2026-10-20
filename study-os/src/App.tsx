@@ -1,8 +1,17 @@
 import { TaskMaterials, emptyTaskMaterials, type TaskMaterialDraft } from './TaskMaterials';
 import { flushLearning } from './learningFlush';
 import { QuickStudyTimer } from './QuickStudyTimer';
+import { useGarage } from './drive/useGarage';
+import { DriveSwitch, DriveDashboard } from './drive/DriveDashboard';
+import { RaceBoundary } from './drive/RaceBoundary';
+import { BREAK_KEY, restoreBrowserBreak, type StudyBreak, type BreakActivity } from './drive/break';
+const Intermission = lazy(() => import('./drive/Intermission').then(m => ({ default: m.Intermission })));
+const WakeBomb = lazy(() => import('./drive/WakeBomb').then(m => ({ default: m.WakeBomb })));
+const DragRace = lazy(() => import('./drive/DragRace').then(m => ({ default: m.DragRace })));
+const Garage = lazy(() => import('./drive/Garage').then(m => ({ default: m.Garage })));
 import { startQuick, pauseQuick, resumeQuick, finishQuick, attachQuickResource, attachQuickTask, finishQuickResource, labelQuick, quickSeconds, quickClock, quickDaySeconds, pausedStudySnapshot } from './quickTimer';
 import { learning, resourceProgress, resourceForTask, linkedTaskProgress, moveProblem, protectResourceTask, buildResourceReviews, isCompleted } from './learningEngine';
+import { expireMockExam } from './mockExam';
 import { sleepConstraints, studyFixedNow } from './sleepConstraints';
 import { addProblemRetest, buildProblemReviews, type AttemptMeta, type ErrorTag, type ProblemSourceMeta } from './problemReview';
 import { appendLearningEvent, firstLearningAction, rankInstantTasks, canStartSprint } from './now';
@@ -35,6 +44,7 @@ import { ReviewDeck } from './ReviewDeck';
 import { buildReviewQueue, recordReviewOutcome, type ReviewOutcome } from './review';
 import { shouldAutoHideFocusUi } from './focusQuiet';
 import { FocusHalo } from './FocusHalo';
+import { materials, restoreMaterial, saveMaterial, type MaterialPreferences } from './themes/material';
 import { applyTheme, nextTheme, restoreTheme, saveTheme } from './theme';
 import { LiquidOptics } from './LiquidOptics';
 import { WaterDrop } from './WaterDrop';
@@ -112,6 +122,10 @@ const MoreHub = lazy(()=>import('./MoreHub').then(m=>({default:m.MoreHub})));
 const ExamPanel = lazy(()=>import('./ExamPanel').then(m=>({default:m.ExamPanel})));
 const LearningEvidence = lazy(()=>import('./LearningEvidence').then(m=>({default:m.LearningEvidence})));
 const ProblemReviewQueue = lazy(()=>import('./ProblemReviewQueue').then(m=>({default:m.ProblemReviewQueue})));
+const DayClose=lazy(()=>import('./DayClose').then(m=>({default:m.DayClose})));
+const AwakeAssist=lazy(()=>import('./AwakeAssist').then(m=>({default:m.AwakeAssist})));
+const MaterialSettings = lazy(() => import('./themes/MaterialSettings').then(m=>({default:m.MaterialSettings})));
+const MaterialEffects = lazy(() => import('./themes/MaterialEffects').then(m=>({default:m.MaterialEffects})));
 const Juggernaut = lazy(() => import('./Juggernaut').then(m => ({default:m.Juggernaut})));
 const NAV = [
   { id: 'today', en: 'NOW', label: '오늘', icon: Home },
@@ -121,10 +135,11 @@ const NAV = [
   { id: 'progress', en: 'PROGRESS', label: '기록', icon: Target },
   { id: 'settings', en: 'SETTINGS', label: '설정', icon: Settings },
   { id: 'exams', en: 'EXAMS', label: '시험 관리', icon: CalendarDays },
+  { id: 'garage', en: 'MOTOR CLUB', label: 'TOHEŞAR GARAGE', icon: Sparkles },
   { id: 'more', en: 'MORE', label: '더보기', icon: Menu },
 ];
 const PRIMARY_NAV = ['today','study','tasks','more'].map(id=>NAV.find(n=>n.id===id)!);
-const MORE_ROUTES = ['school','progress','settings','sleep','juggernaut','exams'];
+const MORE_ROUTES = ['garage','school','progress','settings','sleep','juggernaut','exams'];
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 function Empty({ title, children }: { title: string; children: ReactNode }) {
@@ -231,18 +246,36 @@ export default function App() {
   const [s, setS] = useState<State>(initial.state),
     [storageError, setStorageError] = useState(initial.error),
     [readBlocked, setReadBlocked] = useState(!!initial.error);
+  const garageController = useGarage(s, readBlocked);
   const [theme, setTheme] = useState(() => restoreTheme(window.localStorage));
+  const [material,setMaterial] = useState(()=>restoreMaterial(window.localStorage,theme));
   useEffect(() => { applyTheme(theme); }, [theme]);
+  useEffect(() => {
+    document.documentElement.dataset.material = material.id;
+    document.documentElement.dataset.effects = material.lowPower || material.motion !== 'auto' ? 'none' : 'auto';
+    window.dispatchEvent(new Event('bkit:effects'));
+  },[material]);
+  function changeMaterial(next:MaterialPreferences) {
+    setMaterial(next);
+    const base=materials.find(m=>m.id===next.id)!.base;
+    setTheme(base);
+    if(!saveMaterial(window.localStorage,next) || !saveTheme(window.localStorage,base))
+      setNotice('테마를 적용했지만 저장하지 못했어요. 저장 공간을 확인하세요.');
+  }
   const changeTheme = () => {
     const next = nextTheme(theme);
     setTheme(next);
+    const nextMaterial={...material,id:next==='dark'?'forest' as const:'classic' as const};
+    setMaterial(nextMaterial);saveMaterial(window.localStorage,nextMaterial);
     if (!saveTheme(window.localStorage, next))
       setNotice('화면 모드는 바뀌었지만 브라우저가 설정 저장을 막았어요. 다시 접속하면 원래대로 돌아올 수 있어요.');
   };
   const [atelierOpen, setAtelierOpen] = useState(false);
   const [atelierStep, setAtelierStep] = useState<'capture' | undefined>();
   function openAtelier(step?: 'capture') { setAtelierStep(step); setAtelierOpen(true); }
-  const [tab, setTabState] = useState('today'),
+  const [studyBreak, setStudyBreak] = useState<StudyBreak | null>(() => restoreBrowserBreak());
+  const breakFocus = useRef<HTMLElement | null>(null);
+  const [tab, setTabState] = useState<string>(() => restoreBrowserBreak()?.route ?? 'today'),
     [now, setNow] = useState(Date.now()),
     [online, setOnline] = useState(navigator.onLine),
     [notice, setNotice] = useState(''),
@@ -437,7 +470,11 @@ export default function App() {
     }
     try {
       const previous = memory.current;
-      const changed = change(previous);
+      let changed = change(previous);
+      if(!force && changed !== previous) changed={...changed,tasks:changed.tasks.map(t=>{
+        const old=previous.tasks.find(p=>p.id===t.id);
+        return old?.completedAt ? {...t,completedAt:old.completedAt} : old && old.status!=='done' && t.status==='done' ? {...t,completedAt:iso(Date.now())} : t;
+      })};
       if (changed === previous) return false;
       const next = stateSchema.parse({ ...changed, revision: previous.revision + 1 });
       if(!force) for(const task of next.tasks) if(task.status==='done' && previous.tasks.find(t=>t.id===task.id)?.status!=='done') protectResourceTask(next,task);
@@ -608,6 +645,10 @@ export default function App() {
     return commit(v => labelQuick(v, id, subject, action, note, taskId));
   }
   const quickProps = {
+    controller: garageController,
+    onBreak: beginStudyBreak,
+    onIntermission: () => beginBreak('intermission', 180),
+    onWake: () => beginBreak('wake', 30),
     timer: s.quickTimer,
     now,
     todaySeconds: quickToday,
@@ -623,9 +664,43 @@ export default function App() {
     onLabel: saveQuickLabel,
     onCloseEdit: () => setQuickEditingId(null),
   };
+  function beginStudyBreak() { beginBreak('race', 180); }
+  function beginBreak(activity: BreakActivity, duration: number) {
+    if (studyBreak) return;
+    if (!flushLearning(() => beginBreak(activity, duration))) return;
+    const current = memory.current;
+    if (current.active?.segmentStart || current.quickTimer?.segmentStart) {
+      if (!commit(v => ({...pauseQuick(v, Date.now()), active: v.active ? closeSegment(v.active,Date.now()) : null}))) return;
+    }
+    const route = (tab === 'today' || tab === 'study') ? tab : current.active ? 'study' : 'today';
+    const problem = learning(current).problems.find(p => p.id === current.active?.questionPace?.current);
+    const returnLabel = current.active ? `${current.active.subject} ${problem ? problem.ordinal + '번 문제' : current.active.action}로 돌아가기` : '공부 타이머로 돌아가기';
+    const next: StudyBreak = {until:Date.now()+duration*1000,scroll:tab===route ? window.scrollY : 0,route,activity,returnLabel};
+    breakFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    try { sessionStorage.setItem(BREAK_KEY,JSON.stringify(next)); } catch { /* In-memory deadline still applies. */ }
+    if (tab !== route) setTab(route);
+    setStudyBreak(next);
+  }
+  function changeBreak(activity: BreakActivity, seconds?: number) {
+    if (!studyBreak) return;
+    const next = { ...studyBreak, activity, until: seconds ? Date.now() + seconds * 1000 : studyBreak.until };
+    try { sessionStorage.setItem(BREAK_KEY, JSON.stringify(next)); } catch { /* Memory deadline remains authoritative. */ }
+    setStudyBreak(next);
+  }
+  useEffect(() => {
+    if (studyBreak && now >= studyBreak.until) returnFromBreak();
+  }, [now, studyBreak?.until]);
+  function returnFromBreak() {
+    const position = studyBreak?.scroll ?? 0;
+    try { sessionStorage.removeItem(BREAK_KEY); } catch { /* Keep local study intact. */ }
+    setStudyBreak(null);
+    requestAnimationFrame(() => { window.scrollTo(0,position); if(breakFocus.current?.isConnected) breakFocus.current.focus({preventScroll:true}); else document.getElementById('main')?.focus({preventScroll:true}); });
+    setNotice(`${studyBreak?.returnLabel ?? '학습으로 돌아가기'} · 준비되면 타이머를 이어가세요.`);
+  }
   const late = delayMinutes(s, now);
-  function start(minutes: number, task = selected || actionTask?.id || null, resourceId?: string, problemId?: string) {
-    if(!flushLearning(()=>start(minutes,task,resourceId,problemId)))return;
+  function start(minutes: number, task = selected || actionTask?.id || null, resourceId?: string, problemId?: string, examCount?: number) {
+    if(!flushLearning(()=>start(minutes,task,resourceId,problemId,examCount)))return;
+    if(examCount && (s.active || s.quickTimer)) { setNotice('진행 중인 학습을 저장하고 종료한 뒤 모의시험을 시작하세요.'); return; }
     if (s.quickTimer && resourceId) {
       if (commit(v => attachQuickResource(v, resourceId, problemId))) {
         setTab('study'); setNotice('먼저 시작한 시간 그대로, 자료를 이어서 공부해요.');
@@ -670,6 +745,12 @@ export default function App() {
           id: sessionId,
           taskId: t?.id || null,
           resourceId: resource?.id,
+          exam: examCount && resource ? {
+            duration: minutes * 60,
+            problemIds: learning(v).problems.filter(p => p.resourceId === resource.id).sort((a,b) => a.ordinal-b.ordinal).slice(0,examCount).map(p=>p.id),
+            finishedAt: null,
+          } : undefined,
+          questionPace: resource ? { current: problemId ?? resourceProgress(learning(v), resource.id).currentProblemId ?? '', anchor: 0, enteredAt: iso(currentTime), seconds: {}, target: 240, review: [] } : undefined,
           subject: resource?.subject || t?.subject || '자율 학습',
           action: resource?.title || t?.title || '첫 개념을 가리고 떠올린 뒤, 문제 하나 풀기',
           target: minutes,
@@ -690,6 +771,15 @@ export default function App() {
   function openResource(id:string,problemId?:string) {
     const r=learning(memory.current).resources.find(r=>r.id===id);
     if(r)start(5,r.linkedTaskId,id,problemId);
+  }
+  useEffect(() => {
+    if (s.active?.exam && !s.active.exam.finishedAt && seconds >= s.active.exam.duration)
+      commit(v => expireMockExam(v, Date.now()));
+  }, [now, s.active?.id, s.active?.exam?.finishedAt, seconds]);
+  function startMockExam(id: string, minutes: number, count: number) {
+    const r = learning(memory.current).resources.find(r=>r.id===id);
+    const first = learning(memory.current).problems.filter(p=>p.resourceId===id).sort((a,b)=>a.ordinal-b.ordinal)[0];
+    if(r && first) start(minutes,r.linkedTaskId,id,first.id,count);
   }
   function finishResource() {
     if(!flushLearning(finishResource))return;
@@ -782,6 +872,8 @@ export default function App() {
             ended: iso(ended),
             workspace: a.workspace,
             resourceId: a.resourceId,
+            questionPace: a.questionPace,
+            exam: a.exam,
             seconds: sec,
             target: a.target,
             problems: actualProblems,
@@ -1080,6 +1172,7 @@ export default function App() {
           : '')
       }
     >
+      {!['classic','forest'].includes(material.id) && <Suspense fallback={null}><MaterialEffects prefs={material} studying={!!s.active?.segmentStart || !!s.quickTimer?.segmentStart}/></Suspense>}
       <LiquidOptics />
       <a className="skip" href="#main">
         본문으로 이동
@@ -1094,14 +1187,14 @@ export default function App() {
       >
         <WaterDrop className="water-object--brand" />
         <strong>
-          BKIT<small>STUDY OS 3.5</small>
+          BKIT<small>STUDY OS 3.6</small>
         </strong>
       </a>
       <div className="main-shell">
         <header className="topbar">
           <div>
             <span className="mobile-brand">
-              BKIT <small>STUDY OS 3.5</small>
+              BKIT <small>STUDY OS 3.6</small>
             </span>
             <span className="breadcrumb">
               BKIT <ChevronRight size={13} /> {(tab === 'sleep' ? 'Sleep Guard' : NAV.find((n) => n.id === tab)?.label)}
@@ -1172,6 +1265,7 @@ export default function App() {
                       tasks: '할 일',
                       study: '집중',
                       progress: '공부 기록',
+                      garage: 'TOHEŞAR GARAGE',
                       settings: '설정',
                       sleep: 'Sleep Guard',
                       more: '더보기',
@@ -1189,6 +1283,7 @@ export default function App() {
                       tasks: '기억하는 대신 여기에 내려놓으세요.',
                       study: '시간을 채우기보다, 한 문제를 이해하는 시간.',
                       progress: '직접 답한 문제와 지연 복습 기록을 확인해요.',
+                      garage: '공부로 완성하는 나만의 자동차.',
                       more: '시간표, 학습 증거, 수면과 데이터 관리를 한곳에서.',
                       exams:'확인된 시험 범위와 실제 자료를 연결하세요.',
                       settings: '이 기기의 기록과 생활 리듬을 관리하세요.',
@@ -1236,6 +1331,7 @@ export default function App() {
               <Clock size={15}/> {s.quickTimer.segmentStart ? '공부 중' : '일시정지'} · {quickClock(quickElapsed)} · 타이머 열기
             </button>
           )}
+          {tab === 'garage' && <Suspense fallback={<p role="status">차고를 여는 중…</p>}><Garage controller={garageController} onStudy={() => setTab('study')} onRace={beginStudyBreak} canRace={true}/></Suspense>}
           {tab === 'more' && <Suspense fallback={<p role="status">학습 도구를 여는 중…</p>}><MoreHub onNavigate={setTab} onCapture={()=>taskEditor()}/></Suspense>}
           {tab === 'today' && (
             <>
@@ -1277,6 +1373,7 @@ export default function App() {
               {!s.active&&resumeResource&&<section className="resource-resume" aria-label="마지막 자료 이어하기"><div><strong>{resumeResource.title}</strong><p>남은 {resourceProgress(learning(s),resumeResource.id).remainingCount}문제 · 이어 풀 위치 저장됨</p></div><button className="primary" onClick={()=>openResource(resumeResource.id)}>마지막 문제부터 5분 시작</button></section>}
               {!s.active&&dueProblems>0&&<section className="task-check-in" aria-label="오늘 문제 복습"><BookOpen size={22} aria-hidden="true"/><div><h2>오늘 다시 풀 문제 {dueProblems}개</h2><p>직접 등록한 문제를 답을 가리고 다시 풀어봐요.</p></div><button onClick={()=>{setTab('study');requestAnimationFrame(()=>document.getElementById('learn-problem-reviews')?.scrollIntoView({block:'start',behavior:'auto'}));}}>답을 가리고 다시 풀기 <ArrowRight size={16}/></button></section>}
               <LandscapeNote/>
+              <Suspense fallback={null}><DayClose state={s} garage={garageController.garage} now={now} onStart={()=>start(5)}/></Suspense>
               <SleepSummary guard={sleep} onOpen={() => setTab('sleep')}/>
               <details ref={todayDetailsRef} className="today-more">
                 <summary>
@@ -1648,8 +1745,11 @@ export default function App() {
                       onSelfCheck={markLearningAttempt}
                     />
                   )}
-                  {s.active?.resourceId && <Suspense fallback={<p role="status">자료 학습실을 여는 중…</p>}><MultiProblemWorkspace state={s} onChange={commit} onFinish={finishResource} onSleep={()=>{const a=memory.current.active;if(a&&commit(v=>({...v,active:closeSegment(a,Date.now())})))setTab('sleep');}}/></Suspense>}
-                  <div className="focus-instrument">
+                  {s.active?.resourceId && <Suspense fallback={<p role="status">자료 학습실을 여는 중…</p>}><MultiProblemWorkspace controller={garageController} totalSeconds={seconds} state={s} onChange={commit} onFinish={finishResource} onSleep={()=>{const a=memory.current.active;if(a&&commit(v=>({...v,active:closeSegment(a,Date.now())})))setTab('sleep');}}/></Suspense>}
+                  {s.active && <Suspense fallback={null}><AwakeAssist onRest={()=>beginBreak('intermission',180)}/></Suspense>}
+                  <DriveSwitch controller={garageController}/>
+                  {s.active && <div className="race-return-bar"><button onClick={beginStudyBreak}>DRAG RACE · 3분 쉬기</button><button onClick={() => beginBreak('intermission',180)}>INTERMISSION · 쉬기</button><button className="wake-bomb-trigger" onClick={() => beginBreak('wake',30)}>WAKE BOMB · 30초 리셋</button></div>}
+                  {s.active && ['drive', 'dashboard'].includes(garageController.garage.display) ? <DriveDashboard controller={garageController} seconds={seconds} target={s.active.target} running={!!s.active.segmentStart} stopwatch={s.active.quickMode === 'stopwatch'} state={s}/> : <div className="focus-instrument">
                     <FocusHalo
                       progress={s.active ? seconds / (s.active.target * 60) : 0}
                       running={!!s.active?.segmentStart}
@@ -1675,7 +1775,7 @@ export default function App() {
                           : '오직 하나에 집중하는 시간'}
                       </small>
                     </div>
-                  </div>
+                  </div>}
                   {s.active?.segmentStart && (
                     <div className="focus-quiet-tools" aria-label="몰입 화면 옵션">
                       <button type="button" className="text-button quiet-now" onClick={() => setFocusUiVisible(false)}>
@@ -1752,6 +1852,7 @@ export default function App() {
                       ) : (
                         <button
                           className="secondary"
+                          disabled={!!s.active.exam?.finishedAt}
                           onClick={() => {
                             const a = s.active!;
                             const f = studyFixedNow(s,sleep.state,Date.now()).find(
@@ -1958,6 +2059,7 @@ export default function App() {
                   .map((x) => (
                     <div className="session-row" key={x.id}>
                       <div>
+                        {x.exam && <details><summary>모의시험 · {x.exam.problemIds.length}문항 결과</summary><p>{x.exam.finishedAt?'시험 시간 종료':'직접 종료'} · 실제 {quickClock(x.seconds)} / {quickClock(x.exam.duration)}</p><p>검토 {x.questionPace?.review.length??0} · 건너뜀 {x.questionPace?.skipped?.length??0}</p>{x.questionPace&&x.exam.problemIds.map((id,i)=><p key={id}>{i+1}번 · {quickClock((x.questionPace!.seconds[id]??0)+(x.questionPace!.current===id?Math.max(0,x.seconds-x.questionPace!.anchor):0))}</p>)}</details>}
                         <span className="subject">
                           {x.subject} · {dayKey(x.ended)}
                         </span>
@@ -2000,6 +2102,7 @@ export default function App() {
                   {theme === 'dark' ? <Sun size={18}/> : <Moon size={18}/>} {theme === 'dark' ? '라이트모드로 전환' : '다크모드로 전환'}
                 </button>
               </section>
+              <Suspense fallback={<p role="status">테마 미리보기를 여는 중…</p>}><MaterialSettings prefs={material} onChange={changeMaterial}/></Suspense>
               <Suspense fallback={<p role="status">전체 백업을 여는 중…</p>}><CompleteBackupPanel studying={!!s.active || !!s.quickTimer}/></Suspense>
               <div className="settings-layout">
                 <section className="panel">
@@ -2235,8 +2338,9 @@ export default function App() {
           return { duplicates: merged.duplicates };
         }}/>, document.body,
       )}
+      {studyBreak && createPortal(<RaceBoundary onReturn={returnFromBreak}><Suspense fallback={<dialog open className="tohesar race-dialog"><p>휴식 레이스를 여는 중…</p><button onClick={returnFromBreak}>학습으로 복귀</button></dialog>}>{studyBreak.activity === 'intermission' ? <Intermission garage={garageController.garage} until={studyBreak.until} returnLabel={studyBreak.returnLabel} onReturn={returnFromBreak} onRace={() => changeBreak('race')} onWake={() => changeBreak('wake',30)} onDuration={seconds => changeBreak('intermission',seconds)}/> : studyBreak.activity === 'wake' ? <WakeBomb garage={garageController.garage} until={studyBreak.until} returnLabel={studyBreak.returnLabel} onReturn={returnFromBreak} onDuration={seconds => changeBreak('wake', seconds)}/> : <DragRace controller={garageController} until={studyBreak.until} onReturn={returnFromBreak} onRoom={() => changeBreak('intermission')}/>}</Suspense></RaceBoundary>,document.body)}
       {tab === 'juggernaut' && createPortal(
-        <Suspense fallback={<p role="status">JUGGERNAUT를 여는 중…</p>}><Juggernaut onExit={() => setTab('today')} tasks={ordered} recommended={actionTask} canStart={!!s.active||recommendationReady} protectedReason={current?.title??'다음 일정 준비'} onStart={id => start(5,id)} /></Suspense>,
+        <Suspense fallback={<p role="status">JUGGERNAUT를 여는 중…</p>}><Juggernaut now={now} state={s} onChange={commit} onResumeResource={openResource} onStartMock={startMockExam} onExit={() => setTab('today')} tasks={ordered} recommended={actionTask} canStart={!!s.active||recommendationReady} protectedReason={current?.title??'다음 일정 준비'} onStart={id => start(5,id)} /></Suspense>,
         document.body,
       )}
       {createPortal(

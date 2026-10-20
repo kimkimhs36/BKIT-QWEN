@@ -39,6 +39,7 @@ const aiResult = {
   missions: [
     {
       title: '수학 학습지 풀기',
+      sourceText: '수학 학습지 20문제',
       subject: '수학',
       kind: '숙제',
       due: null,

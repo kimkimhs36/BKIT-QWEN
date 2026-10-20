@@ -80,7 +80,7 @@ test('empty state, CRUD, timer pause, finish, submission and refresh persistence
   await nav(page, '과제');
   await page.getByRole('button', { name: '학습 완료', exact: true }).click();
   await expect(page.getByText(/제출 여부 확인/).first()).toBeVisible();
-  await page.getByRole('button', { name: /수학.*테스트 · 학습지/ }).click();
+  await page.locator('.task-content').filter({ hasText: '테스트 · 학습지' }).click();
   await page.getByRole('dialog').getByLabel('제출 완료 (학습 완료 상태에서 체크)').check();
   await page.getByRole('button', { name: '과제 저장' }).click();
   await expect(page.getByText(/제출 완료/).first()).toBeVisible();
@@ -116,12 +116,12 @@ test('repeating schedules all week, temporary exclusions, deadline edit and dele
   await expect(page.getByRole('heading', { name: '등록된 수업이 없어요' })).toBeVisible();
   await nav(page, '과제');
   await addTask(page);
-  await page.getByRole('button', { name: /수학.*테스트 · 학습지/ }).click();
+  await page.locator('.task-content').filter({ hasText: '테스트 · 학습지' }).click();
   await page.getByLabel('마감 날짜 (모르면 비우기)', { exact: true }).fill('2026-10-15');
   await page.getByLabel('확정된 시각 (시각까지 알 때)', { exact: true }).fill('20:00');
   await page.getByRole('button', { name: '과제 저장' }).click();
   await expect(page.getByText(/10.15.*20:00/).first()).toBeVisible();
-  await page.getByRole('button', { name: /수학.*테스트 · 학습지/ }).click();
+  await page.locator('.task-content').filter({ hasText: '테스트 · 학습지' }).click();
   page.once('dialog', (d) => d.accept());
   await page.getByRole('dialog').getByRole('button', { name: '삭제', exact: true }).click();
   await nav(page, '과제');
@@ -194,7 +194,7 @@ test('all six screens fit narrow viewport with keyboard-accessible dialog', asyn
     path: info.outputPath(`bkit-${info.project.name}.png`),
     fullPage: true,
   });
-  await page.getByRole('button', { name: /수학.*테스트 · 학습지/ }).click();
+  await page.locator('.task-content').filter({ hasText: '테스트 · 학습지' }).click();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).not.toBeVisible();
 });

@@ -1,0 +1,1421 @@
+.tohesar {
+  --motor-ink: #263e35;
+  --motor-paper: #f1f3eb;
+  --motor-line: #cdd7cc;
+  color: var(--motor-ink);
+  max-width: 1080px;
+  margin: auto;
+}
+.tohesar button,
+.tohesar select {
+  min-height: 44px;
+}
+.garage-heading {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.garage-heading h2 {
+  font-size: clamp(25px, 4vw, 44px);
+  letter-spacing: -0.05em;
+  margin: 8px 0;
+}
+.garage-heading em {
+  font-style: normal;
+  font-weight: 400;
+  display: block;
+}
+.credit-wallet {
+  padding: 18px;
+  border: 1px solid var(--motor-line);
+  border-radius: 18px;
+  min-width: 130px;
+}
+.credit-wallet small,
+.credit-wallet strong {
+  display: block;
+}
+.credit-wallet strong {
+  font-size: 30px;
+  font-variant-numeric: tabular-nums;
+}
+.credit-wallet span {
+  font-size: 14px;
+}
+.garage-showroom {
+  position: relative;
+  overflow: hidden;
+  border-radius: 26px;
+  background: #e2e8dc;
+  min-height: 270px;
+  padding: 24px 8%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.garage-showroom::before {
+  content: '';
+  position: absolute;
+  inset: 42% 0 0;
+  background: repeating-linear-gradient(0deg, transparent 0 39px, #899d8d22 40px 41px);
+  border-top: 1px solid #91a48d55;
+}
+.garage-edition,
+.garage-spec {
+  position: relative;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+}
+.garage-spec {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.tohesar-car {
+  width: 100%;
+  max-width: 560px;
+  align-self: center;
+  overflow: visible;
+  position: relative;
+}
+.scene-dusk {
+  background: #d9d6e3;
+}
+.scene-coast {
+  background: #d0e6e4;
+}
+.garage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 18px;
+  margin-top: 18px;
+}
+.garage-panel {
+  padding: 24px;
+  border: 1px solid var(--motor-line);
+  border-radius: 22px;
+  background: var(--motor-paper);
+}
+.garage-panel h3 {
+  font-size: 12px;
+  font-weight: 400;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.garage-panel h3 span {
+  font-size: 18px;
+  font-weight: 600;
+}
+.garage-panel label {
+  display: block;
+  margin: 14px 0;
+}
+.garage-panel select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+}
+.garage-panel fieldset {
+  padding: 0;
+  border: 0;
+  margin: 20px 0;
+}
+.garage-panel legend {
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.garage-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tohesar .paint {
+  border-radius: 50%;
+  height: 48px;
+  width: 48px;
+  border: 3px solid transparent;
+  min-width: 0;
+  padding: 0;
+}
+.paint span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.tohesar .paint[aria-pressed='true'] {
+  border-color: var(--motor-ink);
+  box-shadow: inset 0 0 0 3px #f3f5ef;
+}
+.paint-sage {
+  background: #94b7a1;
+}
+.paint-cream {
+  background: #e9d8ac;
+}
+.paint-coral {
+  background: #d98672;
+}
+.paint-blue {
+  background: #85b0ce;
+}
+.garage-part {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--motor-line);
+  padding: 16px 0;
+}
+.garage-part small {
+  display: block;
+  font-size: 12px;
+  margin-top: 6px;
+}
+.garage-part button {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.garage-policy {
+  font-size: 12px;
+  line-height: 1.9;
+}
+.garage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.garage-preferences {
+  grid-column: 1/-1;
+}
+.garage-preferences input {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+.garage-preferences label {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 20px;
+}
+.garage-preferences p {
+  font-size: 12px;
+}
+html[data-bkit-theme='dark'] .tohesar {
+  --motor-ink: #e1ebdf;
+  --motor-paper: #1b2a23;
+  --motor-line: #425346;
+}
+.tohesar .garage-showroom {
+  color: #263e35;
+}
+@media (max-width: 650px) {
+  .garage-grid {
+    grid-template-columns: 1fr;
+  }
+  .garage-panel {
+    padding: 18px;
+  }
+  .garage-showroom {
+    min-height: 220px;
+    padding: 20px;
+  }
+  .garage-heading {
+    align-items: flex-start;
+  }
+  .credit-wallet {
+    min-width: 105px;
+    padding: 12px;
+  }
+  .garage-part {
+    gap: 8px;
+  }
+  .garage-part strong {
+    font-size: 13px;
+  }
+}
+.drive-switch {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+.drive-switch button {
+  min-height: 44px;
+  border-radius: 22px;
+  padding: 10px 18px;
+  font-size: 12px;
+}
+.drive-switch button[aria-pressed='true'] {
+  background: #304e40;
+  color: #f2f5e8;
+  border-color: #304e40;
+}
+.drive-dashboard {
+  background: var(--motor-paper);
+  border: 1px solid var(--motor-line);
+  border-radius: 22px;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+}
+.drive-status {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.drive-dials {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 22px 0;
+}
+.drive-dial {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1;
+  max-height: 220px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--motor-paper) 64%, transparent 65%),
+    conic-gradient(
+      from 225deg,
+      #729781 0 var(--drive-angle, 0deg),
+      var(--motor-line) var(--drive-angle, 0deg) 270deg,
+      transparent 270deg
+    );
+  border: 1px solid var(--motor-line);
+  font-variant-numeric: tabular-nums;
+}
+.drive-calibration {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.drive-needle {
+  transform-origin: 100px 100px;
+  transition: transform 0.6s ease-out;
+}
+.drive-center {
+  display: grid;
+  gap: 5px;
+  text-align: center;
+  padding: 12px;
+}
+.drive-center span {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.drive-switch {
+  flex-wrap: wrap;
+}
+.question-race {
+  margin: 12px 0;
+  padding: 14px;
+  border: 1px solid var(--motor-line);
+  border-radius: 16px;
+  background: var(--motor-paper);
+}
+.question-race-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.question-track {
+  position: relative;
+  height: 28px;
+  margin: 8px 0;
+  border-bottom: 1px dashed var(--motor-ink);
+  overflow: hidden;
+}
+.question-car {
+  position: absolute;
+  width: 48px;
+  bottom: 0;
+  transition: left 0.8s linear;
+}
+.question-track.cinematic {
+  height: 65px;
+  border-radius: 10px;
+}
+.cinematic .question-car {
+  width: 110px;
+}
+.question-finish {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font-size: 18px;
+}
+.question-race progress {
+  width: 100%;
+  accent-color: #739780;
+  height: 5px;
+}
+.question-race details {
+  font-size: 12px;
+  margin-top: 6px;
+}
+.question-race select {
+  width: auto;
+  margin: 8px;
+}
+.question-race p {
+  font-size: 12px;
+  line-height: 1.7;
+}
+[data-motion='none'] .question-car {
+  transition: none;
+}
+[data-motion='none'] .drive-needle {
+  transition: none;
+}
+.drive-dial strong {
+  font-size: clamp(22px, 4vw, 43px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.drive-dial small,
+.drive-dial span {
+  font-size: 10px;
+}
+.drive-dial-secondary {
+  background: transparent;
+}
+.drive-road {
+  position: relative;
+  background: #dfe7d8;
+  border-radius: 12px;
+  height: 95px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+.drive-road.scene-dusk {
+  background: #d9d6e3;
+}
+.drive-road.scene-coast {
+  background: #d0e6e4;
+}
+.drive-car {
+  width: 28%;
+  position: relative;
+  transition: left 1s linear;
+  top: 3px;
+  max-width: 190px;
+}
+.drive-road-line {
+  position: absolute;
+  bottom: 15px;
+  inset-inline: 0;
+  border-bottom: 2px dashed #889e8a80;
+}
+.drive-route-label {
+  font-size: 11px;
+  margin: 6px 0;
+}
+.drive-dashboard progress {
+  width: 100%;
+  accent-color: #739780;
+  height: 7px;
+}
+.drive-problems {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+  max-height: 230px;
+  overflow: auto;
+  margin: 16px 0;
+}
+.drive-problem {
+  border: 1px solid var(--motor-line);
+  border-radius: 12px;
+  padding: 8px;
+  font-size: 10px;
+}
+.drive-problem.current {
+  border-color: #628773;
+}
+.drive-mini-road {
+  border-bottom: 1px dashed #84958b;
+}
+.drive-mini-road > div {
+  width: 42px;
+}
+.drive-options {
+  font-size: 12px;
+}
+.drive-options label {
+  display: inline-flex;
+  align-items: center;
+  margin: 12px 10px 0 0;
+}
+.drive-options input {
+  width: 18px;
+  height: 18px;
+}
+.cruising .car-wheel {
+  animation: drive-wheel 3s linear infinite;
+}
+@keyframes drive-wheel {
+  to {
+    transform: rotate(360deg);
+  }
+}
+[data-motion='none'] .drive-car {
+  transition: none;
+}
+[data-motion='none'] .car-wheel {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tohesar * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (max-width: 420px) {
+  .drive-dashboard {
+    padding: 12px;
+  }
+  .drive-status {
+    font-size: 9px;
+  }
+  .drive-dial small,
+  .drive-dial span {
+    font-size: 9px;
+  }
+  .drive-road {
+    height: 70px;
+  }
+}
+.tohesar.race-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(780px, calc(100% - 24px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 24px;
+  box-sizing: border-box;
+  border: 1px solid var(--motor-line);
+  border-radius: 24px;
+  background: var(--motor-paper);
+  overflow: auto;
+  overscroll-behavior: contain;
+  z-index: 1000;
+}
+.race-dialog::backdrop {
+  background: #0d1d18bb;
+  backdrop-filter: blur(5px);
+}
+.race-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.race-heading h2 {
+  font-size: 30px;
+  margin: 4px 0;
+  letter-spacing: -0.04em;
+}
+.race-heading button {
+  font-size: 12px;
+}
+.race-break {
+  font-size: 12px;
+  border-block: 1px solid var(--motor-line);
+  padding: 12px 0;
+}
+.race-track {
+  position: relative;
+  background: #dce5d8;
+  height: 180px;
+  border-radius: 18px;
+  overflow: hidden;
+  color: #263e35;
+}
+.race-track.scene-dusk {
+  background: #d9d6e3;
+}
+.race-track.scene-coast {
+  background: #d0e6e4;
+}
+.race-lane {
+  position: absolute;
+  inset: 65% 0 auto;
+  border-bottom: 2px dashed #768c7b80;
+}
+.race-finish {
+  position: absolute;
+  inset: 0 6% 0 auto;
+  width: 12px;
+  background: repeating-conic-gradient(#3d5647 0% 25%, #dae3d2 0% 50%) 0/12px 12px;
+  opacity: 0.45;
+}
+.race-vehicle {
+  position: absolute;
+  width: 32%;
+  left: 2%;
+  bottom: 35px;
+  will-change: transform;
+}
+.race-distance {
+  position: absolute;
+  bottom: 12px;
+  left: 18px;
+  font-size: 12px;
+}
+.race-instruments {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1.3fr;
+  gap: 10px;
+  margin: 20px 0;
+  font-variant-numeric: tabular-nums;
+}
+.race-instruments > div {
+  border-bottom: 1px solid var(--motor-line);
+  padding-bottom: 12px;
+}
+.race-instruments small {
+  display: block;
+  letter-spacing: 0.12em;
+  font-size: 10px;
+}
+.race-instruments strong {
+  font-size: 28px;
+  font-weight: 500;
+}
+.race-instruments strong span {
+  font-size: 12px;
+}
+.race-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+.tohesar .race-controls button {
+  min-height: 68px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.tohesar .race-throttle {
+  background: #355747;
+  color: #f1f5e9;
+}
+.race-revs {
+  display: block;
+  font-size: 12px;
+}
+.race-revs meter {
+  display: block;
+  width: 100%;
+  height: 24px;
+  accent-color: #7e9f72;
+}
+.race-help {
+  font-size: 11px;
+}
+.race-intro p,
+.race-result p {
+  font-size: 13px;
+  line-height: 1.8;
+}
+.race-start {
+  text-align: center;
+}
+.race-start p {
+  font-size: 23px;
+  font-weight: 600;
+}
+.race-start button {
+  min-width: 160px;
+}
+.race-result {
+  padding-top: 10px;
+}
+.race-result h3 {
+  font-size: 22px;
+}
+.race-result .eyebrow {
+  font-size: 10px;
+}
+.race-return-bar {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+}
+.race-return-bar button {
+  min-height: 44px;
+}
+@media (max-width: 500px) {
+  .tohesar.race-dialog {
+    padding: 16px;
+  }
+  .race-heading h2 {
+    font-size: 25px;
+  }
+  .race-track {
+    height: 140px;
+  }
+  .race-instruments strong {
+    font-size: 23px;
+  }
+  .race-controls {
+    gap: 8px;
+  }
+}
+.drive-problem-summary {
+  grid-column: 1/-1;
+  font-size: 11px;
+}
+.tohesar[data-motion='none'] .drive-car {
+  left: 0 !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tohesar .drive-car {
+    left: 0 !important;
+  }
+}
+html .tohesar .garage-panel select {
+  background: var(--motor-paper) !important;
+  color: var(--motor-ink) !important;
+  border: 1px solid var(--motor-line);
+  border-radius: 10px;
+  padding: 10px;
+  color-scheme: light;
+}
+html[data-bkit-theme='dark'] .tohesar .garage-panel select {
+  color-scheme: dark;
+}
+.drive-dashboard progress {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--motor-line);
+}
+.drive-dashboard progress::-webkit-progress-bar {
+  background: var(--motor-line);
+}
+.drive-dashboard progress::-webkit-progress-value {
+  background: #739780;
+}
+.drive-dashboard progress::-moz-progress-bar {
+  background: #739780;
+}
+.race-break-note {
+  display: block;
+  font-size: 11px;
+  margin: 4px 0 12px;
+}
+html[data-bkit-theme='dark'] .tohesar button.secondary {
+  background: var(--motor-paper) !important;
+  color: var(--motor-ink) !important;
+  border-color: var(--motor-line) !important;
+}
+
+.purchase-confirm {
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px solid var(--motor-ink);
+  border-radius: 14px;
+}
+.garage-ledger {
+  margin-top: 20px;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.intermission p,
+.wake-bomb p {
+  line-height: 1.8;
+}
+.nature-room {
+  position: relative;
+  isolation: isolate;
+  height: clamp(180px, 30vh, 300px);
+  margin: 18px 0;
+  border-radius: 22px;
+  overflow: hidden;
+  background: linear-gradient(#bed2c4, #e6e5c9);
+  color: #203c33;
+}
+.nature-room > span {
+  position: absolute;
+  inset: auto 20px 20px;
+  z-index: 3;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+.nature-horizon {
+  position: absolute;
+  inset: 45% -15% -55%;
+  background: #3e6c59;
+  border-radius: 45% 75% 0 0;
+  transform: rotate(-6deg);
+  box-shadow: 90px -20px 0 #789b7d;
+}
+.nature-orb {
+  position: absolute;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: #f3e8ba;
+  left: 20%;
+  top: 18%;
+  box-shadow: 0 0 50px #f3e8ba66;
+}
+.nature-sea,
+.nature-river {
+  background: linear-gradient(#c4e2df 45%, #89b8b5 45%, #3d8585);
+}
+.nature-sea .nature-horizon,
+.nature-river .nature-horizon {
+  background: #bad1b1;
+  inset: 80% -15% -55%;
+  box-shadow: none;
+}
+.nature-meadow {
+  background: linear-gradient(#cfe4da 45%, #abc294 45%);
+}
+.nature-rain,
+.nature-window {
+  background: linear-gradient(#485c6b, #a3b6b4);
+  color: #fff;
+}
+.nature-rain:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    110deg,
+    transparent 0 35px,
+    #e4eeef55 36px 37px,
+    transparent 38px 70px
+  );
+}
+.nature-rain .nature-horizon,
+.window-skyline {
+  position: absolute;
+  inset: 35% 0 0;
+  border-radius: 0;
+  transform: none;
+  background: repeating-linear-gradient(
+    90deg,
+    #253c47 0 25px,
+    transparent 25px 40px,
+    #425962 40px 100px
+  );
+  box-shadow: none;
+}
+.nature-window .nature-horizon {
+  display: none;
+}
+.nature-window .tohesar-car {
+  position: absolute;
+  width: 45%;
+  left: 30%;
+  bottom: 25px;
+  z-index: 2;
+}
+.nature-night {
+  background:
+    radial-gradient(circle at 60% 15%, #e9edd7 0 1px, transparent 2px),
+    radial-gradient(circle at 35% 30%, #d4ddda 0 1px, transparent 2px),
+    linear-gradient(#172c3a, #465968);
+  color: #fff;
+}
+.nature-night .nature-orb {
+  width: 30px;
+  height: 30px;
+  background: #d7e1db;
+}
+.nature-night .nature-horizon {
+  background: #193b37;
+  box-shadow: 90px -20px 0 #2b4e48;
+}
+.tohesar .garage-options button[aria-pressed='true'] {
+  outline: 2px solid currentColor;
+  outline-offset: -3px;
+}
+.wake-bomb-trigger {
+  box-shadow:
+    0 5px 0 #536a5b,
+    inset 0 2px 3px #ffffff55;
+  border-radius: 24px !important;
+  transition:
+    transform 0.25s cubic-bezier(0.3, 1.7, 0.6, 1),
+    box-shadow 0.25s;
+}
+.wake-bomb-trigger:active {
+  transform: translateY(4px) scale(0.97);
+  box-shadow:
+    0 1px 0 #536a5b,
+    inset 0 3px 5px #27392b33;
+}
+.wake-bomb {
+  text-align: center;
+}
+.wake-orbit {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--motor-line);
+  border-radius: 50%;
+  width: 130px;
+  height: 130px;
+  margin: 24px auto;
+  box-shadow:
+    inset 0 8px 18px #657b6b22,
+    0 8px 20px #233c2b15;
+  background: radial-gradient(circle at 35% 25%, #ffffff66, transparent 70%);
+}
+.wake-orbit span {
+  font-size: 46px;
+  font-variant-numeric: tabular-nums;
+}
+.wake-instruction {
+  min-height: 72px;
+  font-size: clamp(18px, 3vw, 25px);
+}
+.wake-bomb .garage-options {
+  justify-content: center;
+}
+.wake-ice {
+  --motor-paper: #dcece9;
+  --motor-ink: #214844;
+}
+.wake-caffeine {
+  --motor-paper: #eee2ce;
+  --motor-ink: #4e3b27;
+}
+html[data-bkit-theme='dark'] .wake-ice {
+  --motor-paper: #182d2b;
+  --motor-ink: #d0eeea;
+}
+html[data-bkit-theme='dark'] .wake-caffeine {
+  --motor-paper: #30281e;
+  --motor-ink: #f1e2c5;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wake-bomb-trigger {
+    transition: none;
+  }
+  .wake-bomb-trigger:active {
+    transform: none;
+  }
+}
+
+.question-track.cinematic::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 200%;
+  background: repeating-linear-gradient(90deg, #53786c 0 20px, transparent 20px 38px);
+  animation: question-road 3s linear infinite;
+}
+.question-track.cinematic .tohesar-car {
+  animation: question-suspension 2s ease-in-out infinite;
+}
+@keyframes question-road {
+  to {
+    transform: translateX(-38px);
+  }
+}
+@keyframes question-suspension {
+  50% {
+    transform: translateY(-1px);
+  }
+}
+[data-motion='none'] .question-track.cinematic::before,
+[data-motion='none'] .question-track.cinematic .tohesar-car {
+  animation: none;
+}
+.question-start,
+.question-finish {
+  position: absolute;
+  bottom: 0;
+  font:
+    8px 'DM Sans',
+    sans-serif;
+  letter-spacing: 0.06em;
+}
+.question-start {
+  left: 0;
+}
+.question-finish {
+  right: 0;
+}
+.question-track {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+}
+.question-note {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 12px;
+}
+.question-note textarea {
+  width: 100%;
+  min-height: 54px;
+  font-size: 16px;
+}
+.question-overtime {
+  border-left: 2px solid #9c875e;
+  padding-left: 12px;
+}
+.mock-exam-status {
+  border: 1px solid var(--motor-line, #b9c9b9);
+  border-radius: 16px;
+  padding: 18px;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.mock-exam-status strong {
+  font:
+    500 32px 'DM Sans',
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.mock-exam-status p {
+  font-size: 13px;
+  margin: 0;
+}
+.mock-exam-setup label {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+}
+.garage-showroom {
+  background:
+    radial-gradient(ellipse at 50% -25%, #ffffffbe, transparent 65%),
+    linear-gradient(180deg, #dfe5db 60%, #cbd4c3 60%, #e5e9df);
+}
+.garage-showroom.light-warm {
+  background:
+    radial-gradient(ellipse at 50% -25%, #fff3c8, transparent 65%),
+    linear-gradient(#e5ddcd 60%, #c9c0ac 60%, #e7e1d1);
+}
+.garage-showroom.light-cool {
+  background:
+    radial-gradient(ellipse at 50% -25%, #d7efff, transparent 65%),
+    linear-gradient(#d3e0e6 60%, #b6c7cf 60%, #d9e7eb);
+}
+.garage-showroom .tohesar-car {
+  max-width: 720px;
+  filter: drop-shadow(0 10px 8px #24392e0a);
+  transition: scale 0.3s ease;
+}
+.garage-showroom.garage-zoom .tohesar-car {
+  scale: 1.15;
+}
+.garage-zoom-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  min-height: 36px !important;
+  padding: 8px 10px;
+  font-size: 10px;
+  background: #f8faf2bc;
+  border-radius: 12px;
+  z-index: 1;
+}
+.garage-zoom .garage-edition {
+  max-width: 60%;
+}
+.garage-showroom .garage-edition {
+  max-width: 65%;
+}
+.garage-panel form {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+@media (min-width: 960px) {
+  .garage-showroom {
+    min-height: 360px;
+  }
+  .garage-panel:first-child {
+    position: relative;
+  }
+}
+.race-controls {
+  touch-action: none;
+  overscroll-behavior: contain;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.race-lights {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 16px;
+}
+.race-lights i {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #758078;
+  border: 3px solid #485b50;
+  transition: background 0.3s;
+}
+.race-lights i[data-lit='true'] {
+  background: #b5894f;
+}
+.race-lights i[data-go='true'] {
+  background: #78a98a;
+}
+.race-shift-feedback {
+  text-align: center;
+  font-size: 13px;
+  min-height: 20px;
+}
+.race-skyline {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 50px,
+    #849a9a33 50px 72px,
+    transparent 72px 90px
+  );
+  clip-path: polygon(
+    0 60%,
+    0 35%,
+    10% 35%,
+    10% 50%,
+    30% 50%,
+    30% 15%,
+    40% 15%,
+    40% 40%,
+    60% 40%,
+    60% 20%,
+    70% 20%,
+    70% 50%,
+    100% 50%,
+    100% 100%,
+    0 100%
+  );
+}
+.race-track[data-racing='true'] .race-skyline {
+  animation: race-parallax 6s linear infinite;
+}
+.race-track[data-racing='true'] .race-lane {
+  animation: race-parallax 0.65s linear infinite;
+}
+@keyframes race-parallax {
+  to {
+    translate: -24px 0;
+  }
+}
+[data-motion='none'] :is(.race-skyline, .race-lane) {
+  animation: none !important;
+}
+.drive-dashboard {
+  padding: clamp(14px, 3vw, 28px);
+  background: linear-gradient(150deg, var(--motor-paper), #dce3d922);
+  border-radius: 24px;
+}
+.drive-dials {
+  grid-template-columns: minmax(0, 1fr) minmax(100px, 0.8fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+.drive-dial {
+  width: 100%;
+  max-height: none;
+  box-shadow:
+    inset 0 0 0 5px #ffffff09,
+    0 6px 14px #20342708;
+}
+.drive-dial small {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  max-width: 65%;
+  text-align: center;
+  line-height: 1.5;
+}
+.drive-dial strong {
+  font-size: clamp(23px, 3.4vw, 42px);
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+}
+.drive-dial span {
+  font-size: 8px;
+  max-width: 64%;
+  text-align: center;
+}
+.drive-center strong {
+  font-size: clamp(12px, 1.5vw, 18px);
+  letter-spacing: 0.06em;
+}
+.drive-center small {
+  font-size: 10px;
+  line-height: 1.8;
+}
+.drive-telemetry {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  border-top: 1px solid var(--motor-line);
+  padding: 14px 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+.drive-dashboard[data-arrived='true'] {
+  border-color: #9f986e;
+}
+.drive-dashboard[data-arrived='true'][data-motion='auto'] .drive-route-label {
+  animation: drive-arrival 1.5s ease-out 1;
+}
+@keyframes drive-arrival {
+  50% {
+    opacity: 0.6;
+    translate: 0 -2px;
+  }
+}
+.drive-expand {
+  font-size: 11px;
+  min-height: 36px !important;
+  margin-bottom: 8px;
+}
+html[data-drive-focus='true'] :is(.topbar, .page-head, .v2-brand, .sidebar, body > .orbit-nav) {
+  display: none !important;
+}
+html[data-drive-focus='true'] .main-shell {
+  margin: 0 auto;
+  max-width: 1400px;
+  padding-top: 12px;
+}
+html[data-drive-focus='true'] .app-shell {
+  padding-top: 0;
+}
+.question-track-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.question-track {
+  padding-bottom: 0;
+  margin-bottom: 4px;
+}
+@media (max-width: 600px) {
+  .drive-dials {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .drive-center {
+    grid-column: 1/-1;
+    grid-row: 2;
+    padding: 8px;
+  }
+  .drive-dial-secondary {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .drive-dial strong {
+    font-size: clamp(20px, 6.8vw, 34px);
+  }
+  .drive-status {
+    font-size: 8px;
+  }
+  .drive-dial small {
+    font-size: 8px;
+  }
+  .drive-telemetry {
+    font-size: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drive-route-label {
+    animation: none !important;
+  }
+}
+.nature-forest .nature-orb {
+  animation: forest-light 12s ease-in-out infinite alternate;
+}
+.nature-sea .nature-horizon,
+.nature-river .nature-horizon {
+  animation: nature-water 10s ease-in-out infinite alternate;
+}
+.nature-rain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    110deg,
+    transparent 0 35px,
+    #d9e6ec44 36px 37px,
+    transparent 38px 78px
+  );
+  animation: rain-window 7s linear infinite;
+  pointer-events: none;
+}
+.nature-meadow .nature-horizon {
+  animation: forest-light 9s ease-in-out infinite alternate;
+}
+.nature-night .nature-orb {
+  animation: forest-light 20s ease-in-out infinite alternate;
+}
+@keyframes forest-light {
+  to {
+    opacity: 0.65;
+    transform: translate(3px, -3px);
+  }
+}
+@keyframes nature-water {
+  to {
+    transform: translateY(5px) scaleX(1.03);
+  }
+}
+@keyframes rain-window {
+  to {
+    translate: -12px 40px;
+  }
+}
+[data-motion='none'] .nature-room::after,
+[data-motion='none'] :is(.nature-horizon, .nature-orb) {
+  animation: none !important;
+}
+.ambient-control {
+  margin: 18px 0;
+  padding: 12px;
+  border: 1px solid var(--motor-line);
+  border-radius: 16px;
+}
+.ambient-control label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+}
+.wake-physical-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  border: 5px solid var(--motor-line);
+  background: radial-gradient(ellipse at 30% 15%, #ffffff66, transparent 60%), var(--motor-paper);
+  box-shadow:
+    0 8px 0 #56746755,
+    inset 0 2px #fff5,
+    0 18px 28px #24392b18;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 1.5, 0.4, 1),
+    box-shadow 0.3s;
+}
+.wake-physical-button:active {
+  transform: translateY(5px) scale(0.97);
+  box-shadow:
+    0 2px 0 #56746755,
+    inset 0 4px 12px #172e2622;
+}
+.wake-physical-button small {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+.wake-scene {
+  height: 90px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  margin: 12px auto;
+}
+.wake-word {
+  font-size: 30px;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  border-bottom: 2px solid #ad8c5b;
+  padding-bottom: 8px;
+}
+.wake-droplet {
+  width: 50px;
+  height: 64px;
+  background: radial-gradient(circle at 30% 25%, #fff, #8cc9cd66 50%, #4c98a755);
+  border-radius: 50% 50% 55% 45% / 65% 65% 35% 35%;
+  box-shadow: inset 2px 2px 8px #fff9;
+  animation: wake-breathe 5s ease-in-out infinite;
+}
+.wake-engine-lights {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.wake-engine-lights i {
+  height: 10px;
+  width: 24px;
+  border-radius: 3px;
+  background: #8cae76;
+  animation: forest-light 3s ease-in-out infinite alternate;
+}
+.wake-engine-lights strong {
+  font: 12px 'DM Sans';
+  letter-spacing: 0.16em;
+}
+.wake-book {
+  font-size: 64px;
+  line-height: 1;
+}
+.wake-scene svg {
+  height: 80px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  animation: wake-breathe 6s ease-in-out infinite;
+}
+@keyframes wake-breathe {
+  50% {
+    transform: scale(1.035);
+    opacity: 0.75;
+  }
+}
+[data-motion='none'] .wake-scene *,
+[data-motion='none'] .wake-physical-button {
+  animation: none !important;
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nature-room *,
+  .nature-room::after,
+  .wake-scene * {
+    animation: none !important;
+  }
+}
+
+.question-display-toggle {
+  font-size: 10px;
+  padding: 4px 10px;
+  margin-left: auto;
+}

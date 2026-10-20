@@ -1,0 +1,446 @@
+{
+  "checks": [
+    {
+      "screen": "home",
+      "width": 320,
+      "height": 568,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "home",
+      "width": 390,
+      "height": 844,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "home",
+      "width": 844,
+      "height": 390,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "home",
+      "width": 768,
+      "height": 1024,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "home",
+      "width": 1024,
+      "height": 768,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "home",
+      "width": 1280,
+      "height": 800,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "home",
+      "width": 1440,
+      "height": 1000,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "집중",
+      "width": 320,
+      "height": 568,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "집중",
+      "width": 390,
+      "height": 844,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "집중",
+      "width": 844,
+      "height": 390,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "집중",
+      "width": 768,
+      "height": 1024,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "집중",
+      "width": 1024,
+      "height": 768,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "집중",
+      "width": 1280,
+      "height": 800,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "집중",
+      "width": 1440,
+      "height": 1000,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "과제",
+      "width": 320,
+      "height": 568,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "과제",
+      "width": 390,
+      "height": 844,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "과제",
+      "width": 844,
+      "height": 390,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "과제",
+      "width": 768,
+      "height": 1024,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "과제",
+      "width": 1024,
+      "height": 768,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "과제",
+      "width": 1280,
+      "height": 800,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "과제",
+      "width": 1440,
+      "height": 1000,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "시간표",
+      "width": 320,
+      "height": 568,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "시간표",
+      "width": 390,
+      "height": 844,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "시간표",
+      "width": 844,
+      "height": 390,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "시간표",
+      "width": 768,
+      "height": 1024,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "시간표",
+      "width": 1024,
+      "height": 768,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "시간표",
+      "width": 1280,
+      "height": 800,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "시간표",
+      "width": 1440,
+      "height": 1000,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "기록",
+      "width": 320,
+      "height": 568,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "기록",
+      "width": 390,
+      "height": 844,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "기록",
+      "width": 844,
+      "height": 390,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "기록",
+      "width": 768,
+      "height": 1024,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "기록",
+      "width": 1024,
+      "height": 768,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "기록",
+      "width": 1280,
+      "height": 800,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "기록",
+      "width": 1440,
+      "height": 1000,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "Sleep Guard",
+      "width": 320,
+      "height": 568,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "Sleep Guard",
+      "width": 390,
+      "height": 844,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "Sleep Guard",
+      "width": 844,
+      "height": 390,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "Sleep Guard",
+      "width": 768,
+      "height": 1024,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "Sleep Guard",
+      "width": 1024,
+      "height": 768,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "Sleep Guard",
+      "width": 1280,
+      "height": 800,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "Sleep Guard",
+      "width": 1440,
+      "height": 1000,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "설정",
+      "width": 320,
+      "height": 568,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "설정",
+      "width": 390,
+      "height": 844,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "설정",
+      "width": 844,
+      "height": 390,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "설정",
+      "width": 768,
+      "height": 1024,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "설정",
+      "width": 1024,
+      "height": 768,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "설정",
+      "width": 1280,
+      "height": 800,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "설정",
+      "width": 1440,
+      "height": 1000,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "TOHEŞAR GARAGE",
+      "width": 320,
+      "height": 568,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "TOHEŞAR GARAGE",
+      "width": 390,
+      "height": 844,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "TOHEŞAR GARAGE",
+      "width": 844,
+      "height": 390,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "TOHEŞAR GARAGE",
+      "width": 768,
+      "height": 1024,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "TOHEŞAR GARAGE",
+      "width": 1024,
+      "height": 768,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "TOHEŞAR GARAGE",
+      "width": 1280,
+      "height": 800,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "TOHEŞAR GARAGE",
+      "width": 1440,
+      "height": 1000,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "JUGGERNAUT",
+      "width": 320,
+      "height": 568,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "JUGGERNAUT",
+      "width": 390,
+      "height": 844,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "JUGGERNAUT",
+      "width": 844,
+      "height": 390,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "JUGGERNAUT",
+      "width": 768,
+      "height": 1024,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "JUGGERNAUT",
+      "width": 1024,
+      "height": 768,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "JUGGERNAUT",
+      "width": 1280,
+      "height": 800,
+      "overflow": false,
+      "clipped": []
+    },
+    {
+      "screen": "JUGGERNAUT",
+      "width": 1440,
+      "height": 1000,
+      "overflow": false,
+      "clipped": []
+    }
+  ],
+  "errors": []
+}

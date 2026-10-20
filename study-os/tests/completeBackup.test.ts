@@ -275,3 +275,33 @@ describe('restore while quick study is in progress', () => {
     },
   );
 });
+
+// Cosmetic state is an additive archive entry; it must never prevent rescuing study data.
+describe('3.6 garage archive compatibility', () => {
+  it('round-trips car and credits, and preserves current garage when an older archive has none', async () => {
+    const { GARAGE_KEY, newGarage } = await import('../src/drive/garage');
+    const source = await fixture();
+    const car = { ...newGarage(), credits: 20, car: { ...newGarage().car, color: 'coral' } };
+    source.setItem(GARAGE_KEY, JSON.stringify(car));
+    const zip = await exportCompleteBackup(source);
+    const target = storage();
+    const inspected = await inspectCompleteBackup(zip, target);
+    await restoreCompleteBackup(inspected, 'replace', target);
+    expect(JSON.parse(target.getItem(GARAGE_KEY)!)).toEqual(car);
+    source.removeItem(GARAGE_KEY);
+    const oldZip = await exportCompleteBackup(source);
+    const legacy = await inspectCompleteBackup(oldZip, target);
+    await restoreCompleteBackup(legacy, 'replace', target);
+    expect(JSON.parse(target.getItem(GARAGE_KEY)!)).toEqual(car);
+  });
+  it('can export and restore raw corrupt garage bytes while preserving valid study records', async () => {
+    const { GARAGE_KEY } = await import('../src/drive/garage');
+    const source = await fixture();
+    source.setItem(GARAGE_KEY, '{raw-corrupt-car');
+    const zip = await exportCompleteBackup(source);
+    const target = storage();
+    await restoreCompleteBackup(await inspectCompleteBackup(zip, target), 'replace', target);
+    expect(target.getItem(GARAGE_KEY)).toBe('{raw-corrupt-car');
+    expect(JSON.parse(target.getItem(KEY)!).learning.resources).toHaveLength(1);
+  });
+});

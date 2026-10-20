@@ -1,3 +1,7 @@
+import { mockExamSummary } from './mockExam';
+import { quickClock } from './quickTimer';
+import { QuestionRace } from './drive/QuestionRace';
+import type { GarageController } from './drive/useGarage';
 import { flushLearning } from './learningFlush';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { uid } from './model';
@@ -22,11 +26,15 @@ const ResourcePaper = lazy(() =>
 );
 export function MultiProblemWorkspace({
   state,
+  controller,
+  totalSeconds,
   onChange,
   onFinish,
   onSleep,
 }: {
   state: State;
+  controller: GarageController;
+  totalSeconds: number;
   onChange: (fn: (s: State) => State) => boolean;
   onFinish: () => void;
   onSleep: () => void;
@@ -46,6 +54,8 @@ export function MultiProblemWorkspace({
     <Problem
       key={p.id}
       state={state}
+      controller={controller}
+      totalSeconds={totalSeconds}
       problem={p}
       onChange={onChange}
       onFinish={onFinish}
@@ -56,11 +66,15 @@ export function MultiProblemWorkspace({
 function Problem({
   state,
   problem: p,
+  controller,
+  totalSeconds,
   onChange,
   onFinish,
   onSleep,
 }: {
   state: State;
+  controller: GarageController;
+  totalSeconds: number;
   problem: LearningProblem;
   onChange: (fn: (s: State) => State) => boolean;
   onFinish: () => void;
@@ -68,9 +82,27 @@ function Problem({
 }) {
   const d = learning(state),
     r = d.resources.find((r) => r.id === p.resourceId)!;
-  const list = resourceProblems(d, r.id),
+  const exam = state.active?.exam;
+  const summary = mockExamSummary(state);
+  const list = resourceProblems(d, r.id).filter((p) => !exam || exam.problemIds.includes(p.id)),
     index = list.findIndex((x) => x.id === p.id),
-    progress = resourceProgress(d, r.id);
+    baseProgress = resourceProgress(d, r.id);
+  const completed = exam
+    ? list.filter((p) =>
+        d.attempts.some(
+          (a) =>
+            a.problemId === p.id &&
+            a.sessionId === state.active?.id &&
+            a.selfCheck !== 'unreviewed',
+        ),
+      ).length
+    : baseProgress.completedCount;
+  const progress = {
+    ...baseProgress,
+    total: list.length,
+    completedCount: completed,
+    remainingCount: list.length - completed,
+  };
   const attempts = problemAttempts(d, p.id),
     last = attempts.at(-1),
     template = subjectTemplate(r.subject);
@@ -142,6 +174,29 @@ function Problem({
   }, [answerStage, inkContext]);
   return (
     <section className="multi-workspace" aria-label="다중 문제 학습실">
+      {exam && summary && (
+        <section className="mock-exam-status" aria-label="모의시험 현황">
+          <span className="eyebrow">MOCK EXAM / {r.subject}</span>
+          <strong role="timer" aria-label="시험 잔여 시간">
+            {quickClock(Math.max(0, exam.duration - totalSeconds))}
+          </strong>
+          <p>
+            {summary.total}문제 · 답안 기록 {summary.attempted} · 건너뜀 {summary.skipped} · 검토{' '}
+            {summary.review}
+          </p>
+          {exam.finishedAt && (
+            <p role="status">
+              시험 시간이 끝났어요. 답안·메모·문제 시간은 보관됐어요. 문제를 살펴보고 학습 종료로
+              기록을 저장하세요.
+            </p>
+          )}
+          <progress
+            value={Math.min(totalSeconds, exam.duration)}
+            max={exam.duration}
+            aria-label="전체 시험 시간 진행"
+          />
+        </section>
+      )}
       <div className="section-head">
         <span className="eyebrow">
           {template.name} · {r.title}
@@ -185,6 +240,15 @@ function Problem({
           다음 문제
         </button>
       </nav>
+      <QuestionRace
+        onNote={(value) => patch({ paceNote: value })}
+        state={state}
+        controller={controller}
+        totalSeconds={totalSeconds}
+        problem={p}
+        onChange={onChange}
+        onNext={index < list.length - 1 ? () => go(list[index + 1].id) : undefined}
+      />
       <h3 className="learning-problem-title">
         {p.ordinal}번 · {p.title.replace(/^\d+번$/, r.subject + ' 문제')}
       </h3>
