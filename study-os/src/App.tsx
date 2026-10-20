@@ -46,6 +46,7 @@ import { FocusHalo } from './FocusHalo';
 import { materials, restoreMaterial, saveMaterial, type MaterialPreferences } from './themes/material';
 import { applyTheme, nextTheme, restoreTheme, saveTheme } from './theme';
 import { LiquidOptics } from './LiquidOptics';
+import { SurrealLiquid } from './themes/SurrealLiquid';
 import { WaterDrop } from './WaterDrop';
 import { MaterialObject } from './themes/MaterialObject';
 import { materialCharacter } from './themes/material';
@@ -1088,7 +1089,7 @@ export default function App() {
     </div>
   );
   return (
-    <MotionConfig reducedMotion={material.motion !== 'auto' || material.lowPower ? 'always' : 'never'}><div onPointerDownCapture={event => {const target = event.target instanceof Element ? event.target.closest<HTMLElement>('button,a') : null;if(target) modalTrigger.current = target;}}
+    <MotionConfig reducedMotion={material.motion !== 'auto' || material.lowPower ? 'always' : 'user'}><div onPointerDownCapture={event => {const target = event.target instanceof Element ? event.target.closest<HTMLElement>('button,a') : null;if(target) modalTrigger.current = target;}}
       className={
         'app-shell visual-v2 atelier-os premium-os page-' + tab +
         (tab === 'study' && s.active ? ' is-focusing' : '') +
@@ -1099,6 +1100,9 @@ export default function App() {
       }
     >
 
+      <SurrealLiquid prefs={material}
+        studying={!!(s.active?.segmentStart || s.quickTimer?.segmentStart)}
+        protectedStudy={!!(s.active?.exam || (tab === 'study' && (s.active?.workspace || s.active?.resourceId)))}/>
       <div className="theme-scenery" aria-hidden="true"><i/><i/><i/></div>
       <a className="skip" href="#main">
         본문으로 이동

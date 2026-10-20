@@ -47,3 +47,4 @@ import './themes/material-experience.css';
 import './premium.css';
 
 import './theme-identity.css';
+import './themes/surreal-liquid.css';

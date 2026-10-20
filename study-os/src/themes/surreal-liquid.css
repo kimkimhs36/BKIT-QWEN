@@ -1,0 +1,213 @@
+/* BKIT 3.8 · clear optics floating above a living peach material. */
+html[data-material='glass'],
+[data-preview='glass'] {
+  --mat-bg: #f5c7ae;
+  --mat-paper: #fffaf02e;
+  --mat-panel: #fffaf024;
+  --mat-control: #fffaf047;
+  --mat-ink: #44352f;
+  --mat-muted: #71564b;
+  --mat-accent: #873e2f;
+  --mat-on-accent: #fffaf3;
+  --mat-line: #fffbef94;
+  --mat-soft: #fff4e34d;
+  --mat-blur: 8px;
+  --mat-shadow:
+    inset 0 1px 1px #fffef3ed, inset 1px 0 1px #fff9e599,
+    inset -1px -1px 1px #9e645d26, inset 0 -2px 5px #fff8e329,
+    0 2px 4px #79473806, 0 18px 42px -24px #784b4647;
+  --identity-surface: linear-gradient(125deg, #fffdf53d, #fff9e50a 52%, #fff9f229);
+  --identity-button: linear-gradient(155deg, #fffdf563, #fff9ef14 55%, #fffaf038);
+  --mat-card: var(--identity-surface);
+  --mat-button: var(--identity-button);
+}
+
+.surreal-world {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  contain: strict;
+  background: #f5c7ae;
+}
+.surreal-atmosphere,
+.surreal-surface {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+/* A graceful, texture-free atmosphere when WebGL is unavailable. */
+.surreal-atmosphere {
+  background:
+    radial-gradient(ellipse at 12% 18%, #fff1d9 0%, transparent 57%),
+    radial-gradient(ellipse at 90% 27%, #ec9a8c 0%, transparent 62%),
+    radial-gradient(ellipse at 40% 100%, #f8d8b6 0%, transparent 65%), #f5c1a4;
+  background-size: 130% 130%;
+  animation: surreal-breath 37s ease-in-out infinite alternate;
+}
+.surreal-surface {
+  display: block;
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+.surreal-surface[data-ready='true'] { opacity: 1; }
+/* Once the GPU surface is visible, the fallback does no animation work. */
+.surreal-world:has(.surreal-surface[data-ready='true']) .surreal-atmosphere {
+  animation-play-state: paused;
+}
+html:is([data-material='glass'], [data-material='peach']) .theme-scenery { display: none; }
+
+html[data-material='glass'] .app-shell.premium-os {
+  --hero-ink: var(--mat-ink);
+  --hero-soft: var(--mat-muted);
+}
+html[data-material='glass'] .app-shell.premium-os .topbar {
+  background: #fff6e817 !important;
+  border-bottom-color: #fff9ed57 !important;
+}
+html[data-material='glass'] .app-shell.premium-os :is(
+  .study-start, .study-agenda, .study-next, .study-recent, .tablet-primary-nav,
+  .bkit-quick-search-field
+),
+html[data-material='glass'] body > .orbit-nav {
+  background: var(--identity-surface) !important;
+  border: 1px solid var(--mat-line) !important;
+  box-shadow: var(--mat-shadow) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(1.12) !important;
+  backdrop-filter: blur(8px) saturate(1.12) !important;
+}
+html[data-material='glass'] .app-shell.premium-os .study-start {
+  color: var(--mat-ink);
+  box-shadow: var(--mat-shadow), 0 28px 70px -40px #90584150 !important;
+}
+html[data-material='glass'] .app-shell.premium-os .study-start:before {
+  background: linear-gradient(120deg, #fff9e51f, transparent 38%, #fff5e60a 72%, #ffffff24);
+}
+html[data-material='glass'] .app-shell.premium-os :is(
+  .panel, .focus-card, .study-site-card, .resource-card, .quick-timer,
+  .resource-resume, .note-card, .sleep-card, .session-receipt
+) {
+  background: var(--identity-surface) !important;
+  border-color: var(--mat-line) !important;
+  box-shadow: var(--mat-shadow) !important;
+}
+html[data-material='glass'] .app-shell.premium-os :is(
+  .primary, .quick-timer-begin, .study-start-primary
+),
+html[data-material='glass'] .study-dialog .primary {
+  background: linear-gradient(155deg, #a9573de8, #843b2be8) !important;
+  color: var(--mat-on-accent) !important;
+  border: 1px solid #ffe8ca80 !important;
+  box-shadow: inset 0 1px #fff2d47a, inset 0 -1px #61312442, 0 5px 16px -8px #7e372b70 !important;
+}
+html[data-material='glass'] .app-shell.premium-os :is(
+  .secondary, .study-start-five, .study-small-icon, .study-submission
+) {
+  background: var(--identity-button) !important;
+  color: var(--mat-accent) !important;
+  border-color: var(--mat-line) !important;
+  box-shadow: inset 0 1px #fff9e9c9, 0 4px 12px -9px #80544755 !important;
+}
+html[data-material='glass'] .app-shell.premium-os :is(
+  .quick-timer-display, .focus-readout .timer, .study-arc > div
+) { color: var(--mat-ink) !important; }
+html[data-material='glass'] .app-shell.premium-os .study-start-meta i {
+  background: #a66649;
+}
+html[data-material='glass'] .app-shell.premium-os .tablet-primary-nav button.active,
+html[data-material='glass'] body > .orbit-nav button.active {
+  color: var(--mat-accent) !important;
+  background: linear-gradient(135deg, #fffaee80, #fff4dd2b) !important;
+  box-shadow: inset 0 1px #fffdef, 0 3px 8px #8c4d3212 !important;
+}
+html[data-material='glass'] .app-shell.premium-os .bkit-search-results,
+html[data-material='glass'] .study-dialog,
+html[data-material='glass'] dialog:not(.race-dialog):not(.juggernaut-dialog) {
+  background: linear-gradient(130deg, #fffaf28f, #fff6e26b 58%, #fffaf28a) !important;
+  color: var(--mat-ink) !important;
+  border: 1px solid #fffcf3cf !important;
+  box-shadow: var(--mat-shadow), 0 28px 90px -28px #72443655 !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.08) !important;
+  backdrop-filter: blur(18px) saturate(1.08) !important;
+}
+html[data-material='glass'] .study-dialog-overlay {
+  background: #6144381c;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+html[data-material='glass'] .study-dialog .modal-head {
+  background: #fff7e833;
+}
+html[data-material='glass'] .study-dialog :is(input, select, textarea) {
+  background: #fffbf154 !important;
+}
+/* Optical preview follows the actual world and clear surface. */
+.study-theme-preview[data-preview='glass'] {
+  background:
+    radial-gradient(ellipse at 10% 5%, #fff3d8, transparent 65%),
+    radial-gradient(ellipse at 95% 60%, #ee9d8b, transparent 70%), #f5c7ae;
+}
+.study-theme-preview[data-preview='glass'] .study-preview-focus {
+  background: var(--identity-surface);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+.study-theme-preview[data-preview='glass'] .study-preview-button {
+  background: linear-gradient(155deg, #aa5a43, #843b2b);
+}
+
+@keyframes surreal-breath {
+  from { background-position: 0% 0%, 100% 30%, 35% 100%; }
+  to { background-position: 70% 40%, 20% 100%, 100% 30%; }
+}
+@keyframes surreal-type-reveal {
+  from { opacity: 0.35; filter: blur(5px); transform: translateY(7px); }
+  to { opacity: 1; filter: blur(0); transform: none; }
+}
+html[data-material='glass'][data-effects='auto'] .app-shell.premium-os :is(
+  .page-head h1, .study-start-copy
+) {
+  animation: surreal-type-reveal 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+html[data-liquid-studying='true'] .surreal-atmosphere,
+html[data-liquid-protected='true'] .surreal-atmosphere,
+html[data-liquid-hidden='true'] .surreal-atmosphere,
+html[data-effects='none'] .surreal-atmosphere { animation-play-state: paused; }
+/* Studying keeps the glass readable without repeatedly blurring the moving world. */
+html[data-liquid-studying='true'][data-material='glass'] .app-shell.premium-os :is(
+  .study-start, .study-agenda, .study-next, .study-recent
+) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html[data-effects='none'][data-material='glass'] :is(
+  .app-shell.premium-os *, .study-dialog, body > .orbit-nav
+) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .surreal-world *,
+  html[data-material='glass'] .app-shell.premium-os *,
+  html[data-material='glass'] :is(.study-dialog, .study-dialog-overlay, body > .orbit-nav) {
+    animation: none !important;
+    transition: none !important;
+  }
+  html[data-material='glass'] .app-shell.premium-os button:active { transform: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  html[data-material='glass'], [data-preview='glass'] {
+    --identity-surface: #fff2e3;
+    --identity-button: #fff7eb;
+    --mat-paper: #fff2e3;
+    --mat-control: #fff9ef;
+  }
+  html[data-material='glass'] .study-dialog,
+  html[data-material='glass'] .app-shell.premium-os .bkit-search-results {
+    background: #fff6e9 !important;
+  }
+}

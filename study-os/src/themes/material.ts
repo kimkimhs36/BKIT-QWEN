@@ -1,4 +1,4 @@
-import type { BkitTheme } from '../theme';
+import { THEME_KEY, type BkitTheme } from '../theme';
 export const MATERIAL_KEY = 'bkit.material.v1';
 export const materials = [
   {
@@ -19,8 +19,8 @@ export const materials = [
     id: 'glass',
     name: 'Liquid Glass',
     base: 'light',
-    description: '서리 유리와 맑은 반사',
-    color: '#d8e8ec',
+    description: '살아 있는 피치 세계 위, 맑고 투명한 유리',
+    color: '#f5c7ae',
   },
   {
     id: 'peach',
@@ -77,12 +77,15 @@ export function restoreMaterial(
   base: BkitTheme,
 ): MaterialPreferences {
   const fallback: MaterialPreferences = {
-    id: base === 'dark' ? 'forest' : 'classic',
+    id: base === 'dark' ? 'forest' : 'glass',
     motion: 'auto',
     intensity: 0.5,
     lowPower: false,
   };
   try {
+    // An explicit legacy light/dark choice counts as an existing preference.
+    // Only a person with no saved theme choice receives the new glass default.
+    if (base === 'light' && storage.getItem(THEME_KEY) !== null) fallback.id = 'classic';
     const raw = JSON.parse(storage.getItem(MATERIAL_KEY) || 'null');
     if (
       !raw ||
