@@ -1,6 +1,10 @@
 name: Publish BKIT 3.6 to GitHub Pages after verification
 on:
-  # Manual owner-approved release only; no publishing on code pushes.
+  push:
+    branches:
+      - release/bkit-3-6-back-nav-20261020
+    paths:
+      - .github/workflows/publish-bkit-3-6-pages.yml
   workflow_dispatch:
 permissions:
   contents: write
