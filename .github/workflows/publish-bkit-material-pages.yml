@@ -1,0 +1,75 @@
+name: BKIT Material Experience quick GitHub Pages release
+on:
+  push:
+    branches:
+      - feat/bkit-material-experience-20261020
+    paths:
+      - .github/workflows/publish-bkit-material-pages.yml
+permissions:
+  contents: write
+concurrency:
+  group: bkit-quick-github-pages-publish
+  cancel-in-progress: false
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: source
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: source/study-os/package-lock.json
+      - name: Build latest material experience with AI Zone
+        working-directory: source/study-os
+        env:
+          APP_BASE: /
+        run: |
+          npm ci
+          npm run build
+          test -f dist/index.html
+          test -f dist/sw.js
+          test -f dist/ai-news.json
+          grep -q 'STUDY OS 3.6' dist/index.html
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: pages
+      - name: Preserve origin, existing routes and baseline; avoid overwriting changed live site
+        run: |
+          test "$(git -C pages rev-parse HEAD)" = "eee964eddb3151045de20636a6b2cda7a95c235b"
+          grep -Fxq 'teambkit.com' pages/CNAME
+          test -f pages/.nojekyll
+          test -f pages/exam-lab/index.html
+          test -f pages/mock-rescue/index.html
+          test -f pages/release.json
+      - name: Overlay production dist; preserve original routes, CNAME and previous assets
+        run: |
+          cp -a source/study-os/dist/. pages/
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const previous=JSON.parse(fs.readFileSync('pages/release.json','utf8'));
+          fs.writeFileSync('pages/release.json',JSON.stringify({
+            product:'BKIT STUDY OS 3.6 · Material Experience + AI Zone',
+            sourceCommit:process.env.GITHUB_SHA,
+            publishedAt:new Date().toISOString(),
+            validation:'TypeScript + production Vite build; prior captured Chromium/WebKit smoke tests',
+            previousSource:previous.sourceCommit,
+            rollbackCommit:'eee964eddb3151045de20636a6b2cda7a95c235b',
+            notes:'User study records stored in same-origin browser storage; no storage clearing or migrations'
+          },null,2)+'\n');
+          NODE
+          grep -Fxq 'teambkit.com' pages/CNAME
+          test -f pages/exam-lab/index.html
+          test -f pages/mock-rescue/index.html
+          test -f pages/.nojekyll
+          test -f pages/ai-news.json
+          git -C pages config user.name "github-actions[bot]"
+          git -C pages config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C pages add --all
+          git -C pages diff --cached --check -- index.html release.json CNAME
+          git -C pages commit -m "deploy: BKIT 3.6 Material Experience + AI ZONE (owner-approved)"
+          git -C pages push origin HEAD:main
