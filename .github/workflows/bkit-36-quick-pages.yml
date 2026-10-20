@@ -1,0 +1,70 @@
+name: BKIT 3.6 GitHub Pages quick release
+on:
+  push:
+    branches:
+      - release/bkit-3-6-back-nav-20261020
+    paths:
+      - .github/workflows/bkit-36-quick-pages.yml
+permissions:
+  contents: write
+concurrency:
+  group: bkit-quick-github-pages-publish
+  cancel-in-progress: false
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: source
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: source/study-os/package-lock.json
+      - name: Build checked 3.6 release
+        working-directory: source/study-os
+        env:
+          APP_BASE: /
+        run: |
+          npm ci
+          npm run build
+          test -f dist/index.html
+          test -f dist/sw.js
+          grep -q 'STUDY OS 3.6' dist/index.html
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: pages
+      - name: Verify safe production baseline and preserve existing routes
+        run: |
+          test "$(git -C pages rev-parse HEAD)" = "44a0ef366943c46f8da15efad51fba0df333823c"
+          grep -Fxq 'teambkit.com' pages/CNAME
+          test -f pages/.nojekyll
+          test -f pages/exam-lab/index.html
+          test -f pages/mock-rescue/index.html
+      - name: Publish generated Pages content without deleting existing files
+        run: |
+          cp -a source/study-os/dist/. pages/
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const source=JSON.parse(fs.readFileSync('pages/release.json','utf8'));
+          fs.writeFileSync('pages/release.json',JSON.stringify({
+            product:'BKIT STUDY OS 3.6',
+            sourceCommit:process.env.GITHUB_SHA,
+            publishedAt:new Date().toISOString(),
+            validation:'TypeScript + production Vite build; unit tests confirmed in separate CI',
+            previousSource:source.sourceCommit,
+            rollbackCommit:'44a0ef366943c46f8da15efad51fba0df333823c'
+          },null,2)+'\n');
+          NODE
+          test -f pages/CNAME
+          test -f pages/exam-lab/index.html
+          test -f pages/mock-rescue/index.html
+          git -C pages config user.name "github-actions[bot]"
+          git -C pages config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C pages add --all
+          git -C pages diff --cached --check
+          git -C pages commit -m "deploy: BKIT 3.6 GitHub Pages · DRIVE, search, back navigation"
+          git -C pages push origin HEAD:main
