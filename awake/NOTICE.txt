@@ -1,0 +1,6 @@
+Experimental local Face Landmarker, not a medical or validated drowsiness detector.
+MediaPipe Tasks Vision 1.1.1: Apache-2.0, Google LLC.
+Face Landmarker model v1 (float16): Google MediaPipe Models.
+Source: https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+Documentation/model card: https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker
+Model is fetched only from the same origin after an explicit camera action. Video and derived features are never persisted or uploaded.

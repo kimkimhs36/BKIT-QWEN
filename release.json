@@ -1,1 +1,8 @@
-{"product": "BKIT STUDY OS 3.5", "sourceCommit": "93979de8c8a36b707be199140925e912daaab770", "publishedAt": "2026-10-19T15:04:06.703231+00:00", "validation": "TypeScript, 188 unit tests, production build; full browser matrix incomplete (expedited owner approval)", "rollbackCommit": "2569b2f2bc0519115fd3c7e9eb6bbb4b3a095572"}
+{
+  "product": "BKIT STUDY OS 3.6",
+  "sourceCommit": "03e3ddbb84ce6a856d4ef32f63b092738601f295",
+  "publishedAt": "2026-10-20T10:09:59.737Z",
+  "validation": "TypeScript + production Vite build; unit tests confirmed in separate CI",
+  "previousSource": "93979de8c8a36b707be199140925e912daaab770",
+  "rollbackCommit": "44a0ef366943c46f8da15efad51fba0df333823c"
+}
