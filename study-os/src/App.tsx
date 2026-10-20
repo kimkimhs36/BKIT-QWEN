@@ -125,6 +125,8 @@ const LearningEvidence = lazy(()=>import('./LearningEvidence').then(m=>({default
 const ProblemReviewQueue = lazy(()=>import('./ProblemReviewQueue').then(m=>({default:m.ProblemReviewQueue})));
 const DayClose=lazy(()=>import('./DayClose').then(m=>({default:m.DayClose})));
 const AwakeAssist=lazy(()=>import('./AwakeAssist').then(m=>({default:m.AwakeAssist})));
+const GlobalSearch = lazy(() => import('./GlobalSearch').then(m=>({default:m.GlobalSearch})));
+const StudyDirectory = lazy(() => import('./StudyDirectory').then(m=>({default:m.StudyDirectory})));
 const MaterialSettings = lazy(() => import('./themes/MaterialSettings').then(m=>({default:m.MaterialSettings})));
 const MaterialEffects = lazy(() => import('./themes/MaterialEffects').then(m=>({default:m.MaterialEffects})));
 const Juggernaut = lazy(() => import('./Juggernaut').then(m => ({default:m.Juggernaut})));
@@ -137,10 +139,11 @@ const NAV = [
   { id: 'settings', en: 'SETTINGS', label: '설정', icon: Settings },
   { id: 'exams', en: 'EXAMS', label: '시험 관리', icon: CalendarDays },
   { id: 'garage', en: 'MOTOR CLUB', label: 'TOHEŞAR GARAGE', icon: Sparkles },
+  { id: 'sites', en: 'STUDY LIBRARY', label: '공부 사이트', icon: BookOpen },
   { id: 'more', en: 'MORE', label: '더보기', icon: Menu },
 ];
 const PRIMARY_NAV = ['today','study','tasks','more'].map(id=>NAV.find(n=>n.id===id)!);
-const MORE_ROUTES = ['garage','school','progress','settings','sleep','juggernaut','exams'];
+const MORE_ROUTES = ['garage','school','progress','settings','sleep','juggernaut','exams','sites'];
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 function Empty({ title, children }: { title: string; children: ReactNode }) {
@@ -1260,6 +1263,7 @@ export default function App() {
             </button>
           </div>}
         </header>
+        <Suspense fallback={null}><GlobalSearch onNavigate={setTab}/></Suspense>
         <nav className="tablet-primary-nav" aria-label="태블릿 및 데스크톱 주 메뉴">
           {PRIMARY_NAV.map((n) => (
             <button
@@ -1292,6 +1296,7 @@ export default function App() {
                       sleep: 'Sleep Guard',
                       more: '더보기',
                       exams:'시험 관리',
+                      sites:'공부 사이트 백과사전',
                     } as Record<string, string>
                   )[tab]
                 }
@@ -1308,6 +1313,7 @@ export default function App() {
                       garage: '공부로 완성하는 나만의 자동차.',
                       more: '시간표, 학습 증거, 수면과 데이터 관리를 한곳에서.',
                       exams:'확인된 시험 범위와 실제 자료를 연결하세요.',
+                      sites:'필요한 강의·기출·자료로 한 번에 이동해요.',
                       settings: '이 기기의 기록과 생활 리듬을 관리하세요.',
                     } as Record<string, string>
                   )[tab]
@@ -1353,6 +1359,7 @@ export default function App() {
               <Clock size={15}/> {s.quickTimer.segmentStart ? '공부 중' : '일시정지'} · {quickClock(quickElapsed)} · 타이머 열기
             </button>
           )}
+          {tab === 'sites' && <Suspense fallback={<p role="status">사이트 목록을 여는 중…</p>}><StudyDirectory onNotice={setNotice}/></Suspense>}
           {tab === 'garage' && <Suspense fallback={<p role="status">차고를 여는 중…</p>}><Garage controller={garageController} onStudy={() => setTab('study')} onRace={beginStudyBreak} canRace={true}/></Suspense>}
           {tab === 'more' && <Suspense fallback={<p role="status">학습 도구를 여는 중…</p>}><MoreHub onNavigate={setTab} onCapture={()=>taskEditor()}/></Suspense>}
           {tab === 'today' && (
