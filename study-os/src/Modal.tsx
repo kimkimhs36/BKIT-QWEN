@@ -8,12 +8,14 @@ export function Modal({
   onClose,
   nonModal = false,
   returnFocus,
+  className = '',
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
   nonModal?: boolean;
   returnFocus?: HTMLElement | null;
+  className?: string;
 }) {
   const returnTo = useRef(
     returnFocus ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null),
@@ -30,7 +32,7 @@ export function Modal({
         {!nonModal && <Dialog.Overlay className="study-dialog-overlay" />}
         <Dialog.Content
           id={nonModal ? 'bkit-tools-menu' : undefined}
-          className={nonModal ? 'study-dialog tools-dialog' : 'study-dialog'}
+          className={(nonModal ? 'study-dialog tools-dialog' : 'study-dialog') + ' ' + className}
           aria-describedby={undefined}
           onCloseAutoFocus={(event) => {
             event.preventDefault();

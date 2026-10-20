@@ -11,6 +11,7 @@ export function useViewport() {
       frame = 0;
       const height = viewport?.height || innerHeight;
       root.style.setProperty('--os-viewport-height', `${Math.round(height)}px`);
+      root.style.setProperty('--os-viewport-top', `${Math.round(viewport?.offsetTop || 0)}px`);
       const focused = document.activeElement;
       const typing =
         focused instanceof HTMLTextAreaElement ||
@@ -41,6 +42,7 @@ export function useViewport() {
       document.removeEventListener('focusin', update);
       document.removeEventListener('focusout', update);
       root.style.removeProperty('--os-viewport-height');
+      root.style.removeProperty('--os-viewport-top');
       delete root.dataset.osKeyboard;
     };
   }, []);

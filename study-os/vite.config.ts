@@ -43,11 +43,19 @@ export default defineConfig(({ mode }) => ({
         await copyFile('node_modules/pdfjs-dist/LICENSE', 'dist/pdf-assets/LICENSE');
         await copyFile('node_modules/pdf-lib/LICENSE.md', 'dist/pdf-assets/LICENSE-pdf-lib.md');
         // Camera WASM/model assets are fetched only after explicit camera permission.
-        await mkdir('dist/awake/wasm',{recursive:true});
-        await cp('node_modules/@mediapipe/tasks-vision/wasm','dist/awake/wasm',{recursive:true});
-        const assets = (await readdir('dist/assets')).filter(x=>! /^(awake-engine|AwakeAssist|MaterialEffects|MaterialSettings|materials|ambientSound)-/.test(x));
+        await mkdir('dist/awake/wasm', { recursive: true });
+        await cp('node_modules/@mediapipe/tasks-vision/wasm', 'dist/awake/wasm', {
+          recursive: true,
+        });
+        const assets = (await readdir('dist/assets')).filter(
+          (x) =>
+            !/^(awake-engine|AwakeAssist|MaterialEffects|MaterialSettings|materials|ambientSound)-/.test(
+              x,
+            ),
+        );
         const shell = [
           'index.html',
+          'fonts/PretendardVariable.woff2',
           'icon.svg',
           'icon-192.png',
           'icon-512.png',

@@ -85,7 +85,15 @@ export function MaterialEffects({
 }) {
   const [sensor, setSensor] = useState(false);
   const [hidden, setHidden] = useState(document.hidden);
-  const reduce = false;
+  const [reduce, setReduce] = useState(
+    () => matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+  useEffect(() => {
+    const media = matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReduce(media.matches);
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
   const quiet = hidden || reduce || studying || prefs.lowPower || prefs.motion !== 'auto';
   useEffect(() => {
     const root = document.documentElement;
@@ -174,11 +182,16 @@ export function MaterialEffects({
     const pointer = (e: PointerEvent) => {
       if (!sensor) target((e.clientX / innerWidth) * 2 - 1, (e.clientY / innerHeight) * 2 - 1);
     };
-    const center = () => target(0, 0);
+    const center = () => {
+      baseline = null;
+      target(0, 0);
+    };
     if (sensor) window.addEventListener('deviceorientation', orientation, { passive: true });
     document.addEventListener('pointermove', pointer, { passive: true });
     document.addEventListener('pointerdown', pointer, { passive: true });
     document.addEventListener('pointerleave', center);
+    window.addEventListener('orientationchange', center);
+    window.addEventListener('blur', center);
     const timeout = sensor
       ? window.setTimeout(() => {
           if (!received) {
@@ -194,6 +207,10 @@ export function MaterialEffects({
       document.removeEventListener('pointermove', pointer);
       document.removeEventListener('pointerdown', pointer);
       document.removeEventListener('pointerleave', center);
+      window.removeEventListener('orientationchange', center);
+      window.removeEventListener('blur', center);
+      root.style.setProperty('--sensor-x', '0');
+      root.style.setProperty('--sensor-y', '0');
     };
   }, [sensor, quiet, prefs.intensity]);
 
@@ -246,7 +263,9 @@ export function MaterialEffects({
       if (
         !el ||
         el.matches(':disabled') ||
-        el.closest('.learning-workspace, .pdf-reader, .race-dialog')
+        el.closest(
+          '.learning-workspace, .digital-paper, .problem-workspace, .pdf-reader, .race-dialog',
+        )
       )
         return;
       const preview = el.closest<HTMLElement>('[data-preview]');
@@ -303,11 +322,5 @@ export function MaterialEffects({
     };
   }, [prefs.id, prefs.intensity, quiet, hidden, reduce, studying]);
 
-  return (
-    <div className="material-ambience" data-motion={quiet ? 'none' : 'auto'} aria-hidden="true">
-      <i />
-      <i />
-      <i />
-    </div>
-  );
+  return null;
 }

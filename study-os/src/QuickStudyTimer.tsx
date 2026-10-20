@@ -129,6 +129,9 @@ export function QuickStudyTimer({
               </label>
             </div>
           )}
+          <div className="quick-timer-display" role="timer" aria-label="집중 타이머 준비">
+            <AnimatedClock value={mode === 'stopwatch' ? '00:00' : quickClock(minutes * 60)} />
+          </div>
           <button
             className="quick-timer-begin"
             disabled={
@@ -139,7 +142,13 @@ export function QuickStudyTimer({
           >
             <Play size={20} fill="currentColor" /> 지금 시작
           </button>
-          <button className="study-text-link" disabled={focusBusy} onClick={() => onStart('countdown',5)}>5분만 시작하기 <Play size={14}/></button>
+          <button
+            className="study-text-link"
+            disabled={focusBusy}
+            onClick={() => onStart('countdown', 5)}
+          >
+            5분만 시작하기 <Play size={14} />
+          </button>
           {focusBusy && (
             <p className="muted" role="status">
               기존 집중 타이머를 종료한 뒤 시작할 수 있어요.
@@ -148,45 +157,27 @@ export function QuickStudyTimer({
         </div>
       ) : (
         <div className="quick-timer-running">
-            <div
-              className="quick-timer-display"
-              role="timer"
-              aria-label={(timer.mode === 'countdown' ? '남은 집중 시간 ' : '공부한 시간 ') + quickClock(remaining)}
-            >
-              <AnimatedClock value={quickClock(remaining)}/>
-            </div>
+          <div
+            className="quick-timer-display"
+            role="timer"
+            aria-label={
+              (timer.mode === 'countdown' ? '남은 집중 시간 ' : '공부한 시간 ') +
+              quickClock(remaining)
+            }
+          >
+            <AnimatedClock value={quickClock(remaining)} />
+          </div>
           <div className="quick-timer-under" role="status">
             {timer.mode === 'stopwatch'
               ? running
-                ? '시간이 쌓이고 있어 · 무엇을 했는지는 나중에 적어도 돼'
-                : '잠시 쉬는 중 · 기록은 그대로 남아 있어'
+                ? '집중 중 · 스톱워치'
+                : '일시정지 · 공부 시간은 그대로예요.'
               : reached
-                ? '목표에 도착했어! 원하면 더 공부하고 종료해도 돼'
+                ? '목표 시간 도착 · 계속 공부해도 괜찮아요.'
                 : running
                   ? '목표 ' + timer.targetMinutes + '분 · 끝난 뒤 기록하기'
                   : '일시정지 중'}
           </div>
-          {tasks.some((t) => t.status !== 'done') && (
-            <label>
-              지금 공부 중인 과제와 연결 (선택)
-              <select
-                aria-label="진행 중인 스톱워치 과제 연결"
-                value=""
-                onChange={(e) => {
-                  if (e.target.value) onAttachTask(e.target.value);
-                }}
-              >
-                <option value="">시간을 유지하며 과제 선택</option>
-                {tasks
-                  .filter((t) => t.status !== 'done')
-                  .map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.subject} · {t.title}
-                    </option>
-                  ))}
-              </select>
-            </label>
-          )}
           <div className="quick-timer-actions">
             <button type="button" className="secondary" onClick={running ? onPause : onResume}>
               {running ? (
@@ -203,6 +194,32 @@ export function QuickStudyTimer({
               <Check size={17} /> 끝내고 시간 저장
             </button>
           </div>
+          {tasks.some((t) => t.status !== 'done') && (
+            <details className="quick-timer-task-link">
+              <summary>과제에 연결하기 (선택)</summary>
+              {tasks.some((t) => t.status !== 'done') && (
+                <label>
+                  지금 공부 중인 과제와 연결 (선택)
+                  <select
+                    aria-label="진행 중인 스톱워치 과제 연결"
+                    value=""
+                    onChange={(e) => {
+                      if (e.target.value) onAttachTask(e.target.value);
+                    }}
+                  >
+                    <option value="">시간을 유지하며 과제 선택</option>
+                    {tasks
+                      .filter((t) => t.status !== 'done')
+                      .map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.subject} · {t.title}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+              )}
+            </details>
+          )}
         </div>
       )}
       {!timer && last?.quick && (editingId === last.id || expanded || showEditor) && (

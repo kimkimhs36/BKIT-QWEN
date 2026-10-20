@@ -49,4 +49,5 @@ import './premium.css';
 import './theme-identity.css';
 import './themes/surreal-liquid.css';
 
+import './themes/compact-atmosphere.css';
 import './compact-first-screen.css';

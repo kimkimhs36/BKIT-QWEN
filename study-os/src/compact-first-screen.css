@@ -1,96 +1,1509 @@
-/* BKIT compact UX / first screen contains an action, not a brochure. */
-html[data-material] .premium-os .compact-section{border:1px solid var(--mat-line);border-radius:15px;background:var(--mat-paper);margin:12px 0;overflow:hidden}
-html[data-material] .premium-os .compact-section>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:47px;padding:12px 16px;font-size:13px;font-weight:550;list-style:none;color:var(--mat-ink);cursor:pointer}
-html[data-material] .premium-os .compact-section>summary::-webkit-details-marker{display:none}
-html[data-material] .premium-os .compact-section[open]>summary{border-bottom:1px solid var(--mat-line)}
-html[data-material] .premium-os .compact-section>summary svg{transition:transform .18s}
-html[data-material] .premium-os .compact-section[open]>summary svg{transform:rotate(90deg)}
-html[data-material] .premium-os .compact-progress-content{padding:12px}
-html[data-material] .premium-os .compact-progress-content .note-card{display:none}
-html[data-material] .premium-os .compact-record-overview{max-width:850px;margin:0 auto}
-html[data-material] .premium-os .compact-record-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-html[data-material] .premium-os .compact-record-stats>div{background:var(--mat-paper);border:1px solid var(--mat-line);border-radius:16px;padding:16px 20px;min-width:0}
-html[data-material] .premium-os .compact-record-stats>div span{font-size:12px;color:var(--mat-muted)}
-html[data-material] .premium-os .compact-record-stats>div strong{display:block;font-size:31px;font-weight:600;line-height:1.25;margin:7px 0 0}
-html[data-material] .premium-os .compact-record-stats>div small{font-size:12px;font-weight:400;margin-left:4px}
-html[data-material] .premium-os .compact-record-empty{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:17px 3px;font-size:13px;color:var(--mat-muted)}
-html[data-material] .premium-os .compact-record-empty button{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--mat-accent);font-weight:600}
-html[data-material] .premium-os .compact-progress-detail{max-width:850px;margin:12px auto}
-html[data-material] .premium-os .compact-progress-detail .metrics{margin-top:10px}
-html[data-material] .premium-os .compact-no-tasks{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:18px 3px}
-html[data-material] .premium-os .compact-no-tasks strong{font-size:14px}
-html[data-material] .premium-os .compact-no-tasks span{font-size:12px;color:var(--mat-muted)}
-html[data-material] .premium-os .compact-paper-tools{margin:10px 0}
-html[data-material] .premium-os .page-footer{display:none!important}
-@media(max-width:900px) {
- html[data-material] .premium-os .study-home{grid-template-columns:minmax(0,1fr);gap:12px}
+/* Compact Experience: shared type, useful first screens, and comfortable touch. */
+@font-face {
+  font-family: BKIT Pretendard;
+  src: url('/fonts/PretendardVariable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
 }
-@media(max-width:650px) {
- /* Search lives in Tools; the main daily workspaces give the viewport to studying. */
- html[data-material] .premium-os.page-today .bkit-quick-search,
- html[data-material] .premium-os.page-study .bkit-quick-search,
- html[data-material] .premium-os.page-tasks .bkit-quick-search,
- html[data-material] .premium-os.page-progress .bkit-quick-search{display:none!important}
- html[data-material] .premium-os.page-today .page-head{margin:0 0 10px!important}
- html[data-material] .premium-os.page-today .page-head h1{font-size:23px!important;line-height:1.2}
- html[data-material] .premium-os.page-today .page-head .eyebrow{font-size:11px!important;letter-spacing:0;margin:0 0 3px!important}
- html[data-material] .premium-os.page-tasks .page-head,
- html[data-material] .premium-os.page-study .page-head,
- html[data-material] .premium-os.page-progress .page-head{margin:0 0 12px!important}
- html[data-material] .premium-os.page-tasks .page-head .eyebrow,
- html[data-material] .premium-os.page-study .page-head .eyebrow,
- html[data-material] .premium-os.page-progress .page-head .eyebrow,
- html[data-material] .premium-os.page-tasks .page-head .subtitle,
- html[data-material] .premium-os.page-study .page-head .subtitle,
- html[data-material] .premium-os.page-progress .page-head .subtitle{display:none!important}
- html[data-material] .premium-os main{padding-bottom:calc(102px + env(safe-area-inset-bottom))!important}
- html[data-material] .premium-os .study-home{grid-template-columns:minmax(0,1fr);gap:10px}
- html[data-material] .premium-os .study-start{min-height:0!important;padding:16px 18px!important;border-radius:17px;gap:8px}
- html[data-material] .premium-os .study-start-copy{max-width:100%;width:100%}
- html[data-material] .premium-os .study-start .study-kicker{display:none!important}
- html[data-material] .premium-os .study-start h2{font-size:25px!important;white-space:normal;margin:0 0 7px!important;line-height:1.15}
- html[data-material] .premium-os .study-start p{font-size:12px;margin:0!important;max-width:none;line-height:1.5}
- html[data-material] .premium-os .study-start-actions{margin:6px 0 0;gap:10px}
- html[data-material] .premium-os .study-start-primary{min-height:43px!important;padding:9px 13px;font-size:13px}
- html[data-material] .premium-os .study-start-five{min-height:43px;font-size:12px}
- html[data-material] .premium-os .study-agenda{padding:14px 16px!important;min-height:0!important;border-radius:17px}
- html[data-material] .premium-os .study-section-heading{margin:0 0 6px!important;padding:0!important}
- html[data-material] .premium-os .study-section-heading h2{font-size:17px!important}
- html[data-material] .premium-os .study-section-heading .study-kicker{display:none}
- html[data-material] .premium-os .study-agenda-empty{padding:6px 0!important;min-height:0!important}
- html[data-material] .premium-os .study-agenda-empty>svg{display:none!important}
- html[data-material] .premium-os .study-agenda-empty h3{font-size:13px!important;margin:0 0 4px!important}
- html[data-material] .premium-os .study-agenda-empty button{min-height:40px!important;padding:7px 0!important;font-size:12px}
- html[data-material] .premium-os .study-task{min-height:48px!important;padding:7px 0!important}
- html[data-material] .premium-os .study-task-list{margin:0!important}
- html[data-material] .premium-os .study-assessment-add{display:none!important}
- html[data-material] .premium-os .study-agenda>.study-text-link{padding:6px 0!important;min-height:35px;font-size:12px}
- html[data-material] .premium-os .study-submission{min-height:40px!important;padding:7px 10px!important;margin:5px 0!important}
- html[data-material] .premium-os .study-next,
- html[data-material] .premium-os .study-recent{min-height:0!important;padding:12px 15px!important;border-radius:15px}
- html[data-material] .premium-os .study-next h3,
- html[data-material] .premium-os .study-recent h3{font-size:13px!important;line-height:1.35}
- html[data-material] .premium-os .study-next p,
- html[data-material] .premium-os .study-recent p{font-size:11px!important}
- html[data-material] .premium-os .study-bottom-line{display:block;padding:0!important}
- html[data-material] .premium-os .study-day-summary{padding:8px 10px!important;min-height:0;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--mat-line);background:var(--mat-paper);border-radius:14px}
- html[data-material] .premium-os .study-day-summary>.study-kicker{font-size:12px;white-space:nowrap}
- html[data-material] .premium-os .study-day-summary>strong{font-size:23px;white-space:nowrap}
- html[data-material] .premium-os .study-day-summary>span:last-child{font-size:10px}
- html[data-material] .premium-os .study-tool-shelf{display:none!important}
- html[data-material] .premium-os.page-tasks .toolbar{display:flex!important;flex-wrap:wrap;gap:8px;margin-bottom:10px}
- html[data-material] .premium-os.page-tasks .toolbar .segmented{width:100%;justify-content:space-between}
- html[data-material] .premium-os.page-tasks .toolbar .segmented button{min-width:0;flex:1;font-size:11px;padding:8px 3px}
- html[data-material] .premium-os.page-tasks .toolbar .primary,
- html[data-material] .premium-os.page-tasks .toolbar .secondary{font-size:12px;padding:8px 11px;min-height:42px}
- html[data-material] .premium-os.page-tasks main>.panel{padding:13px!important}
- html[data-material] .premium-os .compact-record-stats>div{padding:14px}
- html[data-material] .premium-os .compact-record-stats>div strong{font-size:26px}
- html[data-material] .premium-os .compact-no-tasks{flex-direction:column;align-items:flex-start}
- html[data-material] .premium-os.page-study .study-library-disclosure,
- html[data-material] .premium-os.page-study .study-advanced-focus{margin:10px 0}
- html[data-material] .premium-os.page-study .quick-timer{padding:15px!important}
- html[data-material] .premium-os.page-study .quick-timer-display{font-size:clamp(42px,12vw,65px)}
- html[data-material] .premium-os .resource-library .section-head{margin-bottom:8px}
- html[data-material] .premium-os .compact-progress-content{padding:10px}
+html[data-material] {
+  font-family:
+    'BKIT Pretendard',
+    'DM Sans',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  font-size: 16px;
+  scroll-padding-top: 24px;
+}
+html[data-material] body,
+html[data-material] button,
+html[data-material] input,
+html[data-material] select,
+html[data-material] textarea {
+  font-family: inherit;
+  letter-spacing: -0.025em;
+}
+html[data-material] :is(h1, h2, h3, strong) {
+  text-wrap: pretty;
+}
+html[data-material] :is(h1, h2, h3) {
+  word-break: keep-all;
+  line-height: 1.3;
+}
+html[data-material] :is(button, summary, a, input, select) {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+html[data-material] :is(button, summary) {
+  min-height: 44px;
+}
+html[data-material] :is(button, a, summary, input, select, textarea):focus-visible {
+  outline: 2px solid var(--mat-accent);
+  outline-offset: 4px;
+}
+html[data-material] .premium-os .main-shell {
+  width: min(1000px, calc(100% - 64px)) !important;
+}
+html[data-material] .premium-os .topbar {
+  min-height: 76px !important;
+  padding: 14px 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.brand-theme-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  background: transparent;
+  border: 0;
+  color: var(--mat-ink);
+  border-radius: 12px;
+  cursor: pointer;
+}
+html[data-material] .premium-os .mobile-brand {
+  font-size: 27px !important;
+  font-weight: 750;
+  letter-spacing: -1.4px;
+  gap: 9px;
+}
+html[data-material] .premium-os .mobile-brand small {
+  font-size: 9px !important;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+}
+html[data-material] .premium-os .topbar .icon-button {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--mat-paper) 25%, transparent);
+}
+html[data-material] .premium-os .page-head {
+  margin: 12px 0 22px !important;
+  align-items: center;
+}
+html[data-material] .premium-os .page-head h1 {
+  font-size: 30px !important;
+  font-weight: 730 !important;
+  letter-spacing: -0.055em !important;
+  line-height: 1.28 !important;
+}
+html[data-material] .premium-os .page-head .eyebrow {
+  font-size: 13px !important;
+  margin: 0 0 5px !important;
+  letter-spacing: -0.02em;
+  color: var(--mat-muted);
+}
+html[data-material] .premium-os .page-head .subtitle {
+  max-width: 46em;
+  font-size: 14px;
+}
+html[data-material] .premium-os .tablet-primary-nav {
+  margin: 0 0 24px !important;
+  gap: 12px;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-material] .premium-os .tablet-primary-nav button {
+  border-radius: 14px !important;
+  padding: 12px 18px !important;
+  font-size: 14px !important;
+}
+html[data-material] .premium-os .bkit-quick-search {
+  margin: 0 0 16px !important;
+}
+html[data-material] .premium-os .bkit-quick-search input {
+  font-size: 16px !important;
+}
+html[data-material] .premium-os main {
+  padding-bottom: 40px !important;
+  min-height: 0 !important;
+}
+html[data-material] .premium-os .page-footer {
+  display: none !important;
+}
+html[data-material] .premium-os .study-home {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+html[data-material] .premium-os .study-start {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 0 !important;
+  padding: 28px !important;
+  gap: 20px;
+  border-radius: var(--mat-radius);
+  grid-column: auto;
+  isolation: isolate;
+}
+html[data-material] .premium-os .study-start-copy {
+  max-width: none;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+html[data-material] .premium-os .study-start h2 {
+  font-size: 30px !important;
+  line-height: 1.25 !important;
+  margin: 0 0 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.045em !important;
+  white-space: normal;
+}
+html[data-material] .premium-os .study-start p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 !important;
+  max-width: none;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+html[data-material] .premium-os .study-start-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 !important;
+  position: relative;
+  z-index: 1;
+}
+html[data-material] .premium-os .study-start-primary {
+  min-height: 50px !important;
+  font-size: 15px;
+  font-weight: 650;
+  padding: 12px 20px;
+  gap: 10px;
+  border-radius: 16px !important;
+}
+html[data-material] .premium-os .study-start-five {
+  min-height: 48px !important;
+  padding: 10px 15px;
+  font-size: 13px;
+  border-radius: 16px !important;
+}
+html[data-material] .premium-os .study-start::after {
+  display: none !important;
+}
+html[data-material] .premium-os .study-agenda {
+  padding: 20px 24px !important;
+  border-radius: var(--mat-radius);
+  min-height: 0 !important;
+  grid-column: auto;
+  grid-row: auto;
+}
+html[data-material] .premium-os .study-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 2px !important;
+  padding: 0 !important;
+}
+html[data-material] .premium-os .study-section-heading h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin: 0 !important;
+  font-size: 18px !important;
+  font-weight: 670 !important;
+  letter-spacing: -0.035em;
+}
+html[data-material] .premium-os .study-section-heading h2 span {
+  font-size: 13px;
+  color: var(--mat-muted);
+  font-weight: 500;
+}
+html[data-material] .premium-os .study-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0;
+  border-radius: 14px;
+  color: var(--mat-accent);
+}
+html[data-material] .premium-os p.study-agenda-empty {
+  display: block !important;
+  text-align: left;
+  min-height: 0 !important;
+  padding: 0 0 8px !important;
+  margin: 0 !important;
+  font-size: 14px;
+  color: var(--mat-muted);
+  line-height: 1.6;
+}
+html[data-material] .premium-os .study-task-list {
+  margin: 0 !important;
+}
+html[data-material] .premium-os .study-task {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0 !important;
+  min-height: 66px !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--mat-line) 65%, transparent);
+}
+html[data-material] .premium-os .study-task-copy {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  padding: 0;
+  display: grid;
+  gap: 5px;
+}
+html[data-material] .premium-os .study-task-copy small {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--mat-accent);
+}
+html[data-material] .premium-os .study-task-copy small span {
+  color: var(--mat-muted);
+  font-size: 11px;
+  letter-spacing: -0.02em;
+}
+html[data-material] .premium-os .study-task-copy strong {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+html[data-material] .premium-os .study-text-link {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px !important;
+  padding: 8px 0 0 !important;
+  margin: 0;
+  border: 0 !important;
+  font-size: 12px;
+  color: var(--mat-muted);
+}
+html[data-material] .premium-os .study-submission {
+  min-height: 44px !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-size: 13px;
+  padding: 10px 12px;
+  margin: 8px 0 0;
+}
+html[data-material] .premium-os .study-day-summary {
+  grid-column: auto;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-height: 66px !important;
+  padding: 16px 22px !important;
+  border: 1px solid var(--mat-line);
+  border-radius: var(--mat-radius);
+  background: var(--identity-surface, var(--mat-paper));
+  color: var(--mat-ink);
+  box-shadow: var(--mat-shadow);
+}
+html[data-material] .premium-os .study-day-summary > span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+}
+html[data-material] .premium-os .study-day-summary > strong {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 27px;
+  font-weight: 650;
+  letter-spacing: -0.05em;
+}
+html[data-material] .premium-os .study-day-summary > strong small {
+  font-size: 12px;
+  font-weight: 500;
+  margin-right: 7px;
+}
+html[data-material] .premium-os .study-day-summary > strong svg {
+  align-self: center;
+  color: var(--mat-muted);
+}
+html[data-material] .premium-os :is(.study-next, .study-recent) {
+  grid-column: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 0 !important;
+  padding: 17px 21px !important;
+  border-radius: var(--mat-radius);
+}
+html[data-material] .premium-os :is(.study-next, .study-recent) > svg {
+  color: var(--mat-accent);
+  flex: none;
+}
+html[data-material] .premium-os :is(.study-next, .study-recent) > div {
+  flex: 1;
+  min-width: 0;
+}
+html[data-material] .premium-os :is(.study-next, .study-recent) h3 {
+  font-size: 14px !important;
+  line-height: 1.45;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  margin: 3px 0;
+}
+html[data-material] .premium-os :is(.study-next, .study-recent) p {
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0;
+}
+html[data-material] .premium-os :is(.study-next, .study-recent) .study-kicker {
+  font-size: 11px;
+  letter-spacing: -0.02em;
+}
+/* Primary focus controls always precede optional workspaces. */
+html[data-material]
+  .premium-os.page-study
+  main
+  > :is(.quick-timer, .focus-library-link, .study-advanced-focus) {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+html[data-material] .premium-os .quick-timer {
+  padding: 24px !important;
+  border-radius: var(--mat-radius);
+  gap: 16px;
+}
+html[data-material] .premium-os .quick-timer-head {
+  display: none;
+}
+html[data-material] .premium-os .quick-timer-idle {
+  gap: 16px;
+}
+html[data-material] .premium-os .quick-timer-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--mat-soft) 55%, transparent);
+  padding: 4px;
+}
+html[data-material] .premium-os .quick-timer-modes button {
+  font-size: 13px;
+  min-height: 44px !important;
+  border: 0;
+  justify-content: center;
+  border-radius: 11px;
+}
+html[data-material] .premium-os .quick-timer-modes button.selected {
+  background: var(--mat-paper) !important;
+  color: var(--mat-accent) !important;
+  box-shadow: 0 2px 8px #00000009;
+}
+html[data-material] .premium-os .quick-timer-display {
+  font-size: clamp(54px, 10vw, 80px) !important;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  padding: 12px 0;
+  font-variant-numeric: tabular-nums;
+}
+html[data-material] .premium-os .quick-timer-running {
+  padding: 0;
+  gap: 15px;
+}
+html[data-material] .premium-os .quick-timer-under {
+  font-size: 13px;
+  line-height: 1.5;
+}
+html[data-material] .premium-os .quick-timer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 10px;
+  width: 100%;
+}
+html[data-material] .premium-os .quick-timer-actions button {
+  min-height: 48px !important;
+  font-size: 13px;
+  border-radius: 14px !important;
+  white-space: normal;
+}
+html[data-material] .premium-os .quick-timer-begin {
+  min-height: 52px !important;
+  font-size: 16px;
+  font-weight: 650;
+  border-radius: 16px !important;
+}
+html[data-material] .premium-os .quick-timer-lengths {
+  gap: 6px;
+}
+html[data-material] .premium-os .quick-timer-lengths button {
+  min-width: 44px;
+  min-height: 44px !important;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+html[data-material] .premium-os .quick-timer-lengths label {
+  width: 100%;
+  justify-content: flex-end;
+}
+html[data-material] .premium-os .quick-timer-task-link {
+  margin: 4px 0 0;
+  text-align: left;
+}
+html[data-material] .premium-os :is(.focus-library-link, .settings-theme-entry) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  width: 100%;
+  padding: 12px 17px;
+  color: var(--mat-ink);
+  border: 1px solid var(--mat-line);
+  background: var(--identity-surface, var(--mat-paper));
+  border-radius: 16px;
+  margin: 12px 0;
+  font-size: 14px;
+}
+html[data-material] .premium-os .focus-library-link > svg:last-child {
+  margin-left: auto;
+}
+html[data-material] .premium-os .study-advanced-focus {
+  margin-top: 12px;
+  border-radius: 16px;
+}
+html[data-material] .premium-os .study-advanced-focus > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 17px;
+  font-size: 14px;
+  list-style: none;
+  cursor: pointer;
+}
+html[data-material] .premium-os .study-layout {
+  display: flex !important;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 !important;
+}
+html[data-material] .premium-os .focus-card {
+  display: flex !important;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px !important;
+  min-height: 0 !important;
+  border-radius: var(--mat-radius);
+}
+html[data-material] .premium-os .focus-card > * {
+  order: initial !important;
+}
+html[data-material] .premium-os .focus-card > h2 {
+  font-size: 19px !important;
+  margin: 0 !important;
+  max-width: none;
+  white-space: normal;
+}
+html[data-material] .premium-os .focus-subject {
+  margin: 0;
+  font-size: 13px;
+  color: var(--mat-muted);
+}
+html[data-material] .premium-os .focus-instrument {
+  display: block !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 3px 0 !important;
+  padding: 10px 0 !important;
+}
+html[data-material] .premium-os .focus-readout {
+  position: static !important;
+  transform: none !important;
+  inset: auto !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+html[data-material] .premium-os .focus-readout .timer {
+  font-size: clamp(54px, 10vw, 80px) !important;
+  font-weight: 500 !important;
+  line-height: 1.2;
+  letter-spacing: -0.055em !important;
+}
+html[data-material] .premium-os .focus-readout > span {
+  font-size: 12px;
+  letter-spacing: 0;
+  margin-bottom: 8px;
+}
+html[data-material] .premium-os .focus-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 10px;
+  margin: 0 !important;
+  width: 100%;
+}
+html[data-material] .premium-os .focus-actions button {
+  min-height: 48px !important;
+  font-size: 13px;
+  border-radius: 14px !important;
+  padding: 10px;
+}
+html[data-material] .premium-os .focus-quiet-tools {
+  margin: 0;
+  justify-content: center;
+  gap: 12px;
+}
+html[data-material] .premium-os .focus-workspace-tools {
+  border-top: 1px solid var(--mat-line);
+  padding-top: 4px;
+}
+html[data-material] .premium-os .focus-workspace-tools > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  list-style: none;
+  cursor: pointer;
+}
+html[data-material] .premium-os .focus-review-sidebar {
+  min-width: 0;
+}
+html[data-material] .premium-os .study-review-sidebar {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+}
+/* Tasks: additions and incomplete work are the primary route. */
+html[data-material] .premium-os .task-toolbar {
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  margin: 0 0 14px;
+}
+.task-add-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.task-add-actions button {
+  min-height: 46px !important;
+  padding: 11px 16px;
+  font-size: 14px;
+  border-radius: 13px !important;
+}
+html[data-material] .premium-os .task-toolbar .segmented {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  width: 100%;
+  max-width: 560px;
+}
+html[data-material] .premium-os .task-toolbar .segmented button {
+  flex: 1;
+  min-height: 44px !important;
+  min-width: 0;
+  padding: 8px 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+html[data-material] .premium-os .task-list {
+  padding: 4px 16px !important;
+}
+html[data-material] .premium-os .task-row {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--mat-line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+html[data-material] .premium-os .task-row:last-child {
+  border-bottom: 0 !important;
+}
+html[data-material] .premium-os .check-button {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  border-radius: 15px !important;
+}
+html[data-material] .premium-os .task-content {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+  padding: 0;
+}
+html[data-material] .premium-os .task-content strong {
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+html[data-material] .premium-os .task-content > .subject {
+  font-size: 12px;
+}
+html[data-material] .premium-os .task-content > span:last-child {
+  font-size: 11px;
+  line-height: 1.5;
+}
+html[data-material] .premium-os .task-empty {
+  font-size: 14px;
+  color: var(--mat-muted);
+  padding: 10px 2px;
+  margin: 0;
+}
+/* Details stay reachable without filling empty screens with zeroes. */
+html[data-material] .premium-os .compact-section {
+  border: 1px solid var(--mat-line);
+  border-radius: 16px;
+  background: var(--identity-surface, var(--mat-paper));
+  margin: 12px 0;
+  overflow: hidden;
+}
+html[data-material] .premium-os .compact-section > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 50px;
+  padding: 12px 17px;
+  font-size: 13px;
+  font-weight: 550;
+  list-style: none;
+  color: var(--mat-ink);
+  cursor: pointer;
+}
+html[data-material] .premium-os summary::-webkit-details-marker {
+  display: none;
+}
+html[data-material] .premium-os .compact-section[open] > summary {
+  border-bottom: 1px solid var(--mat-line);
+}
+html[data-material] .premium-os summary > svg {
+  flex-shrink: 0;
+  transition: transform 0.22s;
+}
+html[data-material] .premium-os details[open] > summary > svg:last-child {
+  transform: rotate(90deg);
+}
+html[data-material] .premium-os .compact-progress-content {
+  padding: 16px;
+}
+html[data-material] .premium-os .compact-record-overview {
+  max-width: 800px;
+  margin: 0 auto;
+}
+html[data-material] .premium-os .compact-record-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+html[data-material] .premium-os .compact-record-stats > div {
+  background: var(--identity-surface, var(--mat-paper));
+  border: 1px solid var(--mat-line);
+  border-radius: var(--mat-radius);
+  padding: 22px;
+  min-width: 0;
+  box-shadow: var(--mat-shadow);
+}
+html[data-material] .premium-os .compact-record-stats > div span {
+  font-size: 12px;
+  color: var(--mat-muted);
+}
+html[data-material] .premium-os .compact-record-stats strong {
+  display: block;
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+html[data-material] .premium-os .compact-record-stats small {
+  font-size: 13px;
+  font-weight: 400;
+  margin-left: 5px;
+}
+html[data-material] .premium-os .compact-progress-detail {
+  max-width: 800px;
+  margin: 14px auto;
+}
+html[data-material] .premium-os .record-first-study {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 18px 0;
+}
+.record-first-study p {
+  font-size: 14px;
+  color: var(--mat-muted);
+  margin: 0;
+}
+.record-first-study button {
+  font-size: 14px;
+  min-height: 48px;
+  padding: 12px 17px;
+  border-radius: 14px !important;
+}
+html[data-material] .premium-os .rhythm-panel {
+  padding: 20px !important;
+  margin: 14px 0;
+}
+html[data-material] .premium-os .rhythm-panel h2 {
+  font-size: 17px;
+}
+html[data-material] .premium-os .rhythm-chart {
+  height: 135px;
+  min-height: 0;
+}
+html[data-material] .premium-os .rhythm-rail {
+  height: 84px;
+}
+html[data-material] .premium-os .rhythm-value {
+  font-size: 10px;
+  height: 16px;
+}
+html[data-material] .premium-os .rhythm-subjects {
+  margin-top: 12px;
+}
+/* Tools: a compact, named grid instead of a long menu. */
+html[data-material] .premium-os .more-hub {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  max-width: 800px;
+  margin: 0 auto;
+}
+html[data-material] .premium-os .more-hub nav {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+html[data-material] .premium-os .more-hub-link {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  min-height: 126px !important;
+  border: 1px solid var(--mat-line) !important;
+  border-radius: var(--mat-radius) !important;
+  background: var(--identity-surface, var(--mat-paper)) !important;
+  box-shadow: var(--mat-shadow);
+  padding: 18px !important;
+  color: var(--mat-ink);
+  text-align: left;
+  overflow: hidden;
+  position: relative;
+}
+html[data-material] .premium-os .more-hub-link > span:last-child {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+html[data-material] .premium-os .more-hub-link strong {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+html[data-material] .premium-os .more-hub-link small {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--mat-muted);
+  white-space: normal;
+  word-break: keep-all;
+}
+.tool-symbol {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--mat-soft) 75%, transparent);
+  color: var(--mat-accent);
+}
+.tools-assistant {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  width: 100%;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--mat-muted);
+}
+.settings-detail-body {
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+/* Modals follow Safari's visual viewport when a keyboard opens. */
+html[data-material] .study-dialog {
+  max-height: calc(var(--os-viewport-height, 100dvh) - 32px) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scroll-padding-block: 80px 20px;
+}
+html[data-material] .study-dialog :is(input, select, textarea) {
+  font-size: 16px !important;
+  min-height: 44px;
+}
+html[data-material] .study-dialog .modal-head {
+  min-height: 58px;
+  padding: 12px 18px !important;
+}
+html[data-material] .study-dialog .modal-head h2 {
+  font-size: 20px;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+}
+html[data-material] .theme-dialog {
+  width: min(510px, calc(100% - 24px)) !important;
+  padding: 0 !important;
+  border-radius: 28px !important;
+}
+.theme-picker {
+  padding: 0 18px 16px;
+  color: var(--mat-ink);
+}
+.theme-picker-caption {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 1px 0 16px;
+  color: var(--mat-muted);
+}
+.theme-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 8px;
+}
+.theme-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  align-items: center;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  border-radius: 14px;
+  color: inherit;
+  box-shadow: none !important;
+}
+.theme-choice strong {
+  font-size: 11px;
+  font-weight: 550;
+  letter-spacing: -0.035em;
+  line-height: 1.4;
+}
+.theme-swatch {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 60px;
+  border: 1px solid #ffffff80;
+  border-radius: 15px;
+  overflow: hidden;
+  background: var(--mat-bg);
+  box-shadow:
+    inset 0 1px #fff8,
+    0 4px 10px #00000009;
+}
+.theme-choice[aria-pressed='true'] .theme-swatch {
+  outline: 2px solid var(--mat-accent);
+  outline-offset: 2px;
+}
+.theme-selected {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--mat-accent);
+  color: var(--mat-on-accent);
+  box-shadow: 0 2px 5px #0002;
+}
+.theme-picker-controls {
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid var(--mat-line);
+  margin-top: 18px;
+  padding-top: 10px;
+}
+.theme-picker-controls > label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  font-size: 13px;
+}
+.theme-picker-controls select {
+  width: auto;
+  max-width: 145px;
+  padding: 8px 10px !important;
+  border-radius: 12px;
+}
+.theme-picker-controls input[type='range'] {
+  width: 120px;
+  min-height: 44px;
+  accent-color: var(--mat-accent);
+}
+.theme-picker-controls input[role='switch'] {
+  width: 44px;
+  height: 44px;
+  accent-color: var(--mat-accent);
+}
+.theme-picker-status {
+  font-size: 11px;
+  color: var(--mat-muted);
+  text-align: center;
+  margin: 12px 0 0;
+  min-height: 16px;
+}
+.theme-picker .material-sensor-control {
+  margin: 8px 0 0;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid var(--mat-line);
+  background: transparent;
+}
+.theme-picker .material-sensor-control > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+}
+.theme-picker .material-sensor-control button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 12px;
+  min-height: 44px;
+  font-size: 12px;
+  border: 1px solid var(--mat-line);
+  border-radius: 12px;
+  background: var(--mat-soft);
+  color: var(--mat-accent);
+}
+.theme-picker .material-sensor-control small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--mat-muted);
+  margin-top: 5px;
+}
+html[data-material] .premium-os .toast {
+  position: fixed !important;
+  z-index: 90;
+  left: 50%;
+  bottom: calc(92px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(460px, calc(100% - 32px));
+  margin: 0 !important;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 12px 15px;
+  border-radius: 16px;
+  box-shadow: 0 6px 32px #0002;
+  background: var(--mat-paper);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+@media (min-width: 1000px) {
+  html[data-material] .premium-os.page-today .page-head {
+    max-width: 720px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .theme-swatch {
+    height: 68px;
+  }
+}
+@media (max-width: 900px) {
+  html[data-material] .premium-os .more-hub nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  html[data-material] .premium-os .more-hub-link {
+    min-height: 98px !important;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 16px !important;
+  }
+  .tool-symbol {
+    flex: none;
+  }
+}
+@media (max-width: 650px) {
+  html[data-material] .premium-os .main-shell {
+    width: calc(100% - 36px) !important;
+  }
+  html[data-material] .premium-os .topbar {
+    min-height: 68px !important;
+    padding: 10px 0 !important;
+    gap: 6px;
+  }
+  html[data-material] .premium-os .topbar-leading {
+    gap: 3px;
+  }
+  html[data-material] .premium-os .home-top-tools {
+    gap: 4px;
+  }
+  html[data-material] .premium-os .mobile-brand {
+    font-size: 26px !important;
+    gap: 8px;
+  }
+  html[data-material] .premium-os .mobile-brand small {
+    font-size: 8px !important;
+    letter-spacing: 0.12em;
+  }
+  html[data-material] .premium-os .tablet-primary-nav {
+    display: none !important;
+  }
+  html[data-material] .premium-os .page-head {
+    margin: 9px 0 18px !important;
+  }
+  html[data-material] .premium-os .page-head h1 {
+    font-size: 27px !important;
+    line-height: 1.25 !important;
+  }
+  html[data-material] .premium-os .page-head .eyebrow {
+    font-size: 12px !important;
+  }
+  html[data-material] .premium-os main {
+    padding-bottom: calc(98px + env(safe-area-inset-bottom)) !important;
+  }
+  html[data-material] .premium-os .study-home {
+    gap: 12px;
+  }
+  html[data-material] .premium-os .study-start {
+    padding: 22px !important;
+    gap: 18px;
+  }
+  html[data-material] .premium-os .study-start h2 {
+    font-size: 27px !important;
+    margin-bottom: 7px !important;
+  }
+  html[data-material] .premium-os .study-start p {
+    font-size: 13px;
+  }
+  html[data-material] .premium-os .study-start-actions {
+    gap: 8px;
+  }
+  html[data-material] .premium-os .study-start-primary {
+    flex: 1;
+    min-width: 175px;
+    justify-content: center;
+    padding: 12px;
+    font-size: 14px;
+    min-height: 48px !important;
+  }
+  html[data-material] .premium-os .study-start-five {
+    padding: 10px 9px;
+    font-size: 12px;
+    min-height: 48px !important;
+  }
+  html[data-material] .premium-os .study-agenda {
+    padding: 13px 20px 15px !important;
+  }
+  html[data-material] .premium-os .study-section-heading h2 {
+    font-size: 17px !important;
+  }
+  html[data-material] .premium-os .study-task-copy strong {
+    font-size: 14px;
+  }
+  html[data-material] .premium-os .study-day-summary {
+    padding: 14px 20px !important;
+    min-height: 64px !important;
+  }
+  html[data-material] .premium-os .study-day-summary > span {
+    font-size: 13px;
+  }
+  html[data-material] .premium-os .study-day-summary > strong {
+    font-size: 26px;
+  }
+  html[data-material] .premium-os .quick-timer {
+    padding: 20px !important;
+  }
+  html[data-material] .premium-os .focus-card {
+    padding: 20px !important;
+  }
+  html[data-material] .premium-os .compact-record-stats > div {
+    padding: 18px;
+  }
+  html[data-material] .premium-os .compact-record-stats strong {
+    font-size: 31px;
+  }
+  html[data-material] .premium-os .compact-progress-content {
+    padding: 12px;
+  }
+  html[data-material] .premium-os .more-hub nav {
+    gap: 10px;
+  }
+  html[data-material] .premium-os .more-hub-link {
+    min-height: 89px !important;
+    padding: 12px !important;
+    gap: 10px;
+  }
+  html[data-material] .premium-os .more-hub-link strong {
+    font-size: 14px;
+  }
+  html[data-material] .premium-os .more-hub-link small {
+    font-size: 10px;
+    letter-spacing: -0.045em;
+  }
+  .tool-symbol {
+    width: 30px;
+    height: 34px;
+    background: transparent;
+  }
+  .tool-symbol svg {
+    width: 22px;
+    height: 22px;
+  }
+  html[data-material] body > .orbit-nav {
+    display: flex !important;
+    min-height: 68px !important;
+    border-radius: 24px !important;
+    bottom: max(10px, env(safe-area-inset-bottom)) !important;
+  }
+  html[data-material] body > .orbit-nav button {
+    min-height: 54px !important;
+    font-size: 10px !important;
+    font-weight: 550;
+    gap: 5px;
+  }
+  html[data-material] body > .orbit-nav button.active {
+    border-radius: 18px !important;
+  }
+  html[data-os-keyboard='true'] body > .orbit-nav {
+    display: none !important;
+  }
+  html[data-material] .study-dialog:not(.theme-dialog) {
+    width: calc(100% - 20px) !important;
+    max-width: 540px !important;
+    border-radius: 24px !important;
+    padding: 16px !important;
+  }
+  html[data-material] .study-dialog .modal-head {
+    padding: 9px 0 12px !important;
+  }
+  html[data-material] .theme-dialog .modal-head {
+    padding: 12px 18px !important;
+  }
+}
+@media (max-width: 370px) {
+  html[data-material] .premium-os .main-shell {
+    width: calc(100% - 28px) !important;
+  }
+  .mobile-brand small {
+    display: none !important;
+  }
+  html[data-material] .premium-os .study-start {
+    padding: 18px !important;
+  }
+  html[data-material] .premium-os .study-start-actions {
+    flex-wrap: nowrap;
+  }
+  html[data-material] .premium-os .study-start-primary {
+    min-width: 0;
+    font-size: 12px;
+    gap: 6px;
+  }
+  .theme-picker {
+    padding: 0 14px 14px;
+  }
+  .theme-swatch {
+    height: 52px;
+  }
+  .theme-choice strong {
+    font-size: 10px;
+  }
+  .theme-picker-grid {
+    gap: 10px 7px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-material] :is(button, summary, main, .theme-scenery i) {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+/* Resolve older presentation-layer specificity without changing feature behavior. */
+html[data-material] .app-shell.premium-os .topbar .mobile-brand {
+  flex-direction: row !important;
+  align-items: baseline !important;
+}
+html[data-material] .app-shell.premium-os .page-head {
+  margin: 9px 0 18px !important;
+}
+html[data-material] .app-shell.premium-os .quick-timer {
+  padding: 20px !important;
+  gap: 0 !important;
+  margin-bottom: 12px !important;
+}
+html[data-material] .app-shell.premium-os .quick-timer-idle {
+  gap: 12px;
+}
+html[data-material] .app-shell.premium-os .quick-timer-display {
+  padding: 5px 0 !important;
+  text-align: center;
+}
+html[data-material] .app-shell.premium-os .quick-timer-idle > .study-text-link {
+  justify-content: center;
+  min-height: 44px !important;
+  padding: 0 !important;
+}
+html[data-material] .app-shell.premium-os .study-advanced-focus {
+  margin-bottom: 0 !important;
+}
+html[data-material] .app-shell.premium-os .more-hub nav {
+  margin: 0 !important;
+}
+html[data-material] .app-shell.premium-os .more-hub-link {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+html[data-material] .app-shell.premium-os .more-hub-link > span:last-child {
+  width: 100%;
+  text-align: left;
+}
+html[data-material] .app-shell.premium-os .more-hub-link .tool-symbol {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+}
+html[data-material] .app-shell.premium-os .more-hub-link small {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 650px) {
+  html[data-material] .app-shell.premium-os .topbar {
+    border: 0 !important;
+  }
+  html[data-material] .app-shell.premium-os .more-hub-link {
+    min-height: 76px !important;
+    padding: 11px 14px !important;
+    gap: 4px;
+  }
+  html[data-material] .app-shell.premium-os .more-hub-link .tool-symbol {
+    width: auto;
+    height: auto;
+    position: absolute;
+    right: 13px;
+    top: 12px;
+    opacity: 0.7;
+  }
+  html[data-material] .app-shell.premium-os .more-hub-link .tool-symbol svg {
+    width: 18px;
+    height: 18px;
+  }
+  html[data-material] .app-shell.premium-os .more-hub-link strong {
+    font-size: 14px;
+    display: block;
+    padding-right: 18px;
+  }
+  html[data-material] .app-shell.premium-os .more-hub-link small {
+    font-size: 10px;
+    margin-top: 6px;
+  }
+  html[data-material] .app-shell.premium-os .more-hub nav {
+    gap: 8px;
+  }
+  html[data-material] .app-shell.premium-os .tools-assistant {
+    margin-top: 8px;
+  }
+  html[data-material] .app-shell.premium-os .page-head {
+    margin: 4px 0 16px !important;
+  }
+  html[data-material] .theme-dialog .theme-picker-grid {
+    gap: 11px 8px;
+  }
+}
+/* Legacy immersion rules must not clip the active clock or cover its actions. */
+html[data-material] .app-shell.premium-os.is-focusing .page-head {
+  display: flex !important;
+}
+html[data-material] .app-shell.premium-os .focus-card {
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+}
+html[data-material] .app-shell.premium-os .focus-card > h2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+html[data-material] .app-shell.premium-os .focus-exit {
+  position: static !important;
+  align-self: flex-start;
+  padding: 0;
+  font-size: 12px;
+  min-height: 44px;
+}
+html[data-material] .app-shell.premium-os .focus-instrument {
+  width: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+}
+html[data-material] .app-shell.premium-os .focus-workspace-tools {
+  width: 100%;
+}
+html[data-material] .app-shell.premium-os .task-add-actions {
+  justify-content: flex-start;
+}
+.theme-picker-controls input[role='switch'] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 44px;
+  height: 26px !important;
+  min-height: 26px !important;
+  flex: none;
+  border: 1px solid var(--mat-line);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--mat-muted) 28%, transparent) !important;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.theme-picker-controls input[role='switch']::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  background: #fffcf7;
+  box-shadow: 0 1px 3px #0002;
+  transition: transform 0.2s;
+}
+.theme-picker-controls input[role='switch']:checked {
+  background: var(--mat-accent) !important;
+}
+.theme-picker-controls input[role='switch']:checked::before {
+  transform: translateX(18px);
+}
+html[data-material] .app-shell.premium-os .settings-detail-body .plan-tools {
+  position: static !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  max-width: none;
+}
+html[data-material] .app-shell.premium-os .bkit-quick-search {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 0 14px !important;
+}
+html[data-material] .app-shell.premium-os .study-empty-agenda {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+}
+html[data-material] .app-shell.premium-os .study-empty-agenda p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mat-muted);
+}
+@media (max-width: 650px) and (max-height: 650px) {
+  html[data-material] .app-shell.premium-os .topbar {
+    min-height: 60px !important;
+    padding: 6px 0 !important;
+  }
+  html[data-material]
+    .app-shell.premium-os.page-today:has(.study-empty-agenda)
+    .page-head
+    .eyebrow {
+    display: none;
+  }
+  html[data-material] .app-shell.premium-os .page-head {
+    margin: 4px 0 10px !important;
+  }
+  html[data-material] .app-shell.premium-os .page-head h1 {
+    font-size: 24px !important;
+  }
+  html[data-material] .app-shell.premium-os .study-start {
+    padding: 18px !important;
+    gap: 12px;
+  }
+  html[data-material] .app-shell.premium-os .study-start h2 {
+    font-size: 25px !important;
+  }
+  html[data-material] .app-shell.premium-os .study-agenda:has(.study-empty-agenda) {
+    padding: 10px 16px !important;
+  }
+  html[data-material] .app-shell.premium-os .study-day-summary {
+    min-height: 56px !important;
+    padding: 10px 16px !important;
+  }
+  html[data-material] .app-shell.premium-os .study-home {
+    gap: 8px;
+  }
+}
+/* Center sheets inside the visible area, including Safari's keyboard pan. */
+html[data-material] .study-dialog:not(.tools-dialog) {
+  top: calc(var(--os-viewport-top, 0px) + var(--os-viewport-height, 100dvh) / 2) !important;
+  max-height: calc(
+    var(--os-viewport-height, 100dvh) - 32px - env(safe-area-inset-top) -
+      env(safe-area-inset-bottom)
+  ) !important;
+}
+html[data-material] .theme-dialog .modal-head {
+  top: 0 !important;
+}
+html[data-material] .study-dialog .modal-head .icon-button {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+}
+@media (max-width: 650px) {
+  html[data-material] .study-dialog:not(.theme-dialog) .modal-head {
+    top: -16px !important;
+  }
 }

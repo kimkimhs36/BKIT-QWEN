@@ -1,0 +1,46 @@
+name: Verify BKIT Compact Experience on iPhone and iPad
+on:
+  push:
+    branches: [feat/bkit-compact-experience-20261021]
+    paths:
+      - "study-os/**"
+      - ".github/workflows/verify-bkit-compact-experience.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: compact-experience-verify-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: study-os
+    env:
+      APP_BASE: /
+      BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps webkit
+      - name: Safari engine mobile regressions and actual rendered screenshots
+        run: >-
+          npx playwright test tests/e2e/compact-experience.spec.ts
+          --project=webkit-iphone --project=webkit-ipad --project=webkit-ipad-landscape
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bkit-compact-experience-ios
+          path: |
+            artifacts/compact-experience/
+            study-os/test-results/
+          retention-days: 14

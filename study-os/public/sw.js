@@ -1,6 +1,9 @@
 // Build injects versioned local assets. This worker never handles the old site or AI.
-const CACHE = 'bkit-study-os-shell-__VERSION__';
 const ROOT = new URL('./', self.location.href).href;
+// CacheStorage is shared by every worker on the origin. A preview must never
+// evict the production shell (or another preview's downloaded PDF assets).
+const PREFIX = 'bkit-study-os@' + new URL(ROOT).pathname + '@shell-';
+const CACHE = PREFIX + '__VERSION__';
 const PRECACHE = __PRECACHE__;
 self.addEventListener('install', (e) =>
   e.waitUntil(
@@ -16,7 +19,7 @@ self.addEventListener('activate', (e) =>
       .then((keys) =>
         Promise.all(
           keys
-            .filter((k) => k.startsWith('bkit-study-os-shell-') && k !== CACHE)
+            .filter((k) => k.startsWith(PREFIX) && k !== CACHE)
             .map((k) => caches.delete(k)),
         ),
       )

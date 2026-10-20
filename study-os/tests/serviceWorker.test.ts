@@ -44,3 +44,47 @@ describe('safe service worker lifecycle', () => {
     expect(forced).toBe(false);
   });
 });
+
+describe('preview and production cache isolation', () => {
+  for (const scope of ['/', '/preview-compact/']) {
+    it(`activation at ${scope} cleans only its own versioned shell`, async () => {
+      const handlers = new Map<string, (e: { waitUntil: (p: Promise<unknown>) => void }) => void>();
+      const deleted: string[] = [];
+      const prefix = 'bkit-study-os@' + scope + '@shell-';
+      runInNewContext(
+        readFileSync('public/sw.js', 'utf8')
+          .replace('__PRECACHE__', '[]')
+          .replace('__VERSION__', 'new'),
+        {
+          URL,
+          self: {
+            location: { href: 'https://teambkit.test' + scope + 'sw.js' },
+            addEventListener: (name: string, cb: any) => handlers.set(name, cb),
+            clients: { claim: async () => {} },
+          },
+          caches: {
+            keys: async () => [
+              'bkit-study-os@/@shell-new',
+              'bkit-study-os@/@shell-old',
+              'bkit-study-os@/preview-compact/@shell-new',
+              'bkit-study-os@/preview-compact/@shell-old',
+              'private-pdf-originals',
+            ],
+            delete: async (k: string) => {
+              deleted.push(k);
+              return true;
+            },
+          },
+        },
+      );
+      let activation = Promise.resolve();
+      handlers.get('activate')!({
+        waitUntil: (p) => {
+          activation = p as Promise<void>;
+        },
+      });
+      await activation;
+      expect(deleted).toEqual([prefix + 'old']);
+    });
+  }
+});
