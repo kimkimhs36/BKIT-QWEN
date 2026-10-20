@@ -1,0 +1,62 @@
+name: Verify BKIT 3.6 navigation and study directory (no deploy)
+on:
+  push:
+    branches:
+      - release/bkit-3-6-back-nav-20261020
+permissions:
+  contents: read
+concurrency:
+  group: bkit-36-navigation-directory-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compile-and-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: APP_BASE=/ npm run build
+  browsers:
+    needs: compile-and-unit
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [desktop, webkit-iphone, webkit-ipad]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: APP_BASE=/ npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Navigation and directory feature paths
+        run: >-
+          npm run test:e2e --
+          tests/e2e/back-navigation.spec.ts
+          tests/e2e/study-directory.spec.ts
+          tests/e2e/dark-mode-settings.spec.ts
+          --project=${{ matrix.profile }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: bkit-36-nav-${{ matrix.profile }}-failure
+          path: study-os/test-results/
+          retention-days: 7
