@@ -1,6 +1,7 @@
 import {
   Car,
   LibraryBig,
+  Bot,
   CalendarDays,
   ChevronRight,
   Moon,
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react';
 
 const TOOLS = [
+  {id:'ai-zone',label:'BKIT AI ZONE',detail:'AI 40+ 도구 · 분야별 순위 · 모델 버전 · 사용법과 한도',icon:Bot},
   {id:'sites',label:'공부 사이트 백과사전',detail:'EBSi·메가스터디·공교육 자료·즐겨찾기',icon:LibraryBig},
   {
     id: 'garage',
