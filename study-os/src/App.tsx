@@ -49,7 +49,7 @@ import { applyTheme, nextTheme, restoreTheme, saveTheme } from './theme';
 import { LiquidOptics } from './LiquidOptics';
 import { WaterDrop } from './WaterDrop';
 import { DayTimeline } from './DayTimeline';
-import { DayOrbit } from './DayOrbit';
+const DayOrbit = lazy(() => import('./DayOrbit').then(m=>({default:m.DayOrbit})));
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, useMemo, type ReactNode, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -338,6 +338,7 @@ export default function App() {
     [updateAvailable, setUpdateAvailable] = useState(false),
     [quickEditingId, setQuickEditingId] = useState<string | null>(null);
   const todayDetailsRef = useRef<HTMLDetailsElement>(null);
+  const [orbitOpen, setOrbitOpen] = useState(false);
   // A fixed tab bar changes content but not the document's scroll position.
   // Reset before paint, then again after Safari has laid out the new section.
   useLayoutEffect(() => {
@@ -1486,12 +1487,12 @@ export default function App() {
                   <ArrowUpRight size={17} />
                 </button>
               </div>
-              <details className="orbit-disclosure">
+              <details className="orbit-disclosure" onToggle={event => setOrbitOpen(event.currentTarget.open)}>
                 <summary>
                   <span>24시간 일정 그래프</span>
                   <span>펼쳐 보기 <ChevronRight size={15} /></span>
                 </summary>
-                <DayOrbit
+                {orbitOpen && <Suspense fallback={<p role="status">일정 그래프를 여는 중…</p>}><DayOrbit
                   now={now}
                   events={[
                     ...fixed,
@@ -1503,7 +1504,7 @@ export default function App() {
                       kind: 'study',
                     })),
                   ]}
-                />
+                /></Suspense>}
               </details>
               {reviewQueue.due.length > 0 && (
                 <div id="today-review-deck" className="today-review-deck">
