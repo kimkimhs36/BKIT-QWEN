@@ -1,0 +1,7 @@
+{
+  "product": "BKIT Compact Experience Preview",
+  "sourceCommit": "ce5bfac9108887995277ab9e769b19e9733db280",
+  "publishedAt": "2026-10-20T17:24:49.952Z",
+  "validation": "223 unit checks; 30 distinct WebKit iPhone/iPad scenarios; keyboard and route rechecks",
+  "productionBaseline": "92a3019688582225fd103cc5cb5c3cb5d056586e"
+}
