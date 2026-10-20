@@ -1,0 +1,113 @@
+name: Publish BKIT 3.6 to GitHub Pages after verification
+on:
+  push:
+    branches:
+      - release/bkit-3-6-back-nav-20261020
+permissions:
+  contents: write
+concurrency:
+  group: bkit-pages-3-6-safe-publish
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: study-os
+    env:
+      APP_BASE: /
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Full desktop regression, including back navigation
+        run: npm run test:e2e -- --project=desktop
+      - name: Real WebKit engine on iPhone/iPad profiles
+        run: >-
+          npm run test:e2e --
+          tests/e2e/back-navigation.spec.ts
+          tests/e2e/dark-mode-settings.spec.ts
+          tests/e2e/drive-reward.spec.ts
+          tests/e2e/digital-paper.spec.ts
+          --project=webkit-iphone --project=webkit-ipad
+      - name: Inspect published asset paths
+        run: |
+          test -f dist/index.html
+          test -f dist/sw.js
+          test -f dist/manifest.webmanifest
+          node - <<'NODE'
+          const fs = require('fs');
+          const html=fs.readFileSync('dist/index.html','utf8');
+          if(!html.includes('STUDY OS 3.6') || !html.includes('/assets/')) throw new Error('Root path or release title incorrect');
+          const scripts=[...html.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g)].map(x=>x[1]);
+          for (const file of scripts) if (!fs.existsSync('dist'+file)) throw new Error('Missing asset '+file);
+          console.log('Validated '+scripts.length+' root asset references');
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bkit-3-6-pages-dist
+          path: study-os/dist/
+          retention-days: 7
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+          persist-credentials: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: bkit-3-6-pages-dist
+          path: prepared-dist
+      - name: Check existing site and guarded parent
+        run: |
+          test "$(git -C site rev-parse HEAD)" = "44a0ef366943c46f8da15efad51fba0df333823c"
+          test -f site/CNAME
+          grep -Fxq 'teambkit.com' site/CNAME
+          test -f site/.nojekyll
+          test -f site/exam-lab/index.html
+          test -f site/mock-rescue/index.html
+          test -f prepared-dist/index.html
+          test -f prepared-dist/sw.js
+      - name: Overlay generated assets, preserving existing routes and old chunks
+        run: |
+          cp -a prepared-dist/. site/
+          node - <<'NODE'
+          const fs = require('fs');
+          const previous=JSON.parse(fs.readFileSync('site/release.json','utf8'));
+          const next={
+            product:'BKIT STUDY OS 3.6',
+            sourceCommit:'${{ github.sha }}',
+            publishedAt:new Date().toISOString(),
+            validation:'TypeScript, 221+ unit tests, full desktop regression and WebKit iPhone/iPad back navigation checks',
+            rollbackCommit:'44a0ef366943c46f8da15efad51fba0df333823c',
+            previousSource:previous.sourceCommit
+          };
+          fs.writeFileSync('site/release.json', JSON.stringify(next,null,2)+'\n');
+          NODE
+          test -f site/exam-lab/index.html
+          test -f site/mock-rescue/index.html
+          test -f site/CNAME
+      - name: Publish additive Pages assets to main without force
+        run: |
+          git -C site config user.name "github-actions[bot]"
+          git -C site config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C site add --all
+          git -C site diff --cached --check
+          git -C site diff --cached --stat | tail -35
+          git -C site commit -m "deploy: BKIT STUDY OS 3.6, verified back navigation and DRIVE"
+          git -C site push origin HEAD:main
