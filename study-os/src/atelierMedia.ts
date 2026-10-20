@@ -1,3 +1,4 @@
+import { guardedTransaction } from './indexedDb';
 // Local-only photo vault. No network client, public URL or image bytes in localStorage.
 export type PrivatePhoto = { id: string; blob: Blob; name: string; size: number; digest: string };
 async function database(): Promise<IDBDatabase> {
@@ -16,7 +17,7 @@ async function transaction<T>(
 ): Promise<T> {
   const db = await database();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction('photos', mode),
+    const tx = guardedTransaction(db, 'photos', mode),
       req = operation(tx.objectStore('photos'));
     tx.oncomplete = () => {
       db.close();
