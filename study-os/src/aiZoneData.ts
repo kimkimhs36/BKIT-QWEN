@@ -1,0 +1,103 @@
+/**
+ * BKIT AI ZONE: editorial tool catalog (not endorsements/affiliate links).
+ * Model names are documented examples, NEVER asserted as the current default.
+ * Quotas and model access vary with subscription, region and load.
+ */
+export const AI_GROUPS = ['전체','공부·리서치','범용·추론','영상 생성','이미지·디자인','코딩·앱 개발','음성·음악','문서·생산성'] as const;
+export type AIGroup = typeof AI_GROUPS[number];
+export type AITool = {id:string;name:string;group:Exclude<AIGroup,'전체'>;url:string;docs:string;billing:string;versions:string;best:string;how:string;limits:string;tags:string};
+const entry=(id:string,name:string,group:AITool['group'],url:string,docs:string,billing:string,versions:string,best:string,how:string,tags:string):AITool=>({
+  id,name,group,url,docs,billing,versions,best,how,tags,
+  limits:'무료 이용 범위·횟수·요금제별 한도는 변경될 수 있어요. 공식 페이지에서 확인하세요.'
+});
+export const AI_TOOLS:readonly AITool[]=[
+entry('chatgpt','ChatGPT','범용·추론','https://chatgpt.com/','https://help.openai.com/','https://chatgpt.com/pricing/','GPT-6 계열 (플랜·모드에 따라 다름)','문제 풀이 피드백과 다목적 대화','문제를 먼저 풀고, 막힌 단계만 질문해 보세요. 정답이 아니라 오류 원인을 확인하세요.','GPT OpenAI 공부 이미지'),
+entry('claude','Claude','범용·추론','https://claude.ai/','https://docs.anthropic.com/','https://www.anthropic.com/pricing','Claude Opus / Sonnet / Haiku 계열','긴 글 정리와 코딩·문서 검토','수행평가 초안의 논리와 표현을 검토해 달라고 요청해 보세요.','Anthropic 글쓰기 글'),
+entry('gemini','Gemini','범용·추론','https://gemini.google.com/','https://ai.google.dev/gemini-api/docs/models','https://gemini.google.com/','Gemini 4 Argon 등 (접근권한 확인)','구글 서비스와 연계한 질문·자료 해석','같은 학습지 질문을 다른 AI와 비교해 잘못된 설명이 있는지 확인하세요.','Google 제미나이 멀티모달'),
+entry('grok','Grok','범용·추론','https://grok.com/','https://docs.x.ai/','https://grok.com/','Grok 모델군 (버전은 공식 문서 확인)','일반 질의와 실시간 정보 탐색','뉴스에 대한 답변은 반드시 원문을 열어 사실 여부를 검증하세요.','xAI 검색'),
+entry('deepseek','DeepSeek','범용·추론','https://chat.deepseek.com/','https://api-docs.deepseek.com/','https://api-docs.deepseek.com/quick_start/pricing','DeepSeek V4 계열 (버전 확인)','추론과 프로그래밍 문제 검토','수학 풀이를 한 번 더 검증할 때 사용하세요.','중국 모델 수학'),
+entry('qwen','Qwen Chat','범용·추론','https://chat.qwen.ai/','https://qwenlm.github.io/','https://chat.qwen.ai/','Qwen3 계열 및 후속 버전','다국어·코딩·문서 작업','코드 예제의 단계별 의미를 물어보세요.','알리바바 코딩'),
+entry('perplexity','Perplexity','공부·리서치','https://www.perplexity.ai/','https://www.perplexity.ai/','https://www.perplexity.ai/pro','검색·답변 모델은 선택·변경 가능','출처를 따라가는 탐구 조사','경제 수행평가 근거를 찾고 1차 자료로 다시 확인하세요.','검색 출처 인용'),
+entry('notebooklm','NotebookLM','공부·리서치','https://notebooklm.google.com/','https://support.google.com/notebooklm/','https://support.google.com/notebooklm/','서비스의 기반 모델은 수시 변경','학교 프린트·PDF 기반 학습','학습지 PDF를 자료로 넣고 1장씩 핵심 개념과 인용 위치를 물어보세요.','노트북LM PDF 음성 요약 자료 학습'),
+entry('consensus','Consensus','공부·리서치','https://consensus.app/','https://consensus.app/','https://consensus.app/pricing/','논문 검색 모델은 서비스에서 갱신','학술 논문 근거 수집','주장을 질문으로 바꿔 연구 결과를 찾아보고 초록을 직접 읽으세요.','논문 연구'),
+entry('elicit','Elicit','공부·리서치','https://elicit.com/','https://elicit.com/','https://elicit.com/pricing','추출·요약 모델은 수시 변경','논문 검색과 연구 자료 정리','연구 가설을 입력해 관련 논문을 비교표로 정리해 보세요.','논문 리서치'),
+entry('scispace','SciSpace','공부·리서치','https://typeset.io/','https://typeset.io/','https://typeset.io/','논문 보조 모델 버전은 확인 필요','어려운 논문 읽기','이해되지 않는 수식이나 방법론 부분을 표시해 설명을 요청하세요.','논문 PDF 과학'),
+entry('huggingface','Hugging Face','공부·리서치','https://huggingface.co/','https://huggingface.co/docs','https://huggingface.co/pricing','공개 모델 각각의 버전·리비전 표시','오픈소스 AI 모델 탐색','모델 카드의 라이선스, 벤치마크와 최신 업데이트를 비교하세요.','허깅페이스 오픈소스'),
+entry('sora','Sora','영상 생성','https://sora.com/','https://help.openai.com/','https://openai.com/pricing/','Sora (모델·서비스 버전 공식 확인)','짧은 컨셉 영상과 장면 스토리보드','자동차 광고 구도를 3컷 스토리보드로 만든 뒤 1컷씩 생성해 보세요.','OpenAI 비디오 영상'),
+entry('runway','Runway','영상 생성','https://runwayml.com/','https://help.runwayml.com/','https://runwayml.com/pricing','Gen-4.5 등 (사용 가능 버전 확인)','시네마틱 영상과 영상 편집','도시 야경의 카메라 동선을 먼저 텍스트로 명시하고 비교 생성하세요.','Gen 비디오 무비'),
+entry('veo','Google Flow / Veo','영상 생성','https://labs.google/fx/tools/flow','https://deepmind.google/models/veo/','https://one.google.com/about/google-ai-plans/','Veo 모델군 (버전·접근권한 확인)','텍스트·이미지 기반 영화 장면','같은 장면을 카메라 이동만 바꿔 2개 버전으로 비교하세요.','Google 비오 Flow'),
+entry('kling','Kling AI','영상 생성','https://klingai.com/','https://klingai.com/','https://klingai.com/','Kling 3 계열 (버전 확인)','이미지에서 영상으로 움직임 표현','차 사진의 배경·카메라 이동을 구분해서 프롬프트를 작성하세요.','클링 영상'),
+entry('pika','Pika','영상 생성','https://pika.art/','https://pika.art/','https://pika.art/','Pika 모델 버전 수시 변경','짧은 효과 및 숏폼 영상','한 개의 물체 변화만 지정해 짧은 시퀀스로 테스트하세요.','피카 AI 효과'),
+entry('luma','Luma AI','영상 생성','https://lumalabs.ai/','https://lumalabs.ai/','https://lumalabs.ai/','Dream Machine 및 후속 버전','움직임이 있는 장면 제작','광원·피사체·렌즈·카메라 경로를 나눠 입력해 보세요.','드림머신'),
+entry('pixverse','PixVerse','영상 생성','https://pixverse.ai/','https://pixverse.ai/','https://pixverse.ai/','PixVerse V6 등 (버전 확인)','빠른 숏폼 영상 실험','세로 영상 9:16 비율로 프롬프트와 결과를 비교하세요.','쇼츠'),
+entry('hailuo','Hailuo AI','영상 생성','https://hailuoai.video/','https://hailuoai.video/','https://hailuoai.video/','MiniMax 영상 모델군','이미지·텍스트 영상 제작','피사체 방향을 간단히 지정하고 복잡한 움직임은 나눠 생성해 보세요.','미니맥스'),
+entry('wan','Wan AI','영상 생성','https://wan.video/','https://wan.video/','https://wan.video/','Wan 3.0 등 (버전 확인)','다양한 스타일의 영상 제작','동일 프롬프트로 사실적·애니메이션 스타일을 비교해 보세요.','Alibaba 영상'),
+entry('midjourney','Midjourney','이미지·디자인','https://www.midjourney.com/','https://docs.midjourney.com/','https://www.midjourney.com/plans','Midjourney 모델은 /settings에서 확인','콘셉트 아트와 무드보드','자동차 형태와 구도는 구체적으로, 스타일은 한두 가지로 제한해 보세요.','이미지 미드저니'),
+entry('firefly','Adobe Firefly','이미지·디자인','https://firefly.adobe.com/','https://helpx.adobe.com/firefly.html','https://www.adobe.com/products/firefly/plans.html','Firefly 모델군 (모드별 상이)','편집·배경 생성·디자인','원본 사진을 유지할 영역과 바꿀 영역을 먼저 구분하세요.','어도비 사진'),
+entry('ideogram','Ideogram','이미지·디자인','https://ideogram.ai/','https://ideogram.ai/','https://ideogram.ai/','Ideogram 모델군 (버전 확인)','이미지 속 타이포그래피','포스터 텍스트를 정확한 문구로 넣고 글자 오탈자를 검수하세요.','로고 타이포'),
+entry('leonardo','Leonardo AI','이미지·디자인','https://leonardo.ai/','https://leonardo.ai/','https://leonardo.ai/pricing/','선택 모델에 따라 달라짐','다양한 디자인 스타일 시안','같은 자동차 실루엣에 도장 색만 바꿔 여러 시안을 만들어 보세요.','이미지 아트'),
+entry('krea','Krea AI','이미지·디자인','https://www.krea.ai/','https://www.krea.ai/','https://www.krea.ai/pricing','Krea 모델군 (버전 확인)','이미지 업스케일·실시간 시안','낮은 해상도 시안의 세부 묘사를 비교하고 원본을 보존하세요.','이미지 업스케일'),
+entry('recraft','Recraft','이미지·디자인','https://www.recraft.ai/','https://www.recraft.ai/','https://www.recraft.ai/pricing','Recraft V4 계열 (버전 확인)','벡터·브랜드 디자인','단색 심볼부터 만들고 작게 축소해도 읽히는지 확인하세요.','로고 SVG'),
+entry('codex','OpenAI Codex','코딩·앱 개발','https://chatgpt.com/codex','https://developers.openai.com/codex/','https://chatgpt.com/pricing/','선택 가능한 코딩 모델은 플랜마다 다름','GitHub 코드 수정·테스트','한 번에 기능 하나와 완료 조건, 테스트를 같이 전달하세요.','코덱스 코드 AI'),
+entry('copilot','GitHub Copilot','코딩·앱 개발','https://github.com/features/copilot','https://docs.github.com/en/copilot','https://github.com/features/copilot/plans','선택 모델·에이전트 모드 상이','IDE에서 코딩 보조','테스트 하나를 먼저 작성하고 Copilot에 구현을 제안받아 보세요.','깃허브'),
+entry('cursor','Cursor','코딩·앱 개발','https://cursor.com/','https://docs.cursor.com/','https://cursor.com/pricing','사용 모델 목록은 요금제·선택에 따름','코드베이스 전체 탐색과 리팩터링','수정 전 영향을 받는 파일과 저장 로직을 먼저 확인하세요.','IDE'),
+entry('claudecode','Claude Code','코딩·앱 개발','https://www.anthropic.com/claude-code','https://docs.anthropic.com/en/docs/claude-code/overview','https://www.anthropic.com/pricing','Claude 계열 (선택/플랜 확인)','터미널 기반 개발 에이전트','실행한 테스트 결과와 변경 파일 목록을 함께 보고하게 하세요.','개발 에이전트'),
+entry('replit','Replit Agent','코딩·앱 개발','https://replit.com/','https://docs.replit.com/','https://replit.com/pricing','호스팅 서비스의 에이전트 버전 변경 가능','앱 프로토타입에서 배포까지','작동하는 작은 버전을 만든 뒤 기능별로 검증하세요.','웹앱'),
+entry('lovable','Lovable','코딩·앱 개발','https://lovable.dev/','https://docs.lovable.dev/','https://lovable.dev/pricing','에이전트 버전·호출 모델 변경 가능','웹앱 UI 시제품','핵심 화면 하나를 구체적으로 설명하고 반응형을 검수하세요.','사이트 빌더'),
+entry('v0','v0','코딩·앱 개발','https://v0.app/','https://v0.app/','https://v0.app/pricing','생성 모델 버전 수시 변경','프론트엔드 시안','iPhone 화면 폭과 타이포그래피 기준을 제시해 UI를 생성하세요.','Vercel 프론트'),
+entry('elevenlabs','ElevenLabs','음성·음악','https://elevenlabs.io/','https://elevenlabs.io/docs','https://elevenlabs.io/pricing','음성 합성 모델군 (버전 확인)','자연스러운 내레이션 제작','영어 발표문을 짧게 나눈 후 속도·강세를 확인하세요.','TTS 보이스'),
+entry('suno','Suno','음성·음악','https://suno.com/','https://help.suno.com/','https://suno.com/pricing','음악 생성 모델 버전 변경 가능','배경음악 시안 제작','차 영상의 분위기·템포·악기만 명시해 짧게 테스트하세요.','음악 작곡'),
+entry('udio','Udio','음성·음악','https://www.udio.com/','https://www.udio.com/','https://www.udio.com/','음악 생성 모델 버전 확인','음악 아이디어 탐색','출력물의 사용·배포 가능 범위부터 확인하세요.','음악'),
+entry('descript','Descript','음성·음악','https://www.descript.com/','https://help.descript.com/','https://www.descript.com/pricing','편집 AI 기능별 모델 상이','말하는 영상·음성 편집','녹음된 강의 노트를 텍스트 기준으로 잘라 정리해 보세요.','자막 편집'),
+entry('heygen','HeyGen','문서·생산성','https://www.heygen.com/','https://help.heygen.com/','https://www.heygen.com/pricing','아바타·번역 모델 버전 상이','발표용 아바타 영상','원고 사실관계와 사용 동의가 확보된 목소리만 활용하세요.','발표 영상 아바타'),
+entry('synthesia','Synthesia','문서·생산성','https://www.synthesia.io/','https://help.synthesia.io/','https://www.synthesia.io/pricing','아바타/영상 모델 업데이트 가능','발표·설명 영상','보고서 핵심 세 문장으로 구성해 설명 영상을 제작하세요.','강의 영상'),
+entry('gamma','Gamma','문서·생산성','https://gamma.app/','https://help.gamma.app/','https://gamma.app/pricing','프레젠테이션 모델은 변경 가능','PPT·설명자료 자동 레이아웃','발표 구성부터 먼저 잡고 슬라이드마다 주장 하나만 넣으세요.','피피티'),
+entry('canva','Canva AI','문서·생산성','https://www.canva.com/','https://www.canva.com/help/','https://www.canva.com/pricing/','Magic Studio 기능별 모델 상이','포스터·PPT·학습 자료','글꼴과 여백을 통일한 후 시각 자료를 추가하세요.','디자인 PPT'),
+entry('napkin','Napkin AI','문서·생산성','https://www.napkin.ai/','https://www.napkin.ai/','https://www.napkin.ai/','텍스트 시각화 모델 버전 확인 필요','보고서 개념도와 다이어그램','자동차 동력 전달과정을 단계별 텍스트로 쓰고 그림으로 바꿔 보세요.','도식 다이어그램'),
+entry('aistudio','Google AI Studio','코딩·앱 개발','https://aistudio.google.com/','https://ai.google.dev/','https://ai.google.dev/gemini-api/docs/pricing','선택 가능한 Gemini API 모델별','모델 비교·프롬프트 실험','같은 샘플 3개를 여러 모델에 넣어 정확도와 비용을 비교하세요.','API 프롬프트')
+];
+
+export type RankingSource={id:string;label:string;domain:string;scope:string;url:string;what:string;limits:string};
+export const RANK_SOURCES:readonly RankingSource[]=[
+{id:'overall',label:'종합 · 에이전트',domain:'추론·도구사용',scope:'전체 에이전트',url:'https://arena.ai/leaderboard',what:'Arena Agent Arena',limits:'사용자와의 실제 에이전트 상호작용을 기반으로 한 별도 지표'},
+{id:'text',label:'글쓰기 · 대화',domain:'대화·텍스트',scope:'텍스트 리더보드',url:'https://arena.ai/leaderboard',what:'Arena Text Arena',limits:'사용자 선호도 기반 순위. 수학·사실 정확도와 같지 않음'},
+{id:'code',label:'코딩 · 앱 개발',domain:'코드·에이전트',scope:'Code Arena',url:'https://arena.ai/leaderboard',what:'Arena Code Arena',limits:'코딩 하위 분야와 실행 환경에 따라 순위가 달라짐'},
+{id:'video',label:'영상 생성',domain:'텍스트/이미지→영상',scope:'Video Arena',url:'https://arena.ai/leaderboard',what:'Arena Video Arena',limits:'텍스트→영상과 이미지→영상은 평가군을 따로 선택'},
+{id:'image',label:'이미지 생성',domain:'텍스트→이미지',scope:'Image Arena',url:'https://arena.ai/leaderboard',what:'Arena Image Arena',limits:'이미지 생성과 이미지 편집을 별도 비교'},
+{id:'vision',label:'이미지 · 문서 이해',domain:'비전·문서',scope:'Vision / Document',url:'https://arena.ai/leaderboard',what:'Arena Vision / Document',limits:'도표·문서 테스트와 이미지 생성은 다른 분야'},
+{id:'intelligence',label:'독립 벤치마크',domain:'추론·코딩·에이전트',scope:'Intelligence Index',url:'https://artificialanalysis.ai/leaderboards/models',what:'Artificial Analysis',limits:'방법론과 모델 추론 설정·평가 기준 변경 가능'},
+{id:'video-independent',label:'영상 추가 비교',domain:'영상 생성 비교',scope:'영상 ELO',url:'https://filmarena.ai/',what:'FilmArena',limits:'별도 커뮤니티 평가. Arena와 점수를 혼합하지 않음'}
+];
+/** Human-readable, source-linked archival top ten, *not* claimed as live results.
+ * Verified via official https://arena.ai/leaderboard 2026-10-20 KST.
+ * Agent Arena 'Best Overall' preference metric, not a universal intelligence score.
+ */
+export const AGENT_SNAPSHOT={
+checkedAt:'2026-10-20',
+source:'https://arena.ai/leaderboard',
+sourceName:'Arena · Agent Arena · Best Overall',
+method:'에이전트 사용 경험에서 수집된 사용자 선호 지표 (%)',
+ranking:[
+{rank:1,model:'Claude Opus 5.5',variant:'Max',value:'20.35%'},
+{rank:2,model:'GPT-6 Astra',variant:'Max',value:'15.15%'},
+{rank:3,model:'Claude Fable 5.1',variant:'Max',value:'14.33%'},
+{rank:4,model:'GPT-6.1 Sol',variant:'Max',value:'13.72%'},
+{rank:5,model:'Claude Sonnet 5.5',variant:'Max',value:'12.75%'},
+{rank:6,model:'Gemini 4 Argon',variant:'High',value:'12.12%'},
+{rank:7,model:'GPT-6 Sol',variant:'Max',value:'9.33%'},
+{rank:8,model:'Claude Fable 5',variant:'High',value:'8.37%'},
+{rank:9,model:'Claude Opus 5',variant:'Max',value:'8.08%'},
+{rank:10,model:'GPT-5.6 Sol',variant:'xHigh',value:'6.59%'},
+]};
+export const AI_NEWS_LINKS=[
+{label:'OpenAI 공식 발표',url:'https://openai.com/news/',desc:'GPT·Sora·제품 업데이트'},
+{label:'Google DeepMind',url:'https://deepmind.google/discover/blog/',desc:'Gemini·Veo·AI 연구'},
+{label:'Anthropic 공식 소식',url:'https://www.anthropic.com/news',desc:'Claude 모델·기능 출시'},
+{label:'Hugging Face 블로그',url:'https://huggingface.co/blog',desc:'공개 모델·연구'},
+{label:'Arena 리더보드 변경 기록',url:'https://arena.ai/company/leaderboard-changelog',desc:'모델 추가·벤치마크 업데이트'},
+];
+export function externalAIUrl(uri:string):string {
+ const parsed=new URL(uri);
+ if(parsed.protocol!=='https:')throw new Error('보안 연결(HTTPS)만 허용합니다.');
+ return parsed.href;
+}
