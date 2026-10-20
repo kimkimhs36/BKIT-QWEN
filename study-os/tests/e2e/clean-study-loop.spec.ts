@@ -28,6 +28,9 @@ async function settings(page: Page) {
 test('empty device to real task, linked study, pause/resume, reload, more data and ZIP restore', async ({ page, browser }, info) => {
   test.setTimeout(120000);
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  // Keep the real sleep policy enabled. Task-linked study must run in daytime,
+  // rather than depending on whether the test host happens to be at 03:00 KST.
+  await page.clock.install({ time: new Date('2026-10-21T03:00:00Z') });
   await page.goto('./');
   const empty = await read(page);
   // A brand-new device need not write a document before the first user action.

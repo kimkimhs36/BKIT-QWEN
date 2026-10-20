@@ -1,0 +1,59 @@
+name: Verify BKIT internal reliability
+on:
+  push:
+    branches: [fix/bkit-internal-reliability-20261020]
+    paths:
+      - 'study-os/**'
+      - '.github/workflows/verify-bkit-internal-reliability.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: bkit-reliability-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: study-os
+    env:
+      APP_BASE: /
+      BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm audit
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Verify data, clocks, backup, PDF, camera and native worker updates
+        run: >-
+          npx playwright test
+          tests/e2e/internal-reliability.spec.ts
+          tests/e2e/compact-offline.spec.ts
+          tests/e2e/clean-study-loop.spec.ts
+          tests/e2e/cloud-lifecycle.spec.ts
+          tests/e2e/device-failures.spec.ts
+          tests/e2e/digital-paper.spec.ts
+          tests/e2e/service-worker-update.spec.ts
+          --project=desktop --project=webkit-iphone --project=webkit-ipad
+      - name: Preserve exact tested root-domain build
+        uses: actions/upload-artifact@v4
+        with:
+          name: bkit-reliability-site
+          path: study-os/dist/
+          retention-days: 7
+      - name: Preserve failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bkit-reliability-test-results
+          path: study-os/test-results/
+          retention-days: 7

@@ -30,6 +30,9 @@ export class StudyClock {
     this.wall = wall;
     this.monotonic = monotonic;
     this.suspended = false;
-    return { time: this.time, adjusted };
+    // Stored ISO timestamps have millisecond precision. Keep fractional time
+    // internally, but never let sub-millisecond samples accumulate in elapsed
+    // totals while their serialized segment endpoints are truncated.
+    return { time: Math.floor(this.time), adjusted };
   }
 }
