@@ -1,3 +1,4 @@
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, useMemo, type ReactNode, type FormEvent } from 'react';
 import { TaskMaterials, emptyTaskMaterials, type TaskMaterialDraft } from './TaskMaterials';
 import { flushLearning } from './learningFlush';
 import { QuickStudyTimer } from './QuickStudyTimer';
@@ -48,9 +49,10 @@ import { materials, restoreMaterial, saveMaterial, type MaterialPreferences } fr
 import { applyTheme, nextTheme, restoreTheme, saveTheme } from './theme';
 import { LiquidOptics } from './LiquidOptics';
 import { WaterDrop } from './WaterDrop';
+import { MaterialObject } from './themes/MaterialObject';
+import { materialCharacter } from './themes/material';
 import { DayTimeline } from './DayTimeline';
 const DayOrbit = lazy(() => import('./DayOrbit').then(m=>({default:m.DayOrbit})));
-import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, useMemo, type ReactNode, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import {
   ArrowUpRight,
@@ -258,7 +260,10 @@ export default function App() {
   useEffect(() => { applyTheme(theme); }, [theme]);
   useEffect(() => {
     document.documentElement.dataset.material = material.id;
-    document.documentElement.dataset.effects = material.lowPower || material.motion !== 'auto' ? 'none' : 'auto';
+    document.documentElement.style.removeProperty('background-color');
+    const background = getComputedStyle(document.documentElement).getPropertyValue('--mat-bg').trim();
+    if (background) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', background);
+    document.documentElement.dataset.effects = material.lowPower || material.motion !== 'auto' || matchMedia('(prefers-reduced-motion: reduce)').matches ? 'none' : 'auto';
     window.dispatchEvent(new Event('bkit:effects'));
   },[material]);
   function changeMaterial(next:MaterialPreferences) {
@@ -1209,8 +1214,8 @@ export default function App() {
           : '')
       }
     >
-      {!['classic','forest'].includes(material.id) && <Suspense fallback={null}><MaterialEffects prefs={material} studying={!!s.active?.segmentStart || !!s.quickTimer?.segmentStart}/></Suspense>}
-      <LiquidOptics />
+      <Suspense fallback={null}><MaterialEffects prefs={material} studying={!!s.active?.segmentStart || !!s.quickTimer?.segmentStart}/></Suspense>
+      {material.id === 'glass' && <LiquidOptics />}
       <a className="skip" href="#main">
         본문으로 이동
       </a>
@@ -1390,6 +1395,7 @@ export default function App() {
 
               <section className="command-stage">
                 <div className="command-left">
+                  <div className="home-material-study" aria-hidden="true"><MaterialObject id={material.id}/><span>{materialCharacter[material.id].finish}</span></div>
                   <NowFocus
                     now={now}
                     energy={energy}

@@ -41,13 +41,13 @@ export function LiquidOptics() {
     root.dataset.bkitGlassEngine = isBlink ? 'svg-backdrop' : 'layered';
 
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-    const targets = '.orbit-nav, .now-focus.now-action, .deadline-pulse, .primary, .secondary, .panel, dialog';
+    const targets = '.orbit-nav, .home-primary .command-stage, .primary, .secondary, .material-specimen-touch';
     let frame = 0;
     let recent: PointerEvent | null = null;
     const apply = () => {
       frame = 0;
       const event = recent;
-      if (!event || reduceMotion.matches) return;
+      if (!event || reduceMotion.matches || root.dataset.effects === 'none') return;
       const node = event.target instanceof Element ? event.target.closest(targets) : null;
       if (!(node instanceof HTMLElement)) return;
       const r = node.getBoundingClientRect();
@@ -56,11 +56,12 @@ export function LiquidOptics() {
       node.style.setProperty('--liquid-y', ((event.clientY - r.top) / r.height * 100).toFixed(1) + '%');
     };
     const move = (event: PointerEvent) => {
-      if (event.pointerType === 'touch' || reduceMotion.matches) return;
+      if (event.pointerType === 'touch' || reduceMotion.matches || root.dataset.effects === 'none') return;
       recent = event;
       if (!frame) frame = requestAnimationFrame(apply);
     };
     const down = (event: PointerEvent) => {
+      if (reduceMotion.matches || root.dataset.effects === 'none') return;
       const node = event.target instanceof Element ? event.target.closest(targets) : null;
       if (node instanceof HTMLElement) {
         node.classList.add('liquid-pressed');
@@ -84,6 +85,7 @@ export function LiquidOptics() {
     document.addEventListener('pointercancel', reset, { passive: true });
     window.addEventListener('blur', reset);
     return () => {
+      release();
       cancelAnimationFrame(frame);
       root.removeAttribute('data-bkit-glass-engine');
       document.removeEventListener('pointermove', move);
