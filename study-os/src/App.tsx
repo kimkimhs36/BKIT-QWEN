@@ -55,6 +55,7 @@ import { createPortal } from 'react-dom';
 import {
   ArrowUpRight,
   ArrowRight,
+  ArrowLeft,
   BookOpen,
   CalendarDays,
   Check,
@@ -293,10 +294,24 @@ export default function App() {
       | 'block'
       | 'import'
     >(null);
-  function setTab(route:string) {if(flushLearning(()=>setTab(route)))setTabState(route);}
-  const settingsReturnTab = useRef('today');
-  useEffect(() => { if (tab !== 'settings') settingsReturnTab.current = tab; }, [tab]);
-  function toggleSettings() { setTab(tab === 'settings' ? settingsReturnTab.current : 'settings'); }
+  // A route trail, not browser history: back must never leave the study app.
+  const routeTrail = useRef<string[]>([]);
+  function setTab(route:string, remember = true) {
+    if (route === tab) return;
+    if (flushLearning(() => setTab(route, remember))) {
+      if (remember) routeTrail.current = [...routeTrail.current.slice(-39), tab];
+      setTabState(route);
+    }
+  }
+  function goBack() {
+    const previous = routeTrail.current.at(-1) ?? 'today';
+    if (previous === tab) return;
+    if (flushLearning(goBack)) {
+      routeTrail.current.pop();
+      setTabState(previous);
+    }
+  }
+  function toggleSettings() { tab === 'settings' ? goBack() : setTab('settings'); }
   const sleep = useSleepGuard(now, Boolean(s.active));
   const [energy,setEnergy] = useState<'low'|'normal'>('normal');
   const [taskPresetKind, setTaskPresetKind] = useState<Task['kind']>('숙제');
@@ -1192,13 +1207,20 @@ export default function App() {
       </a>
       <div className="main-shell">
         <header className="topbar">
-          <div>
-            <span className="mobile-brand">
-              BKIT <small>STUDY OS 3.6</small>
-            </span>
-            <span className="breadcrumb">
-              BKIT <ChevronRight size={13} /> {(tab === 'sleep' ? 'Sleep Guard' : NAV.find((n) => n.id === tab)?.label)}
-            </span>
+          <div className="topbar-leading">
+            {tab !== 'today' && (
+              <button type="button" className="icon-button topbar-back" aria-label="이전 화면으로 돌아가기" title="이전 화면" onClick={goBack}>
+                <ArrowLeft size={19} strokeWidth={2} aria-hidden="true" />
+              </button>
+            )}
+            <div className="topbar-titles">
+              <span className="mobile-brand">
+                BKIT <small>STUDY OS 3.6</small>
+              </span>
+              <span className="breadcrumb">
+                BKIT <ChevronRight size={13} /> {(tab === 'sleep' ? 'Sleep Guard' : NAV.find((n) => n.id === tab)?.label)}
+              </span>
+            </div>
           </div>
           {tab === 'today' ? <div className="home-top-tools">
             <button type="button" className="icon-button theme-toggle" aria-label={theme === 'dark' ? '라이트모드로 전환' : '다크모드로 전환'} title={theme === 'dark' ? '라이트모드' : '다크모드'} aria-pressed={theme === 'dark'} onClick={changeTheme}>{theme === 'dark' ? <Sun size={20}/> : <Moon size={20}/>}</button>
