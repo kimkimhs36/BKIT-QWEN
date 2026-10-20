@@ -1,0 +1,96 @@
+/* BKIT compact UX / first screen contains an action, not a brochure. */
+html[data-material] .premium-os .compact-section{border:1px solid var(--mat-line);border-radius:15px;background:var(--mat-paper);margin:12px 0;overflow:hidden}
+html[data-material] .premium-os .compact-section>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:47px;padding:12px 16px;font-size:13px;font-weight:550;list-style:none;color:var(--mat-ink);cursor:pointer}
+html[data-material] .premium-os .compact-section>summary::-webkit-details-marker{display:none}
+html[data-material] .premium-os .compact-section[open]>summary{border-bottom:1px solid var(--mat-line)}
+html[data-material] .premium-os .compact-section>summary svg{transition:transform .18s}
+html[data-material] .premium-os .compact-section[open]>summary svg{transform:rotate(90deg)}
+html[data-material] .premium-os .compact-progress-content{padding:12px}
+html[data-material] .premium-os .compact-progress-content .note-card{display:none}
+html[data-material] .premium-os .compact-record-overview{max-width:850px;margin:0 auto}
+html[data-material] .premium-os .compact-record-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+html[data-material] .premium-os .compact-record-stats>div{background:var(--mat-paper);border:1px solid var(--mat-line);border-radius:16px;padding:16px 20px;min-width:0}
+html[data-material] .premium-os .compact-record-stats>div span{font-size:12px;color:var(--mat-muted)}
+html[data-material] .premium-os .compact-record-stats>div strong{display:block;font-size:31px;font-weight:600;line-height:1.25;margin:7px 0 0}
+html[data-material] .premium-os .compact-record-stats>div small{font-size:12px;font-weight:400;margin-left:4px}
+html[data-material] .premium-os .compact-record-empty{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:17px 3px;font-size:13px;color:var(--mat-muted)}
+html[data-material] .premium-os .compact-record-empty button{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--mat-accent);font-weight:600}
+html[data-material] .premium-os .compact-progress-detail{max-width:850px;margin:12px auto}
+html[data-material] .premium-os .compact-progress-detail .metrics{margin-top:10px}
+html[data-material] .premium-os .compact-no-tasks{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:18px 3px}
+html[data-material] .premium-os .compact-no-tasks strong{font-size:14px}
+html[data-material] .premium-os .compact-no-tasks span{font-size:12px;color:var(--mat-muted)}
+html[data-material] .premium-os .compact-paper-tools{margin:10px 0}
+html[data-material] .premium-os .page-footer{display:none!important}
+@media(max-width:900px) {
+ html[data-material] .premium-os .study-home{grid-template-columns:minmax(0,1fr);gap:12px}
+}
+@media(max-width:650px) {
+ /* Search lives in Tools; the main daily workspaces give the viewport to studying. */
+ html[data-material] .premium-os.page-today .bkit-quick-search,
+ html[data-material] .premium-os.page-study .bkit-quick-search,
+ html[data-material] .premium-os.page-tasks .bkit-quick-search,
+ html[data-material] .premium-os.page-progress .bkit-quick-search{display:none!important}
+ html[data-material] .premium-os.page-today .page-head{margin:0 0 10px!important}
+ html[data-material] .premium-os.page-today .page-head h1{font-size:23px!important;line-height:1.2}
+ html[data-material] .premium-os.page-today .page-head .eyebrow{font-size:11px!important;letter-spacing:0;margin:0 0 3px!important}
+ html[data-material] .premium-os.page-tasks .page-head,
+ html[data-material] .premium-os.page-study .page-head,
+ html[data-material] .premium-os.page-progress .page-head{margin:0 0 12px!important}
+ html[data-material] .premium-os.page-tasks .page-head .eyebrow,
+ html[data-material] .premium-os.page-study .page-head .eyebrow,
+ html[data-material] .premium-os.page-progress .page-head .eyebrow,
+ html[data-material] .premium-os.page-tasks .page-head .subtitle,
+ html[data-material] .premium-os.page-study .page-head .subtitle,
+ html[data-material] .premium-os.page-progress .page-head .subtitle{display:none!important}
+ html[data-material] .premium-os main{padding-bottom:calc(102px + env(safe-area-inset-bottom))!important}
+ html[data-material] .premium-os .study-home{grid-template-columns:minmax(0,1fr);gap:10px}
+ html[data-material] .premium-os .study-start{min-height:0!important;padding:16px 18px!important;border-radius:17px;gap:8px}
+ html[data-material] .premium-os .study-start-copy{max-width:100%;width:100%}
+ html[data-material] .premium-os .study-start .study-kicker{display:none!important}
+ html[data-material] .premium-os .study-start h2{font-size:25px!important;white-space:normal;margin:0 0 7px!important;line-height:1.15}
+ html[data-material] .premium-os .study-start p{font-size:12px;margin:0!important;max-width:none;line-height:1.5}
+ html[data-material] .premium-os .study-start-actions{margin:6px 0 0;gap:10px}
+ html[data-material] .premium-os .study-start-primary{min-height:43px!important;padding:9px 13px;font-size:13px}
+ html[data-material] .premium-os .study-start-five{min-height:43px;font-size:12px}
+ html[data-material] .premium-os .study-agenda{padding:14px 16px!important;min-height:0!important;border-radius:17px}
+ html[data-material] .premium-os .study-section-heading{margin:0 0 6px!important;padding:0!important}
+ html[data-material] .premium-os .study-section-heading h2{font-size:17px!important}
+ html[data-material] .premium-os .study-section-heading .study-kicker{display:none}
+ html[data-material] .premium-os .study-agenda-empty{padding:6px 0!important;min-height:0!important}
+ html[data-material] .premium-os .study-agenda-empty>svg{display:none!important}
+ html[data-material] .premium-os .study-agenda-empty h3{font-size:13px!important;margin:0 0 4px!important}
+ html[data-material] .premium-os .study-agenda-empty button{min-height:40px!important;padding:7px 0!important;font-size:12px}
+ html[data-material] .premium-os .study-task{min-height:48px!important;padding:7px 0!important}
+ html[data-material] .premium-os .study-task-list{margin:0!important}
+ html[data-material] .premium-os .study-assessment-add{display:none!important}
+ html[data-material] .premium-os .study-agenda>.study-text-link{padding:6px 0!important;min-height:35px;font-size:12px}
+ html[data-material] .premium-os .study-submission{min-height:40px!important;padding:7px 10px!important;margin:5px 0!important}
+ html[data-material] .premium-os .study-next,
+ html[data-material] .premium-os .study-recent{min-height:0!important;padding:12px 15px!important;border-radius:15px}
+ html[data-material] .premium-os .study-next h3,
+ html[data-material] .premium-os .study-recent h3{font-size:13px!important;line-height:1.35}
+ html[data-material] .premium-os .study-next p,
+ html[data-material] .premium-os .study-recent p{font-size:11px!important}
+ html[data-material] .premium-os .study-bottom-line{display:block;padding:0!important}
+ html[data-material] .premium-os .study-day-summary{padding:8px 10px!important;min-height:0;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--mat-line);background:var(--mat-paper);border-radius:14px}
+ html[data-material] .premium-os .study-day-summary>.study-kicker{font-size:12px;white-space:nowrap}
+ html[data-material] .premium-os .study-day-summary>strong{font-size:23px;white-space:nowrap}
+ html[data-material] .premium-os .study-day-summary>span:last-child{font-size:10px}
+ html[data-material] .premium-os .study-tool-shelf{display:none!important}
+ html[data-material] .premium-os.page-tasks .toolbar{display:flex!important;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+ html[data-material] .premium-os.page-tasks .toolbar .segmented{width:100%;justify-content:space-between}
+ html[data-material] .premium-os.page-tasks .toolbar .segmented button{min-width:0;flex:1;font-size:11px;padding:8px 3px}
+ html[data-material] .premium-os.page-tasks .toolbar .primary,
+ html[data-material] .premium-os.page-tasks .toolbar .secondary{font-size:12px;padding:8px 11px;min-height:42px}
+ html[data-material] .premium-os.page-tasks main>.panel{padding:13px!important}
+ html[data-material] .premium-os .compact-record-stats>div{padding:14px}
+ html[data-material] .premium-os .compact-record-stats>div strong{font-size:26px}
+ html[data-material] .premium-os .compact-no-tasks{flex-direction:column;align-items:flex-start}
+ html[data-material] .premium-os.page-study .study-library-disclosure,
+ html[data-material] .premium-os.page-study .study-advanced-focus{margin:10px 0}
+ html[data-material] .premium-os.page-study .quick-timer{padding:15px!important}
+ html[data-material] .premium-os.page-study .quick-timer-display{font-size:clamp(42px,12vw,65px)}
+ html[data-material] .premium-os .resource-library .section-head{margin-bottom:8px}
+ html[data-material] .premium-os .compact-progress-content{padding:10px}
+}
