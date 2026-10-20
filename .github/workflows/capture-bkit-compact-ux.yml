@@ -1,0 +1,88 @@
+name: Capture BKIT Compact UX Screens (no production deploy)
+on:
+  push:
+    branches: [feat/bkit-compact-ux-20261021]
+    paths-ignore:
+      - 'previews/**'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - name: Start temporary local preview
+        run: |
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/bkit-preview.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:4173/study-os/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/bkit-preview.log
+          exit 1
+      - name: Capture real browser screens
+        run: |
+          node --input-type=module <<'JS'
+          import { chromium, devices } from '@playwright/test';
+          import { mkdir, writeFile } from 'node:fs/promises';
+          const target='../previews/compact-ux';
+          await mkdir(target,{recursive:true});
+          const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+          const stats=[];
+          for(const device of [{key:'iphone',profile:'iPhone 13'},{key:'ipad-landscape',profile:'iPad Pro 11 landscape'}]){
+            const {defaultBrowserType,...options}=devices[device.profile];
+            const context=await browser.newContext({...options,serviceWorkers:'block'});
+            await context.addInitScript(()=>localStorage.setItem('bkit.atelier.visited.v1','1'));
+            const page=await context.newPage();
+            page.on('pageerror',err=>console.log('PAGEERROR:',err.message));
+            await page.goto('http://127.0.0.1:4173/study-os/',{waitUntil:'networkidle'});
+            const tabs=device.key==='iphone'?['오늘','집중','과제','기록']:['오늘'];
+            for(const tab of tabs){
+              if(tab!=='오늘'){
+                await page.getByRole('navigation',{name:'주 메뉴'}).getByRole('button',{name:tab,exact:true}).click();
+                await page.waitForTimeout(350);
+              }
+              await page.evaluate(()=>window.scrollTo(0,0));
+              await page.waitForTimeout(350);
+              const id=tab==='오늘'?'home':tab==='집중'?'focus':tab==='과제'?'tasks':'record';
+              await page.screenshot({path:target+'/'+device.key+'-'+id+'.png',animations:'disabled'});
+              const m=await page.evaluate(()=>({viewport:window.innerHeight,documentHeight:document.documentElement.scrollHeight,scrollRequired:document.documentElement.scrollHeight>window.innerHeight+20,bodyWidth:document.body.scrollWidth,viewportWidth:window.innerWidth}));
+              stats.push({device:device.key,tab,...m});
+              console.log(JSON.stringify({device:device.key,tab,...m}));
+            }
+            await context.close();
+          }
+          await browser.close();
+          await writeFile(target+'/metrics.json',JSON.stringify(stats,null,2)+'\n');
+          JS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bkit-compact-ux-visual-preview
+          path: previews/compact-ux/
+          if-no-files-found: error
+      - name: Preserve preview snapshots on isolated feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add previews/compact-ux/
+          if git diff --cached --quiet; then
+            echo "No preview changes"
+          else
+            git commit -m "docs(preview): save compact UI iPhone and iPad screenshots [skip ci]"
+            git push origin HEAD:feat/bkit-compact-ux-20261021
+          fi
