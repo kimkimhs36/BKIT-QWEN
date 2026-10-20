@@ -1,8 +1,7 @@
 name: Publish BKIT 3.6 to GitHub Pages after verification
 on:
-  push:
-    branches:
-      - release/bkit-3-6-back-nav-20261020
+  # Manual owner-approved release only; no publishing on code pushes.
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:
