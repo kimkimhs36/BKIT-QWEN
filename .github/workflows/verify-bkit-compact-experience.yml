@@ -34,7 +34,7 @@ jobs:
       - run: npx playwright install --with-deps webkit
       - name: Safari engine mobile regressions and actual rendered screenshots
         run: >-
-          npx playwright test tests/e2e/compact-experience.spec.ts
+          npx playwright test tests/e2e/compact-experience.spec.ts tests/e2e/compact-offline.spec.ts
           --project=webkit-iphone --project=webkit-ipad --project=webkit-ipad-landscape
       - uses: actions/upload-artifact@v4
         if: always()

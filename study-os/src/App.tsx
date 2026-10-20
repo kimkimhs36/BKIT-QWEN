@@ -1,3 +1,4 @@
+import { MaterialSettings } from './themes/MaterialSettings';
 import { AnimatedClock } from './AnimatedClock';
 import { MaterialEffects } from './themes/MaterialEffects';
 import { RecordOverview } from './RecordOverview';
@@ -197,9 +198,6 @@ const StudyDirectory = lazy(() =>
   import('./StudyDirectory').then((m) => ({ default: m.StudyDirectory })),
 );
 const AIZone = lazy(() => import('./AIZone').then((m) => ({ default: m.AIZone })));
-const MaterialSettings = lazy(() =>
-  import('./themes/MaterialSettings').then((m) => ({ default: m.MaterialSettings })),
-);
 const NAV = [
   { id: 'today', en: 'NOW', label: '오늘', icon: Home },
   { id: 'school', en: 'SCHOOL', label: '시간표', icon: CalendarDays },
