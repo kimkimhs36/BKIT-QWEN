@@ -122,17 +122,19 @@ export function ResourceLibrary({
     <section className="panel resource-library" aria-label="자료 라이브러리">
       <div className="section-head">
         <div>
-          <span className="eyebrow">MY LEARNING MATERIALS</span>
+          
           <h2>자료 라이브러리</h2>
         </div>
         <button className="primary" onClick={() => edit()}>
           자료 추가
         </button>
       </div>
-      <p>실제 자료를 등록하고, 마지막 문제부터 이어 풀어요.</p>
-      <Suspense fallback={<p>디지털 종이 보관함 준비 중…</p>}>
-        <DigitalLibrary state={state} onChange={onChange} />
-      </Suspense>
+      <details className="compact-section compact-paper-tools">
+        <summary>PDF · 필기 도구</summary>
+        <Suspense fallback={<p>필기 도구를 여는 중…</p>}>
+          <DigitalLibrary state={state} onChange={onChange} />
+        </Suspense>
+      </details>
       <label>
         자료 검색
         <input
