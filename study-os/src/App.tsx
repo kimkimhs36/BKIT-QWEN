@@ -127,6 +127,7 @@ const DayClose=lazy(()=>import('./DayClose').then(m=>({default:m.DayClose})));
 const AwakeAssist=lazy(()=>import('./AwakeAssist').then(m=>({default:m.AwakeAssist})));
 const GlobalSearch = lazy(() => import('./GlobalSearch').then(m=>({default:m.GlobalSearch})));
 const StudyDirectory = lazy(() => import('./StudyDirectory').then(m=>({default:m.StudyDirectory})));
+const AIZone = lazy(() => import('./AIZone').then(m=>({default:m.AIZone})));
 const MaterialSettings = lazy(() => import('./themes/MaterialSettings').then(m=>({default:m.MaterialSettings})));
 const MaterialEffects = lazy(() => import('./themes/MaterialEffects').then(m=>({default:m.MaterialEffects})));
 const Juggernaut = lazy(() => import('./Juggernaut').then(m => ({default:m.Juggernaut})));
@@ -140,10 +141,11 @@ const NAV = [
   { id: 'exams', en: 'EXAMS', label: '시험 관리', icon: CalendarDays },
   { id: 'garage', en: 'MOTOR CLUB', label: 'TOHEŞAR GARAGE', icon: Sparkles },
   { id: 'sites', en: 'STUDY LIBRARY', label: '공부 사이트', icon: BookOpen },
+  { id: 'ai-zone', en: 'AI INDEX', label: 'BKIT AI ZONE', icon: Sparkles },
   { id: 'more', en: 'MORE', label: '더보기', icon: Menu },
 ];
 const PRIMARY_NAV = ['today','study','tasks','more'].map(id=>NAV.find(n=>n.id===id)!);
-const MORE_ROUTES = ['garage','school','progress','settings','sleep','juggernaut','exams','sites'];
+const MORE_ROUTES = ['garage','school','progress','settings','sleep','juggernaut','exams','sites','ai-zone'];
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 function Empty({ title, children }: { title: string; children: ReactNode }) {
@@ -1314,6 +1316,7 @@ export default function App() {
                       more: '더보기',
                       exams:'시험 관리',
                       sites:'공부 사이트 백과사전',
+                      'ai-zone':'BKIT AI ZONE',
                     } as Record<string, string>
                   )[tab]
                 }
@@ -1331,6 +1334,7 @@ export default function App() {
                       more: '시간표, 학습 증거, 수면과 데이터 관리를 한곳에서.',
                       exams:'확인된 시험 범위와 실제 자료를 연결하세요.',
                       sites:'필요한 강의·기출·자료로 한 번에 이동해요.',
+                      'ai-zone':'전 세계 AI 도구·공식 순위·새로운 소식을 한곳에서.',
                       settings: '이 기기의 기록과 생활 리듬을 관리하세요.',
                     } as Record<string, string>
                   )[tab]
@@ -1377,6 +1381,7 @@ export default function App() {
             </button>
           )}
           {tab === 'sites' && <Suspense fallback={<p role="status">사이트 목록을 여는 중…</p>}><StudyDirectory onNotice={setNotice}/></Suspense>}
+          {tab === 'ai-zone' && <Suspense fallback={<p role="status">BKIT AI ZONE을 여는 중…</p>}><AIZone/></Suspense>}
           {tab === 'garage' && <Suspense fallback={<p role="status">차고를 여는 중…</p>}><Garage controller={garageController} onStudy={() => setTab('study')} onRace={beginStudyBreak} canRace={true}/></Suspense>}
           {tab === 'more' && <Suspense fallback={<p role="status">학습 도구를 여는 중…</p>}><MoreHub onNavigate={setTab} onCapture={()=>taskEditor()}/></Suspense>}
           {tab === 'today' && (
