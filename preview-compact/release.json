@@ -1,7 +1,15 @@
 {
-  "product": "BKIT Compact Experience Preview",
-  "sourceCommit": "ce5bfac9108887995277ab9e769b19e9733db280",
-  "publishedAt": "2026-10-20T17:24:49.952Z",
-  "validation": "223 unit checks; 30 distinct WebKit iPhone/iPad scenarios; keyboard and route rechecks",
-  "productionBaseline": "92a3019688582225fd103cc5cb5c3cb5d056586e"
+  "product": "BKIT STUDY OS · Compact Experience",
+  "sourceCommit": "79630329fcda2fb76cec040132b94488dd651c8c",
+  "sourceBranch": "feat/bkit-compact-experience-20261021",
+  "artifactsCommit": "df7fe294e996ec749e212b8afcbe6eb72c455a93",
+  "publishedAt": "2026-10-20T17:37:05.544297+00:00",
+  "validation": "TypeScript + root and preview Vite builds; 223 unit tests; 30 core WebKit iPhone/iPad scenarios passed CI; 3 additional first-use offline theme and study recording scenarios passed locally",
+  "previousSource": "ce5bfac9108887995277ab9e769b19e9733db280",
+  "rollbackCommit": "92a3019688582225fd103cc5cb5c3cb5d056586e",
+  "screenshots": "https://teambkit.com/compact-review/",
+  "notes": "Owner explicitly authorized GitHub Pages production release. Study schema and browser storage keys unchanged; PDFs/ink/attachments preserved. All 9 themes kept; opt-in gyro, scoped worker caches, deferred activation and prior hashed assets retained. Android/desktop verification deferred at owner request; physical Apple sensor/keyboard confirmation remains separate.",
+  "previousProductionCommit": "fe016c29a163df67c13790cb60caaf31fa676698",
+  "fix": "First offline theme picker is bundled with the cached app shell.",
+  "preview": true
 }
