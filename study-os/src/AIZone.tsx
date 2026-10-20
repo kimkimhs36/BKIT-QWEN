@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, BookOpen, ExternalLink, Heart, ListFilter, Newspaper, Search, Star, Trophy, X } from 'lucide-react';
 import { AI_GROUPS, AI_NEWS_LINKS, AI_TOOLS, AGENT_SNAPSHOT, RANK_SOURCES, externalAIUrl } from './aiZoneData';
 import './ai-zone.css';
 
 type Section='directory'|'ranking'|'news';
+type NewsArticle={source:string;title:string;url:string;publishedAt:string};
+type NewsFeed={checkedAt:string;sources:string[];articles:NewsArticle[]};
 const KEY='bkit.ai-zone.favorites.v1';
 function readFavorites():string[]{
   try {const raw=localStorage.getItem(KEY);const parsed=raw?JSON.parse(raw):[];return Array.isArray(parsed)?parsed.filter((id):id is string=>typeof id==='string'&&AI_TOOLS.some(t=>t.id===id)):[];}
@@ -18,6 +20,20 @@ export function AIZone(){
  const [saveError,setSaveError]=useState(false);
  const [expanded,setExpanded]=useState<string|null>(null);
  const [rankGroup,setRankGroup]=useState('overall');
+ const [news,setNews]=useState<NewsFeed|null>(null);
+ const [newsLoading,setNewsLoading]=useState(false);
+ const [newsError,setNewsError]=useState(false);
+ useEffect(()=>{
+  if(section!=='news')return;
+  const controller=new AbortController();setNewsLoading(true);setNewsError(false);
+  fetch(import.meta.env.BASE_URL+'ai-news.json',{cache:'no-store',signal:controller.signal}).then(r=>{if(!r.ok)throw new Error('news unavailable');return r.json();}).then(data=>{
+   if(!Array.isArray(data?.articles)||typeof data?.checkedAt!=='string')throw new Error('invalid feed');
+   const domains=['openai.com','blog.google','huggingface.co'];
+   const articles=(data.articles as NewsArticle[]).filter(x=>{try{const u=new URL(x.url);return u.protocol==='https:'&&domains.some(d=>u.hostname===d||u.hostname.endsWith('.'+d))&&typeof x.title==='string'&&typeof x.publishedAt==='string'&&typeof x.source==='string';}catch{return false;}}).slice(0,40);
+   if(!controller.signal.aborted){setNews({checkedAt:data.checkedAt,sources:Array.isArray(data.sources)?data.sources:[],articles});setNewsLoading(false);}
+  }).catch(()=>{if(!controller.signal.aborted){setNewsError(true);setNewsLoading(false);}});
+  return()=>controller.abort();
+ },[section]);
  const results=useMemo(()=>{
   const term=query.trim().toLocaleLowerCase('ko-KR');
   return AI_TOOLS.filter(t=>(group==='전체'||t.group===group)&&(!starred||favorites.includes(t.id))&&(!term||[t.name,t.best,t.versions,t.group,t.how,t.tags].some(s=>s.toLocaleLowerCase('ko-KR').includes(term))))
@@ -69,7 +85,10 @@ export function AIZone(){
     </>:<div className="ai-zone-source-detail"><Trophy size={23}/><h4>최신 순위는 공식 평가처에서 확인</h4><p>{source.limits}</p><p>이 분야의 순위는 아직 BKIT 내부에 검증된 데이터가 없어서 수치를 임의로 만들지 않았어. 원본에서 모델명·버전·평가 설정·표본 수를 확인할 수 있어.</p><a href={externalAIUrl(source.url)} target="_blank" rel="noopener noreferrer">최신 {source.domain} 순위 열기 <ExternalLink size={16}/></a></div>}
    </div>}
   {section==='news'&&<div className="ai-zone-news">
-    <div className="ai-zone-section-head"><span className="ai-zone-eyebrow">OFFICIAL SOURCES / DIRECT LINKS</span><h3>AI 최신 소식</h3><p>공식 발표를 빠르게 확인할 수 있는 출처 모음. 아직 BKIT 자체 뉴스 자동 수집이나 즉시 알림은 연결하지 않았어. 자동 갱신된 기사인 것처럼 표시하지 않아.</p></div>
+    <div className="ai-zone-section-head"><span className="ai-zone-eyebrow">OFFICIAL RSS / CHECKED HOURLY</span><h3>AI 최신 소식</h3><p>OpenAI·Google·Hugging Face 공식 RSS를 GitHub Actions에서 약 1시간 간격으로 확인해요. 플랫폼의 실행 지연이나 원문 게시 지연이 있을 수 있고, 즉시 알림을 제공하는 것은 아닙니다.</p></div>
+    <div className="ai-zone-feed-meta" role="status">{newsLoading?'공식 소식을 확인하는 중…':news?'마지막 수집: '+new Date(news.checkedAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})+' KST · '+news.sources.join(', '):newsError?'최신 뉴스 목록을 불러오지 못했어요. 아래 공식 소식을 확인해 주세요.':'공식 소식을 기다리는 중…'}</div>
+    {news&&news.articles.length>0&&<div className="ai-zone-articles">{news.articles.map(x=><a key={x.url} href={externalAIUrl(x.url)} target="_blank" rel="noopener noreferrer"><span className="ai-zone-article-meta">{x.source} · {new Date(x.publishedAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span><strong>{x.title}</strong><ExternalLink size={16} aria-hidden="true"/></a>)}</div>}
+    <h4 className="ai-zone-official-title">공식 채널 바로가기</h4>
     <div className="ai-zone-news-grid">{AI_NEWS_LINKS.map(x=><a key={x.url} href={externalAIUrl(x.url)} target="_blank" rel="noopener noreferrer"><span><Newspaper size={21}/><strong>{x.label}</strong><small>{x.desc}</small></span><ExternalLink size={18}/></a>)}</div>
     <p className="ai-zone-disclaimer">원문 발표 날짜와 모델 버전, 사용 국가, 요금제에 따른 제한을 확인하세요. 외부 사이트 내용은 BKIT이 보증하지 않습니다.</p>
    </div>}
