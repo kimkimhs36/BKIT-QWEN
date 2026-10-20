@@ -446,8 +446,25 @@ export default function App() {
   const storedRaw = useRef(initial.raw);
   const memory = useRef(s);
   memory.current = s;
+  // The full learning shell is large: do not re-render it every second when
+  // the student is only browsing. Any running study, exam or break keeps the
+  // precise 1-second clock; idle screens refresh every 15 seconds instead.
+  const precisionClock = Boolean(s.active || s.quickTimer || studyBreak);
   useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 1000);
+    const tick = () => {
+      // Time accounting uses wall-clock timestamps; hidden Safari tabs need no
+      // animation work and catch up immediately upon returning to the foreground.
+      if (document.visibilityState === 'visible') setNow(Date.now());
+    };
+    tick();
+    const timer = window.setInterval(tick, precisionClock ? 1000 : 15000);
+    document.addEventListener('visibilitychange', tick);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', tick);
+    };
+  }, [precisionClock]);
+  useEffect(() => {
     const net = () => setOnline(navigator.onLine);
     const sync = (e: StorageEvent) => {
       if (e.key === KEY) {
@@ -461,7 +478,6 @@ export default function App() {
     window.addEventListener('offline', net);
     window.addEventListener('storage', sync);
     return () => {
-      clearInterval(timer);
       window.removeEventListener('online', net);
       window.removeEventListener('offline', net);
       window.removeEventListener('storage', sync);
