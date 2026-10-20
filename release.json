@@ -1,8 +1,9 @@
 {
-  "product": "BKIT STUDY OS 3.6",
-  "sourceCommit": "03e3ddbb84ce6a856d4ef32f63b092738601f295",
-  "publishedAt": "2026-10-20T10:09:59.737Z",
-  "validation": "TypeScript + production Vite build; unit tests confirmed in separate CI",
-  "previousSource": "93979de8c8a36b707be199140925e912daaab770",
-  "rollbackCommit": "44a0ef366943c46f8da15efad51fba0df333823c"
+  "product": "BKIT STUDY OS 3.6 · Material Experience + AI Zone",
+  "sourceCommit": "dc12014119e16078a41215bef9f31e655747fd1f",
+  "publishedAt": "2026-10-20T12:35:01.842Z",
+  "validation": "TypeScript + production Vite build; prior captured Chromium/WebKit smoke tests",
+  "previousSource": "03e3ddbb84ce6a856d4ef32f63b092738601f295",
+  "rollbackCommit": "eee964eddb3151045de20636a6b2cda7a95c235b",
+  "notes": "User study records stored in same-origin browser storage; no storage clearing or migrations"
 }

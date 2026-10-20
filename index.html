@@ -1,5 +1,60 @@
-<!doctype html><html lang="ko"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/><meta name="theme-color" content="#f6f7f2"/><script>/* Apply preferred palette before any CSS paints. No study data is changed. */try{if(localStorage.getItem('bkit.study-os.theme.v1')==='dark'){document.documentElement.dataset.bkitTheme='dark';document.querySelector('meta[name="theme-color"]').content='#111b17';}else document.documentElement.dataset.bkitTheme='light';}catch{document.documentElement.dataset.bkitTheme='light';}</script><meta name="apple-mobile-web-app-capable" content="yes"/><link rel="icon" href="./icon.svg"/><link rel="apple-touch-icon" href="./apple-touch-icon.png"/><link rel="manifest" href="./manifest.webmanifest"/><title>BKIT STUDY OS 3.6 — DRIVE & REWARD</title>  <script type="module" crossorigin src="/assets/index-D09SJF7W.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/react-vendor-DVGOrvbP.js">
-  <link rel="modulepreload" crossorigin href="/assets/schema-vendor-DYuAzjeD.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-rA0ZrcRi.css">
-</head><body><div id="root"></div></body></html>
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f6f7f2" />
+    <script>
+      /* Restore display preferences before paint; never write study storage. */ try {
+        const r = document.documentElement,
+          d = localStorage.getItem('bkit.study-os.theme.v1') === 'dark',
+          p = JSON.parse(localStorage.getItem('bkit.material.v1') || 'null'),
+          c = {
+            classic: '#f3f2eb',
+            forest: '#101e19',
+            glass: '#e7edef',
+            peach: '#f4eae1',
+            diamond: '#edf0f5',
+            gold: '#eee9dd',
+            jelly: '#ece8f2',
+            droplets: '#e5efeb',
+            night: '#111923',
+          },
+          valid =
+            p &&
+            Object.hasOwn(c, p.id) &&
+            ['auto', 'reduced', 'off'].includes(p.motion) &&
+            Number.isFinite(p.intensity) &&
+            p.intensity >= 0 &&
+            p.intensity <= 1 &&
+            typeof p.lowPower === 'boolean' &&
+            ['forest', 'night'].includes(p.id) === d,
+          id = valid ? p.id : d ? 'forest' : 'classic';
+        r.dataset.bkitTheme = d ? 'dark' : 'light';
+        r.dataset.material = id;
+        r.dataset.effects =
+          (valid && (p.lowPower || p.motion !== 'auto')) ||
+          matchMedia('(prefers-reduced-motion: reduce)').matches
+            ? 'none'
+            : 'auto';
+        r.style.backgroundColor = c[id];
+        document.querySelector('meta[name="theme-color"]').content = c[id];
+      } catch {
+        document.documentElement.dataset.bkitTheme = 'light';
+        document.documentElement.dataset.material = 'classic';
+      }
+    </script>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="icon" href="./icon.svg" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <title>BKIT STUDY OS 3.6 — DRIVE & REWARD</title>
+    <script type="module" crossorigin src="/assets/index-DB4IFkaj.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-vendor-DVGOrvbP.js">
+    <link rel="modulepreload" crossorigin href="/assets/schema-vendor-DYuAzjeD.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DnqAqNCM.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
