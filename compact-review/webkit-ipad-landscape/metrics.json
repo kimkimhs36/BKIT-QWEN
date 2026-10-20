@@ -1,0 +1,37 @@
+[
+  {
+    "screen": "home",
+    "width": 1194,
+    "height": 834,
+    "scrollWidth": 1194,
+    "scrollHeight": 834
+  },
+  {
+    "screen": "focus",
+    "width": 1194,
+    "height": 834,
+    "scrollWidth": 1194,
+    "scrollHeight": 834
+  },
+  {
+    "screen": "tasks",
+    "width": 1194,
+    "height": 834,
+    "scrollWidth": 1194,
+    "scrollHeight": 834
+  },
+  {
+    "screen": "records",
+    "width": 1194,
+    "height": 834,
+    "scrollWidth": 1194,
+    "scrollHeight": 834
+  },
+  {
+    "screen": "tools",
+    "width": 1194,
+    "height": 834,
+    "scrollWidth": 1194,
+    "scrollHeight": 834
+  }
+]

@@ -3,22 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#f6f7f2" />
+    <meta name="theme-color" content="#f6dcd2" />
     <script>
       /* Restore display preferences before paint; never write study storage. */ try {
         const r = document.documentElement,
-          d = localStorage.getItem('bkit.study-os.theme.v1') === 'dark',
+          savedTheme = localStorage.getItem('bkit.study-os.theme.v1'),
+          d = savedTheme === 'dark',
           p = JSON.parse(localStorage.getItem('bkit.material.v1') || 'null'),
           c = {
             classic: '#f5f3ec',
             forest: '#0e1914',
-            glass: '#dcecf6',
-            peach: '#f4eae1',
+            glass: '#f6dcd2',
+            peach: '#f7dbcc',
             diamond: '#edf0f5',
             gold: '#eee9dd',
             jelly: '#f1e9f5',
-            droplets: '#e5efeb',
-            night: '#111923',
+            droplets: '#d9eeea',
+            night: '#101827',
           },
           valid =
             p &&
@@ -29,7 +30,7 @@
             p.intensity <= 1 &&
             typeof p.lowPower === 'boolean' &&
             ['forest', 'night'].includes(p.id) === d,
-          id = valid ? p.id : d ? 'forest' : 'classic';
+          id = valid ? p.id : d ? 'forest' : savedTheme !== null ? 'classic' : 'glass';
         r.dataset.bkitTheme = d ? 'dark' : 'light';
         r.dataset.material = id;
         r.dataset.effects =
@@ -41,7 +42,7 @@
         document.querySelector('meta[name="theme-color"]').content = c[id];
       } catch {
         document.documentElement.dataset.bkitTheme = 'light';
-        document.documentElement.dataset.material = 'classic';
+        document.documentElement.dataset.material = 'glass';
       }
     </script>
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -49,10 +50,10 @@
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <title>BKIT STUDY OS — 나의 공부 공간</title>
-    <script type="module" crossorigin src="/assets/index-D3TQIKSY.js"></script>
+    <script type="module" crossorigin src="/assets/index-B_5v-EME.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/react-vendor-DENrKhsk.js">
     <link rel="modulepreload" crossorigin href="/assets/schema-vendor-DYuAzjeD.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-CnkANRHc.css">
+    <link rel="stylesheet" crossorigin href="/assets/index-Cw8mp5tE.css">
   </head>
   <body>
     <div id="root"></div>

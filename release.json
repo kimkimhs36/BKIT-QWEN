@@ -1,9 +1,12 @@
 {
-  "product": "BKIT STUDY OS 3.7 · Premium Study Space",
-  "sourceCommit": "d3c99662a82df23332f7bb895e61649bc46c2773",
-  "publishedAt": "2026-10-20T13:29:11.613573+00:00",
-  "validation": "TypeScript + production Vite build; 27 storage/timer/theme unit checks; WebKit iPhone and iPad landscape study, assessment and independent motion workflows; four material identities captured",
-  "previousSource": "dc12014119e16078a41215bef9f31e655747fd1f",
-  "rollbackCommit": "93426e50cb044e16291e41082d804658f672a427",
-  "notes": "Existing same-origin learning storage/schema, private materials, CNAME, exam-lab/mock-rescue routes and previous hashed assets preserved. Device reduced motion is independent; choose motion in BKIT settings. Camera assistance remains experimental and off by default."
+  "product": "BKIT STUDY OS · Compact Experience",
+  "sourceCommit": "ce5bfac9108887995277ab9e769b19e9733db280",
+  "sourceBranch": "feat/bkit-compact-experience-20261021",
+  "artifactsCommit": "df7fe294e996ec749e212b8afcbe6eb72c455a93",
+  "publishedAt": "2026-10-20T17:27:12.667Z",
+  "validation": "TypeScript + root and preview Vite builds; 223 unit tests; 30 unique WebKit iPhone/iPad scenarios, including 39 successful local executions with final dialog/route rechecks",
+  "previousSource": "d3c99662a82df23332f7bb895e61649bc46c2773",
+  "rollbackCommit": "92a3019688582225fd103cc5cb5c3cb5d056586e",
+  "screenshots": "https://teambkit.com/compact-review/",
+  "notes": "Owner explicitly authorized GitHub Pages production release. Study schema and browser storage keys unchanged; PDFs/ink/attachments preserved. All 9 themes kept; opt-in gyro, scoped worker caches, deferred activation and prior hashed assets retained. Android/desktop verification deferred at owner request; physical Apple sensor/keyboard confirmation remains separate."
 }
