@@ -1,0 +1,126 @@
+{
+  "passed": true,
+  "source": "ce5bfac9108887995277ab9e769b19e9733db280",
+  "screens": [
+    {
+      "device": "iphone",
+      "screen": "home",
+      "width": 390,
+      "height": 664,
+      "scrollWidth": 390,
+      "scrollHeight": 664
+    },
+    {
+      "device": "iphone",
+      "screen": "focus",
+      "width": 390,
+      "height": 664,
+      "scrollWidth": 390,
+      "scrollHeight": 664
+    },
+    {
+      "device": "iphone",
+      "screen": "tasks",
+      "width": 390,
+      "height": 664,
+      "scrollWidth": 390,
+      "scrollHeight": 664
+    },
+    {
+      "device": "iphone",
+      "screen": "records",
+      "width": 390,
+      "height": 664,
+      "scrollWidth": 390,
+      "scrollHeight": 664
+    },
+    {
+      "device": "iphone",
+      "screen": "tools",
+      "width": 390,
+      "height": 664,
+      "scrollWidth": 390,
+      "scrollHeight": 664
+    },
+    {
+      "device": "ipad",
+      "screen": "home",
+      "width": 834,
+      "height": 1194,
+      "scrollWidth": 834,
+      "scrollHeight": 1194
+    },
+    {
+      "device": "ipad",
+      "screen": "focus",
+      "width": 834,
+      "height": 1194,
+      "scrollWidth": 834,
+      "scrollHeight": 1194
+    },
+    {
+      "device": "ipad",
+      "screen": "tasks",
+      "width": 834,
+      "height": 1194,
+      "scrollWidth": 834,
+      "scrollHeight": 1194
+    },
+    {
+      "device": "ipad",
+      "screen": "records",
+      "width": 834,
+      "height": 1194,
+      "scrollWidth": 834,
+      "scrollHeight": 1194
+    },
+    {
+      "device": "ipad",
+      "screen": "tools",
+      "width": 834,
+      "height": 1194,
+      "scrollWidth": 834,
+      "scrollHeight": 1194
+    },
+    {
+      "device": "ipad-landscape",
+      "screen": "home",
+      "width": 1194,
+      "height": 834,
+      "scrollWidth": 1194,
+      "scrollHeight": 834
+    },
+    {
+      "device": "ipad-landscape",
+      "screen": "focus",
+      "width": 1194,
+      "height": 834,
+      "scrollWidth": 1194,
+      "scrollHeight": 834
+    },
+    {
+      "device": "ipad-landscape",
+      "screen": "tasks",
+      "width": 1194,
+      "height": 834,
+      "scrollWidth": 1194,
+      "scrollHeight": 834
+    },
+    {
+      "device": "ipad-landscape",
+      "screen": "records",
+      "width": 1194,
+      "height": 834,
+      "scrollWidth": 1194,
+      "scrollHeight": 834
+    },
+    {
+      "device": "ipad-landscape",
+      "screen": "tools",
+      "width": 1194,
+      "height": 834,
+      "scrollWidth": 1194,
+      "scrollHeight": 834
+    }
+  ]
+}

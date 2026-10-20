@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "taskPreserved": true,
+  "pdfBytesPreserved": true,
+  "savedThemeRespected": true,
+  "offlineReload": true,
+  "serviceWorker": {
+    "active": "activated",
+    "waiting": "installed",
+    "caches": [
+      "bkit-study-os-shell-bd49cafd874d",
+      "bkit-study-os@/@shell-8f4dd8c85e22"
+    ]
+  }
+}

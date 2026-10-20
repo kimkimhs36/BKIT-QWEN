@@ -1,0 +1,31 @@
+{
+  "url": "https://teambkit.com",
+  "checkedAt": "2026-10-20T17:38:39.950Z",
+  "passed": true,
+  "results": [
+    {
+      "device": "iphone",
+      "sourceCommit": "79630329fcda2fb76cec040132b94488dd651c8c",
+      "firstOfflineThemeSelection": true,
+      "themeCount": 9,
+      "studyRecorded": true,
+      "pageErrors": []
+    },
+    {
+      "device": "ipad",
+      "sourceCommit": "79630329fcda2fb76cec040132b94488dd651c8c",
+      "firstOfflineThemeSelection": true,
+      "themeCount": 9,
+      "studyRecorded": true,
+      "pageErrors": []
+    },
+    {
+      "device": "ipad-landscape",
+      "sourceCommit": "79630329fcda2fb76cec040132b94488dd651c8c",
+      "firstOfflineThemeSelection": true,
+      "themeCount": 9,
+      "studyRecorded": true,
+      "pageErrors": []
+    }
+  ]
+}

@@ -24,3 +24,15 @@
 - 테마·반응: `MaterialSettings.tsx`, `MaterialEffects.tsx`, `SurrealLiquid.tsx`, `liquidWorld.ts`, `compact-atmosphere.css`, `compact-first-screen.css`
 - 모바일·접근: `Modal.tsx`, `useViewport.ts`, `index.html`, `main.tsx`, 자체 호스팅 Pretendard 및 OFL
 - 보존·검증: `public/sw.js`, `vite.config.ts`, `serviceWorker.test.ts`, `compact-experience.spec.ts`, `verify-live-compact.ts`, iOS CI 워크플로, 구현·검증 문서와 스크린샷
+
+## 최종 운영 반영
+
+- GitHub Pages 운영 주소: https://teambkit.com/ · 독립 미리보기: https://teambkit.com/preview-compact/
+- 핵심 구현 `ce5bfac9108887995277ab9e769b19e9733db280`, 오프라인 테마 수정 `79630329fcda2fb76cec040132b94488dd651c8c`.
+- 최종 운영 커밋: `ba45e264c2743e3fac93cfc2dac0c8a31acec2df`. Pages 빌드 성공 및 운영/미리보기의 release.json 소스 SHA 일치 확인.
+- 테마 선택창을 앱 셸과 함께 포함하여, 최초 오프라인 방문에서 테마 화면을 열 때 발생하던 청크 로딩 오류 수정. 추가 자동 시나리오 3개 통과로 iPhone/iPad WebKit 고유 시나리오 총 33개.
+- 최종 수정본에서도 단위 테스트 223개 및 TypeScript, 루트/미리보기 Vite 빌드 통과.
+- 운영 주소에서 iPhone, iPad 세로·가로 모두 최초 오프라인 테마 9개 접근, 테마 적용, 공부 시작·일시정지·종료 저장, 페이지 오류 0개 확인.
+- 운영 5개 화면 × 3개 프로필의 15개 화면 검증 통과. 이전 운영 버전으로 열어 둔 클라이언트의 저장된 테마·과제·PDF 바이트 및 오프라인 새로고침 보존 확인.
+- 증거 JSON: [최종 오프라인 검사](../artifacts/compact-experience/verification/production-offline-hotfix.json), [기존 사용자 보존](../artifacts/compact-experience/verification/returning-user-preservation.json), [운영 모바일 화면](../artifacts/compact-experience/verification/production-mobile-screens.json).
+- 추가 변경 파일: `study-os/tests/e2e/compact-offline.spec.ts`; `study-os/src/App.tsx`의 테마 설정 정적 import.
