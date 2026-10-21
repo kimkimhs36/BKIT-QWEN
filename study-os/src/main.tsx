@@ -51,3 +51,5 @@ import './themes/surreal-liquid.css';
 
 import './themes/compact-atmosphere.css';
 import './compact-first-screen.css';
+
+import './recovery.css';

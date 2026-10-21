@@ -1,0 +1,14 @@
+
+> bkit-study-os@3.7.0 test
+> vitest run --reporter=dot
+
+
+ RUN  v3.2.7 /workspace/BKIT-QWEN/study-os
+
+·······································································································································································································································
+
+ Test Files  38 passed (38)
+      Tests  231 passed (231)
+   Start at  10:59:51
+   Duration  90.09s (transform 7.95s, setup 0ms, collect 23.29s, tests 9.42s, environment 43ms, prepare 18.74s)
+

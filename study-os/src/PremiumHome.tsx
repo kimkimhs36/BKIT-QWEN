@@ -1,6 +1,7 @@
 import { ArrowRight, ArrowUpRight, BookOpen, ChevronRight, Clock3, Play, Plus } from 'lucide-react';
 import type { State, Task } from './model';
-import type { Fixed } from './engine';
+import { nextSchedule, type Fixed } from './engine';
+import { CalendarPeek } from './StudyCalendar';
 import { clock, dayKey } from './time';
 import { formatTaskDeadline } from './capture';
 import { needsSubmission } from './tasks';
@@ -18,6 +19,7 @@ type Props = {
   onQuick: (minutes?: number) => void;
   onNavigate: (route: string) => void;
   onAdd: () => void;
+  onCalendar: () => void;
   onEdit: (task: Task) => void;
   onSubmissions: () => void;
   onResource: (id: string) => void;
@@ -33,6 +35,7 @@ export function PremiumHome({
   onQuick,
   onNavigate,
   onAdd,
+  onCalendar,
   onEdit,
   onSubmissions,
   onResource,
@@ -47,11 +50,21 @@ export function PremiumHome({
   const minutes = Math.floor(studySeconds(state.sessions, dayKey(now)) / 60);
   // Default sleep/meal boundaries protect timers, but are not learner appointments.
   const appointment = current && !['sleep', 'meal'].includes(current.kind) ? current : next;
+  const following =
+    appointment === current && appointment ? nextSchedule(state, appointment.end + 1) : undefined;
   return (
-    <div className="study-home">
+    <div className="study-home recovery-home">
+      <div className="home-action-heading">
+        <span>한 가지씩, 나의 속도로.</span>
+        <button className="home-capture" onClick={onAdd}>
+          <Plus size={17} />
+          과제 · 일정 등록
+        </button>
+      </div>
       <section className="study-start" aria-label="바로 공부 시작">
         <div className="study-start-copy">
-          <h2>{busy ? '공부 이어하기' : '공부 시작'}</h2>
+          <span className="study-kicker">{busy ? 'IN FOCUS' : 'A LITTLE PROGRESS, EVERY DAY'}</span>
+          <h2>{busy ? '지금의 흐름을 이어가요.' : '오늘도, 한 걸음부터.'}</h2>
           <p>
             {busy
               ? `${active?.subject || '자율 학습'} · ${quickClock(seconds)}`
@@ -76,6 +89,7 @@ export function PremiumHome({
           )}
         </div>
       </section>
+      <CalendarPeek state={state} now={now} onOpen={onCalendar} />
       <section className="study-agenda" aria-label="오늘 해야 할 일">
         {pending.length > 0 && (
           <div className="study-section-heading">
@@ -95,6 +109,13 @@ export function PremiumHome({
                   <button className="study-task-copy" onClick={() => onEdit(task)}>
                     <small>
                       {task.subject}
+                      <em
+                        className={
+                          'home-task-kind ' + (task.kind === '수행평가' ? 'assessment' : '')
+                        }
+                      >
+                        {task.kind === '수행평가' ? '수행평가' : '과제'}
+                      </em>
                       <span>
                         {task.due || task.deadline ? formatTaskDeadline(task) : '마감일 없음'}
                       </span>
@@ -118,7 +139,10 @@ export function PremiumHome({
           </>
         ) : (
           <div className="study-empty-agenda">
-            <p>오늘 할 일을 추가해 보세요.</p>
+            <div>
+              <strong>여유롭게 시작하는 하루</strong>
+              <p>과제나 수행평가를 등록해 두세요.</p>
+            </div>
             <button className="study-icon" onClick={onAdd} aria-label="오늘 과제 추가">
               <Plus size={20} />
             </button>
@@ -146,19 +170,29 @@ export function PremiumHome({
           <ChevronRight size={17} />
         </strong>
       </button>
-      {appointment && (
+      {true && (
         <section className="study-next" aria-label="다음 일정">
           <Clock3 size={20} />
           <div>
             <span className="study-kicker">
-              {appointment === current ? '지금 일정' : '다음 일정'}
+              {appointment && appointment === current
+                ? now < appointment.classStart
+                  ? '이동 · 준비'
+                  : '지금 일정'
+                : '다음 일정'}
             </span>
-            <h3>{appointment.title}</h3>
+            <h3>{appointment?.title || '예정된 수업이 없어요'}</h3>
             <p>
-              {clock(appointment.start)}–{clock(appointment.end)}
-              {dayKey(appointment.start) !== dayKey(now) && ` · ${dayKey(appointment.start)}`}
+              {appointment
+                ? `${clock(appointment.classStart)}–${clock(appointment.end)}${dayKey(appointment.start) !== dayKey(now) ? ' · ' + dayKey(appointment.start) : ''}`
+                : '학교 · 학원 시간표 등록하기'}
             </p>
           </div>
+          {following && (
+            <small className="home-following">
+              다음 · {following.title} {clock(following.classStart)}
+            </small>
+          )}
           <button
             className="study-icon"
             onClick={() => onNavigate('school')}

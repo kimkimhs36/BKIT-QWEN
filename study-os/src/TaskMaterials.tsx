@@ -21,11 +21,13 @@ export function TaskMaterials({
   value,
   onChange,
   onBusy,
+  photosOnly = false,
 }: {
   taskId: string;
   value: TaskMaterialDraft;
   onChange: (value: TaskMaterialDraft) => void;
   onBusy: (busy: boolean) => void;
+  photosOnly?: boolean;
 }) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState('');
@@ -98,6 +100,7 @@ export function TaskMaterials({
   return (
     <section aria-label="과제 사진 및 PDF 첨부" className="task-materials">
       <p>학교 공지·학습 자료 첨부 (선택)</p>
+      <small>촬영이 열리지 않으면 사진 보관함을 선택하거나 직접 입력해 주세요.</small>
       <div className="form-grid">
         <label>
           카메라로 과제 촬영
@@ -127,19 +130,21 @@ export function TaskMaterials({
             }}
           />
         </label>
-        <label>
-          과제 PDF 첨부
-          <input
-            type="file"
-            accept="application/pdf,.pdf"
-            disabled={busy}
-            onChange={(e) => {
-              const files = Array.from(e.target.files || []);
-              e.target.value = '';
-              void attach(files);
-            }}
-          />
-        </label>
+        {!photosOnly && (
+          <label>
+            과제 PDF 첨부
+            <input
+              type="file"
+              accept="application/pdf,.pdf"
+              disabled={busy}
+              onChange={(e) => {
+                const files = Array.from(e.target.files || []);
+                e.target.value = '';
+                void attach(files);
+              }}
+            />
+          </label>
+        )}
       </div>
       {busy && <p role="status">원본 보관 중… 저장이 끝날 때까지 기다려 주세요.</p>}
       {error && <p role="alert">{error}</p>}

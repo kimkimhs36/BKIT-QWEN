@@ -1,0 +1,13 @@
+{
+  "checkedAt": "2026-10-21",
+  "githubMain": "0f63f235055b5fafb8f94db701eb8aa1bfc07d84",
+  "sourceBranch": "feat/bkit-compact-experience-20261021",
+  "sourceHead": "a193cae",
+  "pages": {"status":"built","branch":"main","path":"/","domain":"teambkit.com","buildType":"legacy"},
+  "dnsA": ["185.199.108.153","185.199.109.153","185.199.110.153","185.199.111.153"],
+  "frontendVercel": {"project":"bkit-study-os-36-preview","deployment":"dpl_3WxjPecsNcUVvThJnC1kjkcYdeGa","commit":"0f63f235055b5fafb8f94db701eb8aa1bfc07d84","state":"ERROR","errorCode":"missing_lock_file","errorMessage":"Command npm ci exited with 1"},
+  "apiVercel": {"project":"bkit-api","deployment":"dpl_6vJsT2hQJ98N2qRHm7hkpgJrfrbW","branch":"deploy/bkit-api","commit":"95d7a4f0737dc49af1299f8692a5859315306967","state":"READY","productionUrl":"https://bkit-api.vercel.app"},
+  "http": [{"url":"https://teambkit.com","status":200},{"path":"/api/health","status":200,"origin":"https://teambkit.com","allowOrigin":"https://teambkit.com","mode":"configured","authConfigured":true,"budgetConfigured":true,"features":{"briefing":true,"plan":false,"coach":false,"assistant":false}},{"path":"/api/sync","method":"OPTIONS","requestedMethod":"PUT","status":204,"allowMethods":"GET,POST,PUT,OPTIONS"},{"path":"/api/briefing","method":"POST","authenticated":false,"status":401}],
+  "permission": {"explicitTeamScope":"teambkit","status":403,"code":"forbidden","message":"MCP connection needs a team grant; SSO is not enforced","affectedVerifiedOperations":["list_projects with slug teambkit","list_deployment_events"],"cliFallback":"CLI has no credentials; automatic login flow was canceled","unscopedProjectAndDeploymentReads":"succeeded","environmentMetadataRead":"succeeded without decryption"},
+  "unverified": ["Vercel project root/build settings via scoped project API","authenticated briefing success","authenticated cloud sync write","physical Safari camera permission and keyboard","custom domain serving new recovery code"]
+}

@@ -123,6 +123,9 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
     let energy = 1;
     let resolutionScale = 1;
     let slowFrames = 0;
+    let delayedFrames = 0;
+    let previousFrame = 0;
+    let performanceReduced = false;
     let resizeTimer = 0;
     let pointer: number | null = null;
     let lastTrail = -20;
@@ -191,6 +194,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
     const still = () => {
       const { prefs: p, protectedStudy: protect } = current.current;
       return (
+        performanceReduced ||
         motion.matches ||
         p.lowPower ||
         p.motion !== 'auto' ||
@@ -234,6 +238,15 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
       frame = 0;
       if (disposed || lost || document.hidden) return;
       const { prefs: p, studying: quiet } = current.current;
+      if (previousFrame && now - previousFrame > 180) delayedFrames++;
+      else delayedFrames = Math.max(0, delayedFrames - 0.25);
+      previousFrame = now;
+      // Submission timings alone miss slow GPU execution. Sustained late frames
+      // freeze only the material; navigation and the learner's content stay live.
+      if (delayedFrames > 10) {
+        performanceReduced = true;
+        canvas.dataset.quality = 'static';
+      }
       const frozen = still();
       const alive = !frozen && (handTarget > 0 || time - lastTrail < 7);
       const interval = frozen ? Infinity : alive ? 1000 / 30 : quiet ? 1000 / 12 : 1000 / 24;
@@ -368,6 +381,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
       cancelAnimationFrame(frame);
       frame = 0;
       delete canvas.dataset.ready;
+      delete canvas.dataset.quality;
     };
     // Safari may evict GPU contexts when switching apps. Restore the surface
     // without remounting the learning app or changing its timer/storage.

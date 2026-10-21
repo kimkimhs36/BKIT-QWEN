@@ -1,3 +1,6 @@
+import { StudyCalendar } from './StudyCalendar';
+import { ScheduleReview } from './ScheduleReview';
+import { cancelOccurrence, changeSchedule } from './calendar';
 import { MaterialSettings } from './themes/MaterialSettings';
 import { AnimatedClock } from './AnimatedClock';
 import { MaterialEffects } from './themes/MaterialEffects';
@@ -99,6 +102,7 @@ import { materialCharacter } from './themes/material';
 import { DayTimeline } from './DayTimeline';
 import { createPortal } from 'react-dom';
 import {
+  CircleHelp,
   ArrowUpRight,
   ArrowRight,
   ArrowLeft,
@@ -300,6 +304,8 @@ export default function App() {
     [modal, setModal] = useState<
       | null
       | 'capture'
+      | 'help'
+      | 'schedule-review'
       | 'assistant'
       | 'tools'
       | 'theme'
@@ -312,6 +318,29 @@ export default function App() {
       | 'block'
       | 'import'
     >(null);
+  const scheduleFormDraft=useRef<FormData|null>(null);
+  const [calendarOpen,setCalendarOpen]=useState(false);
+  const [captureDay,setCaptureDay]=useState<string|undefined>();
+  const [scheduleDay,setScheduleDay]=useState<string|undefined>();
+  const [scheduleChange,setScheduleChange]=useState<{state:State;revision:number;description:string;day:string}|null>(null);
+  useLayoutEffect(()=>{
+    if(modal!=='schedule'||!scheduleFormDraft.current)return;
+    const form=document.getElementById('schedule-editor-form') as HTMLFormElement|null;
+    for(const field of Array.from(form?.elements??[])){
+      if(!(field instanceof HTMLInputElement||field instanceof HTMLSelectElement))continue;
+      const values=scheduleFormDraft.current.getAll(field.name).map(String);
+      if(field instanceof HTMLInputElement&&['radio','checkbox'].includes(field.type))field.checked=values.includes(field.value);
+      else if(values.length)field.value=values[0];
+    }
+  },[modal]);
+  useEffect(()=>{
+    if(!calendarOpen)return;
+    const marker=crypto.randomUUID();
+    history.pushState({...history.state,bkitCalendar:marker},'');
+    const back=()=>{if(history.state?.bkitCalendar!==marker)setCalendarOpen(false);};
+    window.addEventListener('popstate',back);
+    return ()=>{window.removeEventListener('popstate',back);if(history.state?.bkitCalendar===marker)history.back();};
+  },[calendarOpen]);
   // A route trail, not browser history: back must never leave the study app.
   const routeTrail = useRef<string[]>([]);
   function setTab(route: string, remember = true) {
@@ -334,6 +363,7 @@ export default function App() {
   }
   const sleep = useSleepGuard(now, Boolean(s.active));
   const [energy, setEnergy] = useState<'low' | 'normal'>('normal');
+  const [taskPrefill,setTaskPrefill]=useState<Task|null>(null);
   const [taskPresetKind, setTaskPresetKind] = useState<Task['kind']>('숙제');
   const [taskDraftId, setTaskDraftId] = useState<string>(uid);
   const [taskMaterials, setTaskMaterials] = useState<TaskMaterialDraft>(() => emptyTaskMaterials());
@@ -636,21 +666,27 @@ export default function App() {
     setFormError('');
     setModal(kind);
   }
+  const taskForm=editTask??taskPrefill;
   function taskEditor(t: Task | null = null) {
+    setTaskPrefill(null);
     setTaskDraftId(t?.id ?? uid());
     setTaskMaterials(emptyTaskMaterials(t));
     setEditTask(t);
     setTaskPresetKind(t?.kind ?? '숙제');
+    setCaptureDay(undefined);
     open(t ? 'task' : 'capture');
   }
   function addAssessmentNow() {
+    setTaskPrefill(null);
     setTaskDraftId(uid());
     setTaskMaterials(emptyTaskMaterials());
     setEditTask(null);
     setTaskPresetKind('수행평가');
     open('task');
   }
-  function scheduleEditor(t: Schedule | null = null) {
+  function scheduleEditor(t: Schedule | null = null, selectedDay?: string) {
+    scheduleFormDraft.current=null;
+    setScheduleDay(selectedDay);
     setEditSchedule(t);
     open('schedule');
   }
@@ -1256,7 +1292,7 @@ export default function App() {
         status: f.get('status'),
         submitted: f.has('submitted'),
         submissionRequired: f.has('submissionRequired'),
-        capture: editTask?.capture ?? { source: 'manual', confirmedByUser: true },
+        capture: editTask?.capture ?? taskPrefill?.capture ?? { source: 'manual', confirmedByUser: true },
         optional: f.has('optional'),
         notes: f.get('notes'),
         link: f.get('link'),
@@ -1316,6 +1352,7 @@ export default function App() {
   function saveSchedule(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
+    scheduleFormDraft.current=f;
     try {
       const date = String(f.get('date') || '');
       const t = scheduleSchema.parse({
@@ -1338,18 +1375,15 @@ export default function App() {
           .map((x) => x.trim())
           .filter(Boolean),
       });
-      if (
-        commit((v) => ({
-          ...v,
-          schedules: editSchedule
-            ? v.schedules.map((x) => (x.id === t.id ? t : x))
-            : [...v.schedules, t],
-          undo: null,
-        }))
-      ) {
-        setModal(null);
-        setNotice('고정 일정을 저장했습니다. 충돌이 생긴 계획은 복구 버튼으로 다시 검토하세요.');
-      }
+      const oneDay = f.get('scope') === 'one-day' && !!editSchedule && !editSchedule.date;
+      const exceptionDay=oneDay?String(f.get('exceptionDay')||''):undefined;
+      if(oneDay&&!exceptionDay) throw new Error('변경할 날짜를 선택해 주세요.');
+      const replacement=oneDay?{...t,id:uid()}:t;
+      const candidate=changeSchedule(s,replacement,editSchedule,exceptionDay);
+      setScheduleChange({state:candidate,revision:s.revision,description:
+        `${t.title} · ${exceptionDay || t.date || '매주'} ${t.start}–${t.end}`,
+        day:exceptionDay||t.date||dayKey(Date.now())});
+      open('schedule-review');
     } catch (e) {
       setFormError(inputError(e));
     }
@@ -1595,6 +1629,7 @@ export default function App() {
             </div>
             <div className="home-top-tools">
               {!online && <span className="offline-label">오프라인</span>}
+              <button type="button" className="icon-button help-button" aria-label="도움말 열기" onClick={()=>open('help')}><CircleHelp size={20}/></button>
               <button
                 type="button"
                 className="icon-button palette-button"
@@ -1637,7 +1672,7 @@ export default function App() {
           <main id="main" tabIndex={-1} key={tab}>
             <div className="page-head">
               <div>
-                {tab === 'today' && <p className="eyebrow">{fullDate(now)}</p>}
+                {tab === 'today' && <button className="home-date-link" onClick={()=>setCalendarOpen(true)}><CalendarDays size={14}/>{fullDate(now)}<ChevronRight size={13}/></button>}
                 <h1>
                   {
                     (
@@ -1770,6 +1805,7 @@ export default function App() {
                 }}
                 onNavigate={setTab}
                 onAdd={() => taskEditor()}
+                onCalendar={()=>setCalendarOpen(true)}
                 onEdit={taskEditor}
                 onSubmissions={() => {
                   setFilter('submission');
@@ -1879,7 +1915,7 @@ export default function App() {
                           .map((x) => (
                             <button
                               key={x.id}
-                              className="week-class"
+                              className={'week-class'+(x.days.includes(new Date(now+9*3600000).getUTCDay())&&!x.excluded.includes(today)&&clock(now)>=x.start&&clock(now)<x.end?' is-current':'')}
                               onClick={() => scheduleEditor(x)}
                             >
                               <small>
@@ -1895,17 +1931,7 @@ export default function App() {
                     ))}
                   </div>
                 </section>
-                <section className="note-card">
-                  <h3>과거 학원 일정, 확인 후 추가하세요</h3>
-                  <p>
-                    수·금 수학 18:00–22:00 / 일 국어 19:00–22:00. 현재 확정 일정으로 등록되어 있지
-                    않습니다. 일정 등록에서 직접 확인하고 입력하세요.
-                  </p>
-                  <p>
-                    휴업·시험일에는 원래 수업의 제외 날짜를 입력하고, 해당 날짜의 임시 일정을 추가할
-                    수 있습니다.
-                  </p>
-                </section>
+                <button className="calendar-school-open" onClick={()=>setCalendarOpen(true)}><CalendarDays size={19}/>달력에서 과제와 수업 함께 보기<ArrowUpRight size={17}/></button>
               </>
             )}
             {tab === 'exams' && (
@@ -2919,11 +2945,16 @@ export default function App() {
             </button>,
             document.body,
           )}
+        {calendarOpen&&<StudyCalendar state={s} now={now} onClose={()=>setCalendarOpen(false)} onTask={task=>{setCalendarOpen(false);taskEditor(task);}} onSchedule={(schedule,date)=>{setCalendarOpen(false);scheduleEditor(schedule,date);}} onAdd={date=>{setCalendarOpen(false);taskEditor();setCaptureDay(date);}} onCancel={(schedule,date)=>{
+          try{const candidate=cancelOccurrence(s,schedule,date);setCalendarOpen(false);setEditSchedule(schedule);setScheduleChange({state:candidate,revision:s.revision,description:`${date} · ${schedule.title} 취소`,day:date});open('schedule-review');}catch(error){setNotice(inputError(error));}
+        }}/>}
         {modal && (
           <Modal
             title={
               {
-                capture: '무엇부터 해야 할까요?',
+                capture: '빠르게 등록',
+                help: 'BKIT 사용 안내',
+                'schedule-review': '일정 변경 미리보기',
                 tools: '도구와 설정',
                 theme: '나의 공부 공간',
                 assistant: 'BKIT 멀티 비서',
@@ -2948,7 +2979,7 @@ export default function App() {
               }
               setModal(null);
             }}
-            className={modal === 'theme' ? 'theme-dialog' : ''}
+            className={modal === 'theme' ? 'theme-dialog' : modal==='capture'?'capture-dialog':''}
             nonModal={modal === 'tools'}
             returnFocus={modalTrigger.current}
           >
@@ -2957,6 +2988,18 @@ export default function App() {
                 {formError}
               </p>
             )}
+            {modal==='help'&&<div className="study-help"><p>공부를 시작하고, 하루를 가볍게 정리하세요.</p>{[
+              ['바로 공부 시작','오늘의 시작 버튼을 누르면 과목 선택 없이 타이머가 켜져요. 과목과 공부한 내용은 나중에 기록할 수 있어요.'],
+              ['과제 · 수행평가 · 사진 등록','오늘 화면의 등록 버튼에서 종류를 고르고 한 문장으로 입력하세요. 사진에서 읽어 온 내용은 직접 확인한 뒤 저장해요.'],
+              ['수업과 달력','작은 달력이나 날짜를 눌러 전체 달력을 여세요. 수업을 누르면 매주 시간표와 하루 변경을 관리할 수 있어요.'],
+              ['완료와 제출','공부를 끝냈어도 제출은 별도로 확인하세요. 과제 화면에서 두 상태를 관리해요.'],
+              ['기록과 백업','기본 학습 기능은 이 기기에 저장돼요. 기기를 바꾸기 전 설정에서 전체 백업을 내보내세요.']
+            ].map(([title,text])=><details key={title}><summary>{title}</summary><p>{text}</p></details>)}<div className="help-video-slot"><BookOpen size={18}/><span>짧은 사용 안내 영상 · 준비 중</span></div></div>}
+            {modal==='schedule-review'&&scheduleChange&&<ScheduleReview state={scheduleChange.state} description={scheduleChange.description} referenceDay={scheduleChange.day} extraFixed={sleepFixed} onBack={()=>open('schedule')} onApply={plan=>{
+              if(s.revision!==scheduleChange.revision){setFormError('미리보기 중 기록이 바뀌었어요. 일정을 다시 확인해 주세요.');return;}
+              if(plan&&validatePlan(scheduleChange.state,plan,Date.now(),sleepFixed).length){setFormError('시간이 지나 제안이 바뀌었어요. 돌아가서 다시 검토해 주세요.');return;}
+              if(commit(v=>({...v,schedules:scheduleChange.state.schedules,plan:plan??v.plan,undo:plan?v.plan:null}))){setModal(null);setScheduleChange(null);setNotice('일정을 적용했어요.'+(plan?' 공부 계획도 함께 조정했습니다.':' 공부 계획은 미리보기에서 별도로 적용할 수 있어요.'));}
+            }}/>}
             {modal === 'theme' && (
               <Suspense fallback={<p role="status">테마를 여는 중…</p>}>
                 <MaterialSettings prefs={material} onChange={changeMaterial} />
@@ -3010,12 +3053,21 @@ export default function App() {
             )}
             {modal === 'capture' && (
               <QuickCapture
-                onDetailed={() => {
+                key={captureDay || taskDraftId}
+                initialDay={captureDay}
+                onBusy={setTaskMaterialBusy}
+                onSchedule={()=>scheduleEditor(null,captureDay)}
+                onDetailed={(task) => {
+                  setTaskDraftId(task.id);
+                  setTaskMaterials({...emptyTaskMaterials(),photoIds:task.attachmentIds??[]});
+                  setTaskPrefill(task);
+                  setTaskPresetKind(task.kind);
                   setEditTask(null);
                   open('task');
                 }}
                 onSave={(task) => {
-                  if (commit((v) => ({ ...v, tasks: mergeMissions(v.tasks, [task]).tasks }))) {
+                  if(s.tasks.some(existing=>sameMission(existing,task))){setFormError('같은 과제가 이미 있어요. 과제 목록에서 확인해 주세요.');return false;}
+                  if (commit((v) => ({ ...v, tasks: [...v.tasks,taskSchema.parse(task)] }))) {
                     setModal(null);
                     setNotice('오늘에 담았습니다. 다음 행동이 준비됐습니다.');
                     return true;
@@ -3044,12 +3096,12 @@ export default function App() {
                       name="subject"
                       required
                       maxLength={200}
-                      defaultValue={editTask?.subject || ''}
+                      defaultValue={taskForm?.subject || ''}
                       placeholder="예: 수학"
                     />
                   </Field>
                   <Field label="종류">
-                    <select name="kind" defaultValue={editTask?.kind || taskPresetKind}>
+                    <select name="kind" defaultValue={taskForm?.kind || taskPresetKind}>
                       {['숙제', '수행평가', '시험공부', '개인 일정'].map((v) => (
                         <option key={v}>{v}</option>
                       ))}
@@ -3061,7 +3113,7 @@ export default function App() {
                     name="title"
                     required
                     maxLength={200}
-                    defaultValue={editTask?.title || ''}
+                    defaultValue={taskForm?.title || ''}
                     placeholder="예: 학습지 4쪽 극한 문제 1–3번 풀기"
                   />
                 </Field>
@@ -3071,7 +3123,7 @@ export default function App() {
                       type="date"
                       name="dueDate"
                       defaultValue={
-                        editTask?.deadline?.date ?? (editTask?.due ? dayKey(editTask.due) : '')
+                        taskForm?.deadline?.date ?? (taskForm?.due ? dayKey(taskForm.due) : '')
                       }
                     />
                   </Field>
@@ -3079,8 +3131,8 @@ export default function App() {
                     <select
                       name="duePrecision"
                       defaultValue={
-                        editTask?.deadline?.precision ??
-                        (editTask?.due ? 'exact-time' : 'date-only')
+                        taskForm?.deadline?.precision ??
+                        (taskForm?.due ? 'exact-time' : 'date-only')
                       }
                     >
                       <option value="date-only">날짜만 확인</option>
@@ -3093,9 +3145,9 @@ export default function App() {
                       type="time"
                       name="dueTime"
                       defaultValue={
-                        editTask?.due &&
-                        (!editTask.deadline || editTask.deadline.precision === 'exact-time')
-                          ? clock(editTask.due)
+                        taskForm?.due &&
+                        (!taskForm.deadline || taskForm.deadline.precision === 'exact-time')
+                          ? clock(taskForm.due)
                           : ''
                       }
                     />
@@ -3107,7 +3159,7 @@ export default function App() {
                   </summary>
                   <div className="form-grid">
                     <Field label="학습 분량 단위">
-                      <select name="quantityUnit" defaultValue={editTask?.quantity?.unit ?? ''}>
+                      <select name="quantityUnit" defaultValue={taskForm?.quantity?.unit ?? ''}>
                         <option value="">미확인</option>
                         <option value="problems">문제</option>
                         <option value="pages">쪽</option>
@@ -3121,7 +3173,7 @@ export default function App() {
                         type="number"
                         min="0"
                         max="10000"
-                        defaultValue={editTask?.quantity?.remaining ?? ''}
+                        defaultValue={taskForm?.quantity?.remaining ?? ''}
                       />
                     </Field>
                     <Field label="총 분량">
@@ -3130,7 +3182,7 @@ export default function App() {
                         type="number"
                         min="0"
                         max="10000"
-                        defaultValue={editTask?.quantity?.total ?? 0}
+                        defaultValue={taskForm?.quantity?.total ?? 0}
                       />
                     </Field>
                   </div>
@@ -3142,7 +3194,7 @@ export default function App() {
                         min="1"
                         max="480"
                         required
-                        defaultValue={editTask?.minutes || 25}
+                        defaultValue={taskForm?.minutes || 25}
                       />
                     </Field>
                     <Field label="남은 분량 (분)">
@@ -3152,18 +3204,18 @@ export default function App() {
                         min="1"
                         max="480"
                         required
-                        defaultValue={editTask?.remaining || 25}
+                        defaultValue={taskForm?.remaining || 25}
                       />
                     </Field>
                     <Field label="중요도">
-                      <select name="priority" defaultValue={editTask?.priority || 2}>
+                      <select name="priority" defaultValue={taskForm?.priority || 2}>
                         <option value="1">일반</option>
                         <option value="2">중요</option>
                         <option value="3">매우 중요</option>
                       </select>
                     </Field>
                     <Field label="학습 상태">
-                      <select name="status" defaultValue={editTask?.status || 'todo'}>
+                      <select name="status" defaultValue={taskForm?.status || 'todo'}>
                         <option value="todo">시작 전</option>
                         <option value="doing">진행 중</option>
                         <option value="done">학습 완료</option>
@@ -3175,31 +3227,31 @@ export default function App() {
                       type="checkbox"
                       name="submissionRequired"
                       defaultChecked={
-                        editTask?.submissionRequired ??
-                        (!editTask || editTask.kind === '숙제' || editTask.kind === '수행평가')
+                        taskForm?.submissionRequired ??
+                        (!taskForm || taskForm.kind === '숙제' || taskForm.kind === '수행평가')
                       }
                     />
                     완료 후 제출 확인이 필요한 과제
                   </label>
                   <label className="checkbox">
-                    <input type="checkbox" name="submitted" defaultChecked={editTask?.submitted} />{' '}
+                    <input type="checkbox" name="submitted" defaultChecked={taskForm?.submitted} />{' '}
                     제출 완료 (학습 완료 상태에서 체크)
                   </label>
                   <label className="checkbox">
-                    <input type="checkbox" name="optional" defaultChecked={editTask?.optional} />{' '}
+                    <input type="checkbox" name="optional" defaultChecked={taskForm?.optional} />{' '}
                     선택 활동 (마감이 없을 때만 계획에서 생략 가능)
                   </label>
                 </details>
                 <Field label="메모">
-                  <textarea name="notes" maxLength={3000} defaultValue={editTask?.notes} />
+                  <textarea name="notes" maxLength={3000} defaultValue={taskForm?.notes} />
                 </Field>
                 <Field label="자료 링크">
-                  <input name="link" type="url" defaultValue={editTask?.link} />
+                  <input name="link" type="url" defaultValue={taskForm?.link} />
                 </Field>
-                {editTask?.link && (
+                {taskForm?.link && (
                   <a
                     className="secondary"
-                    href={editTask.link}
+                    href={taskForm.link}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -3238,7 +3290,8 @@ export default function App() {
               </form>
             )}
             {modal === 'schedule' && (
-              <form onSubmit={saveSchedule}>
+              <form id="schedule-editor-form" onSubmit={saveSchedule}>
+                {editSchedule&&!editSchedule.date&&<div className="schedule-scope"><fieldset><legend>변경 범위</legend><label><input type="radio" name="scope" value="weekly" defaultChecked={!scheduleDay}/>매주 반복 일정</label><label><input type="radio" name="scope" value="one-day" defaultChecked={!!scheduleDay}/>이 날짜만 변경</label></fieldset><label>하루 변경 날짜<input name="exceptionDay" type="date" defaultValue={scheduleDay||dayKey(now)}/></label></div>}
                 <Field label="학교 과목 · 학원 이름 · 일정">
                   <input
                     name="title"
@@ -3277,7 +3330,7 @@ export default function App() {
                   </div>
                 </div>
                 <Field label="하루만 적용할 날짜 (입력하면 반복 요일보다 우선)">
-                  <input name="date" type="date" defaultValue={editSchedule?.date || ''} />
+                  <input name="date" type="date" defaultValue={editSchedule?.date || (!editSchedule?scheduleDay:'') || ''} />
                 </Field>
                 <div className="form-grid">
                   <Field label="수업 · 일정 시작">
@@ -3338,8 +3391,7 @@ export default function App() {
                   />
                 </Field>
                 <p className="hint">
-                  고정 일정끼리 겹치면 원본을 유지하고 경고합니다. 임시 변경은 제외 날짜 + 하루 적용
-                  일정으로 등록하세요.
+                  저장 전 충돌과 공부 계획 대안을 확인합니다. 하루 변경은 원래 반복 시간표를 유지해요.
                 </p>
                 <div className="modal-actions">
                   {editSchedule && (
