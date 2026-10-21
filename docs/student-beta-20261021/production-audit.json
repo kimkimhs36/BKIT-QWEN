@@ -1,0 +1,42 @@
+{
+  "production_site": {
+    "status": 200,
+    "equals_main_html": true,
+    "sha256": "e508987e9f458670e2ddc2350c550a35028f25a4bfd15edb0898bc6d37688fed",
+    "host": "GitHub Pages",
+    "source": "main:/"
+  },
+  "/api/health": {
+    "status": 200,
+    "data": {
+      "service": "bkit-api",
+      "sourceCommit": "95d7a4f0737dc49af1299f8692a5859315306967",
+      "stage": "private-briefing-v1",
+      "mode": "configured",
+      "push": false,
+      "model": "deepseek-flash",
+      "authConfigured": true,
+      "budgetConfigured": true,
+      "dailyKRW": 1000,
+      "features": {
+        "briefing": true,
+        "plan": false,
+        "coach": false,
+        "assistant": false
+      }
+    },
+    "googleClientIdPresent": false
+  },
+  "/api/config": {
+    "status": 200,
+    "data": {
+      "model": "deepseek-flash",
+      "briefingEnabled": true
+    },
+    "googleClientIdPresent": true
+  },
+  "branches": [
+    "95d7a4f0737dc49af1299f8692a5859315306967\trefs/heads/deploy/bkit-api",
+    "0f63f235055b5fafb8f94db701eb8aa1bfc07d84\trefs/heads/main"
+  ]
+}

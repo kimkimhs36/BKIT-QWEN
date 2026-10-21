@@ -1,0 +1,22 @@
+[
+  {
+    "device": "iphone",
+    "overflow": false,
+    "kindSelected": "true"
+  },
+  {
+    "device": "ipad",
+    "overflow": false,
+    "kindSelected": "true"
+  },
+  {
+    "device": "ipad-landscape",
+    "overflow": false,
+    "kindSelected": "true"
+  },
+  {
+    "device": "desktop",
+    "overflow": false,
+    "kindSelected": "true"
+  }
+]
