@@ -1591,7 +1591,7 @@ export default function App() {
         />
         <MaterialEffects
           prefs={material}
-          studying={!!(s.active?.resourceId || s.active?.workspace)}
+          studying={!!(s.active?.segmentStart || s.quickTimer?.segmentStart || s.active?.resourceId || s.active?.workspace)}
         />
         <div className="theme-scenery" aria-hidden="true">
           <i />

@@ -295,8 +295,8 @@ html[data-material] .premium-os .recovery-home :is(.study-next, .study-recent) p
 }
 html[data-material] .study-dialog {
   background: var(--mat-paper);
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 html[data-material] .capture-dialog {
   max-width: 560px;
@@ -1334,4 +1334,9 @@ html[data-material='glass'] .study-dialog.calendar-dialog {
   html[data-material] .premium-os .recovery-home .study-day-summary {
     grid-row: 6;
   }
+}
+
+html[data-material] .study-dialog.calendar-dialog {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
