@@ -141,7 +141,7 @@ describe('private production briefing', () => {
         }),
         async (root) => {
           const response = await fetch(root + '/api/briefing', { method: 'POST', headers, body });
-          expect(response.status).toBe(503);
+          expect(response.status).toBe(status === 429 ? 429 : 502);
           const result = await response.json();
           expect(result.error).toContain('(' + status + ')');
           expect(JSON.stringify(result)).not.toContain('sensitive-provider-body');
@@ -149,6 +149,66 @@ describe('private production briefing', () => {
         },
       );
     }
+  });
+  it('distinguishes shared budget exhaustion, burst throttling and unavailable storage without a model call', async () => {
+    for (const [result, code] of [
+      [[-1, 1000000000], 'DAILY_LIMIT'],
+      [[-2, 0], 'RATE_LIMITED'],
+    ] as const) {
+      const fetcher = vi.fn(async () => new Response(JSON.stringify({ result })));
+      await withServer(
+        createPrivateApi(env, { verify: async () => true, fetcher }),
+        async (root) => {
+          const response = await fetch(root + '/api/briefing', { method: 'POST', headers, body });
+          expect(response.status).toBe(429);
+          expect((await response.json()).code).toBe(code);
+          expect(fetcher).toHaveBeenCalledOnce();
+          expect(fetcher.mock.calls[0]).toBeDefined();
+        },
+      );
+    }
+  });
+  it('never serializes unknown transport errors and reports provider timeouts separately', async () => {
+    for (const [error, expectedStatus, expectedCode] of [
+      [
+        new Error('synthetic-key synthetic-token sensitive-provider-body'),
+        502,
+        'PROVIDER_UNAVAILABLE',
+      ],
+      [new DOMException('sensitive-provider-body', 'TimeoutError'), 504, 'PROVIDER_TIMEOUT'],
+    ] as const) {
+      await withServer(
+        createPrivateApi(env, {
+          verify: async () => true,
+          budget: { reserve: async () => ({ calls: 1, reservedKRW: 10 }) },
+          fetcher: async () => {
+            throw error;
+          },
+        }),
+        async (root) => {
+          const response = await fetch(root + '/api/briefing', { method: 'POST', headers, body });
+          expect(response.status).toBe(expectedStatus);
+          const result = await response.json();
+          expect(result.code).toBe(expectedCode);
+          expect(JSON.stringify(result)).not.toMatch(
+            /synthetic-key|synthetic-token|sensitive-provider-body/,
+          );
+        },
+      );
+    }
+  });
+  it('returns JSON for malformed input and exposes configuration as owner-only, never as verified inference', async () => {
+    await withServer(createPrivateApi(env, { verify: async () => true }), async (root) => {
+      const health = await (await fetch(root + '/api/health')).json();
+      expect(health).toMatchObject({ access: 'owner-only', verification: 'configuration-only' });
+      const response = await fetch(root + '/api/briefing', {
+        method: 'POST',
+        headers,
+        body: '{"text":',
+      });
+      expect(response.status).toBe(400);
+      expect(await response.json()).toMatchObject({ code: 'INVALID_REQUEST' });
+    });
   });
   it('rejects invented evidence and impossible dates without returning usable missions', async () => {
     for (const bad of [
@@ -163,7 +223,7 @@ describe('private production briefing', () => {
         }),
         async (root) => {
           const res = await fetch(root + '/api/briefing', { method: 'POST', headers, body });
-          expect(res.status).toBe(503);
+          expect(res.status).toBe(502);
           expect((await res.json()).missions).toBeUndefined();
         },
       );
@@ -212,8 +272,9 @@ describe('owner-only multi-device study snapshots', () => {
         return new Response(JSON.stringify({ result: current }), { status: 200 });
       if (args[0] === 'EVAL') {
         const expected = Number(args[4]);
-        const previous: { version: number; data: unknown } | null =
-          current ? JSON.parse(current) : null;
+        const previous: { version: number; data: unknown } | null = current
+          ? JSON.parse(current)
+          : null;
         const version = previous?.version ?? 0;
         if (expected !== version)
           return new Response(JSON.stringify({ result: [0, version] }), { status: 200 });
@@ -222,51 +283,69 @@ describe('owner-only multi-device study snapshots', () => {
       }
       throw new Error('Unexpected remote command');
     }) as typeof fetch;
-    await withServer(
-      createPrivateApi(env, { fetcher, verify: async () => true }),
-      (root) => perform(root, () => current),
+    await withServer(createPrivateApi(env, { fetcher, verify: async () => true }), (root) =>
+      perform(root, () => current),
     );
   };
   it('permits browser PUT preflight only for the BKIT origin', async () => {
     const fetcher = vi.fn();
-    await withServer(createPrivateApi(env, {fetcher, verify: async () => true}), async root => {
-      const allowed = await fetch(root+'/api/sync',{
-        method:'OPTIONS',
-        headers:{Origin:'https://teambkit.com','Access-Control-Request-Method':'PUT',
-          'Access-Control-Request-Headers':'Authorization,Content-Type'},
+    await withServer(createPrivateApi(env, { fetcher, verify: async () => true }), async (root) => {
+      const allowed = await fetch(root + '/api/sync', {
+        method: 'OPTIONS',
+        headers: {
+          Origin: 'https://teambkit.com',
+          'Access-Control-Request-Method': 'PUT',
+          'Access-Control-Request-Headers': 'Authorization,Content-Type',
+        },
       });
       expect(allowed.status).toBe(204);
       expect(allowed.headers.get('access-control-allow-methods')).toContain('PUT');
-      const blocked = await fetch(root+'/api/sync',{method:'OPTIONS',headers:{Origin:'https://other.example'}});
+      const blocked = await fetch(root + '/api/sync', {
+        method: 'OPTIONS',
+        headers: { Origin: 'https://other.example' },
+      });
       expect(blocked.status).toBe(403);
       expect(fetcher).not.toHaveBeenCalled();
     });
   });
   it('keeps records behind authentication and origin checks', async () => {
     const fetcher = vi.fn();
-    await withServer(createPrivateApi(env, { fetcher, verify: async () => false }), async (root) => {
-      expect((await fetch(root + '/api/sync', {headers})).status).toBe(401);
-      expect((await fetch(root + '/api/sync', {headers: {...headers, Origin:'https://other.example'}})).status).toBe(403);
-      expect(fetcher).not.toHaveBeenCalled();
-    });
+    await withServer(
+      createPrivateApi(env, { fetcher, verify: async () => false }),
+      async (root) => {
+        expect((await fetch(root + '/api/sync', { headers })).status).toBe(401);
+        expect(
+          (
+            await fetch(root + '/api/sync', {
+              headers: { ...headers, Origin: 'https://other.example' },
+            })
+          ).status,
+        ).toBe(403);
+        expect(fetcher).not.toHaveBeenCalled();
+      },
+    );
   });
   it('round-trips an owner snapshot and prevents stale device overwrites', async () => {
     await trial(async (root, inspect) => {
       const state = newState();
       state.settings.goal = '매일 20분 공부';
-      const empty = await (await fetch(root + '/api/sync',{headers})).json();
-      expect(empty).toEqual({version: 0, state: null});
+      const empty = await (await fetch(root + '/api/sync', { headers })).json();
+      expect(empty).toEqual({ version: 0, state: null });
       const first = await fetch(root + '/api/sync', {
-        method:'PUT',headers,body:JSON.stringify({expectedVersion:0,state}),
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ expectedVersion: 0, state }),
       });
       expect(first.status).toBe(200);
-      expect(await first.json()).toEqual({version:1});
+      expect(await first.json()).toEqual({ version: 1 });
       expect(inspect()).toContain('매일 20분 공부');
-      const remote = await (await fetch(root+'/api/sync',{headers})).json();
+      const remote = await (await fetch(root + '/api/sync', { headers })).json();
       expect(remote.version).toBe(1);
       expect(remote.state.settings.goal).toBe('매일 20분 공부');
-      const stale = await fetch(root+'/api/sync',{
-        method:'PUT',headers,body:JSON.stringify({expectedVersion:0,state}),
+      const stale = await fetch(root + '/api/sync', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ expectedVersion: 0, state }),
       });
       expect(stale.status).toBe(409);
       expect((await stale.json()).version).toBe(1);
@@ -275,12 +354,30 @@ describe('owner-only multi-device study snapshots', () => {
   it('rejects sync payloads that contain active timers, private photos or invalid state', async () => {
     await trial(async (root) => {
       const state = newState();
-      const invalid = await fetch(root+'/api/sync',{
-        method:'PUT',headers,body:JSON.stringify({expectedVersion:0,state:{...state,version:42}}),
+      const invalid = await fetch(root + '/api/sync', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ expectedVersion: 0, state: { ...state, version: 42 } }),
       });
       expect(invalid.status).toBe(400);
-      const bad = await fetch(root+'/api/sync',{
-        method:'PUT',headers,body:JSON.stringify({expectedVersion:0,state:{...state,plan:[{id:'missing',taskId:'none',start:'2026-10-18T01:00:00Z',end:'2026-10-18T02:00:00Z',locked:false}]}}),
+      const bad = await fetch(root + '/api/sync', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          expectedVersion: 0,
+          state: {
+            ...state,
+            plan: [
+              {
+                id: 'missing',
+                taskId: 'none',
+                start: '2026-10-18T01:00:00Z',
+                end: '2026-10-18T02:00:00Z',
+                locked: false,
+              },
+            ],
+          },
+        }),
       });
       expect(bad.status).toBe(400);
     });

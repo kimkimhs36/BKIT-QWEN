@@ -1,3 +1,4 @@
+import { ApiFailure } from './apiFailure.js';
 // A single Lua transaction reserves before calling the provider. No refunds on
 // failures; missing storage and malformed replies fail closed across instances.
 const script = `
@@ -64,11 +65,16 @@ export class RedisBudget {
       !result.every((n) => typeof n === 'number' && Number.isSafeInteger(n))
     )
       throw new Error('사용량을 확인하지 못했어요.');
+    if (result[0] < 0 && ![-1, -2].includes(result[0]))
+      throw new Error('Invalid budget reservation');
     if (result[0] < 0)
-      throw new Error(
+      throw new ApiFailure(
+        429,
+        result[0] === -2 ? 'RATE_LIMITED' : 'DAILY_LIMIT',
         result[0] === -2
           ? '잠시 후 다시 요청해 주세요.'
           : '오늘의 AI 사용 상한에 도달했어요. 직접 입력은 계속 사용할 수 있어요.',
+        result[0] === -2 ? 2 : undefined,
       );
     if (result[0] > calls || result[1] < amount || result[1] > dailyKRW * 1_000_000)
       throw new Error('Invalid budget reservation');
