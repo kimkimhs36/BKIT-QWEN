@@ -4,6 +4,7 @@ import { briefingInput, parseBriefingResponse } from './briefingContract';
 import { API_URL } from './ai';
 import { authorizeGoogleIdentity, prepareGoogleIdentity } from './cloudClient';
 import { createMission, type Mission } from './atelier';
+import { checkPrivateIdentity } from './privateAuth';
 
 export function BriefingAI({
   text,
@@ -64,7 +65,10 @@ export function BriefingAI({
       setClientId(config.googleClientId);
       if (config.briefingEnabled && config.googleClientId) {
         await prepareGoogleIdentity();
-        if (alive.current) setMessage('Google 계정을 연결한 뒤 정리할 수 있어요.');
+        if (alive.current)
+          setMessage(
+            'AI는 개발자 본인 계정 전용이에요. 일반 사용자는 무료 OCR과 직접 입력을 이용해 주세요.',
+          );
       } else
         setMessage(
           'AI 서버 연결을 준비하고 있어요. 직접 정리나 사진 글자 가져오기는 바로 사용할 수 있어요.',
@@ -87,11 +91,18 @@ export function BriefingAI({
       // The popup opens synchronously from this tap, including on Safari.
       const connectedToken = await authorizeGoogleIdentity(clientId);
       if (!alive.current) return;
+      setMessage('서버에서 계정 권한을 확인하고 있어요…');
+      await checkPrivateIdentity(API_URL, connectedToken);
+      if (!alive.current) return;
       token.current = connectedToken;
       setSignedIn(true);
-      setMessage('연결됐어요. 아래 버튼을 누를 때만 입력한 글자를 보냅니다.');
+      setMessage(
+        '개인 계정 권한을 확인했어요. 실제 AI 응답은 정리 버튼을 눌러야 확인할 수 있어요.',
+      );
     } catch (e) {
       if (!alive.current) return;
+      token.current = '';
+      setSignedIn(false);
       setMessage(e instanceof Error ? e.message : 'Google 연결을 확인해 주세요.');
     } finally {
       operation.current = false;
@@ -125,7 +136,9 @@ export function BriefingAI({
       if (res.status === 401) {
         token.current = '';
         setSignedIn(false);
-        throw new Error('Google 계정을 다시 연결해 주세요.');
+        throw new Error(
+          '개인 계정 권한이나 로그인 만료를 확인해 주세요. 무료 OCR과 직접 입력은 계속 사용할 수 있어요.',
+        );
       }
       if (!res.ok)
         throw new Error(typeof body.error === 'string' ? body.error : 'AI 정리를 마치지 못했어요.');
@@ -165,6 +178,9 @@ export function BriefingAI({
       }}
     >
       <summary>AI로 할 일 정리 · 선택</summary>
+      <p className="private-ai-note">
+        개발자 본인 전용 AI · 무료 사진 글자 읽기와 직접 입력은 누구나 사용할 수 있어요.
+      </p>
       <p>
         DeepSeek 과제 브리핑 · 서버 사용 상한 하루 1,000원·60회. 정리 버튼을 누르면 입력한 글자만
         DeepSeek에 보냅니다. 사진은 보내지 않아요. 사용량 예약 기준이며 실제 청구액을 보증하지
@@ -177,7 +193,7 @@ export function BriefingAI({
           disabled={busy || disabled || !clientId}
           onClick={() => void signIn()}
         >
-          Google로 연결
+          본인 Google 계정 연결
         </button>
       )}
       {enabled && signedIn && (

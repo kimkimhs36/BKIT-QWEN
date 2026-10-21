@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TaskMaterials, emptyTaskMaterials } from './TaskMaterials';
 import { PhotoText } from './PhotoText';
 import { ArrowUpRight, Check, CornerDownLeft, Plus } from 'lucide-react';
@@ -17,22 +17,29 @@ export function QuickCapture({
   onSchedule,
   onBusy,
   initialDay,
+  initialKind = '숙제',
 }: {
   onSave: (task: Task) => boolean;
   onDetailed: (task: Task) => void;
   onSchedule: () => void;
   onBusy: (busy: boolean) => void;
   initialDay?: string;
+  initialKind?: Task['kind'];
 }) {
   const [text, setText] = useState('');
   const [media, setMedia] = useState(emptyTaskMaterials);
-  const [mediaOpen, setMediaOpen] = useState(false);
+  const input = useRef<HTMLTextAreaElement>(null);
+  const [sourceText, setSourceText] = useState('');
   const [busy, setBusy] = useState(false);
   const [draftId] = useState(uid);
   useEffect(() => () => onBusy(false), [onBusy]);
-  const [overrides, setOverrides] = useState<Partial<CaptureFields>>(
-    initialDay ? { due: initialDay, precision: 'date-only', provenance: 'user-confirmed' } : {},
-  );
+  const [overrides, setOverrides] = useState<Partial<CaptureFields>>({
+    kind: initialKind,
+    submissionRequired: initialKind === '수행평가',
+    ...(initialDay
+      ? { due: initialDay, precision: 'date-only', provenance: 'user-confirmed' }
+      : {}),
+  });
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
   const parsed = { ...parseCapture(text), ...overrides };
@@ -76,7 +83,7 @@ export function QuickCapture({
       submissionRequired: parsed.submissionRequired,
       capture: { source: media.photoIds.length ? 'photo' : 'text', confirmedByUser: true },
       optional: false,
-      notes: '',
+      notes: sourceText,
       link: '',
     };
   }
@@ -116,10 +123,21 @@ export function QuickCapture({
           일정
         </button>
       </div>
+      <TaskMaterials
+        taskId={draftId}
+        value={media}
+        onChange={setMedia}
+        onBusy={(value) => {
+          setBusy(value);
+          onBusy(value);
+        }}
+        photosOnly
+        quickInput={() => input.current?.focus()}
+      />
       <label className="capture-input">
         <span className="sr-only">할 일을 한 문장으로</span>
         <textarea
-          autoFocus
+          ref={input}
           rows={2}
           maxLength={200}
           required
@@ -150,30 +168,15 @@ export function QuickCapture({
           }}
         />
       </label>
-      <div className="capture-media-entry">
-        <button type="button" aria-expanded={mediaOpen} onClick={() => setMediaOpen(!mediaOpen)}>
-          사진 촬영 · 보관함에서 가져오기 <Plus size={15} />
-        </button>
-      </div>
-      {mediaOpen && (
-        <TaskMaterials
-          taskId={draftId}
-          value={media}
-          onChange={setMedia}
-          onBusy={(value) => {
-            setBusy(value);
-            onBusy(value);
-          }}
-          photosOnly
-        />
-      )}
       {!!media.photoIds.length && (
         <PhotoText
           photoIds={media.photoIds}
           disabled={busy}
+          autoRead
           onUse={(value) => {
             setText(value.slice(0, 200));
-            setOverrides((old) => ({ ...old, ...parseCapture(value.slice(0, 200)) }));
+            setSourceText(value);
+            setOverrides((old) => ({ ...parseCapture(value), ...old }));
             setError(
               value.length > 200 ? '앞 200자를 가져왔어요. 제목과 마감을 확인해 주세요.' : '',
             );

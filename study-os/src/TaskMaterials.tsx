@@ -6,6 +6,7 @@ import type { LearningResource, LearningProblem } from './learningModel';
 import { storePhoto } from './atelierMedia';
 import { savePaperDocument } from './paperStorage';
 import { PrivatePhotoCard } from './StudyAtelier';
+import { Camera, ImagePlus, PencilLine } from 'lucide-react';
 
 export type TaskMaterialDraft = {
   photoIds: string[];
@@ -22,13 +23,17 @@ export function TaskMaterials({
   onChange,
   onBusy,
   photosOnly = false,
+  quickInput,
 }: {
   taskId: string;
   value: TaskMaterialDraft;
   onChange: (value: TaskMaterialDraft) => void;
   onBusy: (busy: boolean) => void;
   photosOnly?: boolean;
+  quickInput?: () => void;
 }) {
+  const cameraInput = useRef<HTMLInputElement>(null);
+  const galleryInput = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState('');
   const [failed, setFailed] = useState<File | null>(null),
@@ -98,13 +103,41 @@ export function TaskMaterials({
     onBusy(false);
   }
   return (
-    <section aria-label="과제 사진 및 PDF 첨부" className="task-materials">
-      <p>학교 공지·학습 자료 첨부 (선택)</p>
-      <small>촬영이 열리지 않으면 사진 보관함을 선택하거나 직접 입력해 주세요.</small>
-      <div className="form-grid">
+    <section
+      aria-label="과제 사진 및 PDF 첨부"
+      className={'task-materials' + (quickInput ? ' quick-materials' : '')}
+    >
+      {quickInput ? (
+        <>
+          <div className="capture-methods" role="group" aria-label="등록 방법">
+            <button type="button" onClick={quickInput}>
+              <PencilLine size={17} aria-hidden="true" />
+              직접 입력
+            </button>
+            <button type="button" disabled={busy} onClick={() => cameraInput.current?.click()}>
+              <Camera size={17} aria-hidden="true" />
+              사진 촬영
+            </button>
+            <button type="button" disabled={busy} onClick={() => galleryInput.current?.click()}>
+              <ImagePlus size={17} aria-hidden="true" />
+              갤러리 선택
+            </button>
+          </div>
+          <small className="capture-photo-hint">
+            사진은 이 기기에 보관해요. 글자를 읽지 못해도 직접 입력할 수 있어요.
+          </small>
+        </>
+      ) : (
+        <>
+          <p>학교 공지·학습 자료 첨부 (선택)</p>
+          <small>촬영이 열리지 않으면 사진 보관함을 선택하거나 직접 입력해 주세요.</small>
+        </>
+      )}
+      <div className={quickInput ? 'sr-only' : 'form-grid'}>
         <label>
           카메라로 과제 촬영
           <input
+            ref={cameraInput}
             type="file"
             accept="image/*"
             capture="environment"
@@ -119,6 +152,7 @@ export function TaskMaterials({
         <label>
           갤러리 사진 첨부
           <input
+            ref={galleryInput}
             type="file"
             accept="image/*"
             multiple

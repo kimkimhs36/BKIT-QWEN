@@ -26,6 +26,10 @@ export function ApiReadinessPanel() {
         </button>
       </div>
       <p>비용이 발생하는 AI 호출이나 개인정보 전송 없이, 서버의 공개 상태 정보만 확인해요.</p>
+      <p>
+        AI는 개발자 본인 계정 전용이에요. 무료 OCR·과제 등록·공부 시작은 로그인 없이 이용할 수
+        있어요.
+      </p>
       {!health ? (
         <p className="hint">아직 점검하지 않았어. AI 설정과 실제 접속 성공 여부는 별개야.</p>
       ) : (

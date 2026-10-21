@@ -1,4 +1,14 @@
-import { ArrowRight, ArrowUpRight, BookOpen, ChevronRight, Clock3, Play, Plus } from 'lucide-react';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BookOpen,
+  ChevronRight,
+  Clock3,
+  ClipboardList,
+  GraduationCap,
+  Play,
+  Plus,
+} from 'lucide-react';
 import type { State, Task } from './model';
 import { nextSchedule, type Fixed } from './engine';
 import { CalendarPeek } from './StudyCalendar';
@@ -19,6 +29,7 @@ type Props = {
   onQuick: (minutes?: number) => void;
   onNavigate: (route: string) => void;
   onAdd: () => void;
+  onTasks: (kind: 'homework' | 'assessment') => void;
   onCalendar: () => void;
   onEdit: (task: Task) => void;
   onSubmissions: () => void;
@@ -35,6 +46,7 @@ export function PremiumHome({
   onQuick,
   onNavigate,
   onAdd,
+  onTasks,
   onCalendar,
   onEdit,
   onSubmissions,
@@ -89,6 +101,28 @@ export function PremiumHome({
           )}
         </div>
       </section>
+      <nav className="home-school-shortcuts" aria-label="학교 할 일 바로가기">
+        {(
+          [
+            ['homework', '과제', ClipboardList],
+            ['assessment', '수행평가', GraduationCap],
+          ] as const
+        ).map(([kind, label, Icon]) => {
+          const count = state.tasks.filter(
+            (t) =>
+              (kind === 'assessment' ? t.kind === '수행평가' : t.kind !== '수행평가') &&
+              (t.status !== 'done' || needsSubmission(t)),
+          ).length;
+          return (
+            <button key={kind} onClick={() => onTasks(kind)}>
+              <Icon size={19} strokeWidth={1.7} aria-hidden="true" />
+              <span>{label}</span>
+              {count > 0 && <small aria-label={`${count}개 남음`}>{count}</small>}
+              <ChevronRight size={15} aria-hidden="true" />
+            </button>
+          );
+        })}
+      </nav>
       <CalendarPeek state={state} now={now} onOpen={onCalendar} />
       <section className="study-agenda" aria-label="오늘 해야 할 일">
         {pending.length > 0 && (

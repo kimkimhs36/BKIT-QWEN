@@ -121,7 +121,6 @@ import {
   Plus,
   RotateCcw,
   Settings,
-  SlidersHorizontal,
   Palette,
   Sparkles,
   Target,
@@ -365,6 +364,7 @@ export default function App() {
   const [energy, setEnergy] = useState<'low' | 'normal'>('normal');
   const [taskPrefill,setTaskPrefill]=useState<Task|null>(null);
   const [taskPresetKind, setTaskPresetKind] = useState<Task['kind']>('숙제');
+  const [taskKindFilter, setTaskKindFilter] = useState<'all' | 'homework' | 'assessment'>('all');
   const [taskDraftId, setTaskDraftId] = useState<string>(uid);
   const [taskMaterials, setTaskMaterials] = useState<TaskMaterialDraft>(() => emptyTaskMaterials());
   const [taskMaterialBusy, setTaskMaterialBusy] = useState(false);
@@ -672,7 +672,7 @@ export default function App() {
     setTaskDraftId(t?.id ?? uid());
     setTaskMaterials(emptyTaskMaterials(t));
     setEditTask(t);
-    setTaskPresetKind(t?.kind ?? '숙제');
+    setTaskPresetKind(t?.kind ?? (tab === 'tasks' && taskKindFilter === 'assessment' ? '수행평가' : '숙제'));
     setCaptureDay(undefined);
     open(t ? 'task' : 'capture');
   }
@@ -682,7 +682,8 @@ export default function App() {
     setTaskMaterials(emptyTaskMaterials());
     setEditTask(null);
     setTaskPresetKind('수행평가');
-    open('task');
+    setCaptureDay(undefined);
+    open('capture');
   }
   function scheduleEditor(t: Schedule | null = null, selectedDay?: string) {
     scheduleFormDraft.current=null;
@@ -724,7 +725,9 @@ export default function App() {
       (a.due ? +new Date(a.due) : Infinity) - (b.due ? +new Date(b.due) : Infinity) ||
       b.priority - a.priority,
   );
-  const visibleTasks = filteredTasks(s.tasks, filter);
+  const visibleTasks = filteredTasks(s.tasks, filter).filter((t) =>
+    taskKindFilter === 'all' || (taskKindFilter === 'assessment' ? t.kind === '수행평가' : t.kind !== '수행평가'),
+  );
   const activeMaterials = s.tasks.find((t) => t.id === s.active?.taskId)?.attachmentIds || [];
   const current = fixed.find((f) => f.start <= now && f.end > now),
     nextBlock = todayBlocks.find((b) => +new Date(b.end) > now),
@@ -1641,11 +1644,12 @@ export default function App() {
               </button>
               <button
                 type="button"
-                className="icon-button"
+                className="icon-button settings-entry"
                 aria-label={tab === 'settings' ? '설정 닫기' : '설정 열기'}
+                aria-expanded={tab === 'settings'}
                 onClick={toggleSettings}
               >
-                <SlidersHorizontal size={20} />
+                <Settings size={20} aria-hidden="true" /><span>설정</span>
               </button>
             </div>
           </header>
@@ -1803,8 +1807,16 @@ export default function App() {
                   beginQuick(minutes ? 'countdown' : 'stopwatch', minutes ?? 480);
                   setTab('study');
                 }}
-                onNavigate={setTab}
+                onNavigate={(route) => {
+                  if (route === 'tasks') { setTaskKindFilter('all'); setFilter('pending'); }
+                  setTab(route);
+                }}
                 onAdd={() => taskEditor()}
+                onTasks={(kind) => {
+                  setTaskKindFilter(kind);
+                  setFilter('pending');
+                  setTab('tasks');
+                }}
                 onCalendar={()=>setCalendarOpen(true)}
                 onEdit={taskEditor}
                 onSubmissions={() => {
@@ -1955,11 +1967,16 @@ export default function App() {
                 <div className="toolbar task-toolbar">
                   <div className="task-add-actions">
                     <button className="primary" onClick={() => taskEditor()}>
-                      <Plus size={17} /> 과제 추가
+                      <Plus size={17} /> {taskKindFilter === 'assessment' ? '수행평가 추가' : '과제 추가'}
                     </button>
-                    <button className="secondary" onClick={addAssessmentNow}>
+                    {taskKindFilter !== 'assessment' && <button className="secondary" onClick={addAssessmentNow}>
                       <Plus size={16} /> 수행평가
-                    </button>
+                    </button>}
+                  </div>
+                  <div className="task-kind-tabs" role="group" aria-label="과제 유형">
+                    {([['all', '전체'], ['homework', '과제'], ['assessment', '수행평가']] as const).map(([value, label]) =>
+                      <button key={value} aria-pressed={taskKindFilter === value} onClick={() => setTaskKindFilter(value)}>{label}</button>,
+                    )}
                   </div>
                   <div className="segmented" role="group" aria-label="과제 필터">
                     {[
@@ -3055,6 +3072,7 @@ export default function App() {
               <QuickCapture
                 key={captureDay || taskDraftId}
                 initialDay={captureDay}
+                initialKind={taskPresetKind}
                 onBusy={setTaskMaterialBusy}
                 onSchedule={()=>scheduleEditor(null,captureDay)}
                 onDetailed={(task) => {
