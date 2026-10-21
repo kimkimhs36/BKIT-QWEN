@@ -248,7 +248,7 @@ test('detailed entry keeps the capture draft, completion and submission remain s
   await page.getByRole('button', { name: '과제 저장', exact: true }).click();
   await page.locator('.study-task-copy').first().click();
   await page.locator('.study-task-details summary').click();
-  await page.getByLabel('학습 상태', { exact: true }).selectOption('done');
+  await page.getByRole('combobox', { name: '학습 상태', exact: true }).selectOption('done');
   await page.getByRole('button', { name: '과제 저장', exact: true }).click();
   expect((await saved(page)).tasks[0]).toMatchObject({ status: 'done', submitted: false });
   await page.getByRole('button', { name: '전체 달력 열기' }).click();
@@ -294,7 +294,7 @@ test('dated academy makeup and an approved learning proposal update the same cal
   await page.getByRole('button', { name: '과제 · 일정 등록', exact: true }).click();
   await page.getByRole('button', { name: '일정', exact: true }).click();
   await page.getByLabel('학교 과목 · 학원 이름 · 일정').fill('영어 보충수업');
-  await page.getByLabel('구분', { exact: true }).selectOption('academy');
+  await page.getByRole('combobox', { name: '구분', exact: true }).selectOption('academy');
   await page.getByLabel('하루만 적용할 날짜 (입력하면 반복 요일보다 우선)').fill('2026-10-22');
   await page.getByLabel('수업 · 일정 시작', { exact: true }).fill('16:00');
   await page.getByLabel('종료', { exact: true }).fill('16:50');
