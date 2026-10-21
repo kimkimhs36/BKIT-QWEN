@@ -1341,6 +1341,55 @@ html[data-material] .study-dialog.calendar-dialog {
   -webkit-backdrop-filter: none !important;
 }
 
+/* The header is an unbroken part of the page. A second backdrop here can
+   darken WebKit's composited page; the material lives beneath the controls. */
+html[data-material] .premium-os .topbar {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-material='glass'] .study-dialog.capture-dialog {
+  background: linear-gradient(140deg, #fffdf8, #fff7ee) !important;
+}
+html[data-material] .capture-dialog :is(input, select, textarea) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+  accent-color: var(--mat-accent);
+}
+html[data-material] .capture-dialog .capture-chips > label {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+html[data-material] .capture-dialog .capture-chips label span {
+  color: var(--mat-muted) !important;
+}
+html[data-material] .capture-dialog .capture-bottom .primary {
+  background: var(--mat-accent) !important;
+  color: var(--mat-on-accent) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+.capture-dialog .capture-options summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.capture-dialog .capture-options summary::-webkit-details-marker {
+  display: none;
+}
+.capture-dialog .capture-options summary::before {
+  content: '+';
+  width: 14px;
+  font-size: 16px;
+  text-align: center;
+}
+.capture-dialog .capture-options[open] summary::before {
+  content: '−';
+}
+
 /* Student beta: two quiet school actions, with study start retaining emphasis. */
 .home-school-shortcuts {
   grid-column: 1;
