@@ -22,42 +22,42 @@ dist/assets/DigitalPaperRoom-DxjXuaYr.css                2.71 kB │ gzip:   0.9
 dist/assets/GlobalSearch-hufsr9G2.css                    3.00 kB │ gzip:   1.04 kB
 dist/assets/StudyDirectory-BT6Rfb9D.css                  4.43 kB │ gzip:   1.23 kB
 dist/assets/AIZone-CcDDBXyb.css                          9.72 kB │ gzip:   2.41 kB
-dist/assets/index-p0WEB0X1.css                         418.86 kB │ gzip:  81.49 kB
+dist/assets/index-CDrV04XS.css                         418.89 kB │ gzip:  81.49 kB
 dist/assets/pdf.worker.min--YMEZGJq.js                   0.08 kB │ gzip:   0.10 kB
-dist/assets/search-Dj69dVsJ.js                           0.34 kB │ gzip:   0.27 kB
+dist/assets/search-C07RYRh1.js                           0.34 kB │ gzip:   0.27 kB
 dist/assets/engine-DEOAXCFx.js                           0.41 kB │ gzip:   0.30 kB
-dist/assets/library-big-DlyuOdSf.js                      0.49 kB │ gzip:   0.37 kB
-dist/assets/star-Bs7Yksh3.js                             1.01 kB │ gzip:   0.50 kB
+dist/assets/library-big-C-9HhOLu.js                      0.49 kB │ gzip:   0.37 kB
+dist/assets/star-BI47Seo0.js                             1.01 kB │ gzip:   0.49 kB
 dist/assets/photoVault-7u-SMmFn.js                       1.06 kB │ gzip:   0.63 kB
-dist/assets/ResourcePaper-DOgRwSwc.js                    2.76 kB │ gzip:   1.35 kB
-dist/assets/ProblemReviewQueue-CFYH39dV.js               2.91 kB │ gzip:   1.39 kB
-dist/assets/MoreHub-DysO7vDt.js                          2.97 kB │ gzip:   1.39 kB
-dist/assets/ResourceReviews-DN3cWyMp.js                  3.14 kB │ gzip:   1.57 kB
-dist/assets/GlobalSearch-Ba5qW5Ew.js                     3.80 kB │ gzip:   1.73 kB
-dist/assets/StudyDirectory-_Ve4eEr0.js                   4.30 kB │ gzip:   1.94 kB
-dist/assets/LearningEvidence-PKQi2P4P.js                 5.43 kB │ gzip:   2.15 kB
-dist/assets/AwakeAssist--wqvDOdj.js                      5.97 kB │ gzip:   2.80 kB
-dist/assets/ExamPanel-CRi9p-pf.js                        5.99 kB │ gzip:   2.52 kB
-dist/assets/paperPdf-CS9cJ7Nn.js                         6.51 kB │ gzip:   3.07 kB
+dist/assets/ResourcePaper-DSCSnsxo.js                    2.76 kB │ gzip:   1.35 kB
+dist/assets/ProblemReviewQueue-_q2XjtDt.js               2.91 kB │ gzip:   1.38 kB
+dist/assets/MoreHub-D1fyCspv.js                          2.97 kB │ gzip:   1.39 kB
+dist/assets/ResourceReviews-BEKnbXoD.js                  3.14 kB │ gzip:   1.57 kB
+dist/assets/GlobalSearch-1t0iAGhp.js                     3.80 kB │ gzip:   1.73 kB
+dist/assets/StudyDirectory-vqBP4U2w.js                   4.30 kB │ gzip:   1.94 kB
+dist/assets/LearningEvidence-CS6BQe0a.js                 5.43 kB │ gzip:   2.15 kB
+dist/assets/AwakeAssist-FY-U6mfz.js                      5.97 kB │ gzip:   2.80 kB
+dist/assets/ExamPanel-BCRVg7N-.js                        5.99 kB │ gzip:   2.51 kB
+dist/assets/paperPdf-D8DqDEqA.js                         6.51 kB │ gzip:   3.07 kB
 dist/assets/studySites-DlZ8Gwdk.js                       9.29 kB │ gzip:   4.00 kB
-dist/assets/ResourceLibrary-B1wepx7G.js                 11.90 kB │ gzip:   4.27 kB
-dist/assets/DigitalLibrary-Bdx3riGY.js                  11.99 kB │ gzip:   4.64 kB
-dist/assets/AIZone-DZDZOPhS.js                          12.68 kB │ gzip:   4.74 kB
+dist/assets/ResourceLibrary-BGn7oPGr.js                 11.90 kB │ gzip:   4.27 kB
+dist/assets/DigitalLibrary-ChGyZL69.js                  11.99 kB │ gzip:   4.64 kB
+dist/assets/AIZone-CHeJ3ntE.js                          12.68 kB │ gzip:   4.73 kB
 dist/assets/index-C6xHUsg2.js                           15.83 kB │ gzip:   6.83 kB
-dist/assets/SleepGuard-79325prT.js                      16.73 kB │ gzip:   6.46 kB
+dist/assets/SleepGuard-CZdCgb4G.js                      16.73 kB │ gzip:   6.45 kB
 dist/assets/aiZoneData-DBwAxoLJ.js                      17.51 kB │ gzip:   6.39 kB
-dist/assets/MultiProblemWorkspace-BEqQH8pY.js           19.61 kB │ gzip:   7.20 kB
-dist/assets/DigitalPaperRoom-Nqq4Q9E_.js                21.45 kB │ gzip:   8.17 kB
-dist/assets/CompleteBackupPanel-DRYzNkRZ.js             28.47 kB │ gzip:  10.09 kB
+dist/assets/MultiProblemWorkspace-BbjePgxV.js           19.61 kB │ gzip:   7.20 kB
+dist/assets/DigitalPaperRoom-cICWjOYu.js                21.45 kB │ gzip:   8.17 kB
+dist/assets/CompleteBackupPanel-Bb7HgfD8.js             28.47 kB │ gzip:  10.09 kB
 dist/assets/schema-vendor-DYuAzjeD.js                   54.21 kB │ gzip:  12.35 kB
 dist/assets/awake-engine-gJkNtaIk.js                   144.77 kB │ gzip:  43.93 kB
 dist/assets/react-vendor-DENrKhsk.js                   223.64 kB │ gzip:  69.41 kB
 dist/assets/pdf-CcZYcL52.js                            365.12 kB │ gzip: 107.61 kB
 dist/assets/index-C5kHwvUg.js                          437.04 kB │ gzip: 180.61 kB
-dist/assets/index-DE4TwtlX.js                          506.86 kB │ gzip: 164.11 kB
+dist/assets/index-D0tn_A6a.js                          506.95 kB │ gzip: 164.12 kB
 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1m 10s
+✓ built in 40.83s

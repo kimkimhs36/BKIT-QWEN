@@ -1,0 +1,11 @@
+
+Running 3 tests using 1 worker
+
+(node:8976) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/3] [iphone] › tests/e2e/recovery.spec.ts:239:1 › detailed entry keeps the capture draft, completion and submission remain separate, then deletion persists
+[2/3] [iphone] › tests/e2e/recovery.spec.ts:271:1 › dated academy makeup and an approved learning proposal update the same calendar state
+[3/3] [iphone] › tests/e2e/recovery.spec.ts:315:1 › small phone, rotation, keyboard-sized viewport and storage failure keep the input recoverable
+  3 passed (1.3m)

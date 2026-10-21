@@ -1,0 +1,138 @@
+
+Running 5 tests using 1 worker
+
+(node:10845) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/5] [webkit-iphone] › tests/e2e/compact-experience.spec.ts:189:1 › all nine themes apply instantly while running and paused timers survive navigation and reload
+[webkit-iphone] › tests/e2e/compact-experience.spec.ts:189:1 › all nine themes apply instantly while running and paused timers survive navigation and reload
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+  1) [webkit-iphone] › tests/e2e/compact-experience.spec.ts:189:1 › all nine themes apply instantly while running and paused timers survive navigation and reload 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Soft Jelly', exact: true })
+        - locator resolved to <button data-swatch="jelly" class="theme-choice" aria-pressed="false" aria-label="Soft Jelly">…</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      197 |   await expect(page.getByRole('dialog', { name: '나의 공부 공간' })).toBeVisible();
+      198 |   for (const m of materials) {
+    > 199 |     await page.getByRole('button', { name: m.name, exact: true }).click();
+          |                                                                   ^
+      200 |     await expect(page.locator('html')).toHaveAttribute('data-material', m.id);
+      201 |     const data = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), key);
+      202 |     expect(data.quickTimer).toEqual(original.quickTimer);
+        at /workspace/BKIT-QWEN/study-os/tests/e2e/compact-experience.spec.ts:199:67
+
+    Error Context: ../../scratch/recovery-regression/compact-experience-all-nin-1d881-rvive-navigation-and-reload-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../scratch/recovery-regression/compact-experience-all-nin-1d881-rvive-navigation-and-reload-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../scratch/recovery-regression/compact-experience-all-nin-1d881-rvive-navigation-and-reload-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:11056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[2/5] [webkit-iphone] › tests/e2e/compact-experience.spec.ts:307:1 › task modal handles a keyboard viewport and long text without dock or horizontal overlap
+[webkit-iphone] › tests/e2e/compact-experience.spec.ts:307:1 › task modal handles a keyboard viewport and long text without dock or horizontal overlap
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[3/5] [webkit-iphone] › tests/e2e/compact-experience.spec.ts:347:1 › PDF originals, ink metadata, attachments and study records survive themes and reload
+  2) [webkit-iphone] › tests/e2e/compact-experience.spec.ts:347:1 › PDF originals, ink metadata, attachments and study records survive themes and reload 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: '종이 열기', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: '종이 열기', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: '종이 열기', exact: true })
+
+
+      361 |     .getByLabel('PDF·학습지 사진 파일', { exact: true })
+      362 |     .setInputFiles({ name: '보존할 학습지.pdf', mimeType: 'application/pdf', buffer: bytes });
+    > 363 |   await expect(page.getByRole('button', { name: '종이 열기', exact: true })).toBeVisible();
+          |                                                                          ^
+      364 |   await page.evaluate(async () => {
+      365 |     await new Promise<void>((resolve, reject) => {
+      366 |       const r = indexedDB.open('bkit-private-materials-v1', 1);
+        at /workspace/BKIT-QWEN/study-os/tests/e2e/compact-experience.spec.ts:363:74
+
+    Error Context: ../../scratch/recovery-regression/compact-experience-PDF-ori-fbdc5-s-survive-themes-and-reload-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../scratch/recovery-regression/compact-experience-PDF-ori-fbdc5-s-survive-themes-and-reload-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../scratch/recovery-regression/compact-experience-PDF-ori-fbdc5-s-survive-themes-and-reload-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:11464) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[4/5] [webkit-iphone] › tests/e2e/compact-experience.spec.ts:439:1 › task focus keeps the clock and controls first and retains its session across theme and routes
+[webkit-iphone] › tests/e2e/compact-experience.spec.ts:439:1 › task focus keeps the clock and controls first and retains its session across theme and routes
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+  3) [webkit-iphone] › tests/e2e/compact-experience.spec.ts:439:1 › task focus keeps the clock and controls first and retains its session across theme and routes 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('nav:visible').getByRole('button', { name: '집중', exact: true }).first()
+        - locator resolved to <button class="">…</button>
+
+
+      18 | ] as const;
+      19 | async function nav(page: Page, name: string) {
+    > 20 |   await page.locator('nav:visible').getByRole('button', { name, exact: true }).first().click();
+         |                                                                                        ^
+      21 | }
+      22 | async function seed(page: Page, state: State = newState()) {
+      23 |   await page.clock.install({ time: atNoon });
+        at nav (/workspace/BKIT-QWEN/study-os/tests/e2e/compact-experience.spec.ts:20:88)
+        at /workspace/BKIT-QWEN/study-os/tests/e2e/compact-experience.spec.ts:467:9
+
+    Error Context: ../../scratch/recovery-regression/compact-experience-task-fo-ef2cb-ion-across-theme-and-routes-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../scratch/recovery-regression/compact-experience-task-fo-ef2cb-ion-across-theme-and-routes-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../scratch/recovery-regression/compact-experience-task-fo-ef2cb-ion-across-theme-and-routes-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:11664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[5/5] [webkit-iphone] › tests/e2e/compact-experience.spec.ts:510:1 › every tool has a reachable route and advanced backup and recovery remain inside settings
+[webkit-iphone] › tests/e2e/compact-experience.spec.ts:510:1 › every tool has a reachable route and advanced backup and recovery remain inside settings
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+  3 failed
+    [webkit-iphone] › tests/e2e/compact-experience.spec.ts:189:1 › all nine themes apply instantly while running and paused timers survive navigation and reload 
+    [webkit-iphone] › tests/e2e/compact-experience.spec.ts:347:1 › PDF originals, ink metadata, attachments and study records survive themes and reload 
+    [webkit-iphone] › tests/e2e/compact-experience.spec.ts:439:1 › task focus keeps the clock and controls first and retains its session across theme and routes 
+  2 passed (8.3m)

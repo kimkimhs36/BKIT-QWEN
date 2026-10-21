@@ -1,0 +1,11 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+classic: quiet, timer/task/session preserved
+forest: quiet, timer/task/session preserved
+glass: quiet, timer/task/session preserved
+peach: quiet, timer/task/session preserved
+diamond: quiet, timer/task/session preserved
+gold: quiet, timer/task/session preserved
+jelly: quiet, timer/task/session preserved
+droplets: quiet, timer/task/session preserved
+night: quiet, timer/task/session preserved
+PASS: all nine themes with normal system motion during active timer

@@ -1,0 +1,116 @@
+
+Running 40 tests using 2 workers
+
+(node:9327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/40] [iphone] › tests/e2e/recovery.spec.ts:37:1 › capture photo, review, save, reload and calendar share a single durable task
+(node:9328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[2/40] [desktop] › tests/e2e/recovery.spec.ts:37:1 › capture photo, review, save, reload and calendar share a single durable task
+[3/40] [iphone] › tests/e2e/recovery.spec.ts:79:1 › one-day class change is previewed, survives back, and leaves the weekly series intact
+[4/40] [desktop] › tests/e2e/recovery.spec.ts:79:1 › one-day class change is previewed, survives back, and leaves the weekly series intact
+[5/40] [iphone] › tests/e2e/recovery.spec.ts:111:1 › calendar views, help, five screens and settings work without clipping
+[6/40] [desktop] › tests/e2e/recovery.spec.ts:111:1 › calendar views, help, five screens and settings work without clipping
+[7/40] [desktop] › tests/e2e/recovery.spec.ts:163:1 › saved theme and reduced motion preserve study records and accessible calendar
+[8/40] [iphone] › tests/e2e/recovery.spec.ts:163:1 › saved theme and reduced motion preserve study records and accessible calendar
+[9/40] [iphone] › tests/e2e/recovery.spec.ts:194:1 › schedule conflict is visible and an optional replan protects a locked block
+[10/40] [desktop] › tests/e2e/recovery.spec.ts:194:1 › schedule conflict is visible and an optional replan protects a locked block
+[11/40] [iphone] › tests/e2e/recovery.spec.ts:239:1 › detailed entry keeps the capture draft, completion and submission remain separate, then deletion persists
+[12/40] [desktop] › tests/e2e/recovery.spec.ts:239:1 › detailed entry keeps the capture draft, completion and submission remain separate, then deletion persists
+[13/40] [iphone] › tests/e2e/recovery.spec.ts:271:1 › dated academy makeup and an approved learning proposal update the same calendar state
+[14/40] [desktop] › tests/e2e/recovery.spec.ts:271:1 › dated academy makeup and an approved learning proposal update the same calendar state
+[15/40] [iphone] › tests/e2e/recovery.spec.ts:315:1 › small phone, rotation, keyboard-sized viewport and storage failure keep the input recoverable
+[16/40] [desktop] › tests/e2e/recovery.spec.ts:315:1 › small phone, rotation, keyboard-sized viewport and storage failure keep the input recoverable
+(node:10526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[17/40] [webkit-ipad-landscape] › tests/e2e/recovery.spec.ts:37:1 › capture photo, review, save, reload and calendar share a single durable task
+[webkit-ipad-landscape] › tests/e2e/recovery.spec.ts:37:1 › capture photo, review, save, reload and calendar share a single durable task
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+(node:10585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[18/40] [webkit-ipad] › tests/e2e/recovery.spec.ts:37:1 › capture photo, review, save, reload and calendar share a single durable task
+[webkit-ipad] › tests/e2e/recovery.spec.ts:37:1 › capture photo, review, save, reload and calendar share a single durable task
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+  1) [webkit-ipad-landscape] › tests/e2e/recovery.spec.ts:37:1 › capture photo, review, save, reload and calendar share a single durable task 
+
+    Test was interrupted.
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for getByRole('button', { name: '오늘에 담기' })
+        - locator resolved to <button type="submit" class="primary">…</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - performing click action
+
+
+      73 |     .getByRole('textbox', { name: '할 일을 한 문장으로' })
+      74 |     .fill('내일 과학 탐구 보고서 제출');
+    > 75 |   await page.getByRole('button', { name: '오늘에 담기' }).click();
+         |                                                      ^
+      76 |   await expect(page.getByRole('alert')).toContainText('같은 과제가 이미');
+      77 |   expect((await saved(page)).tasks).toHaveLength(1);
+      78 | });
+        at /workspace/BKIT-QWEN/study-os/tests/e2e/recovery.spec.ts:75:54
+
+    Error Context: ../../scratch/recovery-clean/recovery-capture-photo-rev-f683e-share-a-single-durable-task-webkit-ipad-landscape/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../scratch/recovery-clean/recovery-capture-photo-rev-f683e-share-a-single-durable-task-webkit-ipad-landscape/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../scratch/recovery-clean/recovery-capture-photo-rev-f683e-share-a-single-durable-task-webkit-ipad-landscape/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  2) [webkit-ipad] › tests/e2e/recovery.spec.ts:37:1 › capture photo, review, save, reload and calendar share a single durable task 
+
+    Test was interrupted.
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for getByRole('button', { name: '수행평가', exact: true })
+        - locator resolved to <button type="button" aria-pressed="false">수행평가</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      69 |   await page.getByRole('button', { name: '닫기', exact: true }).click();
+      70 |   await page.getByRole('button', { name: '과제 · 일정 등록', exact: true }).click();
+    > 71 |   await page.getByRole('button', { name: '수행평가', exact: true }).click();
+         |                                                                 ^
+      72 |   await page
+      73 |     .getByRole('textbox', { name: '할 일을 한 문장으로' })
+      74 |     .fill('내일 과학 탐구 보고서 제출');
+        at /workspace/BKIT-QWEN/study-os/tests/e2e/recovery.spec.ts:71:65
+
+    Error Context: ../../scratch/recovery-clean/recovery-capture-photo-rev-f683e-share-a-single-durable-task-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../scratch/recovery-clean/recovery-capture-photo-rev-f683e-share-a-single-durable-task-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../scratch/recovery-clean/recovery-capture-photo-rev-f683e-share-a-single-durable-task-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  2 interrupted
+    [webkit-ipad-landscape] › tests/e2e/recovery.spec.ts:37:1 › capture photo, review, save, reload and calendar share a single durable task 
+    [webkit-ipad] › tests/e2e/recovery.spec.ts:37:1 › capture photo, review, save, reload and calendar share a single durable task 
+  22 did not run
+  16 passed (5.4m)
