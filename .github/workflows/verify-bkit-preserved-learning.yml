@@ -1,5 +1,8 @@
 name: Verify BKIT preserved learning flows
 on:
+  push:
+    branches: [feat/bkit-product-recovery-20261021]
+    paths: [.github/workflows/verify-bkit-preserved-learning.yml]
   workflow_dispatch:
 permissions:
   contents: read
