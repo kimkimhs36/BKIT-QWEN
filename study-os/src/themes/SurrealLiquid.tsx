@@ -248,6 +248,14 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
         canvas.dataset.quality = 'static';
       }
       const frozen = still();
+      if (frozen) {
+        // A non-preserved WebGL buffer may be cleared after composition on
+        // Safari. Never leave a stopped opaque canvas over the CSS atmosphere.
+        delete canvas.dataset.ready;
+        canvas.dataset.quality = 'static';
+        return;
+      }
+      delete canvas.dataset.quality;
       const alive = !frozen && (handTarget > 0 || time - lastTrail < 7);
       const interval = frozen ? Infinity : alive ? 1000 / 30 : quiet ? 1000 / 12 : 1000 / 24;
       if (!lastDraw || now - lastDraw >= interval - 1) {
@@ -361,6 +369,8 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
       if (still()) {
         clear();
         energy = 0;
+        delete canvas.dataset.ready;
+        canvas.dataset.quality = 'static';
       }
       lastDraw = 0;
       wake();

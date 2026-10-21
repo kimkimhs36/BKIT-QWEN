@@ -163,6 +163,9 @@ test('settings is labeled, returns home, and the small phone keeps all school en
   page,
 }, info) => {
   await seed(page);
+  // Reduced motion must leave the CSS material visible, rather than a stopped
+  // non-preserved WebGL frame that Safari can composite as an opaque dark layer.
+  await expect(page.locator('.surreal-surface')).toHaveCSS('opacity', '0');
   await expect(page.getByRole('button', { name: '설정 열기', exact: true })).toContainText('설정');
   await page.getByRole('button', { name: '설정 열기', exact: true }).click();
   await expect(page.getByRole('button', { name: /테마와 움직임/ })).toBeVisible();
