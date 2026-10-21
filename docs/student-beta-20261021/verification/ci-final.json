@@ -1,0 +1,48 @@
+{
+  "commit": "ad2aeeb16cc81b912e6ac6c7b43c472f496fe228",
+  "run": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/39632583129",
+  "status": "completed",
+  "conclusion": "success",
+  "frontendUnitTests": 253,
+  "apiUnitTests": 100,
+  "coreBrowserScenarios": 108,
+  "normalMotionThemeScenarios": 4,
+  "jobs": [
+    {
+      "id": 119335066433,
+      "name": "verify (webkit-ipad-landscape)",
+      "conclusion": "success",
+      "reportedCounts": [
+        "27 passed (3.2m)",
+        "1 passed (14.6s)"
+      ]
+    },
+    {
+      "id": 119335066810,
+      "name": "verify (webkit-iphone)",
+      "conclusion": "success",
+      "reportedCounts": [
+        "27 passed (4.6m)",
+        "1 passed (23.4s)"
+      ]
+    },
+    {
+      "id": 119335066836,
+      "name": "verify (desktop)",
+      "conclusion": "success",
+      "reportedCounts": [
+        "27 passed (1.8m)",
+        "1 passed (12.7s)"
+      ]
+    },
+    {
+      "id": 119335066909,
+      "name": "verify (webkit-ipad)",
+      "conclusion": "success",
+      "reportedCounts": [
+        "27 passed (3.1m)",
+        "1 passed (14.2s)"
+      ]
+    }
+  ]
+}

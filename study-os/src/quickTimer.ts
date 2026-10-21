@@ -138,7 +138,7 @@ export function quickDaySeconds(state: State, now: number): number {
 }
 
 /** Carry the same wall-clock session into real material, without a second timer. */
-export function attachQuickResource(state: State, resourceId: string, problemId?: string): State {
+export function attachQuickResource(state: State, resourceId: string, problemId?: string, now = Date.now()): State {
   const timer = state.quickTimer;
   const data = learning(state);
   const resource = data.resources.find((r) => r.id === resourceId && !r.archived);
@@ -146,7 +146,7 @@ export function attachQuickResource(state: State, resourceId: string, problemId?
   const current = problemId ?? resourceProgress(data, resource.id).currentProblemId;
   if (!current || !data.problems.some((p) => p.id === current && p.resourceId === resource.id))
     return state;
-  const moved = moveProblem(state, resource.id, current);
+  const moved = moveProblem(state, resource.id, current, now);
   return {
     ...moved,
     quickTimer: null,
@@ -156,7 +156,7 @@ export function attachQuickResource(state: State, resourceId: string, problemId?
       quickMode: timer.mode,
       taskId: resource.linkedTaskId,
       resourceId,
-      questionPace: { current, enteredAt: new Date().toISOString(), anchor: quickSeconds(timer, Date.now()), seconds: {}, target: 240, review: [] },
+      questionPace: { current, enteredAt: iso(now), anchor: quickSeconds(timer, now), seconds: {}, target: 240, review: [] },
       subject: resource.subject,
       action: resource.title,
       target: timer.targetMinutes,

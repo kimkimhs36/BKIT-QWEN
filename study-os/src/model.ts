@@ -83,7 +83,7 @@ export const blockSchema = z
   .refine((b) => b.end > b.start);
 export const segmentSchema = z
   .object({ start: instant, end: instant })
-  .refine((v) => v.end > v.start, '집중 구간 종료 시각을 확인하세요');
+  .refine((v) => Date.parse(v.end) > Date.parse(v.start), '집중 구간 종료 시각을 확인하세요');
 /** A learner's own response; never presented as AI-verified correctness. */
 export const learningAttemptSchema = z.object({
   id,
@@ -121,7 +121,7 @@ export const quickTimerSchema = z.object({
   targetMinutes: minutes,
   started: instant,
   segmentStart: instant.nullable(),
-  elapsed: z.number().min(0),
+  elapsed: z.number().finite().min(0),
   segments: z.array(segmentSchema).max(10000),
 });
 /** Per-question pace is an allocation of the shared study clock, never a second timer. */
@@ -154,7 +154,7 @@ export const activeSchema = z.object({
   questionPace: questionPaceSchema.optional(),
   exam: mockExamSchema.optional(),
   segmentStart: instant.nullable(),
-  elapsed: z.number().min(0),
+  elapsed: z.number().finite().min(0),
   pauses: z.array(z.object({ at: instant, reason: text })).max(100),
   segments: z.array(segmentSchema).max(10000).optional(),
 });
@@ -170,7 +170,7 @@ export const sessionSchema = z.object({
   resourceId: id.optional(),
   questionPace: questionPaceSchema.optional(),
   exam: mockExamSchema.optional(),
-  seconds: z.number().min(0),
+  seconds: z.number().finite().min(0),
   target: minutes,
   problems: z.number().int().min(0).max(10000),
   concepts: text,
@@ -276,24 +276,37 @@ export const stateSchema = z
     for (const key of ['tasks', 'schedules', 'sessions', 'plan', 'grades'] as const)
       if (new Set(s[key].map((x) => x.id)).size !== s[key].length)
         ctx.addIssue({ code: 'custom', message: `${key}: 중복 ID` });
-    for (const session of s.sessions) {
-      if (session.segments) {
-        const duration = session.segments.reduce(
-          (n, v) => n + (+new Date(v.end) - +new Date(v.start)) / 1000,
-          0,
-        );
-        if (
-          Math.abs(duration - session.seconds) > 0.01 ||
-          session.segments.some(
-            (v, i) =>
-              v.start < session.started ||
-              v.end > session.ended ||
-              (i > 0 && v.start < session.segments![i - 1].end),
-          )
-        )
-          ctx.addIssue({ code: 'custom', message: '집중 구간과 타이머 합계가 일치하지 않습니다' });
+    const clocks = [s.active, s.quickTimer].filter((v) => v != null);
+    if (clocks.length > 1 || clocks.some((v) => s.sessions.some((x) => x.id === v.id)))
+      ctx.addIssue({ code: 'custom', message: '진행 중인 타이머 또는 완료 기록 ID가 중복되었습니다' });
+    // Compare instants, not their textual timezone notation. Legacy sessions
+    // without segment metadata remain readable; provided metadata must agree.
+    const checkSegments = (
+      started: string,
+      segments: z.infer<typeof segmentSchema>[] | undefined,
+      seconds: number,
+      end?: string | null,
+    ) => {
+      const lower = Date.parse(started);
+      const upper = end ? Date.parse(end) : Infinity;
+      if (upper < lower) return false;
+      if (!segments) return true;
+      let previousEnd = lower;
+      let duration = 0;
+      for (const segment of segments) {
+        const a = Date.parse(segment.start), b = Date.parse(segment.end);
+        if (a < previousEnd || b > upper) return false;
+        duration += (b - a) / 1000;
+        previousEnd = b;
       }
-    }
+      return Math.abs(duration - seconds) <= 0.01;
+    };
+    for (const session of s.sessions)
+      if (!checkSegments(session.started, session.segments, session.seconds, session.ended))
+        ctx.addIssue({ code: 'custom', message: '집중 구간과 타이머 합계가 일치하지 않습니다' });
+    for (const timer of clocks)
+      if (!checkSegments(timer.started, timer.segments, timer.elapsed, timer.segmentStart))
+        ctx.addIssue({ code: 'custom', message: '진행 중인 집중 구간과 누적 시간이 일치하지 않습니다' });
     if(s.active?.exam) {
       const a=s.active,exam=a.exam!;
       if(!a.resourceId || exam.problemIds.some(id=>!s.learning?.problems.some(p=>p.id===id&&p.resourceId===a.resourceId)) || (a.questionPace && !exam.problemIds.includes(a.questionPace.current)) || (exam.finishedAt && a.segmentStart))

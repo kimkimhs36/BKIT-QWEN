@@ -28,6 +28,7 @@ export function MultiProblemWorkspace({
   state,
   controller,
   totalSeconds,
+  studyTimestamp = Date.now,
   onChange,
   onFinish,
   onSleep,
@@ -35,6 +36,7 @@ export function MultiProblemWorkspace({
   state: State;
   controller: GarageController;
   totalSeconds: number;
+  studyTimestamp?: () => number;
   onChange: (fn: (s: State) => State) => boolean;
   onFinish: () => void;
   onSleep: () => void;
@@ -56,6 +58,7 @@ export function MultiProblemWorkspace({
       state={state}
       controller={controller}
       totalSeconds={totalSeconds}
+      studyTimestamp={studyTimestamp}
       problem={p}
       onChange={onChange}
       onFinish={onFinish}
@@ -68,6 +71,7 @@ function Problem({
   problem: p,
   controller,
   totalSeconds,
+  studyTimestamp,
   onChange,
   onFinish,
   onSleep,
@@ -75,6 +79,7 @@ function Problem({
   state: State;
   controller: GarageController;
   totalSeconds: number;
+  studyTimestamp: () => number;
   problem: LearningProblem;
   onChange: (fn: (s: State) => State) => boolean;
   onFinish: () => void;
@@ -148,7 +153,7 @@ function Problem({
   }
   function go(problemId: string) {
     if (flush() && flushLearning(() => go(problemId)))
-      onChange((s) => moveProblem(s, r.id, problemId));
+      onChange((s) => moveProblem(s, r.id, problemId, studyTimestamp()));
   }
   useEffect(() => {
     const save = (event: Event) => {

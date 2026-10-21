@@ -1,0 +1,13 @@
+
+> bkit-study-os@3.7.0 test
+> vitest run
+
+
+ RUN  v4.1.12 /workspace/BKIT-source/study-os
+
+
+ Test Files  43 passed (43)
+      Tests  253 passed (253)
+   Start at  16:11:29
+   Duration  8.43s (transform 652ms, setup 0ms, import 2.21s, tests 1.49s, environment 3ms)
+

@@ -21,6 +21,8 @@ import {
 } from 'react';
 import { TaskMaterials, emptyTaskMaterials, type TaskMaterialDraft } from './TaskMaterials';
 import { flushLearning } from './learningFlush';
+import { StudyClock } from './timerClock';
+import { useStudyWriter } from './useStudyWriter';
 import { QuickStudyTimer } from './QuickStudyTimer';
 import { useGarage } from './drive/useGarage';
 import { BREAK_KEY, restoreBrowserBreak, type StudyBreak, type BreakActivity } from './drive/break';
@@ -121,7 +123,6 @@ import {
   Plus,
   RotateCcw,
   Settings,
-  SlidersHorizontal,
   Palette,
   Sparkles,
   Target,
@@ -159,11 +160,11 @@ import {
   recoverySchema,
   type Recovery,
 } from './engine';
-import { elapsed, studySeconds, todayOutput, closeSegment } from './session';
+import { elapsed, studySeconds, todayOutput, closeSegment, resumeSegment } from './session';
 import { needsSubmission, needsAttention, filteredTasks } from './tasks';
 import { inputError } from './input-error';
 import { requestAI } from './ai';
-import { protectedBoundary, fixedConflicts } from './safety';
+import { settleProtectedStudy, fixedConflicts } from './safety';
 import {
   KEY,
   readState,
@@ -247,6 +248,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 export default function App() {
+  const writer = useStudyWriter();
   const modalTrigger = useRef<HTMLElement | null>(null);
   useViewport();
   const [initial] = useState(() => readState(localStorage));
@@ -299,6 +301,7 @@ export default function App() {
   }
   const [tab, setTabState] = useState<string>(() => 'today'),
     [now, setNow] = useState(Date.now()),
+    [studyNow, setStudyNow] = useState(Date.now()),
     [online, setOnline] = useState(navigator.onLine),
     [notice, setNotice] = useState(''),
     [modal, setModal] = useState<
@@ -365,6 +368,7 @@ export default function App() {
   const [energy, setEnergy] = useState<'low' | 'normal'>('normal');
   const [taskPrefill,setTaskPrefill]=useState<Task|null>(null);
   const [taskPresetKind, setTaskPresetKind] = useState<Task['kind']>('숙제');
+  const [taskKindFilter, setTaskKindFilter] = useState<'all' | 'homework' | 'assessment'>('all');
   const [taskDraftId, setTaskDraftId] = useState<string>(uid);
   const [taskMaterials, setTaskMaterials] = useState<TaskMaterialDraft>(() => emptyTaskMaterials());
   const [taskMaterialBusy, setTaskMaterialBusy] = useState(false);
@@ -416,7 +420,7 @@ export default function App() {
       shouldAutoHideFocusUi(tab === 'study', Boolean(s.active?.segmentStart), Boolean(modal)) &&
       !!s.active &&
       !s.active.workspace &&
-      elapsed(s.active, Date.now()) < s.active.target * 60;
+      elapsed(s.active, studyNow) < s.active.target * 60;
     if (!canHide) {
       setFocusUiVisible(true);
       return;
@@ -450,7 +454,7 @@ export default function App() {
     s.active?.target,
     modal,
     Boolean(s.active?.workspace),
-    Boolean(s.active && elapsed(s.active, now) >= s.active.target * 60),
+    Boolean(s.active && elapsed(s.active, studyNow) >= s.active.target * 60),
   ]);
 
   // Default worker lifecycle protects old lazy chunks until all old tabs close.
@@ -499,6 +503,41 @@ export default function App() {
   const storedRaw = useRef(initial.raw);
   const memory = useRef(s);
   memory.current = s;
+  const sessionClock = useRef<{ id: string; clock: StudyClock } | null>(null);
+  function studyTime() {
+    const timer = memory.current.active ?? memory.current.quickTimer;
+    const wall = Date.now(), monotonic = performance.now();
+    if (!timer) {
+      sessionClock.current = null;
+      return wall;
+    }
+    if (sessionClock.current?.id !== timer.id) {
+      const boundary = Math.max(
+        Date.parse(timer.started),
+        timer.segmentStart ? Date.parse(timer.segmentStart) : 0,
+        timer.segments?.at(-1) ? Date.parse(timer.segments.at(-1)!.end) : 0,
+      );
+      sessionClock.current = { id: timer.id, clock: new StudyClock(wall, monotonic, boundary) };
+    }
+    const sample = sessionClock.current.clock.read(wall, monotonic);
+    if (sample.adjusted)
+      setNotice('기기 시각 변경을 감지했어요. 현재 공부 시간은 실제 경과 시간으로 유지합니다.');
+    return sample.time;
+  }
+  function protectStudy(value: State, timestamp = studyTime()) {
+    const wall = Date.now();
+    const start = value.active?.segmentStart;
+    return settleProtectedStudy(
+      value, wall, timestamp,
+      start ? sleepConstraints(sleep.state, Date.parse(start) - (timestamp - wall), wall) : [],
+    );
+  }
+  function stopStudy(value: State, timestamp = studyTime()): State {
+    const protectedState = protectStudy(value, timestamp);
+    return protectedState.active
+      ? { ...protectedState, active: closeSegment(protectedState.active, timestamp) }
+      : protectedState;
+  }
   // The full learning shell is large: do not re-render it every second when
   // the student is only browsing. Any running study, exam or break keeps the
   // precise 1-second clock; idle screens refresh every 15 seconds instead.
@@ -507,20 +546,29 @@ export default function App() {
     const tick = () => {
       // Time accounting uses wall-clock timestamps; hidden Safari tabs need no
       // animation work and catch up immediately upon returning to the foreground.
-      if (document.visibilityState === 'visible') setNow(Date.now());
+      const timestamp = studyTime();
+      if (document.visibilityState === 'visible') {
+        setNow(Date.now());
+        setStudyNow(timestamp);
+      } else sessionClock.current?.clock.suspend();
     };
+    const hide = () => { studyTime(); sessionClock.current?.clock.suspend(); };
     tick();
     const timer = window.setInterval(tick, precisionClock ? 1000 : 15000);
     document.addEventListener('visibilitychange', tick);
+    window.addEventListener('pagehide', hide);
+    window.addEventListener('pageshow', tick);
     return () => {
       clearInterval(timer);
       document.removeEventListener('visibilitychange', tick);
+      window.removeEventListener('pagehide', hide);
+      window.removeEventListener('pageshow', tick);
     };
   }, [precisionClock]);
   useEffect(() => {
     const net = () => setOnline(navigator.onLine);
     const sync = (e: StorageEvent) => {
-      if (e.key === KEY) {
+      if (e.key === KEY || e.key === null) {
         setReadBlocked(true);
         setStorageError(
           '다른 탭에서 데이터가 변경되었습니다. 현재 탭의 기록을 내보낸 뒤 새로고침하세요. 충돌을 막기 위해 저장을 잠갔습니다.',
@@ -571,6 +619,10 @@ export default function App() {
           }),
         };
       if (changed === previous) return false;
+      if (!writer.canWrite()) {
+        setNotice('다른 BKIT 탭이 열려 있거나 저장 준비 중이에요. 다른 탭을 닫고 다시 시도하세요.');
+        return false;
+      }
       const next = stateSchema.parse({ ...changed, revision: previous.revision + 1 });
       if (!force)
         for (const task of next.tasks)
@@ -672,7 +724,7 @@ export default function App() {
     setTaskDraftId(t?.id ?? uid());
     setTaskMaterials(emptyTaskMaterials(t));
     setEditTask(t);
-    setTaskPresetKind(t?.kind ?? '숙제');
+    setTaskPresetKind(t?.kind ?? (tab === 'tasks' && taskKindFilter === 'assessment' ? '수행평가' : '숙제'));
     setCaptureDay(undefined);
     open(t ? 'task' : 'capture');
   }
@@ -682,7 +734,8 @@ export default function App() {
     setTaskMaterials(emptyTaskMaterials());
     setEditTask(null);
     setTaskPresetKind('수행평가');
-    open('task');
+    setCaptureDay(undefined);
+    open('capture');
   }
   function scheduleEditor(t: Schedule | null = null, selectedDay?: string) {
     scheduleFormDraft.current=null;
@@ -724,7 +777,9 @@ export default function App() {
       (a.due ? +new Date(a.due) : Infinity) - (b.due ? +new Date(b.due) : Infinity) ||
       b.priority - a.priority,
   );
-  const visibleTasks = filteredTasks(s.tasks, filter);
+  const visibleTasks = filteredTasks(s.tasks, filter).filter((t) =>
+    taskKindFilter === 'all' || (taskKindFilter === 'assessment' ? t.kind === '수행평가' : t.kind !== '수행평가'),
+  );
   const activeMaterials = s.tasks.find((t) => t.id === s.active?.taskId)?.attachmentIds || [];
   const current = fixed.find((f) => f.start <= now && f.end > now),
     nextBlock = todayBlocks.find((b) => +new Date(b.end) > now),
@@ -751,6 +806,7 @@ export default function App() {
       s.active ||
       current ||
       document.visibilityState !== 'visible' ||
+      !writer.ready ||
       readBlocked
     )
       return;
@@ -777,6 +833,7 @@ export default function App() {
     s.active?.id,
     current?.id,
     readBlocked,
+    writer.ready,
     foregroundId,
     recommendationReady,
     energy,
@@ -784,32 +841,12 @@ export default function App() {
   ]);
   const conflicts = fixedConflicts(s, day);
   useEffect(() => {
-    const a = s.active;
-    if (!a?.segmentStart) return;
-    const boundary = protectedBoundary(
-      s,
-      +new Date(a.segmentStart),
-      now,
-      sleepConstraints(sleep.state, +new Date(a.segmentStart), now),
-    );
-    if (
-      boundary &&
-      commit((v) => ({
-        ...v,
-        active: {
-          ...closeSegment(a, boundary.at),
-          pauses: [
-            ...a.pauses,
-            { at: iso(boundary.at), reason: boundary.title + ' 시작 · 자동 일시정지' },
-          ],
-        },
-      }))
-    )
-      setNotice(boundary.title + '에 맞춰 타이머를 멈췄습니다. 실제 공부한 양만 기록하세요.');
-  }, [now, s.active, sleep.state]);
+    if (s.active?.segmentStart && commit((v) => protectStudy(v)))
+      setNotice('보호 일정에 맞춰 타이머를 멈췄습니다. 실제 공부한 양만 기록하세요.');
+  }, [now, studyNow, s.active, sleep.state]);
   const canStudy = !current;
-  const seconds = s.active ? elapsed(s.active, now) : 0;
-  const quickElapsed = s.quickTimer ? quickSeconds(s.quickTimer, now) : 0;
+  const seconds = s.active ? elapsed(s.active, studyNow) : 0;
+  const quickElapsed = s.quickTimer ? quickSeconds(s.quickTimer, studyNow) : 0;
   const quickRecent = [...s.sessions].reverse().find((entry) => entry.quick);
   const [historyEditingId, setHistoryEditingId] = useState<string | null>(null);
   const quickToday = quickDaySeconds(s, now);
@@ -824,14 +861,14 @@ export default function App() {
       setNotice('기록 없이 바로 시작! 공부가 끝나면 시간을 먼저 저장할게요.');
   }
   function pauseQuickNow() {
-    commit((v) => pauseQuick(v, Date.now()));
+    commit((v) => pauseQuick(v, studyTime()));
   }
   function resumeQuickNow() {
     if (s.quickTimer && s.quickTimer.segments.length >= 10000) {
       setNotice('이 세션의 구간 한도에 도달했어요. 시간을 저장한 뒤 새 공부를 시작하세요.');
       return;
     }
-    commit((v) => resumeQuick(v, Date.now()));
+    commit((v) => resumeQuick(v, studyTime()));
   }
   function finishQuickNow() {
     if (!flushLearning(finishQuickNow)) return;
@@ -842,7 +879,7 @@ export default function App() {
       return;
     }
     const id = memory.current.quickTimer?.id;
-    if (id && commit((v) => finishQuick(v, Date.now()))) {
+    if (id && commit((v) => finishQuick(v, studyTime()))) {
       setQuickEditingId(id);
       setNotice('공부 시간 저장 완료. 과목이나 메모는 나중에 적어도 돼요.');
     }
@@ -858,7 +895,7 @@ export default function App() {
   }
   const quickProps = {
     timer: s.quickTimer,
-    now,
+    now: studyNow,
     todaySeconds: quickToday,
     last: quickRecent,
     tasks: s.tasks,
@@ -886,7 +923,7 @@ export default function App() {
       return;
     }
     if (s.quickTimer && resourceId) {
-      if (commit((v) => attachQuickResource(v, resourceId, problemId))) {
+      if (commit((v) => attachQuickResource(v, resourceId, problemId, studyTime()))) {
         setTab('study');
         setNotice('먼저 시작한 시간 그대로, 자료를 이어서 공부해요.');
       }
@@ -895,7 +932,7 @@ export default function App() {
     if (s.quickTimer) {
       const linked = resourceForTask(s, task ?? undefined);
       if (
-        commit((v) => (linked ? attachQuickResource(v, linked.id) : attachQuickTask(v, task ?? '')))
+        commit((v) => (linked ? attachQuickResource(v, linked.id, undefined, studyTime()) : attachQuickTask(v, task ?? '')))
       ) {
         setTab('study');
         setNotice('시작한 시간 그대로 과제에 연결했어요. 완료와 제출은 따로 기록해 주세요.');
@@ -1005,7 +1042,7 @@ export default function App() {
   }
   useEffect(() => {
     if (s.active?.exam && !s.active.exam.finishedAt && seconds >= s.active.exam.duration)
-      commit((v) => expireMockExam(v, Date.now()));
+      commit((v) => expireMockExam(v, studyTime()));
   }, [now, s.active?.id, s.active?.exam?.finishedAt, seconds]);
   function startMockExam(id: string, minutes: number, count: number) {
     const r = learning(memory.current).resources.find((r) => r.id === id);
@@ -1019,7 +1056,7 @@ export default function App() {
     const a = memory.current.active;
     if (!a) return;
     if (a.quick) {
-      if (commit((v) => finishQuickResource(v, Date.now()))) {
+      if (commit((v) => { const timestamp = studyTime(); return finishQuickResource(stopStudy(v, timestamp), timestamp); })) {
         setQuickEditingId(a.id);
         setTab('today');
         setNotice('공부 시간과 문제 기록을 저장했어요. 메모는 나중에 적어도 돼요.');
@@ -1027,7 +1064,7 @@ export default function App() {
         setNotice('기록 한도에 도달했어요. 타이머와 답안은 유지됩니다. ZIP 백업을 보관하세요.');
       return;
     }
-    if (commit((v) => ({ ...v, active: closeSegment(a, Date.now()) }))) open('finish');
+    if (commit((v) => stopStudy(v))) open('finish');
   }
   function handleReview(sessionId: string, outcome: ReviewOutcome) {
     const saved = commit((v) => recordReviewOutcome(v, sessionId, outcome, Date.now()));
@@ -1159,10 +1196,10 @@ export default function App() {
   }
   function finish(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const a = memory.current.active;
+    const a = stopStudy(memory.current).active;
     if (!a) return;
     const f = new FormData(e.currentTarget),
-      ended = Date.now(),
+      ended = studyTime(),
       sec = elapsed(a, ended),
       complete = f.has('complete'),
       remaining = Number(f.get('remaining'));
@@ -1469,7 +1506,7 @@ export default function App() {
         .replace(/[-:]/g, '')
         .replace(/\.\d{3}/, '');
     const esc = (v: string) =>
-      v.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/[,;]/g, '\\$&');
+      v.replace(/\\/g, '\\\\').replace(/\r\n|\r|\n/g, '\\n').replace(/[,;]/g, '\\$&');
     const events = Array.from({ length: 14 }, (_, i) => fixedForDay(s, addDays(today, i)))
       .flat()
       .filter((f) => !['sleep', 'meal'].includes(f.kind))
@@ -1641,11 +1678,12 @@ export default function App() {
               </button>
               <button
                 type="button"
-                className="icon-button"
+                className="icon-button settings-entry"
                 aria-label={tab === 'settings' ? '설정 닫기' : '설정 열기'}
+                aria-expanded={tab === 'settings'}
                 onClick={toggleSettings}
               >
-                <SlidersHorizontal size={20} />
+                <Settings size={20} aria-hidden="true" /><span>설정</span>
               </button>
             </div>
           </header>
@@ -1729,7 +1767,7 @@ export default function App() {
                   onClick={() =>
                     download(
                       'bkit-memory-backup.json',
-                      JSON.stringify(pausedStudySnapshot(s, Date.now()), null, 2),
+                      JSON.stringify(pausedStudySnapshot(s, studyTime()), null, 2),
                     )
                   }
                 >
@@ -1803,8 +1841,16 @@ export default function App() {
                   beginQuick(minutes ? 'countdown' : 'stopwatch', minutes ?? 480);
                   setTab('study');
                 }}
-                onNavigate={setTab}
+                onNavigate={(route) => {
+                  if (route === 'tasks') { setTaskKindFilter('all'); setFilter('pending'); }
+                  setTab(route);
+                }}
                 onAdd={() => taskEditor()}
+                onTasks={(kind) => {
+                  setTaskKindFilter(kind);
+                  setFilter('all');
+                  setTab('tasks');
+                }}
                 onCalendar={()=>setCalendarOpen(true)}
                 onEdit={taskEditor}
                 onSubmissions={() => {
@@ -1955,11 +2001,16 @@ export default function App() {
                 <div className="toolbar task-toolbar">
                   <div className="task-add-actions">
                     <button className="primary" onClick={() => taskEditor()}>
-                      <Plus size={17} /> 과제 추가
+                      <Plus size={17} /> {taskKindFilter === 'assessment' ? '수행평가 추가' : '과제 추가'}
                     </button>
-                    <button className="secondary" onClick={addAssessmentNow}>
+                    {taskKindFilter !== 'assessment' && <button className="secondary" onClick={addAssessmentNow}>
                       <Plus size={16} /> 수행평가
-                    </button>
+                    </button>}
+                  </div>
+                  <div className="task-kind-tabs" role="group" aria-label="과제 유형">
+                    {([['all', '전체'], ['homework', '과제'], ['assessment', '수행평가']] as const).map(([value, label]) =>
+                      <button key={value} aria-pressed={taskKindFilter === value} onClick={() => setTaskKindFilter(value)}>{label}</button>,
+                    )}
                   </div>
                   <div className="segmented" role="group" aria-label="과제 필터">
                     {[
@@ -2159,7 +2210,6 @@ export default function App() {
                               className="secondary"
                               disabled={!!s.active.exam?.finishedAt}
                               onClick={() => {
-                                const a = s.active!;
                                 const f = studyFixedNow(s, sleep.state, Date.now()).find(
                                   (x) => x.start <= Date.now() && x.end > Date.now(),
                                 );
@@ -2167,10 +2217,11 @@ export default function App() {
                                   setNotice(f.title + ' 시간입니다.');
                                   return;
                                 }
-                                commit((v) => ({
-                                  ...v,
-                                  active: { ...a, segmentStart: iso(Date.now()) },
-                                }));
+                                commit((v) => {
+                                  if (!v.active) return v;
+                                  const active = resumeSegment(v.active, studyTime());
+                                  return active === v.active ? v : { ...v, active };
+                                });
                               }}
                             >
                               <Play size={17} /> 다시 시작
@@ -2183,12 +2234,8 @@ export default function App() {
                                 finishResource();
                                 return;
                               }
-                              const a = s.active!;
                               if (
-                                commit((v) => ({
-                                  ...v,
-                                  active: closeSegment(a, Date.now()),
-                                }))
+                                commit((v) => stopStudy(v))
                               )
                                 open('finish');
                             }}
@@ -2242,6 +2289,7 @@ export default function App() {
                               <MultiProblemWorkspace
                                 controller={garageController}
                                 totalSeconds={seconds}
+                                studyTimestamp={studyTime}
                                 state={s}
                                 onChange={commit}
                                 onFinish={finishResource}
@@ -2249,7 +2297,7 @@ export default function App() {
                                   const a = memory.current.active;
                                   if (
                                     a &&
-                                    commit((v) => ({ ...v, active: closeSegment(a, Date.now()) }))
+                                    commit((v) => stopStudy(v))
                                   )
                                     setTab('sleep');
                                 }}
@@ -2579,7 +2627,7 @@ export default function App() {
                       )}
                     </div>
                     <Suspense fallback={<p role="status">전체 백업을 여는 중…</p>}>
-                      <CompleteBackupPanel studying={!!s.active || !!s.quickTimer} />
+                      <CompleteBackupPanel studying={!!s.active || !!s.quickTimer} readOnly={!writer.ready} studyTimestamp={studyTime} />
                     </Suspense>
                   </div>
                 </details>
@@ -2720,7 +2768,7 @@ export default function App() {
                           onClick={() =>
                             download(
                               `bkit-${today}.json`,
-                              JSON.stringify(pausedStudySnapshot(s, Date.now()), null, 2),
+                              JSON.stringify(pausedStudySnapshot(s, studyTime()), null, 2),
                             )
                           }
                         >
@@ -3055,6 +3103,7 @@ export default function App() {
               <QuickCapture
                 key={captureDay || taskDraftId}
                 initialDay={captureDay}
+                initialKind={taskPresetKind}
                 onBusy={setTaskMaterialBusy}
                 onSchedule={()=>scheduleEditor(null,captureDay)}
                 onDetailed={(task) => {
@@ -3423,17 +3472,24 @@ export default function App() {
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  const a = s.active!;
                   const f = new FormData(e.currentTarget),
-                    t = Date.now();
+                    t = studyTime();
+                  if ((memory.current.active?.pauses.length ?? 0) >= 100) {
+                    setFormError('일시정지 사유 기록 한도에 도달했어요. 현재 공부를 종료하고 새 세션을 시작하세요.');
+                    return;
+                  }
                   if (
-                    commit((v) => ({
-                      ...v,
-                      active: {
-                        ...closeSegment(a, t),
-                        pauses: [...a.pauses, { at: iso(t), reason: String(f.get('reason')) }],
-                      },
-                    }))
+                    commit((v) => {
+                      if (!v.active?.segmentStart) return v;
+                      const stopped = stopStudy(v, t);
+                      if (!stopped.active) return v;
+                      return { ...stopped, active: {
+                        ...stopped.active,
+                        pauses: stopped.active.pauses.length < 100
+                          ? [...stopped.active.pauses, { at: iso(t), reason: String(f.get('reason')) }]
+                          : stopped.active.pauses,
+                      } };
+                    })
                   )
                     setModal(null);
                 }}
@@ -3708,7 +3764,7 @@ export default function App() {
                     onClick={() =>
                       download(
                         'bkit-before-import.json',
-                        JSON.stringify(pausedStudySnapshot(s, Date.now()), null, 2),
+                        JSON.stringify(pausedStudySnapshot(s, studyTime()), null, 2),
                       )
                     }
                   >

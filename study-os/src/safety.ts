@@ -1,6 +1,32 @@
 import type { State } from './model';
 import { fixedForDay, overlap } from './engine';
 import { dayKey, addDays } from './time';
+import { closeSegment } from './session';
+import { iso } from './time';
+
+/** Enforce protected periods in event handlers as well as periodic UI ticks. */
+export function settleProtectedStudy(
+  state: State,
+  wallTime: number,
+  studyTime = wallTime,
+  extraFixed: { start: number; end: number; title: string }[] = [],
+): State {
+  const active = state.active;
+  if (!active?.segmentStart) return state;
+  const offset = studyTime - wallTime;
+  const boundary = protectedBoundary(state, Date.parse(active.segmentStart) - offset, wallTime, extraFixed);
+  if (!boundary) return state;
+  const timestamp = boundary.at + offset;
+  return {
+    ...state,
+    active: {
+      ...closeSegment(active, timestamp),
+      pauses: active.pauses.length < 100
+        ? [...active.pauses, { at: iso(timestamp), reason: boundary.title + ' 시작 · 자동 일시정지' }]
+        : active.pauses,
+    },
+  };
+}
 export function protectedBoundary(
   s: State,
   start: number,

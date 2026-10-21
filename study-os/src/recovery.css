@@ -1340,3 +1340,218 @@ html[data-material] .study-dialog.calendar-dialog {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
+
+/* Keep the header on the page's material without a redundant blur layer. */
+html[data-material] .premium-os .topbar {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-material='glass'] .study-dialog.capture-dialog {
+  background: linear-gradient(140deg, #fffdf8, #fff7ee) !important;
+}
+html[data-material] .capture-dialog :is(input, select, textarea) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+  accent-color: var(--mat-accent);
+}
+html[data-material] .capture-dialog .capture-chips > label {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+html[data-material] .capture-dialog .capture-chips label span {
+  color: var(--mat-muted) !important;
+}
+html[data-material] .capture-dialog .capture-bottom .primary {
+  background: var(--mat-accent) !important;
+  color: var(--mat-on-accent) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+.capture-dialog .capture-options summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.capture-dialog .capture-options summary::-webkit-details-marker {
+  display: none;
+}
+.capture-dialog .capture-options summary::before {
+  content: '+';
+  width: 14px;
+  font-size: 16px;
+  text-align: center;
+}
+.capture-dialog .capture-options[open] summary::before {
+  content: '−';
+}
+.surreal-world:has(.surreal-surface[data-quality='static']) .surreal-atmosphere {
+  animation: none !important;
+}
+.surreal-surface[data-quality='static'] {
+  opacity: 0 !important;
+  transition: none !important;
+}
+
+/* Student beta: two quiet school actions, with study start retaining emphasis. */
+.home-school-shortcuts {
+  grid-column: 1;
+  grid-row: 3;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 3px;
+  border: 1px solid color-mix(in srgb, var(--mat-ink) 9%, transparent);
+  border-radius: 17px;
+  background: color-mix(in srgb, var(--mat-paper) 70%, transparent);
+}
+.home-school-shortcuts button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  min-height: 52px !important;
+  padding: 10px 14px;
+  color: var(--mat-ink);
+  border: 0;
+  border-radius: 13px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+}
+.home-school-shortcuts button + button {
+  border-left: 1px solid color-mix(in srgb, var(--mat-ink) 10%, transparent);
+  border-radius: 0 13px 13px 0;
+}
+.home-school-shortcuts button > svg:first-child {
+  color: var(--mat-accent);
+}
+.home-school-shortcuts button > svg:last-child {
+  margin-left: auto;
+  color: var(--mat-muted);
+}
+.home-school-shortcuts small {
+  font:
+    500 11px 'DM Sans',
+    sans-serif;
+  color: var(--mat-accent);
+}
+.home-school-shortcuts button:hover {
+  background: var(--mat-soft);
+}
+html[data-material] .premium-os .recovery-home .study-agenda {
+  grid-row: 4 / span 2;
+}
+html[data-material] .premium-os .topbar .settings-entry {
+  display: inline-flex;
+  width: auto !important;
+  min-width: 70px;
+  min-height: 44px !important;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 16px;
+  color: var(--mat-ink);
+}
+.settings-entry span {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.settings-entry[aria-expanded='true'] {
+  background: var(--mat-soft) !important;
+}
+.task-kind-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.task-kind-tabs button {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--mat-muted);
+  border-radius: 12px;
+  padding: 9px 14px;
+  font-size: 13px;
+}
+.task-kind-tabs button[aria-pressed='true'] {
+  background: var(--mat-paper);
+  border-color: color-mix(in srgb, var(--mat-accent) 18%, transparent);
+  color: var(--mat-accent);
+  font-weight: 650;
+}
+.task-toolbar {
+  align-items: start;
+}
+.task-toolbar .task-kind-tabs {
+  flex-basis: 100%;
+}
+.capture-methods {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.capture-methods button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 48px !important;
+  padding: 8px 4px;
+  background: color-mix(in srgb, var(--mat-accent) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mat-accent) 12%, transparent);
+  border-radius: 12px;
+  color: var(--mat-ink);
+  font-size: 12px;
+}
+.capture-dialog .quick-materials > small {
+  font-size: 11px;
+  line-height: 1.6;
+}
+.quick-materials .atelier-photos:empty {
+  display: none;
+}
+.quick-materials > small:last-child {
+  display: none;
+}
+.capture-dialog .photo-text {
+  border-radius: 14px;
+}
+.capture-dialog .photo-text textarea {
+  font-size: 16px;
+}
+@media (max-width: 767px) {
+  html[data-material] .premium-os .recovery-home .home-school-shortcuts {
+    grid-row: 3;
+  }
+  html[data-material] .premium-os .recovery-home .study-agenda {
+    grid-row: 4;
+  }
+  html[data-material] .premium-os .recovery-home .study-next {
+    grid-row: 5;
+  }
+  html[data-material] .premium-os .recovery-home .calendar-peek {
+    grid-row: 6;
+  }
+  html[data-material] .premium-os .recovery-home .study-day-summary {
+    grid-row: 7;
+  }
+  .home-top-tools {
+    gap: 0 !important;
+  }
+  .home-school-shortcuts button {
+    min-height: 48px !important;
+    padding: 9px 12px;
+  }
+  .capture-dialog .capture-methods button {
+    flex-direction: column;
+    min-height: 58px !important;
+  }
+}
+@media (max-width: 374px) {
+  .topbar .palette-button {
+    display: none !important;
+  }
+}

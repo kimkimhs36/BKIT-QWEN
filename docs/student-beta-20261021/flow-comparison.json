@@ -1,0 +1,16 @@
+[
+  {
+    "version": "recovery-9d49ed0",
+    "viewport": "iPhone 13 / Chromium",
+    "route": "home combined capture → gallery picker",
+    "applicationTaps": 3,
+    "excludes": "OS picker, typing, OCR duration; not a human usability timing study"
+  },
+  {
+    "version": "student-beta-ad2aeeb",
+    "viewport": "iPhone 13 / Chromium",
+    "route": "home combined capture → gallery picker",
+    "applicationTaps": 2,
+    "excludes": "OS picker, typing, OCR duration; not a human usability timing study"
+  }
+]

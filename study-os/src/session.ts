@@ -5,6 +5,12 @@ export const elapsed = (a: NonNullable<State['active']>, now: number) => {
     a.elapsed + (a.segmentStart ? Math.max(0, (now - +new Date(a.segmentStart)) / 1000) : 0);
   return a.exam ? Math.min(a.exam.duration, seconds) : seconds;
 };
+/** Repeated taps must not reset an already running segment. */
+export function resumeSegment(a: NonNullable<State['active']>, now: number) {
+  if (a.segmentStart || a.exam?.finishedAt || (a.segments?.length ?? 0) >= 10000) return a;
+  const boundary = a.segments?.at(-1)?.end ?? a.started;
+  return { ...a, segmentStart: iso(Math.max(now, Date.parse(boundary))) };
+}
 export function studySeconds(sessions: Session[], day: string) {
   const start = at(day, '00:00'),
     end = at(addDays(day, 1), '00:00');

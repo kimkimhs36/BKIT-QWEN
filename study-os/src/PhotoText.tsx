@@ -6,10 +6,12 @@ export function PhotoText({
   photoIds,
   disabled,
   onUse,
+  autoRead = false,
 }: {
   photoIds: string[];
   disabled: boolean;
   onUse: (text: string, photoId: string) => void;
+  autoRead?: boolean;
 }) {
   const [choice, setChoice] = useState(photoIds[0]);
   const photoId = photoIds.includes(choice) ? choice : photoIds[0];
@@ -18,6 +20,16 @@ export function PhotoText({
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const operation = useRef<AbortController | null>(null);
+  const attempted = useRef(new Set<string>());
+  useEffect(() => {
+    if (autoRead && photoId && !disabled && !operation.current && !attempted.current.has(photoId)) {
+      const timer = window.setTimeout(() => {
+        attempted.current.add(photoId);
+        void recognize();
+      }, 0);
+      return () => window.clearTimeout(timer);
+    }
+  }, [autoRead, photoId, disabled]);
   useEffect(
     () => () => {
       operation.current?.abort();
@@ -77,7 +89,7 @@ export function PhotoText({
   }
   const text = result?.photoId === photoId ? result.text : '';
   return (
-    <details className="photo-text">
+    <details className="photo-text" open={autoRead || undefined}>
       <summary>사진에서 글자 가져오기 · 선택</summary>
       <p>
         선명한 한글·영어 인쇄물을 이 기기에서 읽어요. 사진은 전송하지 않아요. 처음 사용할 때 약 8MB
