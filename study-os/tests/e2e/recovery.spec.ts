@@ -43,7 +43,8 @@ test('capture photo, review, save, reload and calendar share a single durable ta
   await page
     .getByRole('textbox', { name: '할 일을 한 문장으로' })
     .fill('내일 과학 탐구 보고서 제출');
-  await page.getByRole('button', { name: '사진 촬영 · 보관함에서 가져오기' }).click();
+  await expect(page.getByRole('button', { name: '사진 촬영', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '갤러리 선택', exact: true })).toBeVisible();
   const camera = page.getByLabel('카메라로 과제 촬영');
   await expect(camera).toHaveAttribute('capture', 'environment');
   await camera.setInputFiles('tests/fixtures/printed-homework.png');

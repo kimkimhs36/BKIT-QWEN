@@ -1848,7 +1848,7 @@ export default function App() {
                 onAdd={() => taskEditor()}
                 onTasks={(kind) => {
                   setTaskKindFilter(kind);
-                  setFilter('pending');
+                  setFilter('all');
                   setTab('tasks');
                 }}
                 onCalendar={()=>setCalendarOpen(true)}
