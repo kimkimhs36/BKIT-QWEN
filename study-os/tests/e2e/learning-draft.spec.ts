@@ -109,6 +109,9 @@ test('learning actions and notes have accessible controls and fit a narrow viewp
 }, info) => {
   if (info.project.name.includes('iphone')) await page.setViewportSize({ width: 320, height: 740 });
   await prepare(page);
+  const notice = await page.locator('.toast').boundingBox();
+  const controls = await page.locator('.focus-actions').boundingBox();
+  if (notice) expect(notice.y + notice.height).toBeLessThanOrEqual(controls!.y);
   await expect(page.getByRole('timer', { name: '집중 타이머', exact: true })).toBeInViewport();
   await expect(
     page.getByRole('button', { name: '학습량 기록 · 종료', exact: true }),
