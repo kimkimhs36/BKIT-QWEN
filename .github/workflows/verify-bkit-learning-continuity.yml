@@ -2,7 +2,7 @@ name: Verify BKIT first learning continuity
 on:
   push:
     branches: [feat/bkit-learning-continuity-20261022]
-    paths: ['study-os/**', '.github/workflows/verify-bkit-learning-continuity.yml']
+    paths: ['study-os/src/**', 'study-os/tests/**', 'study-os/public/**', 'study-os/package*.json', 'study-os/tsconfig*.json', 'study-os/vite.config.ts', 'study-os/buildMetadata.ts', 'study-os/playwright.config.ts', '.github/workflows/verify-bkit-learning-continuity.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,6 +22,8 @@ jobs:
         working-directory: study-os
     env:
       APP_BASE: /
+      BKIT_SOURCE_COMMIT: ${{ github.sha }}
+      BKIT_SOURCE_BRANCH: ${{ github.ref_name }}
       BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
