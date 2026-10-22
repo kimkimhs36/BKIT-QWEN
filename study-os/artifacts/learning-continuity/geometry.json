@@ -1,0 +1,326 @@
+[
+  {
+    "device": "iphone",
+    "stage": "before",
+    "screen": "home",
+    "width": 390,
+    "scrollWidth": 390,
+    "hero": {
+      "x": 18,
+      "y": 217.25,
+      "width": 354,
+      "height": 303.046875,
+      "top": 217.25,
+      "right": 372,
+      "bottom": 520.296875,
+      "left": 18
+    },
+    "cta": {
+      "x": 41,
+      "y": 449.296875,
+      "width": 231.65625,
+      "height": 48,
+      "top": 449.296875,
+      "right": 272.65625,
+      "bottom": 497.296875,
+      "left": 41
+    }
+  },
+  {
+    "device": "iphone",
+    "stage": "before",
+    "screen": "focus",
+    "width": 390,
+    "scrollWidth": 390,
+    "timer": {
+      "x": 39,
+      "y": 489.046875,
+      "width": 312,
+      "height": 312,
+      "top": 489.046875,
+      "right": 351,
+      "bottom": 801.046875,
+      "left": 39
+    },
+    "actions": {
+      "x": 39,
+      "y": 816.046875,
+      "width": 312,
+      "height": 48,
+      "top": 816.046875,
+      "right": 351,
+      "bottom": 864.046875,
+      "left": 39
+    }
+  },
+  {
+    "device": "iphone",
+    "stage": "after",
+    "screen": "home",
+    "width": 390,
+    "scrollWidth": 390,
+    "hero": {
+      "x": 18,
+      "y": 217.25,
+      "width": 354,
+      "height": 347.421875,
+      "top": 217.25,
+      "right": 372,
+      "bottom": 564.671875,
+      "left": 18
+    },
+    "cta": {
+      "x": 40,
+      "y": 494.671875,
+      "width": 233.65625,
+      "height": 48,
+      "top": 494.671875,
+      "right": 273.65625,
+      "bottom": 542.671875,
+      "left": 40
+    }
+  },
+  {
+    "device": "iphone",
+    "stage": "after",
+    "screen": "focus",
+    "width": 390,
+    "scrollWidth": 390,
+    "timer": {
+      "x": 39,
+      "y": 271.546875,
+      "width": 312,
+      "height": 141.796875,
+      "top": 271.546875,
+      "right": 351,
+      "bottom": 413.34375,
+      "left": 39
+    },
+    "actions": {
+      "x": 39,
+      "y": 428.34375,
+      "width": 312,
+      "height": 48,
+      "top": 428.34375,
+      "right": 351,
+      "bottom": 476.34375,
+      "left": 39
+    }
+  },
+  {
+    "device": "ipad",
+    "stage": "before",
+    "screen": "home",
+    "width": 1194,
+    "scrollWidth": 1194,
+    "hero": {
+      "x": 97,
+      "y": 310.546875,
+      "width": 581.171875,
+      "height": 308.546875,
+      "top": 310.546875,
+      "right": 678.171875,
+      "bottom": 619.09375,
+      "left": 97
+    },
+    "cta": {
+      "x": 127,
+      "y": 541.09375,
+      "width": 168.90625,
+      "height": 48,
+      "top": 541.09375,
+      "right": 295.90625,
+      "bottom": 589.09375,
+      "left": 127
+    }
+  },
+  {
+    "device": "ipad",
+    "stage": "before",
+    "screen": "focus",
+    "width": 1194,
+    "scrollWidth": 1194,
+    "timer": {
+      "x": 260,
+      "y": 577.09375,
+      "width": 424.078125,
+      "height": 424.078125,
+      "top": 577.09375,
+      "right": 684.078125,
+      "bottom": 1001.171875,
+      "left": 260
+    },
+    "actions": {
+      "x": 260,
+      "y": 1016.171875,
+      "width": 424.078125,
+      "height": 48,
+      "top": 1016.171875,
+      "right": 684.078125,
+      "bottom": 1064.171875,
+      "left": 260
+    }
+  },
+  {
+    "device": "ipad",
+    "stage": "after",
+    "screen": "home",
+    "width": 1194,
+    "scrollWidth": 1194,
+    "hero": {
+      "x": 97,
+      "y": 310.546875,
+      "width": 581.171875,
+      "height": 362.546875,
+      "top": 310.546875,
+      "right": 678.171875,
+      "bottom": 673.09375,
+      "left": 97
+    },
+    "cta": {
+      "x": 127,
+      "y": 595.09375,
+      "width": 168.90625,
+      "height": 48,
+      "top": 595.09375,
+      "right": 295.90625,
+      "bottom": 643.09375,
+      "left": 127
+    }
+  },
+  {
+    "device": "ipad",
+    "stage": "after",
+    "screen": "focus",
+    "width": 1194,
+    "scrollWidth": 1194,
+    "timer": {
+      "x": 260,
+      "y": 382.84375,
+      "width": 420.078125,
+      "height": 173,
+      "top": 382.84375,
+      "right": 680.078125,
+      "bottom": 555.84375,
+      "left": 260
+    },
+    "actions": {
+      "x": 260,
+      "y": 570.84375,
+      "width": 420.078125,
+      "height": 48,
+      "top": 570.84375,
+      "right": 680.078125,
+      "bottom": 618.84375,
+      "left": 260
+    }
+  },
+  {
+    "device": "small",
+    "stage": "before",
+    "screen": "home",
+    "width": 320,
+    "scrollWidth": 320,
+    "hero": {
+      "x": 14,
+      "y": 217.25,
+      "width": 292,
+      "height": 303.046875,
+      "top": 217.25,
+      "right": 306,
+      "bottom": 520.296875,
+      "left": 14
+    },
+    "cta": {
+      "x": 37,
+      "y": 449.296875,
+      "width": 169.65625,
+      "height": 48,
+      "top": 449.296875,
+      "right": 206.65625,
+      "bottom": 497.296875,
+      "left": 37
+    }
+  },
+  {
+    "device": "small",
+    "stage": "before",
+    "screen": "focus",
+    "width": 320,
+    "scrollWidth": 320,
+    "timer": {
+      "x": 35,
+      "y": 489.046875,
+      "width": 250,
+      "height": 250,
+      "top": 489.046875,
+      "right": 285,
+      "bottom": 739.046875,
+      "left": 35
+    },
+    "actions": {
+      "x": 35,
+      "y": 754.046875,
+      "width": 250,
+      "height": 48,
+      "top": 754.046875,
+      "right": 285,
+      "bottom": 802.046875,
+      "left": 35
+    }
+  },
+  {
+    "device": "small",
+    "stage": "after",
+    "screen": "home",
+    "width": 320,
+    "scrollWidth": 320,
+    "hero": {
+      "x": 14,
+      "y": 217.25,
+      "width": 292,
+      "height": 347.421875,
+      "top": 217.25,
+      "right": 306,
+      "bottom": 564.671875,
+      "left": 14
+    },
+    "cta": {
+      "x": 36,
+      "y": 494.671875,
+      "width": 171.65625,
+      "height": 48,
+      "top": 494.671875,
+      "right": 207.65625,
+      "bottom": 542.671875,
+      "left": 36
+    }
+  },
+  {
+    "device": "small",
+    "stage": "after",
+    "screen": "focus",
+    "width": 320,
+    "scrollWidth": 320,
+    "timer": {
+      "x": 35,
+      "y": 259.546875,
+      "width": 250,
+      "height": 133.796875,
+      "top": 259.546875,
+      "right": 285,
+      "bottom": 393.34375,
+      "left": 35
+    },
+    "actions": {
+      "x": 35,
+      "y": 404.34375,
+      "width": 250,
+      "height": 48,
+      "top": 404.34375,
+      "right": 285,
+      "bottom": 452.34375,
+      "left": 35
+    }
+  }
+]

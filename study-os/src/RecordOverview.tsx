@@ -24,6 +24,7 @@ export function RecordOverview({
       </section>
     );
   const days = recentStudyDays(sessions, today);
+  const lastNote = [...sessions].reverse().find((s) => s.learningStep?.note.trim());
   const first = addDays(today, -6);
   const problems = sessions
     .filter((s) => dayKey(s.ended) >= first && dayKey(s.ended) <= today)
@@ -47,6 +48,14 @@ export function RecordOverview({
         </div>
       </div>
       <StudyRhythm sessions={sessions} today={today} />
+      {lastNote && (
+        <details className="record-learning-note">
+          <summary>최근 공부 메모 · {lastNote.subject}</summary>
+          <strong>{lastNote.action}</strong>
+          <p>{lastNote.learningStep!.note}</p>
+          <small>직접 남긴 메모 · 정답 확인과는 별개예요.</small>
+        </details>
+      )}
     </section>
   );
 }

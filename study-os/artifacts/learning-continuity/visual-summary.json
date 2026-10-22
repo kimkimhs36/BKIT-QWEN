@@ -1,0 +1,26 @@
+[
+  {
+    "viewport": "iphone",
+    "clockHeightBefore": 312,
+    "clockHeightAfter": 142,
+    "controlsBottomBefore": 864,
+    "controlsBottomAfter": 476,
+    "horizontalOverflowAfter": false
+  },
+  {
+    "viewport": "ipad",
+    "clockHeightBefore": 424,
+    "clockHeightAfter": 173,
+    "controlsBottomBefore": 1064,
+    "controlsBottomAfter": 619,
+    "horizontalOverflowAfter": false
+  },
+  {
+    "viewport": "small",
+    "clockHeightBefore": 250,
+    "clockHeightAfter": 134,
+    "controlsBottomBefore": 802,
+    "controlsBottomAfter": 452,
+    "horizontalOverflowAfter": false
+  }
+]

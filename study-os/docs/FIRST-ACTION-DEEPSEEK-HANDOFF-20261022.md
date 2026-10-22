@@ -1,5 +1,7 @@
 # BKIT — 2026-10-22 study-first + DeepSeek continuation handoff
 
+> Continuation: see [Learning continuity handoff](LEARNING-CONTINUITY-HANDOFF-20261022.md) for PR #24, verified study/draft/capture improvements, current test evidence and remaining live-AI/device checks. The sections below preserve the original PR #23 handoff; production and API deployment branches remain unchanged.
+
 ## Source of truth
 - Source feature branch: `feat/bkit-39-student-beta-20261021` (PR #22, unmerged), based on `feat/bkit-product-recovery-20261021`. `main` contains deployed static assets, not the current source baseline.
 - API diagnostics: `fix/bkit-api-diagnostics-20261021` (PR #21, unmerged) against `deploy/bkit-api`.

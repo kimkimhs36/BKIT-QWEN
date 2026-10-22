@@ -44,3 +44,18 @@ it('an older cloud snapshot cannot erase local quick-history editing and materia
   expect(merged.sessions[0]).toMatchObject({quick:true,resourceId:'device-paper',concepts:'다른 기기 메모',seconds:65});
   expect(local.sessions[0].concepts).toBe('');
 });
+
+it('never uploads local notes or unsubmitted drafts and retains them when an older cloud record returns', async () => {
+  const {mergePrivateStudyState} = await import('../src/PrivateSync');
+  const {startQuick,finishQuick} = await import('../src/quickTimer');
+  const local = finishQuick(startQuick(newState(),'countdown',5,1000,'local-note'),66000);
+  local.sessions[0].learningStep = {note:'private first-step note',next:'retry'};
+  local.sessions[0].workspace = {problem:'내 질문',source:'책',attempts:[],answerDraft:'private unfinished answer'};
+  const portable = portableStudyState(local);
+  expect(JSON.stringify(portable)).not.toContain('private first-step note');
+  expect(JSON.stringify(portable)).not.toContain('private unfinished answer');
+  const merged = mergePrivateStudyState(local,portable);
+  expect(merged.sessions[0].learningStep).toEqual(local.sessions[0].learningStep);
+  expect(merged.sessions[0].workspace?.answerDraft).toBe('private unfinished answer');
+  expect(local.sessions[0].learningStep?.note).toBe('private first-step note');
+});

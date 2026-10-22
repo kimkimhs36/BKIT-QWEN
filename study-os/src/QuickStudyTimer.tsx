@@ -1,6 +1,6 @@
 import { AnimatedClock } from './AnimatedClock';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Check, Pause, Play, RotateCcw, Timer, Clock3, ChevronDown } from 'lucide-react';
 import type { State, Session, Task } from './model';
 import { quickSeconds, quickClock } from './quickTimer';
@@ -9,6 +9,7 @@ import { QuickSessionEditor } from './QuickSessionEditor';
 
 type Props = {
   timer: State['quickTimer'];
+  learningStep?: ReactNode;
   now: number;
   todaySeconds: number;
   last: Session | undefined;
@@ -32,6 +33,7 @@ type Props = {
 };
 export function QuickStudyTimer({
   timer,
+  learningStep,
   now,
   todaySeconds,
   last,
@@ -194,6 +196,7 @@ export function QuickStudyTimer({
               <Check size={17} /> 끝내고 시간 저장
             </button>
           </div>
+          {learningStep}
           {tasks.some((t) => t.status !== 'done') && (
             <details className="quick-timer-task-link">
               <summary>과제에 연결하기 (선택)</summary>

@@ -17,13 +17,17 @@ import { formatTaskDeadline } from './capture';
 import { needsSubmission } from './tasks';
 import { quickClock, quickSeconds } from './quickTimer';
 import { studySeconds, elapsed } from './session';
-import { firstLearningAction, rankInstantTasks } from './now';
+import { firstLearningAction, canStartSprint, recommendationReason } from './now';
 
 type Props = {
   state: State;
   now: number;
   tasks: Task[];
+  recommended?: Task;
+  selection: string;
+  onSelectionChange: (id: string) => void;
   next?: Fixed;
+  nextProtected?: Fixed;
   current?: Fixed;
   resource?: { id: string; title: string } | null;
   onStart: (id?: string) => void;
@@ -40,7 +44,11 @@ export function PremiumHome({
   state,
   now,
   tasks,
+  recommended: firstTask,
+  selection,
+  onSelectionChange,
   next,
+  nextProtected,
   current,
   resource,
   onStart,
@@ -54,8 +62,7 @@ export function PremiumHome({
   onResource,
 }: Props) {
   const pending = tasks.filter((t) => t.status !== 'done');
-  // A concrete learning action takes precedence over starting an unlinked stopwatch.
-  const firstTask = rankInstantTasks(pending, now, 5)[0];
+  const ready = canStartSprint(now, !!current, nextProtected?.start ?? null);
   const awaiting = state.tasks.filter(needsSubmission);
   const recent = state.sessions.at(-1);
   const active = state.active,
@@ -78,11 +85,17 @@ export function PremiumHome({
       </div>
       <section className="study-start" aria-label="바로 공부 시작">
         <div className="study-start-copy">
-          <span className="study-kicker">{busy ? 'IN FOCUS' : 'A LITTLE PROGRESS, EVERY DAY'}</span>
+          <span className="study-kicker">
+            {busy
+              ? active?.segmentStart || quick?.segmentStart
+                ? '공부 중'
+                : '일시정지 중'
+              : '작은 시작, 나의 속도로'}
+          </span>
           <h2>{busy ? '지금의 흐름을 이어가요.' : '오늘도, 한 걸음부터.'}</h2>
           <p>
             {busy
-              ? `${active?.subject || '자율 학습'} · ${quickClock(seconds)}`
+              ? `${active?.subject || '자율 학습'} · ${quickClock(seconds)}${active ? ' · ' + active.action : ''}`
               : firstTask
                 ? `${firstTask.subject} · ${firstTask.title}`
                 : '자료에서 질문 하나를 골라 시작해요.'}
@@ -90,23 +103,67 @@ export function PremiumHome({
         </div>
         {!busy && (
           <div className="study-start-next" aria-label="첫 학습 행동">
-            <span>FIRST MOVE · 시작하면 할 일</span>
-            <strong>{firstLearningAction(firstTask)}</strong>
+            <span>{ready ? '시작하면 할 일' : '지금은 일정 준비'}</span>
+            <strong>
+              {ready
+                ? firstLearningAction(firstTask)
+                : current
+                  ? `${current.title} · ${clock(current.end)}까지 일정을 지켜요.`
+                  : `${clock(nextProtected!.start)} ${nextProtected!.title} 전에 자료를 준비해요.`}
+            </strong>
+            {ready && pending.length > 0 && (
+              <details className="home-task-choice">
+                <summary>과제 바꾸기</summary>
+                <label>
+                  <span>지금 공부할 과제</span>
+                  <select
+                    aria-label="지금 공부할 과제"
+                    value={selection}
+                    onChange={(e) => onSelectionChange(e.target.value)}
+                  >
+                    <option value="">추천 과제</option>
+                    {pending
+                      .filter((t) => t.quantity?.remaining !== 0)
+                      .map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.subject} · {t.title}
+                        </option>
+                      ))}
+                    <option value="__free__">자율 학습 · 과제 연결 없음</option>
+                  </select>
+                </label>
+                <small>
+                  {firstTask
+                    ? recommendationReason(firstTask, now)
+                    : '과제 없이 내 자료로 시작해요.'}{' '}
+                  · 로컬 규칙 추천
+                </small>
+              </details>
+            )}
           </div>
         )}
         <div className="study-start-actions">
           <button
             className="study-start-primary"
             onClick={() =>
-              busy ? onNavigate('study') : firstTask ? onStart(firstTask.id) : onQuick(5)
+              busy
+                ? onNavigate('study')
+                : !ready
+                  ? onNavigate('school')
+                  : firstTask
+                    ? onStart(firstTask.id)
+                    : onQuick(5)
             }
           >
             <Play size={18} fill="currentColor" aria-hidden="true" />
-            {busy ? '공부 이어가기' : '지금 공부 시작'}
+            {busy ? '공부 이어가기' : ready ? '지금 공부 시작' : '시간표 확인하기'}
             <ArrowRight size={18} aria-hidden="true" />
           </button>
-          {!busy && (
-            <button className="study-start-five" onClick={() => onQuick(5)}>
+          {!busy && ready && (
+            <button
+              className="study-start-five"
+              onClick={() => (firstTask ? onStart(firstTask.id) : onQuick(5))}
+            >
               5분만 시작하기
             </button>
           )}

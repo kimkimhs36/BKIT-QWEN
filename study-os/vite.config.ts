@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { readdir, readFile, writeFile, mkdir, copyFile, cp } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { buildMetadata } from './buildMetadata';
 import { OCR_ASSET_DIR } from './src/ocrAssets';
 export default defineConfig(({ mode }) => ({
   plugins: [
@@ -10,6 +11,9 @@ export default defineConfig(({ mode }) => ({
       name: 'bkit-offline-shell',
       apply: 'build',
       async closeBundle() {
+        // A public, allowlisted identity makes preview source verification possible
+        // without management API permissions or disclosing runtime configuration.
+        await writeFile('dist/build-info.json', JSON.stringify(buildMetadata(process.env), null, 2) + '\n');
         // Keep OCR out of the initial app shell. Only a user tap downloads the
         // engine/languages; the existing same-origin worker caches fetched assets.
         const ocr = 'dist/' + OCR_ASSET_DIR;

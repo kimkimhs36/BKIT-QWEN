@@ -47,7 +47,7 @@ export function LearningEvidence({ state, today }: { state: State; today: string
             <dd>{e.confirmed}회</dd>
           </div>
           <div>
-            <dt>첫 답변까지 경과시간 중앙값</dt>
+            <dt>첫 시도 기록까지 중앙값</dt>
             <dd>{e.medianSeconds === null ? '기록 부족' : Math.round(e.medianSeconds) + '초'}</dd>
           </div>
           <div>
@@ -58,11 +58,20 @@ export function LearningEvidence({ state, today }: { state: State; today: string
                 : '아직 지연 복습 데이터가 부족합니다.'}
             </dd>
           </div>
+          <div>
+            <dt>첫 시도 기록까지 P75</dt>
+            <dd>{e.p75Seconds === null ? '기록 부족' : Math.round(e.p75Seconds) + '초'}</dd>
+          </div>
+          <div>
+            <dt>공부 시작 후 첫 시도 기록</dt>
+            <dd>{e.starts ? `${e.attemptedStarts}/${e.starts}회` : '기록 부족'}</dd>
+          </div>
         </dl>
         <p className="muted">
-          첫 답변 시간은 앱을 연 시점 또는 전경 복귀부터 저장까지 {e.firstActionSamples}건
+          첫 시도 시간은 앱을 연 시점 또는 전경 복귀부터 직접 시도 기록까지 {e.firstActionSamples}건
           기준입니다. 타이머·자가 보고 문제 수와 답변 기록은 별개입니다. 정답은 사용자가 확인하며
-          성적·숙달을 자동 판정하지 않습니다.
+          성적·숙달을 자동 판정하지 않습니다. 목표 중앙값 45초·P75 90초는 실제 측정값과 별개입니다.
+          이 기기에서만 계산하며 외부로 보내지 않아요.
         </p>
       </section>
       {last && (

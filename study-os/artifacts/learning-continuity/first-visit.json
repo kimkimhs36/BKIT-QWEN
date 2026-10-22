@@ -1,0 +1,7 @@
+{
+  "scenario": "clean first visit without any onboarding marker",
+  "passed": true,
+  "scope": "isolated Chromium browser at phone viewport; explicit self-report, no real student timing measurement",
+  "savedSessions": 1,
+  "automaticallyClaimedProblems": 0
+}
