@@ -1,0 +1,13 @@
+{
+  "sourceCommit": "ee666844abffee40ebcc3b39691b5c41958f86b3",
+  "url": "https://bkit-study-os-36-preview-git-feat-bkit-4-home-r-5f90af-teambkit.vercel.app/",
+  "engine": "WebKit / iPhone profile, not physical hardware",
+  "stats": {
+    "startTime": "2026-10-22T17:14:56.036Z",
+    "duration": 203882.73200000002,
+    "expected": 17,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -58,6 +58,15 @@ const PROTECTED_SURFACE = '.digital-paper, .learning-workspace, .problem-workspa
 /** Decorative surface only. All gestures are observed passively on the document. */
 export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
   const [contextRevision, setContextRevision] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(
+    () => matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+  useEffect(() => {
+    const media = matchMedia('(prefers-reduced-motion: reduce)');
+    const change = () => setReduceMotion(media.matches);
+    media.addEventListener('change', change);
+    return () => media.removeEventListener('change', change);
+  }, []);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const current = useRef({ prefs, studying, protectedStudy });
   current.current = { prefs, studying, protectedStudy };
@@ -89,7 +98,8 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
   }, []);
 
   useEffect(() => {
-    if (!active) return;
+    // Quiet preferences use the CSS atmosphere without compiling a hidden GPU surface.
+    if (!active || reduceMotion || prefs.motion !== 'auto' || prefs.lowPower) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const motion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -431,7 +441,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
       window.removeEventListener('bkit:liquid-policy', policy);
       motion.removeEventListener('change', policy);
     };
-  }, [active, contextRevision]);
+  }, [active, contextRevision, reduceMotion, prefs.motion, prefs.lowPower]);
 
   useEffect(() => {
     document.documentElement.dataset.liquidStudying = String(studying || protectedStudy);

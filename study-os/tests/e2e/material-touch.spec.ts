@@ -101,3 +101,25 @@ test('touch atmosphere honors OS, saved motion, low power and active study', asy
   await expect(page.locator('.material-touch-pulse[data-live]')).toHaveCount(0);
   await expect(page.locator('.material-touch-field')).toBeHidden();
 });
+
+test('quiet preferences avoid even allocating the hidden WebGL background', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.addInitScript(() => {
+    (window as any).bkitTestGLContexts = 0;
+    const getContext = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, ...args: any[]) {
+      if (String(args[0]).includes('webgl')) (window as any).bkitTestGLContexts++;
+      return (getContext as any).apply(this, args);
+    } as typeof getContext;
+  });
+  await page.goto('./');
+  await page.getByRole('heading', { name: '오늘의 공부', exact: true }).waitFor();
+  expect(await page.evaluate(() => (window as any).bkitTestGLContexts)).toBe(0);
+  await expect(page.locator('.surreal-surface')).toHaveCSS('opacity', '0');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await expect
+    .poll(() => page.evaluate(() => (window as any).bkitTestGLContexts))
+    .toBeGreaterThan(0);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(page.locator('.surreal-surface')).toHaveCSS('opacity', '0');
+});
