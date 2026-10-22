@@ -53,3 +53,4 @@ import './themes/compact-atmosphere.css';
 import './compact-first-screen.css';
 
 import './recovery.css';
+import './home-rebirth.css';

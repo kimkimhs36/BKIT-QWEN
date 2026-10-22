@@ -19,10 +19,12 @@ export function CalendarPeek({
   state,
   now,
   onOpen,
+  selectedDay,
 }: {
   state: State;
   now: number;
   onOpen: () => void;
+  selectedDay?: string;
 }) {
   const today = dayKey(now);
   const start = addDays(today, -((weekday(today) + 6) % 7));
@@ -51,16 +53,37 @@ export function CalendarPeek({
       <span className="calendar-peek-week">
         {week.map(({ day, events }, i) => {
           return (
-            <span className={day === today ? 'is-today' : ''} key={day}>
+            <span
+              className={[
+                day === today ? 'is-today' : '',
+                day === selectedDay ? 'is-selected' : '',
+              ].join(' ')}
+              key={day}
+            >
               <small>{WEEK[i]}</small>
               <b>{number(day)}</b>
-              <i className={events.length ? 'has-events' : ''} />
+              <span className="calendar-day-marks" aria-hidden="true">
+                <i
+                  className={
+                    events.some((e) => ['task', 'assessment'].includes(e.kind))
+                      ? 'has-deadline'
+                      : ''
+                  }
+                />
+                <i
+                  className={
+                    events.some((e) => ['school', 'academy', 'fixed', 'study'].includes(e.kind))
+                      ? 'has-schedule'
+                      : ''
+                  }
+                />
+              </span>
             </span>
           );
         })}
       </span>
       <span className="calendar-peek-foot">
-        학교 · 학원 · 마감을 한눈에
+        ● 마감 · ━ 수업과 일정
         <ChevronRight size={14} />
       </span>
     </motion.button>
@@ -74,6 +97,8 @@ export function StudyCalendar({
   onSchedule,
   onAdd,
   onCancel,
+  selectedDay,
+  onSelectedDay,
 }: {
   state: State;
   now: number;
@@ -82,10 +107,12 @@ export function StudyCalendar({
   onSchedule: (schedule: Schedule, day: string) => void;
   onAdd: (day: string) => void;
   onCancel: (schedule: Schedule, day: string) => void;
+  selectedDay?: string;
+  onSelectedDay?: (day: string) => void;
 }) {
   const today = dayKey(now);
-  const [selected, setSelected] = useState(today),
-    [cursor, setCursor] = useState(today);
+  const [selected, setSelected] = useState(selectedDay || today),
+    [cursor, setCursor] = useState(selectedDay || today);
   const [view, setView] = useState<'day' | 'week' | 'month' | 'year' | 'years'>('month');
   const touch = useRef<number | null>(null);
   const events = useMemo(() => entriesForDay(state, selected), [state, selected]);
@@ -99,6 +126,7 @@ export function StudyCalendar({
   function choose(day: string) {
     setSelected(day);
     setCursor(day);
+    onSelectedDay?.(day);
   }
   function move(amount: number) {
     if (view === 'day' || view === 'week') {
@@ -225,7 +253,14 @@ export function StudyCalendar({
                     >
                       <span>
                         {WEEK[i]}
-                        <b className={day === today ? 'is-today' : ''}>{number(day)}</b>
+                        <b
+                          className={[
+                            day === today ? 'is-today' : '',
+                            day === selectedDay ? 'is-selected' : '',
+                          ].join(' ')}
+                        >
+                          {number(day)}
+                        </b>
                       </span>
                       <div>
                         {items.slice(0, 4).map((e) => (

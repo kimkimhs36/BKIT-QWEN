@@ -142,7 +142,7 @@ test('100 tasks, zero quantity and user choice keep the recommendation and sessi
   await page.getByText('과제 바꾸기', { exact: true }).click();
   await page.getByLabel('지금 공부할 과제').selectOption('과제-99');
   await expect(page.getByLabel('첫 학습 행동', { exact: true })).toContainText('과제-99');
-  await page.getByRole('button', { name: '5분만 시작하기', exact: true }).click();
+  await page.getByRole('button', { name: '지금 공부 시작', exact: true }).click();
   const saved = await read(page);
   expect(saved.active?.taskId).toBe('과제-99');
   expect(saved.learningEvents?.filter((e) => e.type === 'StudyStarted').at(-1)?.taskId).toBe(

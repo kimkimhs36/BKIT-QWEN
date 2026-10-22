@@ -324,6 +324,7 @@ export default function App() {
     >(null);
   const scheduleFormDraft=useRef<FormData|null>(null);
   const [calendarOpen,setCalendarOpen]=useState(false);
+  const [calendarDay, setCalendarDay] = useState<string>();
   const [captureDay,setCaptureDay]=useState<string|undefined>();
   const [scheduleDay,setScheduleDay]=useState<string|undefined>();
   const [scheduleChange,setScheduleChange]=useState<{state:State;revision:number;description:string;day:string}|null>(null);
@@ -1917,11 +1918,15 @@ export default function App() {
                   setTab(route);
                 }}
                 onAdd={() => taskEditor()}
+                onAssessment={addAssessmentNow}
+                onMaterials={() => openAtelier('capture')}
+                online={online}
                 onTasks={(kind) => {
                   setTaskKindFilter(kind);
                   setFilter('all');
                   setTab('tasks');
                 }}
+                calendarDay={calendarDay}
                 onCalendar={()=>setCalendarOpen(true)}
                 onEdit={taskEditor}
                 onSubmissions={() => {
@@ -3086,7 +3091,7 @@ export default function App() {
             </button>,
             document.body,
           )}
-        {calendarOpen&&<StudyCalendar state={s} now={now} onClose={()=>setCalendarOpen(false)} onTask={task=>{setCalendarOpen(false);taskEditor(task);}} onSchedule={(schedule,date)=>{setCalendarOpen(false);scheduleEditor(schedule,date);}} onAdd={date=>{setCalendarOpen(false);taskEditor();setCaptureDay(date);}} onCancel={(schedule,date)=>{
+        {calendarOpen&&<StudyCalendar selectedDay={calendarDay} onSelectedDay={setCalendarDay} state={s} now={now} onClose={()=>setCalendarOpen(false)} onTask={task=>{setCalendarOpen(false);taskEditor(task);}} onSchedule={(schedule,date)=>{setCalendarOpen(false);scheduleEditor(schedule,date);}} onAdd={date=>{setCalendarOpen(false);taskEditor();setCaptureDay(date);}} onCancel={(schedule,date)=>{
           try{const candidate=cancelOccurrence(s,schedule,date);setCalendarOpen(false);setEditSchedule(schedule);setScheduleChange({state:candidate,revision:s.revision,description:`${date} · ${schedule.title} 취소`,day:date});open('schedule-review');}catch(error){setNotice(inputError(error));}
         }}/>}
         {modal && (
