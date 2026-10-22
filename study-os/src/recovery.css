@@ -1663,3 +1663,12 @@ html[data-material] .premium-os.page-study .toast {
   bottom: auto;
   pointer-events: none;
 }
+/* Legacy nature colors must not tint the clock green on dark or peach materials. */
+html[data-material] .premium-os .focus-readout .timer {
+  color: var(--mat-ink) !important;
+  text-shadow: none !important;
+}
+html[data-material] .premium-os .focus-readout > span,
+html[data-material] .premium-os .focus-counter {
+  color: var(--mat-muted) !important;
+}

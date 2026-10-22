@@ -148,6 +148,31 @@ test('all existing themes preserve the linked session, first attempt and private
   for (const theme of materials) {
     await page.getByRole('button', { name: theme.name, exact: true }).click();
     await expect(page.locator('html')).toHaveAttribute('data-material', theme.id);
+    const contrast = await page.locator('.focus-readout .timer').evaluate((node) => {
+      const resolve = document.createElement('span');
+      resolve.style.color = 'var(--mat-bg)';
+      document.body.append(resolve);
+      const background = getComputedStyle(resolve).color;
+      resolve.remove();
+      const luminance = (color: string) => {
+        const rgb = color
+          .match(/[\d.]+/g)!
+          .slice(0, 3)
+          .map(Number)
+          .map((c) => {
+            const n = c / 255;
+            return n <= 0.04045 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
+          });
+        return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+      };
+      const values = [luminance(getComputedStyle(node).color), luminance(background)].sort(
+        (a, b) => a - b,
+      );
+      return (values[1] + 0.05) / (values[0] + 0.05);
+    });
+    // Animated digits have an image label, so axe can miss inherited low-contrast nature colors.
+    expect(contrast, `${theme.name} clock contrast`).toBeGreaterThanOrEqual(4.5);
+
     const saved = await read(page);
     expect(saved.active).toEqual(before.active);
     expect(saved.learningEvents).toEqual(before.learningEvents);
@@ -156,7 +181,7 @@ test('all existing themes preserve the linked session, first attempt and private
   await page.getByRole('button', { name: 'Night Sprint', exact: true }).click();
   await page.getByRole('button', { name: '닫기', exact: true }).click();
   const scan = await new AxeBuilder({ page })
-    .include('.focus-first-move')
+    .include('.focus-card')
     .withTags(['wcag2a', 'wcag2aa'])
     .analyze();
   expect(scan.violations).toEqual([]);
