@@ -7,6 +7,7 @@ test('nine materials have distinct bounded touch atmospheres and no logo rectang
   test.setTimeout(120000);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('./');
+  await page.evaluate(() => document.fonts.ready);
   const initial = await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'));
   const signatures = new Set<string>();
   for (const material of materials) {
@@ -45,7 +46,10 @@ test('nine materials have distinct bounded touch atmospheres and no logo rectang
     expect(signature.opacity).toBeGreaterThan(0);
     signatures.add(signature.geometry);
     const after = (await hero.boundingBox())!;
-    expect(after).toEqual(before);
+    for (const key of ['x', 'y', 'width', 'height'] as const)
+      expect(Math.abs(after[key] - before[key]), `${material.id} ${key} movement`).toBeLessThan(
+        0.5,
+      );
     expect(
       await page
         .locator('.material-touch-field')

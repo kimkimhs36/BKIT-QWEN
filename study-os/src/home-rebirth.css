@@ -899,3 +899,12 @@ html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-week .is-
   outline: 1px solid var(--mat-accent);
   outline-offset: 2px;
 }
+/* Adjacent-month dates stay secondary without losing legibility in Soft Jelly/dark materials. */
+html[data-material] .calendar-dialog .calendar-days .is-outside,
+html[data-material] .calendar-dialog .mini-month .is-outside {
+  opacity: 1;
+}
+html[data-material] .calendar-dialog .calendar-days .is-outside:not(.is-today):not(.is-selected),
+html[data-material] .calendar-dialog .mini-month .is-outside:not(.is-today) {
+  color: var(--home-subtle);
+}

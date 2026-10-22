@@ -6,6 +6,9 @@ import { AnimatedClock } from './AnimatedClock';
 import { MaterialEffects } from './themes/MaterialEffects';
 import { RecordOverview } from './RecordOverview';
 import { FirstLearningStep } from './FirstLearningStep';
+import { ResourceReviews } from './ResourceReviews';
+import { ProblemReviewQueue } from './ProblemReviewQueue';
+import { LearningEvidence } from './LearningEvidence';
 import { PremiumHome } from './PremiumHome';
 import { MaterialTouchField } from './themes/MaterialTouchField';
 import { Modal } from './Modal';
@@ -182,21 +185,12 @@ const ResourceLibrary = lazy(() =>
 const MultiProblemWorkspace = lazy(() =>
   import('./MultiProblemWorkspace').then((m) => ({ default: m.MultiProblemWorkspace })),
 );
-const ResourceReviews = lazy(() =>
-  import('./ResourceReviews').then((m) => ({ default: m.ResourceReviews })),
-);
 const CompleteBackupPanel = lazy(() =>
   import('./CompleteBackupPanel').then((m) => ({ default: m.CompleteBackupPanel })),
 );
 const SleepGuard = lazy(() => import('./SleepGuard').then((m) => ({ default: m.SleepGuard })));
 const MoreHub = lazy(() => import('./MoreHub').then((m) => ({ default: m.MoreHub })));
 const ExamPanel = lazy(() => import('./ExamPanel').then((m) => ({ default: m.ExamPanel })));
-const LearningEvidence = lazy(() =>
-  import('./LearningEvidence').then((m) => ({ default: m.LearningEvidence })),
-);
-const ProblemReviewQueue = lazy(() =>
-  import('./ProblemReviewQueue').then((m) => ({ default: m.ProblemReviewQueue })),
-);
 const AwakeAssist = lazy(() => import('./AwakeAssist').then((m) => ({ default: m.AwakeAssist })));
 const GlobalSearch = lazy(() =>
   import('./GlobalSearch').then((m) => ({ default: m.GlobalSearch })),

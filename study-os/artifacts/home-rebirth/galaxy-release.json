@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "6267543a2d8d0f4706df6f53f59bae2f208391ed",
+  "scope": "Chromium, 1280x800 CSS/touch profile; not physical Galaxy hardware",
+  "stats": {
+    "startTime": "2026-10-22T17:21:24.675Z",
+    "duration": 60058.808,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

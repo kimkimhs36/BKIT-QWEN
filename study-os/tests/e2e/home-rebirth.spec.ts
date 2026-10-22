@@ -2,6 +2,8 @@ import { test, expect, type Page } from './local-fixture';
 import AxeBuilder from '@axe-core/playwright';
 import { newState, taskSchema, type State } from '../../src/model';
 import { materials } from '../../src/themes/material';
+// Immediate offline study must work before a service-worker precache finishes.
+test.use({ serviceWorkers: 'block' });
 const read = (page: Page): Promise<State> =>
   page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
 function populated() {
@@ -155,6 +157,8 @@ test('all nine home materials remain accessible and retain user settings after r
 test('offline empty and completed homes stay honest, and active or paused study keeps its timer', async ({
   page,
 }, info) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
   await seed(page, newState());
   await expect(page.locator('.rebirth-hero')).toHaveAttribute('data-state', 'empty');
   await page.context().setOffline(true);
@@ -185,6 +189,17 @@ test('offline empty and completed homes stay honest, and active or paused study 
   expect(
     (await read(page)).learningEvents?.filter((e) => e.type === 'FirstLearningAttempt') ?? [],
   ).toHaveLength(0);
+  await page.context().setOffline(true);
+  await page.getByRole('button', { name: '공부 이어가기', exact: true }).click();
+  await page.getByRole('button', { name: '끝내고 시간 저장', exact: true }).click();
+  await page
+    .locator('nav:visible')
+    .getByRole('button', { name: '기록', exact: true })
+    .first()
+    .click();
+  await expect(page.getByRole('heading', { name: '공부 기록', exact: true })).toBeVisible();
+  expect((await read(page)).sessions[0].id).toBe(timer.id);
+  expect(errors).toEqual([]);
 });
 
 test('completed work still needs submission and selected calendar date survives closing', async ({
