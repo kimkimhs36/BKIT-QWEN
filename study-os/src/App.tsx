@@ -2160,7 +2160,7 @@ export default function App() {
                             </button>
                           ) : (
                             <p className="focus-first-done" role="status">
-                              첫 시도 기록 완료 · 정답과 오답은 학습 종료 시 정리하세요.
+                              첫 시도 기록 완료. 이어서 천천히 풀어 보세요.
                             </p>
                           )}
                         </div>

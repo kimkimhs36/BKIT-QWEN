@@ -1511,11 +1511,13 @@ html[data-material] .study-dialog .modal-head .icon-button {
 /* The first real learning action stays visible above the primary CTA, not in a hidden planner. */
 .study-start-next {
   display: grid;
-  gap: 5px;
-  padding: 12px 15px;
+  gap: 7px;
+  min-width: 0;
+  padding: 14px 16px;
   border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--mat-paper, #fff) 84%, transparent);
+  border-radius: min(var(--mat-radius, 16px), 16px);
+  color: var(--mat-ink, inherit);
+  background: color-mix(in srgb, var(--mat-paper, #fff) 96%, transparent);
   position: relative;
   z-index: 1;
 }
@@ -1523,7 +1525,7 @@ html[data-material] .study-dialog .modal-head .icon-button {
   font-size: 10px;
   font-weight: 750;
   letter-spacing: 0.13em;
-  opacity: 0.62;
+  opacity: 0.8;
 }
 .study-start-next > strong {
   font-size: clamp(13px, 2.7vw, 15px);
@@ -1537,18 +1539,20 @@ html[data-material] .study-dialog .modal-head .icon-button {
   display: grid;
   gap: 6px;
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   margin: 14px 0 18px;
   padding: 15px 18px;
-  border-radius: 16px;
+  border-radius: min(var(--mat-radius, 16px), 16px);
   border: 1px solid color-mix(in srgb, currentColor 13%, transparent);
-  background: color-mix(in srgb, var(--mat-paper, #fff) 88%, transparent);
-  color: inherit;
+  background: color-mix(in srgb, var(--mat-paper, #fff) 96%, transparent);
+  color: var(--mat-ink, inherit);
 }
 .focus-first-move > span {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
-  opacity: 0.65;
+  opacity: 0.8;
 }
 .focus-first-move > strong {
   font-size: 15px;
@@ -1557,9 +1561,14 @@ html[data-material] .study-dialog .modal-head .icon-button {
   overflow-wrap: anywhere;
 }
 
-.focus-first-move > small { font-size: 12px; line-height: 1.5; opacity: 0.7; }
+.focus-first-move > small { font-size: 12px; line-height: 1.5; opacity: 0.85; }
 .focus-first-attempt {
   justify-self: start;
+  max-width: 100%;
+  color: inherit;
+  background: var(--mat-paper, #fff);
+  line-height: 1.5;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -1572,3 +1581,36 @@ html[data-material] .study-dialog .modal-head .icon-button {
   font-weight: 650;
 }
 .focus-first-done { margin: 4px 0 0; font-size: 13px; line-height: 1.5; }
+
+/* Local feedback keeps the existing card and button silhouette. */
+.study-start-next > strong,
+.focus-first-move > strong,
+.focus-first-done {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.focus-first-attempt svg { flex-shrink: 0; }
+html[data-material] .premium-os .study-start-copy { min-width: 0; }
+html[data-material] .premium-os .study-start-copy > p { overflow-wrap: anywhere; }
+html[data-material] .premium-os .study-start-primary,
+.focus-first-attempt {
+  transition: transform 120ms ease, filter 120ms ease;
+  touch-action: manipulation;
+}
+html[data-material] .premium-os .study-start-primary:active,
+.focus-first-attempt:active {
+  transform: translateY(1px);
+  filter: brightness(0.96);
+}
+.focus-first-attempt:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-material] .premium-os .study-start-primary,
+  .focus-first-attempt { transition: none; }
+}
+@media (max-width: 390px) {
+  .study-start-next, .focus-first-move { padding: 12px 14px; }
+  html[data-material] .premium-os .study-start-actions { gap: 10px; }
+}
