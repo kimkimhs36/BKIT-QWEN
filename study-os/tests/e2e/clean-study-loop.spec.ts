@@ -8,10 +8,11 @@ const read = (page: Page): Promise<State> => page.evaluate(key => JSON.parse(loc
 async function nav(page: Page, name: string) {
   await page.locator('nav:visible').getByRole('button', { name, exact: true }).first().click();
 }
-async function addTask(page: Page, title: string) {
+async function addTask(page: Page, title: string, needsSubmission = false) {
   await nav(page, '과제');
   await page.getByRole('button', { name: '과제 추가', exact: true }).click();
   const dialog = page.getByRole('dialog');
+  if (needsSubmission) await dialog.getByLabel('완료 후 제출 확인이 필요한 과제', {exact: true}).check();
   await dialog.getByRole('button', { name: '상세 입력', exact: true }).click();
   await dialog.getByLabel('과제 이름 · 바로 할 행동', { exact: true }).fill(title);
   await dialog.getByLabel('과목', { exact: true }).fill('수학');
@@ -94,7 +95,7 @@ test('empty device to real task, linked study, pause/resume, reload, more data a
 
 test('completion and submission remain separate across reload on a clean device', async ({ page }) => {
   await page.goto('./');
-  await addTask(page, '제출까지 확인할 과제');
+  await addTask(page, '제출까지 확인할 과제', true);
   await page.getByRole('button', { name: '제출까지 확인할 과제 학습 완료로 변경', exact: true }).click();
   let task = (await read(page)).tasks[0];
   expect(task.status).toBe('done');

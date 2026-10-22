@@ -12,7 +12,9 @@ async function prepare(page: Page) {
   await page.clock.install({ time: began });
   await page.clock.pauseAt(began + 1_000);
   await page.goto('./');
-  await page.getByRole('button', { name: '지금 공부 시작', exact: true }).click();
+  // Select the explicit stopwatch; the home primary action now offers five-minute learning.
+  await nav(page, '집중');
+  await page.getByRole('button', { name: '지금 시작', exact: true }).click();
   return page.locator('.quick-timer-active');
 }
 
@@ -130,7 +132,10 @@ test('finish between clock ticks stops at a protected schedule boundary', async 
 });
 
 test('only one tab writes study records, and closing it allows a fresh second tab to write', async ({ page, context }) => {
+  await page.clock.install({time: began});
   await page.goto('./');
+  // Let the first tab's initial recommendation transaction settle before opening a second reader.
+  await expect.poll(async () => (await read(page))?.learningEvents?.length ?? 0).toBeGreaterThan(0);
   const second = await context.newPage();
   await second.goto('./');
   const before = await page.evaluate((key) => localStorage.getItem(key), key);
