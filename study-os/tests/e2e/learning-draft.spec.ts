@@ -96,6 +96,10 @@ test('failed draft writes keep input visible, block navigation and allow retry',
   await expect(page.getByRole('button', { name: '메모 다시 저장' })).toBeVisible();
   expect((await read(page)).active?.learningStep).toBeUndefined();
   await page.evaluate(() => (window as any).restoreStudyStorage());
+  // A failed flush must cancel the old debounce; it cannot remove the retry control mid-tap.
+  await page.clock.runFor(600);
+  await expect(page.getByRole('button', { name: '메모 다시 저장' })).toBeVisible();
+  expect((await read(page)).active?.learningStep).toBeUndefined();
   await page.getByRole('button', { name: '메모 다시 저장' }).click();
   expect((await read(page)).active?.learningStep?.note).toBe('잃으면 안 되는 생각');
 });

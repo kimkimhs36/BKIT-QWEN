@@ -4,27 +4,38 @@ import { useEffect, useRef, useState } from 'react';
 export function useStudyDraft(initial: string, onSave: (value: string) => boolean) {
   const [value, setValue] = useState(initial);
   const [status, setStatus] = useState<'saved' | 'pending' | 'error'>('saved');
-  const latest = useRef({ value, saved: initial, onSave });
+  const pendingSave = useRef<number | null>(null);
+  const latest = useRef({ value, saved: initial, failed: null as string | null, onSave });
   latest.current.value = value;
   latest.current.onSave = onSave;
   const flush = () => {
+    if (pendingSave.current !== null) {
+      clearTimeout(pendingSave.current);
+      pendingSave.current = null;
+    }
     const draft = latest.current;
     if (draft.value === draft.saved) return true;
     if (!draft.onSave(draft.value)) {
+      draft.failed = draft.value;
       setStatus('error');
       return false;
     }
     draft.saved = draft.value;
+    draft.failed = null;
     setStatus('saved');
     return true;
   };
   const flushRef = useRef(flush);
   flushRef.current = flush;
   useEffect(() => {
-    if (value === latest.current.saved) return;
+    if (value === latest.current.saved || value === latest.current.failed) return;
     setStatus('pending');
     const timer = window.setTimeout(() => flushRef.current(), 400);
-    return () => clearTimeout(timer);
+    pendingSave.current = timer;
+    return () => {
+      clearTimeout(timer);
+      if (pendingSave.current === timer) pendingSave.current = null;
+    };
   }, [value]);
   useEffect(() => {
     const guard = (event: Event) => {

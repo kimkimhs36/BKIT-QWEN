@@ -1,5 +1,7 @@
 import { test, expect, type Page } from './local-fixture';
 import { newState, type State } from '../../src/model';
+// Reopened and secondary tabs share the same reduced-motion acceptance environment.
+test.use({ reducedMotion: 'reduce' });
 
 const key = 'bkit.study-os.v1';
 const began = Date.parse('2026-10-21T03:00:00Z');
