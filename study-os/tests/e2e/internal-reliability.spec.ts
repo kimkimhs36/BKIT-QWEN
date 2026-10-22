@@ -90,6 +90,7 @@ test('closing a browser page and reopening preserves the running timestamp and e
 });
 
 test('a corrupt active clock is read-only and its original bytes remain exportable', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-22T05:00:00Z') });
   const state = newState();
   state.quickTimer = {
     id: 'corrupt', mode: 'stopwatch', targetMinutes: 480,

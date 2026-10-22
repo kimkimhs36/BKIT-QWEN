@@ -1,0 +1,52 @@
+[
+  {
+    "path": "health",
+    "status": "200",
+    "body": {
+      "service": "bkit-api",
+      "sourceCommit": "95d7a4f0737dc49af1299f8692a5859315306967",
+      "stage": "private-briefing-v1",
+      "mode": "configured",
+      "push": false,
+      "model": "deepseek-flash",
+      "authConfigured": true,
+      "budgetConfigured": true,
+      "dailyKRW": 1000,
+      "features": {
+        "briefing": true,
+        "plan": false,
+        "coach": false,
+        "assistant": false
+      }
+    },
+    "error": ""
+  },
+  {
+    "path": "config",
+    "status": "200",
+    "body": {
+      "model": "deepseek-flash",
+      "briefingEnabled": true,
+      "googleClientConfigured": true
+    },
+    "error": ""
+  },
+  {
+    "path": "owner",
+    "status": "401",
+    "body": {
+      "error": "본인 Google 계정 연결이 필요해요."
+    },
+    "error": ""
+  },
+  {
+    "origin": "https://teambkit.com",
+    "status": "204",
+    "error": ""
+  },
+  {
+    "origin": "https://bkit-study-os-36-preview-git-feat-bkit-learning-f02d69-teambkit.vercel.app",
+    "status": "403",
+    "error": ""
+  }
+]

@@ -1,0 +1,914 @@
+/* Home 4.0. Existing material preferences own color and motion; layout stays still. */
+html[data-material] {
+  --home-ink: var(--mat-ink);
+  --home-subtle: color-mix(in srgb, var(--mat-ink) 85%, var(--mat-bg));
+  --home-line: color-mix(in srgb, var(--mat-ink) 13%, transparent);
+  --home-surface: color-mix(in srgb, var(--mat-paper) 95%, var(--mat-bg));
+  --home-wash: color-mix(in srgb, var(--mat-accent) 8%, var(--mat-paper));
+  --home-cta: var(--mat-ink);
+  --home-on-cta: var(--mat-bg);
+  --home-radius: 24px;
+}
+html:is([data-material='glass'], [data-material='peach']) {
+  --home-wash: #f6dfcf;
+  --home-surface: #fffcf6eb;
+  --home-cta: #39322f;
+  --home-on-cta: #fffaf4;
+}
+html[data-material] .app-shell.premium-os.page-today .main-shell {
+  max-width: 1160px;
+  width: min(1120px, calc(100% - 64px)) !important;
+}
+html[data-material] .app-shell.premium-os.page-today .topbar {
+  min-height: 68px !important;
+  padding: max(8px, env(safe-area-inset-top)) 0 8px !important;
+}
+html[data-material] .app-shell.premium-os.page-today .mobile-brand {
+  font-size: 23px !important;
+}
+html[data-material] .app-shell.premium-os.page-today .page-head {
+  margin: 8px 0 18px !important;
+}
+html[data-material] .app-shell.premium-os.page-today .page-head > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+  width: 100%;
+  gap: 12px;
+}
+html[data-material] .app-shell.premium-os.page-today .page-head h1 {
+  font-size: 17px !important;
+  letter-spacing: -0.04em !important;
+  font-weight: 650 !important;
+}
+html[data-material] .app-shell.premium-os.page-today .home-date-link {
+  min-height: 44px !important;
+  margin: 0;
+  color: var(--home-subtle);
+}
+html[data-material] .app-shell.premium-os .home-rebirth {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(290px, 1fr);
+  grid-template-rows: auto auto 1fr auto;
+  align-items: start;
+  gap: 18px 28px;
+  max-width: none;
+  padding-bottom: 16px;
+  color: var(--home-ink);
+}
+html[data-material] .app-shell.premium-os .home-rebirth *,
+html[data-material] .app-shell.premium-os .home-rebirth *::before,
+html[data-material] .app-shell.premium-os .home-rebirth *::after {
+  box-sizing: border-box;
+}
+html[data-material] .app-shell.premium-os .home-rebirth > *,
+html[data-material] .app-shell.premium-os .home-rebirth button,
+html[data-material] .app-shell.premium-os .home-rebirth button > span {
+  min-width: 0;
+}
+html[data-material] .app-shell.premium-os .home-rebirth button {
+  cursor: pointer;
+}
+html[data-material] .app-shell.premium-os .home-rebirth button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-hero {
+  grid-column: 1;
+  grid-row: 1;
+  min-height: 350px !important;
+  padding: 30px !important;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--home-radius);
+  border: 1px solid color-mix(in srgb, var(--mat-ink) 9%, transparent);
+  color: var(--home-ink);
+  background: linear-gradient(125deg, var(--home-surface), var(--home-wash));
+  box-shadow:
+    inset 0 1px 0 #ffffff90,
+    0 14px 32px -30px color-mix(in srgb, var(--mat-ink) 55%, transparent);
+  isolation: isolate;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-hero::before {
+  content: '';
+  position: absolute;
+  inset: -70% -35% auto auto;
+  width: 75%;
+  height: 125%;
+  border: 1px solid color-mix(in srgb, var(--mat-paper) 70%, transparent);
+  border-radius: 48%;
+  transform: rotate(-25deg);
+  background: color-mix(in srgb, var(--mat-paper) 12%, transparent);
+  box-shadow:
+    0 0 0 22px color-mix(in srgb, var(--mat-paper) 9%, transparent),
+    0 0 0 48px color-mix(in srgb, var(--mat-paper) 6%, transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-hero::after {
+  display: none;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-state {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 650;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-state i {
+  width: 6px;
+  height: 6px;
+  background: var(--mat-accent);
+  border-radius: 50%;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-duration {
+  font-size: 11px;
+  font-weight: 550;
+  color: var(--home-subtle);
+  font-variant-numeric: tabular-nums;
+  border: 1px solid var(--home-line);
+  border-radius: 20px;
+  padding: 5px 9px;
+  background: color-mix(in srgb, var(--mat-paper) 40%, transparent);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start-copy {
+  margin: 0;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start-copy .rebirth-subject {
+  display: block;
+  margin: 0 0 8px !important;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--home-subtle);
+  opacity: 1;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start h2 {
+  font-size: clamp(26px, 2.5vw, 34px) !important;
+  font-weight: 720 !important;
+  line-height: 1.24 !important;
+  letter-spacing: -0.055em !important;
+  margin: 0 0 10px !important;
+  overflow-wrap: anywhere;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start-copy .rebirth-context {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--home-subtle);
+  opacity: 1;
+  display: block;
+  overflow: visible;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start-next {
+  display: flex;
+  gap: 14px;
+  padding: 17px 0 0;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--home-line);
+  border-radius: 0;
+  box-shadow: none;
+  margin: 0;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-step-index {
+  flex: 0 0 28px;
+  padding-top: 2px;
+  color: var(--mat-accent);
+  font:
+    500 20px/1.2 'DM Sans',
+    sans-serif;
+  letter-spacing: -0.06em;
+  opacity: 1;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start-next > div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start-next > div > span {
+  font-size: 11px;
+  font-weight: 550;
+  color: var(--home-subtle);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start-next strong {
+  font-size: 14px;
+  font-weight: 560;
+  line-height: 1.65;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-hero-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  align-items: center;
+  margin-top: auto;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start-primary {
+  display: flex;
+  flex: 1 1 220px;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px !important;
+  padding: 12px 18px;
+  border: 1px solid transparent !important;
+  border-radius: 15px !important;
+  color: var(--home-on-cta) !important;
+  background: var(--home-cta) !important;
+  box-shadow: inset 0 1px 0 #ffffff20 !important;
+  font-size: 14px !important;
+  font-weight: 650;
+  transition:
+    transform 140ms ease,
+    filter 140ms ease;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start-primary > svg:last-child {
+  margin-left: auto;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start-primary > span {
+  margin-right: auto;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start-primary:hover {
+  filter: brightness(1.13);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .study-start-primary:active {
+  transform: scale(0.985);
+  filter: brightness(0.94);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .home-task-choice {
+  flex: 0 1 auto;
+  margin: 0;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .home-task-choice summary {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 12px;
+  padding: 0 2px;
+  color: var(--home-ink);
+  list-style: none;
+}
+html[data-material]
+  .app-shell.premium-os
+  .home-rebirth
+  .home-task-choice
+  summary::-webkit-details-marker {
+  display: none;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .home-task-choice[open] {
+  flex-basis: 100%;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .home-task-choice[open] summary {
+  justify-content: flex-start;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .home-task-choice label {
+  padding-top: 4px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .home-task-choice small {
+  font-size: 11px;
+  color: var(--home-subtle);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-capture {
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--home-line);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-capture button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 8px 4px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--home-ink);
+  font-size: 12px;
+  font-weight: 600;
+  transition:
+    background 140ms ease,
+    transform 140ms ease;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-capture button:hover {
+  background: var(--home-surface);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-capture button:active {
+  background: var(--home-wash);
+  transform: scale(0.97);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-capture button + button {
+  position: relative;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-capture button + button::before {
+  content: '';
+  width: 1px;
+  height: 18px;
+  background: var(--home-line);
+  position: absolute;
+  left: -2px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-agenda {
+  grid-column: 1;
+  grid-row: 3;
+  padding: 0 4px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-section-heading h2 {
+  margin: 0 !important;
+  font-size: 15px !important;
+  letter-spacing: -0.035em !important;
+  font-weight: 650 !important;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-section-heading h2 small {
+  font-size: 12px;
+  margin-left: 5px;
+  color: var(--home-subtle);
+  font-weight: 500;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-section-heading > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  min-width: 44px;
+  justify-content: center;
+  padding: 4px 0 4px 10px;
+  background: transparent;
+  color: var(--home-subtle);
+  border: 0;
+  font-size: 11px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-task-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 4px;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-task-tabs button {
+  flex: 0 1 auto;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px !important;
+  padding: 5px 10px 5px 0;
+  border: 0;
+  color: var(--home-subtle);
+  background: transparent;
+  font-size: 11px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-task-tabs small {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-task-list {
+  border-top: 1px solid var(--home-line);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-task {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 17px 4px;
+  min-height: 94px;
+  text-align: left;
+  color: var(--home-ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--home-line);
+  border-radius: 0;
+  transition: background 140ms ease;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-task:hover {
+  background: color-mix(in srgb, var(--mat-paper) 55%, transparent);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-task-marker {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border: 1px solid var(--mat-accent);
+  border-radius: 50%;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-task-marker.is-doing {
+  background: var(--mat-accent);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-task-copy {
+  display: grid;
+  gap: 5px;
+  flex: 1;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-task-copy > small {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--home-subtle);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-task-copy > small > span {
+  font-size: 10px;
+  border-left: 1px solid var(--home-line);
+  padding-left: 8px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-task-copy strong {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-deadline {
+  font-size: 11px;
+  color: var(--home-subtle);
+  line-height: 1.4;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-empty {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 110px;
+  padding: 20px 4px;
+  border-top: 1px solid var(--home-line);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-empty > span {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: grid;
+  place-items: center;
+  background: var(--home-surface);
+  border-radius: 50%;
+  color: var(--mat-accent);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-empty strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-empty p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--home-subtle);
+  line-height: 1.6;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-submission {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  min-height: 48px;
+  color: var(--home-ink);
+  background: var(--home-surface);
+  border: 1px solid var(--home-line);
+  border-radius: 12px;
+  font-size: 12px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-submission > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-submission i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--mat-accent);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-day {
+  grid-column: 2;
+  grid-row: 1 / 5;
+  display: grid;
+  gap: 0;
+  padding: 8px 24px 12px;
+  border: 1px solid var(--home-line);
+  border-radius: var(--home-radius);
+  background: var(--home-surface);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek {
+  grid-column: auto;
+  grid-row: auto;
+  width: 100%;
+  margin: 0;
+  padding: 14px 0 18px !important;
+  min-height: 0 !important;
+  border: 0;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none;
+  color: var(--home-ink);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-heading {
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-heading > span {
+  gap: 8px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-week {
+  gap: 2px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-week > span {
+  gap: 6px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-week small {
+  font-size: 10px;
+  color: var(--home-subtle);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-week b {
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
+  font-weight: 500;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-week .is-today b {
+  background: var(--home-cta);
+  color: var(--home-on-cta);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-week i {
+  width: 3px;
+  height: 3px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-week i.has-events {
+  background: var(--mat-accent);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-foot {
+  display: flex;
+  margin-top: 12px;
+  color: var(--home-subtle);
+  font-size: 10px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-schedule {
+  border-top: 1px solid var(--home-line);
+  padding: 10px 0 24px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-day h2 {
+  font-size: 13px !important;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-schedule-content {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+  align-items: flex-start;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-schedule-content > svg {
+  margin-top: 2px;
+  flex-shrink: 0;
+  color: var(--mat-accent);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-schedule-content h3 {
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 600;
+  margin: 0 0 5px;
+  overflow-wrap: anywhere;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-schedule-content p,
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-following {
+  font-size: 11px;
+  color: var(--home-subtle);
+  line-height: 1.6;
+  margin: 0;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-following {
+  margin: 12px 0 0 28px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-progress {
+  border-top: 1px solid var(--home-line);
+  padding: 10px 0 0;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-progress dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 14px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-progress dl > div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 6px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-progress dt {
+  font-size: 10px;
+  color: var(--home-subtle);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-progress dd {
+  margin: 0;
+  font:
+    500 27px/1 'DM Sans',
+    sans-serif;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-progress > p {
+  font-size: 10px;
+  color: var(--home-subtle);
+  margin: 0 0 8px;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-time {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 11px;
+  color: var(--home-subtle);
+  background: transparent;
+  border: 0;
+  padding: 4px 0;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-time > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-recent {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--home-line);
+  border-radius: 16px;
+  background: var(--home-surface);
+  color: var(--home-ink);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-recent > span {
+  display: grid;
+  gap: 5px;
+  flex: 1;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-recent small {
+  font-size: 10px;
+  color: var(--home-subtle);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-recent strong {
+  font-size: 13px;
+  font-weight: 550;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-recent > svg {
+  flex-shrink: 0;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-garage {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 48px;
+  margin-top: 6px;
+  padding: 12px 4px;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--home-line);
+  border-radius: 0;
+  font-size: 11px;
+  color: var(--home-subtle);
+  text-align: left;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-garage > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font:
+    500 9px 'DM Sans',
+    sans-serif;
+  letter-spacing: 0.07em;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .rebirth-offline {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 12px 14px;
+  background: var(--home-surface);
+  border: 1px solid var(--home-line);
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+/* A bounded glass layer, with an opaque fallback on browsers without backdrop filtering. */
+@supports ((backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))) {
+  html[data-material='glass'] .home-rebirth .rebirth-hero {
+    background: linear-gradient(125deg, #fffcf3e8, #f6dfcf9c);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+@media (max-width: 1000px) and (min-width: 701px) {
+  html[data-material] .app-shell.premium-os .home-rebirth {
+    grid-template-columns: minmax(0, 1.35fr) minmax(260px, 1fr);
+    gap: 16px 20px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-hero {
+    padding: 24px !important;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-day {
+    padding: 8px 18px 12px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .home-task-choice {
+    flex-basis: 100%;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .home-task-choice summary {
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 700px) {
+  html[data-material] .app-shell.premium-os.page-today .main-shell {
+    width: calc(100% - 32px) !important;
+  }
+  html[data-material] .app-shell.premium-os.page-today .topbar {
+    min-height: 60px !important;
+    padding-top: max(4px, env(safe-area-inset-top)) !important;
+  }
+  html[data-material] .app-shell.premium-os.page-today .mobile-brand {
+    font-size: 22px !important;
+  }
+  html[data-material] .app-shell.premium-os.page-today .mobile-brand small {
+    font-size: 8px !important;
+  }
+  html[data-material] .app-shell.premium-os.page-today .page-head {
+    margin: 0 0 10px !important;
+  }
+  html[data-material] .app-shell.premium-os.page-today .page-head h1 {
+    font-size: 15px !important;
+  }
+  html[data-material] .app-shell.premium-os.page-today .home-date-link {
+    font-size: 11px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    gap: 14px;
+  }
+  html[data-material]
+    .app-shell.premium-os
+    .home-rebirth
+    > :is(
+      .rebirth-hero,
+      .rebirth-capture,
+      .rebirth-agenda,
+      .rebirth-day,
+      .rebirth-recent,
+      .rebirth-garage,
+      .rebirth-offline
+    ) {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-hero {
+    min-height: 0 !important;
+    padding: 23px 22px !important;
+    gap: 20px;
+    border-radius: 23px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .study-start h2 {
+    font-size: 27px !important;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .study-start-copy .rebirth-context {
+    font-size: 12px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .study-start-next strong {
+    font-size: 13px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-hero-bottom {
+    gap: 5px 14px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .study-start-primary {
+    flex-basis: 180px;
+    min-height: 50px !important;
+    font-size: 13px !important;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .home-task-choice summary {
+    font-size: 11px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-capture {
+    padding-bottom: 10px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-capture button {
+    flex-direction: column;
+    gap: 6px;
+    min-height: 58px;
+    font-size: 11px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-agenda {
+    padding: 0 4px 6px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-day {
+    padding: 8px 20px 12px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-week b {
+    width: 34px;
+    height: 34px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-schedule {
+    padding-bottom: 20px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-progress dl {
+    margin-top: 10px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-progress dd {
+    font-size: 26px;
+  }
+}
+@media (max-width: 374px) {
+  html[data-material] .app-shell.premium-os.page-today .main-shell {
+    width: calc(100% - 24px) !important;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-hero {
+    padding: 20px 18px !important;
+    gap: 17px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .study-start h2 {
+    font-size: 25px !important;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .home-task-choice {
+    flex-basis: 100%;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .home-task-choice summary {
+    justify-content: flex-start;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-state {
+    font-size: 11px;
+  }
+  html[data-material] .app-shell.premium-os .home-rebirth .rebirth-duration {
+    font-size: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-material] .app-shell.premium-os .home-rebirth *,
+  html[data-material] .app-shell.premium-os .home-rebirth *::before,
+  html[data-material] .app-shell.premium-os .home-rebirth *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+html[data-motion='off'] .home-rebirth *,
+html[data-motion='reduced'] .home-rebirth * {
+  transition: none !important;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-day-marks {
+  display: flex;
+  gap: 3px;
+  height: 4px;
+  align-items: center;
+  justify-content: center;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-day-marks i {
+  background: transparent;
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-day-marks .has-deadline {
+  background: var(--mat-accent);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-day-marks .has-schedule {
+  width: 7px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--home-ink);
+}
+html[data-material] .app-shell.premium-os .home-rebirth .calendar-peek-week .is-selected b {
+  outline: 1px solid var(--mat-accent);
+  outline-offset: 2px;
+}
+/* Adjacent-month dates stay secondary without losing legibility in Soft Jelly/dark materials. */
+html[data-material] .calendar-dialog .calendar-days .is-outside,
+html[data-material] .calendar-dialog .mini-month .is-outside {
+  opacity: 1;
+}
+html[data-material] .calendar-dialog .calendar-days .is-outside:not(.is-today):not(.is-selected),
+html[data-material] .calendar-dialog .mini-month .is-outside:not(.is-today) {
+  color: var(--home-subtle);
+}
+/* Material speed changes must not replay the legacy entrance animation on study content. */
+html[data-material] .app-shell.atelier-os.premium-os.page-today main {
+  animation: none !important;
+}

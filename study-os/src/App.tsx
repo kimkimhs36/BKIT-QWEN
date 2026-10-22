@@ -6,7 +6,11 @@ import { AnimatedClock } from './AnimatedClock';
 import { MaterialEffects } from './themes/MaterialEffects';
 import { RecordOverview } from './RecordOverview';
 import { FirstLearningStep } from './FirstLearningStep';
+import { ResourceReviews } from './ResourceReviews';
+import { ProblemReviewQueue } from './ProblemReviewQueue';
+import { LearningEvidence } from './LearningEvidence';
 import { PremiumHome } from './PremiumHome';
+import { MaterialTouchField } from './themes/MaterialTouchField';
 import { Modal } from './Modal';
 import { MotionConfig } from 'motion/react';
 import {
@@ -181,21 +185,12 @@ const ResourceLibrary = lazy(() =>
 const MultiProblemWorkspace = lazy(() =>
   import('./MultiProblemWorkspace').then((m) => ({ default: m.MultiProblemWorkspace })),
 );
-const ResourceReviews = lazy(() =>
-  import('./ResourceReviews').then((m) => ({ default: m.ResourceReviews })),
-);
 const CompleteBackupPanel = lazy(() =>
   import('./CompleteBackupPanel').then((m) => ({ default: m.CompleteBackupPanel })),
 );
 const SleepGuard = lazy(() => import('./SleepGuard').then((m) => ({ default: m.SleepGuard })));
 const MoreHub = lazy(() => import('./MoreHub').then((m) => ({ default: m.MoreHub })));
 const ExamPanel = lazy(() => import('./ExamPanel').then((m) => ({ default: m.ExamPanel })));
-const LearningEvidence = lazy(() =>
-  import('./LearningEvidence').then((m) => ({ default: m.LearningEvidence })),
-);
-const ProblemReviewQueue = lazy(() =>
-  import('./ProblemReviewQueue').then((m) => ({ default: m.ProblemReviewQueue })),
-);
 const AwakeAssist = lazy(() => import('./AwakeAssist').then((m) => ({ default: m.AwakeAssist })));
 const GlobalSearch = lazy(() =>
   import('./GlobalSearch').then((m) => ({ default: m.GlobalSearch })),
@@ -324,6 +319,7 @@ export default function App() {
     >(null);
   const scheduleFormDraft=useRef<FormData|null>(null);
   const [calendarOpen,setCalendarOpen]=useState(false);
+  const [calendarDay, setCalendarDay] = useState<string>();
   const [captureDay,setCaptureDay]=useState<string|undefined>();
   const [scheduleDay,setScheduleDay]=useState<string|undefined>();
   const [scheduleChange,setScheduleChange]=useState<{state:State;revision:number;description:string;day:string}|null>(null);
@@ -1693,6 +1689,7 @@ export default function App() {
             !!(s.active?.exam || (tab === 'study' && (s.active?.workspace || s.active?.resourceId)))
           }
         />
+        <MaterialTouchField prefs={material} studying={!!(s.active || s.quickTimer)} />
         <MaterialEffects
           prefs={material}
           studying={!!(s.active?.segmentStart || s.quickTimer?.segmentStart || s.active?.resourceId || s.active?.workspace)}
@@ -1917,11 +1914,15 @@ export default function App() {
                   setTab(route);
                 }}
                 onAdd={() => taskEditor()}
+                onAssessment={addAssessmentNow}
+                onMaterials={() => openAtelier('capture')}
+                online={online}
                 onTasks={(kind) => {
                   setTaskKindFilter(kind);
                   setFilter('all');
                   setTab('tasks');
                 }}
+                calendarDay={calendarDay}
                 onCalendar={()=>setCalendarOpen(true)}
                 onEdit={taskEditor}
                 onSubmissions={() => {
@@ -3086,7 +3087,7 @@ export default function App() {
             </button>,
             document.body,
           )}
-        {calendarOpen&&<StudyCalendar state={s} now={now} onClose={()=>setCalendarOpen(false)} onTask={task=>{setCalendarOpen(false);taskEditor(task);}} onSchedule={(schedule,date)=>{setCalendarOpen(false);scheduleEditor(schedule,date);}} onAdd={date=>{setCalendarOpen(false);taskEditor();setCaptureDay(date);}} onCancel={(schedule,date)=>{
+        {calendarOpen&&<StudyCalendar selectedDay={calendarDay} onSelectedDay={setCalendarDay} state={s} now={now} onClose={()=>setCalendarOpen(false)} onTask={task=>{setCalendarOpen(false);taskEditor(task);}} onSchedule={(schedule,date)=>{setCalendarOpen(false);scheduleEditor(schedule,date);}} onAdd={date=>{setCalendarOpen(false);taskEditor();setCaptureDay(date);}} onCancel={(schedule,date)=>{
           try{const candidate=cancelOccurrence(s,schedule,date);setCalendarOpen(false);setEditSchedule(schedule);setScheduleChange({state:candidate,revision:s.revision,description:`${date} · ${schedule.title} 취소`,day:date});open('schedule-review');}catch(error){setNotice(inputError(error));}
         }}/>}
         {modal && (

@@ -158,11 +158,11 @@ test('home limits tasks, submission is separate, and weekly time and problems sh
 }, info) => {
   const original = populated();
   await seed(page, original);
-  await expect(page.locator('.study-task')).toHaveCount(3);
-  await expect(page.getByRole('button', { name: '5개 전체 보기' })).toBeVisible();
+  await expect(page.locator('.rebirth-task')).toHaveCount(3);
+  await expect(page.getByRole('button', { name: '전체 보기', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '제출 확인 1개 남았어요' })).toBeVisible();
   await shot(page, info.project.name, 'populated-home');
-  await page.getByRole('button', { name: '5개 전체 보기' }).click();
+  await page.getByRole('button', { name: '전체 보기', exact: true }).click();
   await expect(page.locator('.task-row')).toHaveCount(5);
   await page
     .getByRole('button', { name: '수열의 극한 · 교과서 20문제 학습 완료로 변경', exact: true })

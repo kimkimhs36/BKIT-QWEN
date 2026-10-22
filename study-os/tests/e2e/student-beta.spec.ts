@@ -2,6 +2,7 @@ import { test, expect, type Page } from './local-fixture';
 import { newState, taskSchema, type State } from '../../src/model';
 const key = 'bkit.study-os.v1';
 async function seed(page: Page, state: State = newState()) {
+  await page.clock.install({ time: new Date('2026-10-22T05:00:00Z') });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.addInitScript((state) => {
     if (!localStorage.getItem('bkit.study-os.v1'))
@@ -177,6 +178,7 @@ test('settings is labeled, returns home, and the small phone keeps all school en
     true,
   );
   await expect(page.getByRole('button', { name: '지금 공부 시작', exact: true })).toBeInViewport();
+  await school(page).scrollIntoViewIfNeeded();
   await expect(school(page)).toBeInViewport();
   const box = await page.getByRole('button', { name: '설정 열기', exact: true }).boundingBox();
   expect(box!.height).toBeGreaterThanOrEqual(44);

@@ -39,7 +39,7 @@ try {
         localStorage.setItem('bkit.study-os.theme.v1', 'light');
       });
       await page.goto(url);
-      await page.getByRole('button', { name: '과제 · 일정 등록', exact: true }).click();
+      await page.getByRole('button', { name: /^과제(?: · 일정)? 등록$/ }).click();
       await page.getByRole('textbox', { name: '할 일을 한 문장으로' }).fill('수학 학습지 5문제');
       await page.getByRole('button', { name: '오늘에 담기', exact: true }).click();
       await page.getByRole('dialog').waitFor({ state: 'detached' });

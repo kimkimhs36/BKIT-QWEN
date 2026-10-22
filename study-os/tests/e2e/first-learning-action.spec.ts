@@ -37,7 +37,7 @@ test('home capture starts the real recommended task, deduplicates first attempt 
   page,
 }) => {
   await seed(page);
-  await page.getByRole('button', { name: '과제 · 일정 등록', exact: true }).click();
+  await page.getByRole('button', { name: '과제 등록', exact: true }).click();
   await page.getByRole('textbox', { name: '할 일을 한 문장으로' }).fill('수학 학습지 5문제');
   await page.getByRole('button', { name: '오늘에 담기', exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -56,6 +56,7 @@ test('home capture starts the real recommended task, deduplicates first attempt 
   await page.getByLabel('지금 문제와 내 생각').fill('종이에 조건을 적었고 단위가 헷갈려요.');
   // Navigate immediately, before debounce: the existing draft guard must flush.
   await nav(page, '오늘');
+  await expect(page.getByLabel('첫 학습 행동', { exact: true })).toContainText('다시 풀어');
   await page.reload();
   await page.getByRole('button', { name: '공부 이어가기', exact: true }).click();
   await expect(page.getByLabel('지금 문제와 내 생각')).toHaveValue(
@@ -142,7 +143,7 @@ test('100 tasks, zero quantity and user choice keep the recommendation and sessi
   await page.getByText('과제 바꾸기', { exact: true }).click();
   await page.getByLabel('지금 공부할 과제').selectOption('과제-99');
   await expect(page.getByLabel('첫 학습 행동', { exact: true })).toContainText('과제-99');
-  await page.getByRole('button', { name: '5분만 시작하기', exact: true }).click();
+  await page.getByRole('button', { name: '지금 공부 시작', exact: true }).click();
   const saved = await read(page);
   expect(saved.active?.taskId).toBe('과제-99');
   expect(saved.learningEvents?.filter((e) => e.type === 'StudyStarted').at(-1)?.taskId).toBe(

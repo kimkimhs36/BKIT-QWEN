@@ -1,0 +1,181 @@
+/* The header belongs to the atmosphere, never a rectangular material panel. */
+html[data-material] .app-shell.atelier-os.premium-os .topbar,
+html[data-material] .app-shell.atelier-os.premium-os .topbar-leading,
+html[data-material] .app-shell.atelier-os.premium-os .brand-theme-button {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-material] .app-shell.atelier-os.premium-os .topbar {
+  border-bottom: 0 !important;
+}
+html[data-material] .app-shell.atelier-os.premium-os .brand-theme-button::before,
+html[data-material] .app-shell.atelier-os.premium-os .brand-theme-button::after {
+  content: none !important;
+}
+.material-touch-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+  isolation: isolate;
+}
+.material-touch-pulse {
+  position: absolute;
+  width: min(85vmax, 620px);
+  height: min(85vmax, 620px);
+  margin: max(-42.5vmax, -310px) 0 0 max(-42.5vmax, -310px);
+  opacity: 0;
+  pointer-events: none;
+}
+.material-touch-pulse i {
+  display: block;
+  position: absolute;
+  inset: 8%;
+  pointer-events: none;
+  border-radius: 50%;
+}
+/* Paper: a soft pool of afternoon light, gently crossing the grain. */
+.material-touch-pulse[data-live='classic'] i:first-child {
+  background: radial-gradient(ellipse, #e8d69e8c, #d7dfad4a 38%, transparent 70%);
+}
+.material-touch-pulse[data-live='classic'] i:nth-child(2) {
+  inset: 20% 6%;
+  background: linear-gradient(115deg, transparent 20%, #fffbe3a6 50%, transparent 72%);
+  transform: rotate(-18deg);
+}
+/* Forest: long, diffused shafts of light, never moving text. */
+.material-touch-pulse[data-live='forest'] i:first-child {
+  background: radial-gradient(ellipse, #89ad693d, transparent 67%);
+}
+.material-touch-pulse[data-live='forest'] i:nth-child(2) {
+  inset: 3% 28%;
+  background: linear-gradient(90deg, transparent, #b3d69a66, transparent);
+  transform: rotate(35deg);
+}
+.material-touch-pulse[data-live='forest'] i:nth-child(3) {
+  inset: 24% 36% 5% 40%;
+  background: linear-gradient(90deg, transparent, #d2e5a84a, transparent);
+  transform: rotate(35deg);
+}
+/* Glass: two optical edges surrounding a quiet refracted center. */
+.material-touch-pulse[data-live='glass'] i:first-child {
+  inset: 18%;
+  border: 1px solid #fffdf8de;
+  box-shadow:
+    inset 4px 2px 13px #ffffff4d,
+    -3px -2px 13px #d6eaf136,
+    4px 4px 17px #caab9d1a;
+  background: radial-gradient(ellipse at 30% 15%, #ffffff4d, transparent 58%);
+}
+.material-touch-pulse[data-live='glass'] i:nth-child(2) {
+  inset: 9% 13%;
+  border: 1px solid #fff7ed66;
+  transform: rotate(16deg);
+}
+.material-touch-pulse[data-live='glass'] i:nth-child(3) {
+  inset: 29%;
+  background: radial-gradient(ellipse, #fff5e08c, transparent 70%);
+}
+/* Peach: a warm satin bloom, with a cream highlight rather than a hard ripple. */
+.material-touch-pulse[data-live='peach'] i:first-child {
+  background: radial-gradient(ellipse at 40% 45%, #fff4dbcc, #efb49f66 40%, transparent 72%);
+}
+.material-touch-pulse[data-live='peach'] i:nth-child(2) {
+  inset: 26% 3% 16% 18%;
+  background: radial-gradient(ellipse, #e9ada44d, transparent 70%);
+}
+/* Diamond: translucent faceted light, six precise edges. */
+.material-touch-pulse[data-live='diamond'] i:first-child {
+  inset: 18%;
+  border-radius: 0;
+  clip-path: polygon(50% 0, 92% 25%, 92% 75%, 50% 100%, 8% 75%, 8% 25%);
+  background: conic-gradient(
+    from 25deg,
+    #ffffffbf,
+    #becfe22e,
+    #e3d6fa80,
+    #ffffff80,
+    #c2e5ed4d,
+    #ffffffbf
+  );
+}
+.material-touch-pulse[data-live='diamond'] i:nth-child(2) {
+  inset: 28%;
+  border: 1px solid #ffffffcc;
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+/* Champagne: a restrained brushed-metal sweep. */
+.material-touch-pulse[data-live='gold'] i:first-child {
+  background: radial-gradient(ellipse, #d5bd804d, transparent 70%);
+}
+.material-touch-pulse[data-live='gold'] i:nth-child(2) {
+  inset: 3% 34%;
+  border-radius: 25%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #fff5d699 44%,
+    #fffbedcc 50%,
+    #d4b57538 62%,
+    transparent
+  );
+}
+/* Jelly: three soft overlapping lobes with one gentle elastic overshoot. */
+.material-touch-pulse[data-live='jelly'] i:first-child {
+  inset: 13% 28% 30% 10%;
+  background: radial-gradient(ellipse at 35% 25%, #fff2ffb3, #b99cda66 50%, transparent 72%);
+}
+.material-touch-pulse[data-live='jelly'] i:nth-child(2) {
+  inset: 30% 10% 12% 28%;
+  background: radial-gradient(ellipse, #c0b1eb80, transparent 70%);
+}
+.material-touch-pulse[data-live='jelly'] i:nth-child(3) {
+  inset: 25%;
+  background: radial-gradient(ellipse, #f4cff766, transparent 70%);
+}
+/* Water: concentric surface-tension rings over a pale green caustic. */
+.material-touch-pulse[data-live='droplets'] i:first-child {
+  inset: 9%;
+  border: 1px solid #f6fffbe6;
+  box-shadow:
+    0 2px 7px #477e6926,
+    inset 0 2px 9px #ffffff80;
+}
+.material-touch-pulse[data-live='droplets'] i:nth-child(2) {
+  inset: 22%;
+  border: 1px solid #72a99f66;
+  box-shadow: 0 0 12px #ffffff80;
+}
+.material-touch-pulse[data-live='droplets'] i:nth-child(3) {
+  inset: 32%;
+  background: radial-gradient(ellipse, #ebfff78c, transparent 70%);
+}
+/* Night: a quiet instrument-like orbit and a low blue glow. */
+.material-touch-pulse[data-live='night'] i:first-child {
+  background: radial-gradient(ellipse, #7aabce3d, #476d9426 40%, transparent 70%);
+}
+.material-touch-pulse[data-live='night'] i:nth-child(2) {
+  inset: 22% 11%;
+  border: 1px solid #badcfb70;
+  box-shadow: 0 0 9px #8caedc26;
+}
+.material-touch-pulse[data-live='night'] i:nth-child(3) {
+  inset: 34% 25%;
+  border-top: 1px solid #e9f6ff99;
+}
+@media (prefers-reduced-motion: reduce) {
+  .material-touch-field {
+    display: none;
+  }
+}
+html[data-motion='off'] .material-touch-field,
+html[data-motion='reduced'] .material-touch-field,
+html[data-effects='none'] .material-touch-field {
+  display: none;
+}

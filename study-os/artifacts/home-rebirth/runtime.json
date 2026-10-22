@@ -1,0 +1,37 @@
+{
+  "scope": "Short minimal-data Chromium smoke, reduced motion and low power. Not an LCP, hardware battery, large-store or student action-time benchmark.",
+  "results": [
+    {
+      "stage": "before",
+      "mode": "idle",
+      "windowMs": 5200,
+      "longTasks": [],
+      "mutations": 0,
+      "errors": []
+    },
+    {
+      "stage": "before",
+      "mode": "studying",
+      "windowMs": 5200,
+      "longTasks": [],
+      "mutations": 39,
+      "errors": []
+    },
+    {
+      "stage": "after",
+      "mode": "idle",
+      "windowMs": 5200,
+      "longTasks": [],
+      "mutations": 0,
+      "errors": []
+    },
+    {
+      "stage": "after",
+      "mode": "studying",
+      "windowMs": 5200,
+      "longTasks": [],
+      "mutations": 31,
+      "errors": []
+    }
+  ]
+}

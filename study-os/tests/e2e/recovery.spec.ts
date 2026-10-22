@@ -38,7 +38,7 @@ test('capture photo, review, save, reload and calendar share a single durable ta
   page,
 }) => {
   await seed(page);
-  await page.getByRole('button', { name: '과제 · 일정 등록', exact: true }).click();
+  await page.getByRole('button', { name: '과제 등록', exact: true }).click();
   await page.getByRole('button', { name: '수행평가', exact: true }).click();
   await page
     .getByRole('textbox', { name: '할 일을 한 문장으로' })
@@ -68,7 +68,7 @@ test('capture photo, review, save, reload and calendar share a single durable ta
       .getByText('내일 과학 탐구 보고서 제출', { exact: true }),
   ).toBeVisible();
   await page.getByRole('button', { name: '닫기', exact: true }).click();
-  await page.getByRole('button', { name: '과제 · 일정 등록', exact: true }).click();
+  await page.getByRole('button', { name: '과제 등록', exact: true }).click();
   await page.getByRole('button', { name: '수행평가', exact: true }).click();
   await page
     .getByRole('textbox', { name: '할 일을 한 문장으로' })
@@ -241,13 +241,13 @@ test('detailed entry keeps the capture draft, completion and submission remain s
   page,
 }) => {
   await seed(page);
-  await page.getByRole('button', { name: '과제 · 일정 등록', exact: true }).click();
+  await page.getByRole('button', { name: '과제 등록', exact: true }).click();
   await page.getByRole('textbox', { name: '할 일을 한 문장으로' }).fill('내일 수학 학습지 제출');
   await page.getByRole('button', { name: '상세 입력', exact: true }).click();
   await expect(page.locator('[name=title]')).toHaveValue('내일 수학 학습지 제출');
   await expect(page.locator('[name=subject]')).toHaveValue('수학');
   await page.getByRole('button', { name: '과제 저장', exact: true }).click();
-  await page.locator('.study-task-copy').first().click();
+  await page.locator('.rebirth-task').first().click();
   await page.locator('.study-task-details summary').click();
   await page.getByRole('combobox', { name: '학습 상태', exact: true }).selectOption('done');
   await page.getByRole('button', { name: '과제 저장', exact: true }).click();
@@ -292,7 +292,7 @@ test('dated academy makeup and an approved learning proposal update the same cal
     }),
   ];
   await seed(page, s);
-  await page.getByRole('button', { name: '과제 · 일정 등록', exact: true }).click();
+  await page.getByRole('button', { name: '과제 등록', exact: true }).click();
   await page.getByRole('button', { name: '일정', exact: true }).click();
   await page.getByLabel('학교 과목 · 학원 이름 · 일정').fill('영어 보충수업');
   await page.getByRole('combobox', { name: '구분', exact: true }).selectOption('academy');
@@ -329,7 +329,7 @@ test('small phone, rotation, keyboard-sized viewport and storage failure keep th
   );
   await page.getByRole('button', { name: '닫기', exact: true }).click();
   await page.setViewportSize({ width: 320, height: 440 });
-  await page.getByRole('button', { name: '과제 · 일정 등록', exact: true }).click();
+  await page.getByRole('button', { name: '과제 등록', exact: true }).click();
   await page.getByRole('textbox', { name: '할 일을 한 문장으로' }).fill('수학 과제 보존');
   await page.evaluate(() => {
     const original = Storage.prototype.setItem;
