@@ -39,7 +39,7 @@ jobs:
       - run: npx playwright install --with-deps chromium webkit
       - name: Verify learning, drafts, capture, schedules, records and backup
         run: >-
-          npx playwright test tests/e2e/first-learning-action.spec.ts tests/e2e/learning-draft.spec.ts
+          npx playwright test tests/e2e/first-learning-action.spec.ts tests/e2e/learning-draft.spec.ts tests/e2e/briefing-discovery.spec.ts tests/e2e/submission-entry.spec.ts
           tests/e2e/student-beta.spec.ts tests/e2e/recovery.spec.ts
           tests/e2e/clean-study-loop.spec.ts tests/e2e/internal-reliability.spec.ts
           tests/e2e/compact-offline.spec.ts tests/e2e/cloud-lifecycle.spec.ts

@@ -1890,7 +1890,7 @@ export default function App() {
               <Suspense fallback={<p role="status">학습 도구를 여는 중…</p>}>
                 <MoreHub
                   onNavigate={setTab}
-                  onCapture={() => openAtelier('capture')}
+                  onCapture={() => openAtelier()}
                   onAssistant={() => open('assistant')}
                 />
               </Suspense>
@@ -1925,6 +1925,7 @@ export default function App() {
                 onCalendar={()=>setCalendarOpen(true)}
                 onEdit={taskEditor}
                 onSubmissions={() => {
+                  setTaskKindFilter('all');
                   setFilter('submission');
                   setTab('tasks');
                 }}
