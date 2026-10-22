@@ -50,8 +50,12 @@ export function HomeHero({
       (event) =>
         event.type === 'FirstLearningAttempt' && event.sessionId === (active?.id || quick?.id),
     );
+  const activeTask = state.tasks.find((t) => t.id === active?.taskId);
+  const startedAction = state.learningEvents?.find(
+    (event) => event.type === 'StudyStarted' && event.sessionId === (active?.id || quick?.id),
+  )?.action;
   const title = busy
-    ? state.tasks.find((t) => t.id === active?.taskId)?.title || active?.action || '나의 자유 학습'
+    ? activeTask?.title || active?.action || '나의 자유 학습'
     : task?.title || (completed ? '한 가지를 마쳤어요.' : '가볍게, 5분부터.');
   const action = busy
     ? step?.next === 'retry'
@@ -60,7 +64,7 @@ export function HomeHero({
         ? '막힌 개념을 내 말로 한 줄 정리해 보세요.'
         : step?.next === 'continue'
           ? '다음 질문 하나를 골라, 내 답을 적어 보세요.'
-          : active?.action || firstLearningAction()
+          : startedAction || firstLearningAction(activeTask)
     : ready
       ? firstLearningAction(task)
       : current

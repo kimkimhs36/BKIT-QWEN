@@ -1,12 +1,12 @@
 import { chromium } from '@playwright/test';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 const out = new URL('../artifacts/home-rebirth/', import.meta.url).pathname;
 const before = process.env.BKIT_BASELINE_URL || 'http://127.0.0.1:4174/study-os/';
 const after = process.env.BKIT_REVIEW_URL || 'http://127.0.0.1:4173/study-os/';
 const onlyAfter = process.env.BKIT_ONLY_AFTER === '1';
 await mkdir(out, { recursive: true });
 const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || '/usr/bin/chromium', args: ['--no-sandbox'] });
-const metrics = [];
+const metrics = onlyAfter ? JSON.parse(await readFile(`${out}/geometry.json`, 'utf8')).filter((row) => row.stage === 'before') : [];
 try {
   for (const [device, viewport] of [['iphone', {width:390,height:844}], ['ipad-portrait',{width:834,height:1194}], ['ipad',{width:1194,height:834}], ['galaxy',{width:1280,height:800}], ['desktop',{width:1440,height:1000}]]) {
     for (const [stage, url] of onlyAfter ? [['after', after]] : [['before', before], ['after', after]]) {

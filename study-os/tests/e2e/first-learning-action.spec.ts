@@ -56,6 +56,7 @@ test('home capture starts the real recommended task, deduplicates first attempt 
   await page.getByLabel('지금 문제와 내 생각').fill('종이에 조건을 적었고 단위가 헷갈려요.');
   // Navigate immediately, before debounce: the existing draft guard must flush.
   await nav(page, '오늘');
+  await expect(page.getByLabel('첫 학습 행동', { exact: true })).toContainText('다시 풀어');
   await page.reload();
   await page.getByRole('button', { name: '공부 이어가기', exact: true }).click();
   await expect(page.getByLabel('지금 문제와 내 생각')).toHaveValue(
