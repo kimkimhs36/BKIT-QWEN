@@ -1531,3 +1531,28 @@ html[data-material] .study-dialog .modal-head .icon-button {
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
+
+/* Keep a concrete action in sight when a task-linked session opens. */
+.focus-first-move {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  margin: 14px 0 18px;
+  padding: 15px 18px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, currentColor 13%, transparent);
+  background: color-mix(in srgb, var(--mat-paper, #fff) 88%, transparent);
+  color: inherit;
+}
+.focus-first-move > span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  opacity: 0.65;
+}
+.focus-first-move > strong {
+  font-size: 15px;
+  line-height: 1.55;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
