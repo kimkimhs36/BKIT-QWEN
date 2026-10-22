@@ -1556,3 +1556,19 @@ html[data-material] .study-dialog .modal-head .icon-button {
   font-weight: 600;
   overflow-wrap: anywhere;
 }
+
+.focus-first-move > small { font-size: 12px; line-height: 1.5; opacity: 0.7; }
+.focus-first-attempt {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 3px;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 650;
+}
+.focus-first-done { margin: 4px 0 0; font-size: 13px; line-height: 1.5; }
