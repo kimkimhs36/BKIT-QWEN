@@ -2117,6 +2117,54 @@ export default function App() {
                       )}
                       <h2>{s.active ? s.active.action : '과제와 연결해 공부하기'}</h2>
                       {s.active && <p className="focus-subject">{s.active.subject}</p>}
+                      {s.active && !s.active.exam && (
+                        <div className="focus-first-move" aria-label="지금 할 첫 학습 행동">
+                          <span>FIRST MOVE</span>
+                          <strong>
+                            {firstLearningAction(
+                              s.tasks.find((task) => task.id === s.active?.taskId),
+                              energy === 'low',
+                            )}
+                          </strong>
+                          <small>먼저 종이나 학습지에 내 답을 적어 보세요.</small>
+                          {!s.learningEvents?.some(
+                            (event) =>
+                              event.type === 'FirstLearningAttempt' &&
+                              event.sessionId === s.active?.id,
+                          ) ? (
+                            <button
+                              type="button"
+                              className="focus-first-attempt"
+                              onClick={() =>
+                                commit((value) =>
+                                  value.active
+                                    ? appendLearningEvent(value, {
+                                        id: uid(),
+                                        type: 'FirstLearningAttempt',
+                                        at: iso(Date.now()),
+                                        foregroundAt: foregroundAt.current,
+                                        taskId: value.active.taskId,
+                                        sessionId: value.active.id,
+                                        action: firstLearningAction(
+                                          value.tasks.find(
+                                            (task) => task.id === value.active?.taskId,
+                                          ),
+                                          energy === 'low',
+                                        ),
+                                      })
+                                    : value,
+                                )
+                              }
+                            >
+                              <Check size={16} aria-hidden="true" /> 첫 문제 시도했어요
+                            </button>
+                          ) : (
+                            <p className="focus-first-done" role="status">
+                              첫 시도 기록 완료 · 정답과 오답은 학습 종료 시 정리하세요.
+                            </p>
+                          )}
+                        </div>
+                      )}
                       <div className="focus-instrument">
                         <div className="focus-readout">
                           <span>
