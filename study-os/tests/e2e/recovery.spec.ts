@@ -247,7 +247,7 @@ test('detailed entry keeps the capture draft, completion and submission remain s
   await expect(page.locator('[name=title]')).toHaveValue('내일 수학 학습지 제출');
   await expect(page.locator('[name=subject]')).toHaveValue('수학');
   await page.getByRole('button', { name: '과제 저장', exact: true }).click();
-  await page.locator('.study-task-copy').first().click();
+  await page.locator('.rebirth-task').first().click();
   await page.locator('.study-task-details summary').click();
   await page.getByRole('combobox', { name: '학습 상태', exact: true }).selectOption('done');
   await page.getByRole('button', { name: '과제 저장', exact: true }).click();

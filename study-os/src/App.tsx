@@ -7,6 +7,7 @@ import { MaterialEffects } from './themes/MaterialEffects';
 import { RecordOverview } from './RecordOverview';
 import { FirstLearningStep } from './FirstLearningStep';
 import { PremiumHome } from './PremiumHome';
+import { MaterialTouchField } from './themes/MaterialTouchField';
 import { Modal } from './Modal';
 import { MotionConfig } from 'motion/react';
 import {
@@ -1694,6 +1695,7 @@ export default function App() {
             !!(s.active?.exam || (tab === 'study' && (s.active?.workspace || s.active?.resourceId)))
           }
         />
+        <MaterialTouchField prefs={material} studying={!!(s.active || s.quickTimer)} />
         <MaterialEffects
           prefs={material}
           studying={!!(s.active?.segmentStart || s.quickTimer?.segmentStart || s.active?.resourceId || s.active?.workspace)}

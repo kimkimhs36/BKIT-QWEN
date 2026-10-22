@@ -43,3 +43,13 @@ Vercel connector team listing returned no teams; project read under the known `t
 - Owner OAuth → Redis budget reservation → real DeepSeek response → confirmed save is unverified; Preview CORS intentionally remains restricted.
 - No production merge or forced deployment. Keep #22 → #23 → #24 → Home Rebirth review order; API #21 stays independent.
 - Next release: physical-device/long-session QA; one owner-authorized budget-limited AI check; large-store/active-clock performance profiling.
+
+## Follow-up: transparent identity and nine touch materials
+
+The user's follow-up explicitly requested fixing the rectangular logo/header surface after a theme switch and making every theme's touch background distinct. The rectangle came from competing material header rules (`var(--mat-bg)` on most themes and a translucent rectangular Glass header). A final shared rule now keeps header, leading area and logo background/border/shadow transparent across all routes and palettes.
+
+`MaterialTouchField` adds a passive decorative layer behind all content: paper sunlight, forest light shafts, optical Glass edges, Peach satin bloom, Diamond facets, Champagne sweep, purple Jelly lobes, water rings and a quiet Night orbit. Each has its own shape and decay. A three-node pool bounds concurrency; Web Animations use opacity/transform and clean up at finish, scrolling, hiding, preference changes and unmount. No new canvas, continuous rAF loop, network request, sensor permission or store write. Text/cards do not move. Inputs, navigation, dialogs, readers and active/paused study are excluded. OS motion reduction, saved off/reduced motion, intensity and low power all remain authoritative.
+
+Touch E2E checks actual Web Animation state, distinct rendered geometry for all nine palettes, fixed Hero geometry, 3-node bound, end cleanup, transparent headers, preference suppression and study protection. Representative screenshots pause real animation timelines to avoid software-GPU timing making short effects impossible to capture reliably; this is not physical-device performance evidence.
+
+Broader CI surfaced two pre-existing time-dependent tests that assumed it was outside the sleep schedule. Their clocks now use an explicit allowed study time; read-only corrupt-store assertions are unchanged. Existing recovery and bounded-agenda tests now target the actual new row/whole-list controls. Small-phone shortcut reachability scrolls to the relocated agenda navigation; the primary start action is still required in the initial viewport. No schedule guard or data-safety assertion was removed.
