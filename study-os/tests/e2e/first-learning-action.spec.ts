@@ -16,6 +16,7 @@ test('home primary action starts the recommended task and preserves its first st
   expect(saved.active?.target).toBe(5);
   expect(saved.learningEvents?.some((e: { type: string; action?: string }) =>
     e.type === 'StudyStarted' && e.action?.includes('수학 학습지'))).toBe(true);
+  await expect(page.getByLabel('지금 할 첫 학습 행동')).toContainText('수학 학습지');
   await expect(page.getByRole('heading', { name: '집중', exact: true })).toBeVisible();
 });
 
