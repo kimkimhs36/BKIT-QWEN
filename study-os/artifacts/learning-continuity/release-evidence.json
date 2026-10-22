@@ -1,0 +1,88 @@
+{
+  "codeCommit": "9a6bc836982cdefa3878ec4c0b429334086a33ec",
+  "branch": "feat/bkit-learning-continuity-20261022",
+  "pullRequest": "https://github.com/kimkimhs36/BKIT-QWEN/pull/24",
+  "verifiedAt": "2026-10-22T06:43:55.515141+00:00",
+  "ci": {
+    "url": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/39734767359",
+    "conclusion": "success",
+    "frontendUnitTests": 264,
+    "e2eCases": 160,
+    "jobs": {
+      "verify (webkit-ipad)": {
+        "Verify learning, drafts, capture, schedules, records and backup": 39,
+        "Preserve all nine themes with a running clock": 1
+      },
+      "verify (webkit-iphone)": {
+        "Verify learning, drafts, capture, schedules, records and backup": 39,
+        "Preserve all nine themes with a running clock": 1
+      },
+      "verify (webkit-ipad-landscape)": {
+        "Verify learning, drafts, capture, schedules, records and backup": 39,
+        "Preserve all nine themes with a running clock": 1
+      },
+      "verify (desktop)": {
+        "Verify learning, drafts, capture, schedules, records and backup": 39,
+        "Preserve all nine themes with a running clock": 1
+      }
+    }
+  },
+  "apiTests": {
+    "sourceCommit": "9d8e542ed07d7b8f689719a7cc1af218e0b89db6",
+    "passed": 100,
+    "typecheck": "passed",
+    "providerResponses": "synthetic",
+    "paidInference": false
+  },
+  "additionalChecks": [
+    {
+      "scope": "live Vercel Preview, iPhone WebKit functional acceptance",
+      "commit": "6f21e9e4f08315f06a0483d88785b4ff4c997732",
+      "passed": 15
+    },
+    {
+      "scope": "live Vercel Preview, final clock contrast and focus-card axe",
+      "commit": "ca2885e744bdbed90418be47f39952275f2a65ef",
+      "passed": 2
+    },
+    {
+      "scope": "live Vercel Preview, final notice geometry and narrow focus controls",
+      "commit": "9a6bc836982cdefa3878ec4c0b429334086a33ec",
+      "passed": 1
+    },
+    {
+      "scope": "iPad WebKit PDF/ink/ZIP with synthetic pointer events",
+      "commit": "48c799a6da913102dd545f2569f22ef18600cc46",
+      "passed": 5
+    },
+    {
+      "scope": "Galaxy CSS viewport emulation, not physical hardware",
+      "commit": "6f21e9e4f08315f06a0483d88785b4ff4c997732",
+      "passed": 15
+    }
+  ],
+  "deepseek": {
+    "officialModelChecked": "deepseek-flash",
+    "productionHealth": 200,
+    "productionConfig": 200,
+    "productionApiSource": "95d7a4f0737dc49af1299f8692a5859315306967",
+    "unauthenticatedOwnerEndpoint": 401,
+    "allowedOriginPreflight": 204,
+    "previewOriginPreflight": 403,
+    "liveOwnerOAuthVerified": false,
+    "liveProviderResponseVerified": false
+  },
+  "deployment": {
+    "preview": "https://bkit-study-os-36-preview-git-feat-bkit-learning-f02d69-teambkit.vercel.app/",
+    "managementApiTeamPermission": 403,
+    "productionChanged": false,
+    "domainChanged": false
+  },
+  "limitations": [
+    "No physical Apple/Android device acceptance",
+    "No real student time-to-first-action result",
+    "No paid DeepSeek invocation or live owner OAuth",
+    "No claim that every historical E2E suite passes",
+    "Active shell still uses the existing one-second clock state update"
+  ]
+}

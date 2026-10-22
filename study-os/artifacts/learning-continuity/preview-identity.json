@@ -1,0 +1,19 @@
+{
+  "url": "https://bkit-study-os-36-preview-git-feat-bkit-learning-f02d69-teambkit.vercel.app",
+  "deploymentInspector": "https://vercel.com/teambkit/bkit-study-os-36-preview/HF7cbDAssWwdAhMoZKyuvrAwR7CJ",
+  "identity": {
+    "schemaVersion": 1,
+    "product": "BKIT STUDY OS",
+    "sourceCommit": "9a6bc836982cdefa3878ec4c0b429334086a33ec",
+    "sourceBranch": "feat/bkit-learning-continuity-20261022",
+    "environment": "preview",
+    "verification": "build-identity-only"
+  },
+  "htmlAssets": [
+    "/assets/index-Ba6vH5b5.css",
+    "/assets/index-TF0PSjxG.js",
+    "/assets/react-vendor-DENrKhsk.js",
+    "/assets/schema-vendor-DYuAzjeD.js"
+  ],
+  "productionChanged": false
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "stage": "before",
+    "mode": "idle",
+    "windowMs": 5200,
+    "longTasks": [],
+    "mutations": 0,
+    "errors": []
+  },
+  {
+    "stage": "before",
+    "mode": "studying",
+    "windowMs": 5200,
+    "longTasks": [],
+    "mutations": 37,
+    "errors": []
+  },
+  {
+    "stage": "after",
+    "mode": "idle",
+    "windowMs": 5200,
+    "longTasks": [],
+    "mutations": 0,
+    "errors": []
+  },
+  {
+    "stage": "after",
+    "mode": "studying",
+    "windowMs": 5200,
+    "longTasks": [],
+    "mutations": 35,
+    "errors": []
+  }
+]
