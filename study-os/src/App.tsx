@@ -2117,6 +2117,17 @@ export default function App() {
                       )}
                       <h2>{s.active ? s.active.action : '과제와 연결해 공부하기'}</h2>
                       {s.active && <p className="focus-subject">{s.active.subject}</p>}
+                      {s.active && !s.active.exam && (
+                        <div className="focus-first-move" aria-label="지금 할 첫 학습 행동">
+                          <span>FIRST MOVE</span>
+                          <strong>
+                            {firstLearningAction(
+                              s.tasks.find((task) => task.id === s.active?.taskId),
+                              energy === 'low',
+                            )}
+                          </strong>
+                        </div>
+                      )}
                       <div className="focus-instrument">
                         <div className="focus-readout">
                           <span>
