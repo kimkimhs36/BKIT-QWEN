@@ -1507,3 +1507,27 @@ html[data-material] .study-dialog .modal-head .icon-button {
     top: -16px !important;
   }
 }
+
+/* The first real learning action stays visible above the primary CTA, not in a hidden planner. */
+.study-start-next {
+  display: grid;
+  gap: 5px;
+  padding: 12px 15px;
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--mat-paper, #fff) 84%, transparent);
+  position: relative;
+  z-index: 1;
+}
+.study-start-next > span {
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  opacity: 0.62;
+}
+.study-start-next > strong {
+  font-size: clamp(13px, 2.7vw, 15px);
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
