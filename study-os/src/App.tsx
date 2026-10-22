@@ -5,6 +5,7 @@ import { MaterialSettings } from './themes/MaterialSettings';
 import { AnimatedClock } from './AnimatedClock';
 import { MaterialEffects } from './themes/MaterialEffects';
 import { RecordOverview } from './RecordOverview';
+import { FirstLearningStep } from './FirstLearningStep';
 import { PremiumHome } from './PremiumHome';
 import { Modal } from './Modal';
 import { MotionConfig } from 'motion/react';
@@ -804,6 +805,7 @@ export default function App() {
       !recommendationReady ||
       tab !== 'today' ||
       s.active ||
+      s.quickTimer ||
       current ||
       document.visibilityState !== 'visible' ||
       !writer.ready ||
@@ -830,6 +832,7 @@ export default function App() {
   }, [
     tab,
     recommendationTask?.id,
+    s.quickTimer,
     s.active?.id,
     current?.id,
     readBlocked,
@@ -857,7 +860,23 @@ export default function App() {
       return;
     }
     const started = Date.now();
-    if (commit((v) => startQuick(v, mode, target, started, uid())))
+    const sessionId = uid();
+    if (
+      commit((v) => {
+        const next = startQuick(v, mode, target, started, sessionId);
+        return next === v
+          ? v
+          : appendLearningEvent(next, {
+              id: uid(),
+              type: 'StudyStarted',
+              at: iso(started),
+              foregroundAt: foregroundAt.current,
+              taskId: null,
+              sessionId,
+              action: firstLearningAction(),
+            });
+      })
+    )
       setNotice('기록 없이 바로 시작! 공부가 끝나면 시간을 먼저 저장할게요.');
   }
   function pauseQuickNow() {
@@ -893,8 +912,54 @@ export default function App() {
   ) {
     return commit((v) => labelQuick(v, id, subject, action, note, taskId));
   }
+  function firstStep(timer: NonNullable<State['active']> | NonNullable<State['quickTimer']>) {
+    const taskId = 'taskId' in timer ? timer.taskId : null;
+    const action = firstLearningAction(
+      s.tasks.find((t) => t.id === taskId),
+      energy === 'low',
+    );
+    return (
+      <FirstLearningStep
+        key={timer.id}
+        action={action}
+        step={timer.learningStep}
+        attempted={
+          !!s.learningEvents?.some(
+            (e) => e.type === 'FirstLearningAttempt' && e.sessionId === timer.id,
+          )
+        }
+        onSave={(step) =>
+          commit((v) => {
+            const key =
+              v.active?.id === timer.id
+                ? 'active'
+                : v.quickTimer?.id === timer.id
+                  ? 'quickTimer'
+                  : null;
+            if (!key || !v[key]) return v;
+            return { ...v, [key]: { ...v[key], learningStep: step } };
+          })
+        }
+        onAttempt={() =>
+          commit((v) => {
+            if (v.active?.id !== timer.id && v.quickTimer?.id !== timer.id) return v;
+            return appendLearningEvent(v, {
+              id: uid(),
+              type: 'FirstLearningAttempt',
+              at: iso(Date.now()),
+              foregroundAt: foregroundAt.current,
+              taskId,
+              sessionId: timer.id,
+              action,
+            });
+          })
+        }
+      />
+    );
+  }
   const quickProps = {
     timer: s.quickTimer,
+    learningStep: s.quickTimer ? firstStep(s.quickTimer) : undefined,
     now: studyNow,
     todaySeconds: quickToday,
     last: quickRecent,
@@ -1106,6 +1171,7 @@ export default function App() {
           ...v.active,
           workspace: {
             ...v.active.workspace,
+            answerDraft: '',
             attempts: [
               ...v.active.workspace.attempts,
               {
@@ -1243,6 +1309,7 @@ export default function App() {
             started: a.started,
             ended: iso(ended),
             workspace: a.workspace,
+            learningStep: a.learningStep,
             resourceId: a.resourceId,
             questionPace: a.questionPace,
             exam: a.exam,
@@ -1833,7 +1900,11 @@ export default function App() {
                 state={s}
                 now={now}
                 tasks={ordered}
+                recommended={recommendationTask}
+                selection={selected}
+                onSelectionChange={setSelected}
                 next={next}
+                nextProtected={fixed.find((f) => f.start > now)}
                 current={current}
                 resource={resumeResource}
                 onStart={(id) => start(5, id)}
@@ -2117,54 +2188,6 @@ export default function App() {
                       )}
                       <h2>{s.active ? s.active.action : '과제와 연결해 공부하기'}</h2>
                       {s.active && <p className="focus-subject">{s.active.subject}</p>}
-                      {s.active && !s.active.exam && (
-                        <div className="focus-first-move" aria-label="지금 할 첫 학습 행동">
-                          <span>FIRST MOVE</span>
-                          <strong>
-                            {firstLearningAction(
-                              s.tasks.find((task) => task.id === s.active?.taskId),
-                              energy === 'low',
-                            )}
-                          </strong>
-                          <small>먼저 종이나 학습지에 내 답을 적어 보세요.</small>
-                          {!s.learningEvents?.some(
-                            (event) =>
-                              event.type === 'FirstLearningAttempt' &&
-                              event.sessionId === s.active?.id,
-                          ) ? (
-                            <button
-                              type="button"
-                              className="focus-first-attempt"
-                              onClick={() =>
-                                commit((value) =>
-                                  value.active
-                                    ? appendLearningEvent(value, {
-                                        id: uid(),
-                                        type: 'FirstLearningAttempt',
-                                        at: iso(Date.now()),
-                                        foregroundAt: foregroundAt.current,
-                                        taskId: value.active.taskId,
-                                        sessionId: value.active.id,
-                                        action: firstLearningAction(
-                                          value.tasks.find(
-                                            (task) => task.id === value.active?.taskId,
-                                          ),
-                                          energy === 'low',
-                                        ),
-                                      })
-                                    : value,
-                                )
-                              }
-                            >
-                              <Check size={16} aria-hidden="true" /> 첫 문제 시도했어요
-                            </button>
-                          ) : (
-                            <p className="focus-first-done" role="status">
-                              첫 시도 기록 완료 · 정답과 오답은 학습 종료 시 정리하세요.
-                            </p>
-                          )}
-                        </div>
-                      )}
                       <div className="focus-instrument">
                         <div className="focus-readout">
                           <span>
@@ -2292,6 +2315,7 @@ export default function App() {
                           </button>
                         </div>
                       )}
+                      {s.active && !s.active.exam && firstStep(s.active)}
                       {s.active?.segmentStart && (
                         <div className="focus-quiet-tools">
                           <button
@@ -2327,6 +2351,20 @@ export default function App() {
                           {s.active && !s.active.resourceId && (
                             <ProblemWorkspace
                               active={s.active}
+                              key={s.active.id}
+                              onSaveDraft={(answerDraft) =>
+                                commit((v) =>
+                                  v.active?.workspace
+                                    ? {
+                                        ...v,
+                                        active: {
+                                          ...v.active,
+                                          workspace: { ...v.active.workspace, answerDraft },
+                                        },
+                                      }
+                                    : v,
+                                )
+                              }
                               onSetProblem={setLearningProblem}
                               onRecordAttempt={addLearningAttempt}
                               onSelfCheck={markLearningAttempt}
@@ -2564,6 +2602,12 @@ export default function App() {
                                 타이머 · {x.problems}문제 · {x.rating}
                               </p>
                               {x.concepts && <p>개념: {x.concepts}</p>}
+                              {x.learningStep?.note && (
+                                <details className="record-learning-note">
+                                  <summary>내 답 · 막힌 부분 메모</summary>
+                                  <p>{x.learningStep.note}</p>
+                                </details>
+                              )}
                               {x.quick && (
                                 <button
                                   type="button"

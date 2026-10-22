@@ -190,7 +190,9 @@ test('all nine themes apply instantly while running and paused timers survive na
   page,
 }, info) => {
   await seed(page, populated());
-  await page.getByRole('button', { name: '지금 공부 시작', exact: true }).click();
+  // The home primary CTA starts the recommended task; this regression covers the explicit quick stopwatch.
+  await nav(page, '집중');
+  await page.getByRole('button', { name: '지금 시작', exact: true }).click();
   await expect(page.locator('.quick-timer-active')).toBeVisible();
   const original = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), key);
   await page.getByRole('button', { name: 'BKIT 로고 · 테마 선택' }).click();

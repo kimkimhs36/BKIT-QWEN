@@ -22,11 +22,19 @@ export function weeklyLearningEvidence(s: State, today: string) {
           Date.parse(a.submittedAt) - Date.parse(before.submittedAt) >= 86400000,
       ),
   );
-  const delays = events
-    .filter((e) => e.type === 'FirstLearningAttempt')
+  const starts = events.filter((e) => e.type === 'StudyStarted');
+  const firstAttempts = [
+    ...new Map(
+      events
+        .filter((e) => e.type === 'FirstLearningAttempt' && e.sessionId)
+        .map((e) => [e.sessionId, e]),
+    ).values(),
+  ];
+  const delays = firstAttempts
     .map((e) => (Date.parse(e.at) - Date.parse(e.foregroundAt)) / 1000)
     .filter((n) => n >= 0)
     .sort((a, b) => a - b);
+  const startedIds = new Set(starts.map((e) => e.sessionId).filter(Boolean));
   const delayed = retests.filter(
     (a) =>
       a.selfCheck !== 'unreviewed' &&
@@ -36,7 +44,10 @@ export function weeklyLearningEvidence(s: State, today: string) {
         86400000,
   );
   return {
-    starts: events.filter((e) => e.type === 'StudyStarted').length,
+    starts: starts.length,
+    attemptedStarts: firstAttempts.filter((e) => startedIds.has(e.sessionId)).length,
+    firstAttemptSessions: firstAttempts.length,
+    p75Seconds: delays.length ? delays[Math.ceil(delays.length * 0.75) - 1] : null,
     attempts: attempts.length + retests.length + resourceAttempts.length,
     independent:
       attempts.filter((a) => a.hintUsed === false).length +

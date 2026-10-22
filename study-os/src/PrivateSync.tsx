@@ -15,6 +15,11 @@ export function portableStudyState(state: State): State {
     learning: undefined,
     revision: 0,
     tasks: state.tasks.map(({ attachmentIds: _privatePhotos, ...task }) => task),
+    // Unsubmitted answers and first-step notes remain device-local, including after finish.
+    sessions: state.sessions.map(({ learningStep: _localStep, ...session }) => ({
+      ...session,
+      workspace: session.workspace ? (({answerDraft: _draft, ...workspace}) => workspace)(session.workspace) : undefined,
+    })),
     active: null,
     quickTimer: null, // device-only live stopwatch must not sync or leak timer metadata
     plan: [],
@@ -36,7 +41,11 @@ export function mergePrivateStudyState(local: State, incoming: State): State {
     sessions:incoming.sessions.map(session => {
       const existing = local.sessions.find(s => s.id === session.id);
       return {...session, quick:session.quick ?? existing?.quick,
-        resourceId:existing?.resourceId};
+        resourceId:existing?.resourceId,
+        learningStep:existing?.learningStep,
+        workspace:session.workspace
+          ? {...session.workspace, answerDraft:existing?.workspace?.answerDraft}
+          : existing?.workspace};
     }),
     plan:[], undo:null,
   };

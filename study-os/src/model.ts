@@ -105,7 +105,12 @@ export const learningAttemptSchema = z.object({
     ])
     .optional(),
 });
+export const learningStepSchema = z.object({
+  note: note,
+  next: z.enum(['continue', 'retry', 'concept']).optional(),
+});
 export const problemWorkspaceSchema = z.object({
+  answerDraft: note.optional(),
   problem: note.min(1),
   source: text,
   sourceType: z
@@ -116,6 +121,7 @@ export const problemWorkspaceSchema = z.object({
 });
 /** Zero-friction timer starts before the learner chooses any task or subject. */
 export const quickTimerSchema = z.object({
+  learningStep: learningStepSchema.optional(),
   id,
   mode: z.enum(['stopwatch', 'countdown']),
   targetMinutes: minutes,
@@ -141,6 +147,7 @@ export const mockExamSchema = z.object({
   finishedAt: instant.nullable(),
 });
 export const activeSchema = z.object({
+  learningStep: learningStepSchema.optional(),
   id,
   quick: z.boolean().optional(),
   quickMode: z.enum(['stopwatch', 'countdown']).optional(),
@@ -159,6 +166,7 @@ export const activeSchema = z.object({
   segments: z.array(segmentSchema).max(10000).optional(),
 });
 export const sessionSchema = z.object({
+  learningStep: learningStepSchema.optional(),
   id,
   quick: z.boolean().optional(),
   taskId: id.nullable(),

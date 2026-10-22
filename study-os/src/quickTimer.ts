@@ -78,6 +78,7 @@ export function finishQuick(state: State, now: number): State {
   const result: Session = {
     id: timer.id,
     quick: true,
+    learningStep: timer.learningStep,
     taskId: null,
     subject: '미분류',
     action: '바로 시작한 공부',
@@ -153,6 +154,7 @@ export function attachQuickResource(state: State, resourceId: string, problemId?
     active: {
       id: timer.id,
       quick: true,
+      learningStep: timer.learningStep,
       quickMode: timer.mode,
       taskId: resource.linkedTaskId,
       resourceId,
@@ -179,6 +181,7 @@ export function attachQuickTask(state: State, taskId: string): State {
     active: {
       id: timer.id,
       quick: true,
+      learningStep: timer.learningStep,
       quickMode: timer.mode,
       taskId: task.id,
       subject: task.subject,
@@ -203,6 +206,7 @@ export function finishQuickResource(state: State, now: number): State {
       active: null,
       quickTimer: {
         id: active.id,
+        learningStep: active.learningStep,
         mode: active.quickMode ?? 'countdown',
         targetMinutes: active.target,
         started: active.started,

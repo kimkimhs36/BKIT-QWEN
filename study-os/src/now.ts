@@ -23,8 +23,15 @@ export function firstLearningAction(task?: Task, tired = false): string {
     return `${prefix} · 남은 분량이 0으로 기록되어 있어요. 과제에서 학습 완료와 제출 여부를 확인해요.`;
   if (q?.unit === 'problems')
     return `${prefix} · 남은 ${q.remaining}문제 중 하나를 골라 ${tired ? '첫 식 한 줄만' : '풀이 또는 답을'} 써보기`;
-  if (q?.unit === 'passages') return `${prefix} · 지문 하나의 첫 문장을 가리고 직접 해석해 보기`;
+  if (q?.unit === 'passages') return /영어/.test(task.subject)
+    ? `${prefix} · 지문 하나의 첫 문장을 가리고 직접 해석해 보기`
+    : `${prefix} · 지문 하나의 첫 문단을 읽고 핵심 내용을 한 줄로 적기`;
   if (q?.unit === 'pages') return `${prefix} · 남은 ${q.remaining}쪽에서 핵심 질문 하나에 답하기`;
+  if (/물리/.test(task.subject)) return `${prefix} · 주어진 물리량과 단위를 적고 적용할 법칙 하나 고르기`;
+  if (/화학/.test(task.subject)) return `${prefix} · 조건과 단위를 확인하고 필요한 개념 하나 적기`;
+  if (/경제/.test(task.subject)) return `${prefix} · 핵심 개념을 내 말로 정의하고 근거 하나 적기`;
+  if (/국어/.test(task.subject)) return `${prefix} · 첫 문단을 읽고 핵심 내용과 근거 문장 찾기`;
+  if (/영어/.test(task.subject)) return `${prefix} · 첫 문장을 읽고 뜻을 가린 채 떠올려 보기`;
   if (/오답/.test(task.title)) return `${prefix} · 해설을 가리고 오답 하나 다시 풀기`;
   return `${prefix} · ${tired ? '질문 하나의 첫 단계만' : '첫 질문에 내 답을'} 적어보기`;
 }
