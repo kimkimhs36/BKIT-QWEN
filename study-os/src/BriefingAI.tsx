@@ -4,6 +4,7 @@ import { briefingInput, parseBriefingResponse } from './briefingContract';
 import { API_URL } from './ai';
 import { authorizeGoogleIdentity, prepareGoogleIdentity } from './cloudClient';
 import { createMission, type Mission } from './atelier';
+import { briefingFailure } from './briefingFailure';
 import { checkPrivateIdentity } from './privateAuth';
 
 export function BriefingAI({
@@ -136,12 +137,9 @@ export function BriefingAI({
       if (res.status === 401) {
         token.current = '';
         setSignedIn(false);
-        throw new Error(
-          '개인 계정 권한이나 로그인 만료를 확인해 주세요. 무료 OCR과 직접 입력은 계속 사용할 수 있어요.',
-        );
+        throw new Error(briefingFailure(res.status, body.code));
       }
-      if (!res.ok)
-        throw new Error(typeof body.error === 'string' ? body.error : 'AI 정리를 마치지 못했어요.');
+      if (!res.ok) throw new Error(briefingFailure(res.status, body.code));
       const result = parseBriefingResponse(body, submitted.current);
       onUse(
         result.missions.map((m) => ({
@@ -159,9 +157,13 @@ export function BriefingAI({
     } catch (e) {
       if (!alive.current) return;
       setMessage(
-        e instanceof Error && e.name !== 'ZodError'
-          ? e.message
-          : 'AI 초안을 확인하지 못했어요. 직접 정리해 주세요.',
+        e instanceof Error && ['AbortError', 'TimeoutError'].includes(e.name)
+          ? briefingFailure(504)
+          : e instanceof TypeError
+            ? '인터넷 연결이나 서버 접속 주소를 확인해 주세요. 무료 OCR과 직접 입력은 계속 사용할 수 있어요.'
+            : e instanceof Error && e.name !== 'ZodError'
+              ? e.message
+              : 'AI 초안을 확인하지 못했어요. 직접 정리해 주세요.',
       );
     } finally {
       clearTimeout(timeout);
