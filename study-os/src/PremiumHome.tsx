@@ -17,6 +17,7 @@ import { formatTaskDeadline } from './capture';
 import { needsSubmission } from './tasks';
 import { quickClock, quickSeconds } from './quickTimer';
 import { studySeconds, elapsed } from './session';
+import { firstLearningAction, rankInstantTasks } from './now';
 
 type Props = {
   state: State;
@@ -53,6 +54,8 @@ export function PremiumHome({
   onResource,
 }: Props) {
   const pending = tasks.filter((t) => t.status !== 'done');
+  // A concrete learning action takes precedence over starting an unlinked stopwatch.
+  const firstTask = rankInstantTasks(pending, now, 5)[0];
   const awaiting = state.tasks.filter(needsSubmission);
   const recent = state.sessions.at(-1);
   const active = state.active,
@@ -80,15 +83,23 @@ export function PremiumHome({
           <p>
             {busy
               ? `${active?.subject || '자율 학습'} · ${quickClock(seconds)}`
-              : pending[0]
-                ? `${pending[0].subject} · ${pending[0].title}`
-                : '타이머를 켜고, 가볍게 시작해요.'}
+              : firstTask
+                ? `${firstTask.subject} · ${firstTask.title}`
+                : '자료에서 질문 하나를 골라 시작해요.'}
           </p>
         </div>
+        {!busy && (
+          <div className="study-start-next" aria-label="첫 학습 행동">
+            <span>FIRST MOVE · 시작하면 할 일</span>
+            <strong>{firstLearningAction(firstTask)}</strong>
+          </div>
+        )}
         <div className="study-start-actions">
           <button
             className="study-start-primary"
-            onClick={() => (busy ? onNavigate('study') : onQuick())}
+            onClick={() =>
+              busy ? onNavigate('study') : firstTask ? onStart(firstTask.id) : onQuick(5)
+            }
           >
             <Play size={18} fill="currentColor" aria-hidden="true" />
             {busy ? '공부 이어가기' : '지금 공부 시작'}
