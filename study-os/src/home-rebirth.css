@@ -908,3 +908,7 @@ html[data-material] .calendar-dialog .calendar-days .is-outside:not(.is-today):n
 html[data-material] .calendar-dialog .mini-month .is-outside:not(.is-today) {
   color: var(--home-subtle);
 }
+/* Material speed changes must not replay the legacy entrance animation on study content. */
+html[data-material] .app-shell.atelier-os.premium-os.page-today main {
+  animation: none !important;
+}
