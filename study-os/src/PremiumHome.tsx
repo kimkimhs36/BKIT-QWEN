@@ -90,7 +90,7 @@ export function PremiumHome(props: Props) {
       )}
       <HomeHero {...props} />
       <div className="rebirth-capture" role="group" aria-label="빠른 등록">
-        <button onClick={onAdd} aria-label="과제 · 일정 등록">
+        <button onClick={onAdd}>
           <Plus size={19} aria-hidden="true" />
           <span>과제 등록</span>
         </button>
@@ -243,11 +243,7 @@ export function PremiumHome(props: Props) {
             </div>
           </dl>
           <p>첫 시도는 직접 기록한 횟수예요.</p>
-          <button
-            className="rebirth-time"
-            onClick={() => onNavigate('progress')}
-            aria-label={`오늘 공부 ${minutes}분, 기록 보기`}
-          >
+          <button className="rebirth-time" onClick={() => onNavigate('progress')}>
             저장한 공부 시간{' '}
             <span>
               {minutes}분 <ChevronRight size={14} aria-hidden="true" />
@@ -259,11 +255,10 @@ export function PremiumHome(props: Props) {
         <button
           className="rebirth-recent"
           onClick={() => (resource ? onResource(resource.id) : onNavigate('progress'))}
-          aria-label={resource ? '최근 자료 이어 풀기' : '최근 공부 기록 보기'}
         >
           <BookOpen size={20} aria-hidden="true" />
           <span>
-            <small>{resource ? '펼쳐 둔 자료' : '지난 공부의 기록'}</small>
+            <small>{resource ? '최근 자료 이어 풀기' : '최근 공부 기록 보기'}</small>
             <strong>{resource?.title || `${recent!.subject} · ${recent!.action}`}</strong>
           </span>
           <ArrowUpRight size={19} aria-hidden="true" />

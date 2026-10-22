@@ -18,7 +18,7 @@ try {
       await page.addInitScript(() => { localStorage.setItem('bkit.atelier.visited.v1','1'); localStorage.setItem('bkit.material.v1',JSON.stringify({id:'peach',motion:'off',intensity:.5,lowPower:true})); });
       await page.goto(url); await page.evaluate(() => document.fonts.ready);
       await page.screenshot({path:`${out}/${device}-${stage}-empty.png`,fullPage:true,animations:'disabled'});
-      await page.getByRole('button',{name:'과제 · 일정 등록',exact:true}).click();
+      await page.getByRole('button',{name:/^과제(?: · 일정)? 등록$/}).click();
       await page.getByRole('textbox',{name:'할 일을 한 문장으로'}).fill('수학 극한 학습지 풀기');
       await page.getByRole('button',{name:'오늘에 담기',exact:true}).click();
       await page.getByRole('dialog').waitFor({state:'detached'}); await page.clock.runFor(6500);

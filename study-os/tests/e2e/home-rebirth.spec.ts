@@ -1,6 +1,6 @@
 import { test, expect, type Page } from './local-fixture';
 import AxeBuilder from '@axe-core/playwright';
-import { newState, taskSchema, type State } from '../../src/model';
+import { newState, taskSchema, sessionSchema, type State } from '../../src/model';
 import { materials } from '../../src/themes/material';
 // Immediate offline study must work before a service-worker precache finishes.
 test.use({ serviceWorkers: 'block' });
@@ -26,6 +26,25 @@ function populated() {
       link: '',
     }),
   );
+  state.sessions = [
+    sessionSchema.parse({
+      id: 'recent-home',
+      taskId: null,
+      subject: '영어',
+      action: '지난 지문 복습',
+      started: '2026-10-21T04:00:00Z',
+      ended: '2026-10-21T04:05:00Z',
+      seconds: 300,
+      target: 5,
+      problems: 0,
+      concepts: '',
+      rating: '보통',
+      reason: '',
+      pauses: [],
+      mistake: '',
+      reviewDate: null,
+    }),
+  ];
   state.schedules = [
     {
       id: 'academy',
@@ -137,7 +156,7 @@ test('all nine home materials remain accessible and retain user settings after r
     await expect(page.locator('html')).toHaveAttribute('data-material', theme.id);
     const scan = await new AxeBuilder({ page })
       .include('.home-rebirth')
-      .withTags(['wcag2a', 'wcag2aa'])
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
     expect(scan.violations, theme.name).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(

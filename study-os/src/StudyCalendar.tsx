@@ -37,12 +37,7 @@ export function CalendarPeek({
     [state, start],
   );
   return (
-    <motion.button
-      layoutId="bkit-calendar-surface"
-      className="calendar-peek"
-      onClick={onOpen}
-      aria-label="전체 달력 열기"
-    >
+    <motion.button layoutId="bkit-calendar-surface" className="calendar-peek" onClick={onOpen}>
       <span className="calendar-peek-heading">
         <span>
           <CalendarDays size={16} />
@@ -83,7 +78,8 @@ export function CalendarPeek({
         })}
       </span>
       <span className="calendar-peek-foot">
-        ● 마감 · ━ 수업과 일정
+        <span>전체 달력 열기</span>
+        <span>● 마감 · ━ 수업과 일정</span>
         <ChevronRight size={14} />
       </span>
     </motion.button>
