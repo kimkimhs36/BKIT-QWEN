@@ -7,7 +7,7 @@
   "validation": "Exact-source CI 39919901841: TypeScript, 225 unit tests, root build; 60/60 E2E across desktop, iPhone WebKit and iPad WebKit; 9 public-preview learning/recovery scenarios plus 2 final-source preview checks passed. No skipped tests or retries.",
   "previousSource": "79630329fcda2fb76cec040132b94488dd651c8c",
   "rollbackCommit": "0f63f235055b5fafb8f94db701eb8aa1bfc07d84",
-  "screenshots": "https://github.com/kimkimhs36/BKIT-QWEN/tree/9777ddc4bcb504b6fc24daea4ab5f38f43c12afa/study-os/docs/live-study-20261023",
+  "screenshots": "https://github.com/kimkimhs36/BKIT-QWEN/tree/bb3b25d/study-os/docs/live-study-20261023/after",
   "notes": "Owner-authorized production release. Existing home layout, button labels and nine themes preserved; owner subsequently requested removal of the standalone name banner. Existing storage keys and schema version retained with optional workspace answerDraft; no data migration. Old hashed assets, independent routes, CNAME, PWA, PDF/OCR and worker lifecycle retained. Physical-device camera/Pencil and owner-authenticated paid AI flow remain unverified.",
   "previousProductionCommit": "0f63f235055b5fafb8f94db701eb8aa1bfc07d84",
   "fix": "Durable first-question drafts and attempts, exact task selection, quick-workspace receipts, selected-date capture and one-day schedule changes; compact focus controls and static Safari background corrected.",
@@ -51,7 +51,17 @@
     "planCoachAssistant": "server unsupported; local rules retained"
   },
   "postDeployVerification": {
-    "status": "pending",
-    "required": "exact Pages commit, public HTML/assets, browser flows and existing-origin data preservation"
-  }
+    "status": "verified",
+    "checkedAt": "2026-10-23T08:02:32.323667+00:00",
+    "verifiedProductionCommit": "4cb7730b7b26f0a2e154122e6aa47c5622041359",
+    "matchingPublishedAssets": 58,
+    "asset404s": 0,
+    "htmlMatchesVerifiedBuild": true,
+    "requestedNameRemoved": true,
+    "browserScenariosVerified": 10,
+    "browserRunDetails": "9 passed with real production worker; the API-error mock was bypassed by the worker and received healthy config. The same OCR/API-error/manual-confirmation scenario passed in an isolated worker-blocked test context; no production worker/security setting changed. Both logs retained.",
+    "dataPreservation": "Existing-origin synthetic learner profile from source 7963032 retained exact tasks, assessment, schedule, sessions, material/problem draft and IndexedDB photo bytes after upgrade. Personal owner storage not accessed.",
+    "evidence": "https://github.com/kimkimhs36/BKIT-QWEN/tree/bb3b25d/study-os/docs/live-study-20261023/verification/production-verification.json"
+  },
+  "evidence": "https://github.com/kimkimhs36/BKIT-QWEN/tree/bb3b25d/study-os/docs/live-study-20261023"
 }
