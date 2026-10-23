@@ -4,7 +4,7 @@ html[data-material='classic'],
   --mat-bg: #f4f1e8;
   --mat-paper: #fffefb;
   --mat-ink: #2d3b32;
-  --mat-muted: #6d7569;
+  --mat-muted: #5f6b5e;
   --mat-accent: #3e5c45;
   --mat-on-accent: #fffff7;
   --mat-line: #dedfd2;
@@ -83,7 +83,7 @@ html[data-material='glass'],
   --mat-bg: #f6dcd2;
   --mat-paper: #fffaf19e;
   --mat-ink: #403936;
-  --mat-muted: #70605b;
+  --mat-muted: #5b4c46;
   --mat-accent: #794637;
   --mat-on-accent: #fffaf5;
   --mat-line: #ffffffa8;
@@ -128,7 +128,7 @@ html[data-material='peach'],
   --mat-bg: #f7dbcc;
   --mat-paper: #fff6eee8;
   --mat-ink: #593c37;
-  --mat-muted: #815d55;
+  --mat-muted: #745249;
   --mat-accent: #984c40;
   --mat-on-accent: #fffaf4;
   --mat-line: #fff4e8bd;
@@ -147,7 +147,7 @@ html[data-material='peach'],
   --mat-light: #fff2db;
   --mat-ambient: #d79c86;
   --mat-grain: 0.06;
-  --mat-primary: linear-gradient(155deg, #ac6a55, #945447);
+  --mat-primary: linear-gradient(155deg, #a15f4d, #894b40);
   --mat-world:
     radial-gradient(ellipse at var(--light-x, 32%) 10%, #fff0dc, transparent 68%),
     radial-gradient(ellipse at 100% 80%, #e8ae9e66, transparent 70%), #f7dbcc;
@@ -162,7 +162,7 @@ html[data-material='diamond'],
   --mat-bg: #e9f0f7;
   --mat-paper: #f9fcff;
   --mat-ink: #263b51;
-  --mat-muted: #52677e;
+  --mat-muted: #4b6075;
   --mat-accent: #405c7d;
   --mat-on-accent: #fff;
   --mat-line: #bbcddd;
@@ -235,8 +235,8 @@ html[data-material='gold'],
   --mat-bg: #e9e1ce;
   --mat-paper: #f5f1e6;
   --mat-ink: #4b4130;
-  --mat-muted: #7c715b;
-  --mat-accent: #786037;
+  --mat-muted: #5a503d;
+  --mat-accent: #634d2d;
   --mat-on-accent: #fffaf0;
   --mat-line: #d0c4aa;
   --mat-soft: #e3dac5;
@@ -265,7 +265,7 @@ html[data-material='gold'],
   --mat-grain: 0;
   --mat-primary:
     repeating-linear-gradient(0deg, #ffffff09 0 1px, transparent 1px 3px),
-    linear-gradient(calc(115deg + var(--sensor-x, 0) * 40deg), #6c5838, #8c7650 47%, #6d5937);
+    linear-gradient(calc(115deg + var(--sensor-x, 0) * 40deg), #665131, #7d6742 47%, #675333);
   --mat-world:
     repeating-linear-gradient(0deg, #ffffff09 0 1px, transparent 1px 3px),
     conic-gradient(
@@ -294,7 +294,7 @@ html[data-material='jelly'],
   --mat-bg: #ece3f3;
   --mat-paper: #fff6ffe3;
   --mat-ink: #50395e;
-  --mat-muted: #7d658a;
+  --mat-muted: #695074;
   --mat-accent: #7d5295;
   --mat-on-accent: #fff6ff;
   --mat-line: #fffbffb3;
@@ -318,7 +318,7 @@ html[data-material='jelly'],
   --identity-page: identity-jelly-enter;
   --identity-speed: 520ms;
   --identity-ease: cubic-bezier(0.18, 0.9, 0.27, 1.15);
-  --mat-primary: linear-gradient(155deg, #9b73b5, #80569c);
+  --mat-primary: linear-gradient(155deg, #8858a0, #754a91);
   --mat-world:
     radial-gradient(ellipse at 4% 8%, #f9dbea, transparent 60%),
     radial-gradient(ellipse at 95% 60%, #c5c3ef88, transparent 65%), #ece3f3;
@@ -333,7 +333,7 @@ html[data-material='droplets'],
   --mat-bg: #d9eeea;
   --mat-paper: #f4fffdc7;
   --mat-ink: #254c4b;
-  --mat-muted: #4a6e6b;
+  --mat-muted: #3b5c59;
   --mat-accent: #286662;
   --mat-on-accent: #f5fff9;
   --mat-line: #f5ffffc9;
@@ -354,7 +354,7 @@ html[data-material='droplets'],
   --mat-light: #faffed;
   --mat-ambient: #9ebda9;
   --mat-grain: 0;
-  --mat-primary: linear-gradient(155deg, #3e8780, #276a66);
+  --mat-primary: linear-gradient(155deg, #32776f, #24635f);
   --mat-world:
     radial-gradient(ellipse at var(--light-x, 32%) var(--light-y, 12%), #f4fffa, transparent 60%),
     linear-gradient(150deg, #d9eeea, #b5d7d9);
