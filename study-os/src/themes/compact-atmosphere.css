@@ -431,12 +431,13 @@ html[data-material] body > .orbit-nav {
 }
 .material-sensor-diagnostic {
   display: grid;
-  grid-template-columns: 1fr 82px;
+  grid-template-columns: minmax(0, 1fr) 82px;
   align-items: center;
   gap: 12px;
   margin-top: 10px;
 }
 .material-sensor-diagnostic dl {
+  min-width: 0;
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 4px 10px;
@@ -447,10 +448,11 @@ html[data-material] body > .orbit-nav {
   margin: 0;
 }
 .material-sensor-preview {
+  width: 82px;
   height: 64px;
   border-radius: 12px;
   border: 1px solid var(--mat-line);
-  background: var(--mat-card);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--mat-ink) 12%, var(--mat-soft)), var(--mat-soft));
   position: relative;
   overflow: hidden;
 }
@@ -463,7 +465,7 @@ html[data-material] body > .orbit-nav {
   height: 32px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle, #fff, var(--mat-light), transparent 70%);
+  background: radial-gradient(circle, #fff 0 9%, var(--mat-accent) 12%, transparent 70%);
   box-shadow: 0 0 15px #97c2d233;
 }
 .material-sensor-actions {

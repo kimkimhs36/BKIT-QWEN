@@ -194,6 +194,10 @@ test('simulated gyro: permission is not input; invalid, calibration, stale, rota
   await page.getByRole('button', { name: '센서 연결', exact: true }).click();
   const control = page.locator('.material-sensor-control');
   await expect(control).toContainText('센서 대기 중');
+  await expect(page.locator('.material-sensor-diagnostic')).toHaveCSS('display', 'grid');
+  const preview = page.locator('.material-sensor-preview');
+  expect((await preview.boundingBox())!.width).toBeGreaterThanOrEqual(80);
+  expect((await preview.boundingBox())!.height).toBeGreaterThanOrEqual(60);
   const tilt = (beta: number | null, gamma: number | null) =>
     page.evaluate(
       ({ beta, gamma }) => {
@@ -222,6 +226,13 @@ test('simulated gyro: permission is not input; invalid, calibration, stale, rota
       })(),
     )
     .toBeGreaterThan(0.1);
+  const lightPosition = () => preview.evaluate(e => parseFloat(getComputedStyle(e, '::after').left));
+  const positiveLight = await lightPosition();
+  await expect.poll(async () => {
+    await tilt(45, -22);
+    return Math.abs(await lightPosition() - positiveLight);
+  }).toBeGreaterThan(2);
+  await page.screenshot({ path: `docs/material-world-20261023/verified/${test.info().project.name}/gyro-diagnostics-simulation.png` });
   await page.getByRole('button', { name: '현재 자세로 보정' }).click();
   await expect(control).toContainText('센서 대기 중');
   expect(await page.evaluate(() => (window as any).__calibrations)).toBe(1);

@@ -32,7 +32,8 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: node scripts/check-local-vision.mjs
-      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright install --with-deps ${{ matrix.browser == 'desktop' && 'chromium' || 'webkit' }}
+        timeout-minutes: 10
       - name: Existing learning, materials, camera lifecycle and sensor simulation
         run: >-
           npm run test:e2e -- tests/e2e/live-study-recovery.spec.ts

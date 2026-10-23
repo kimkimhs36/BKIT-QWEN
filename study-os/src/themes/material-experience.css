@@ -1220,7 +1220,7 @@ html[data-material] .material-controls select {
 .material-sensor-control {
   padding: 15px 16px;
 }
-.material-sensor-control > div {
+.material-sensor-control > div:first-child {
   display: flex;
   align-items: center;
   justify-content: space-between;
