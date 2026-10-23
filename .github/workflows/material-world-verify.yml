@@ -32,7 +32,7 @@ jobs:
       - name: Existing learning, materials, camera lifecycle and sensor simulation
         run: >-
           npm run test:e2e -- tests/e2e/live-study-recovery.spec.ts
-          tests/e2e/compact-experience.spec.ts tests/e2e/material-world.spec.ts
+          tests/e2e/compact-experience.spec.ts tests/e2e/compact-offline.spec.ts tests/e2e/material-world.spec.ts
           tests/e2e/awake-intelligence.spec.ts --project=desktop
           --project=webkit-iphone --project=webkit-ipad --workers=2
       - uses: actions/upload-artifact@v4

@@ -176,3 +176,24 @@ test('synthetic camera: denial and model failure leave learning usable; pagehide
   expect(await page.evaluate(() => (window as any).__cameraRequests)).toBe(requests);
   await expect(page.locator('.quick-timer-active')).toBeVisible();
 });
+
+test('unavailable optional camera UI never interrupts a five-minute study', async ({ page }) => {
+  await page.route(/\/assets\/AwakeAssist-[^/]+\.js$/, (route) => route.abort('failed'));
+  await page.goto('./');
+  await page.getByRole('button', { name: '5분만 시작하기', exact: true }).click();
+  await expect(page.locator('.quick-timer-active')).toBeVisible();
+  await expect(page.locator('.awake-unavailable')).toContainText('카메라 OFF');
+  await page
+    .locator('.quick-timer-actions')
+    .getByRole('button', { name: '일시정지', exact: true })
+    .click();
+  await page
+    .locator('.quick-timer-actions')
+    .getByRole('button', { name: '끝내고 시간 저장', exact: true })
+    .click();
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem('bkit.study-os.v1')!).sessions.length,
+    ),
+  ).toBe(1);
+});

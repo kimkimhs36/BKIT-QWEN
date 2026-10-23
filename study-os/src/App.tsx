@@ -195,7 +195,17 @@ const ProblemReviewQueue = lazy(() =>
 const AwakeRest = lazy(() =>
   import('./drive/WakeBomb').then((m) => ({ default: m.WakeBomb })),
 );
-const AwakeAssist = lazy(() => import('./AwakeAssist').then((m) => ({ default: m.AwakeAssist })));
+const AwakeAssist = lazy(() =>
+  import('./AwakeAssist')
+    .then((m) => ({ default: m.AwakeAssist }))
+    .catch(() => ({
+      default: (_props: { onRest: () => void; onShortRest?: () => void }) => (
+        <p className="awake-unavailable" role="status">
+          Awake Assist · 카메라 OFF · 도구를 불러오지 못했어요. 공부는 계속할 수 있어요.
+        </p>
+      ),
+    })),
+);
 const GlobalSearch = lazy(() =>
   import('./GlobalSearch').then((m) => ({ default: m.GlobalSearch })),
 );

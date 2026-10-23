@@ -61,9 +61,10 @@ export default defineConfig(({ mode }) => ({
         await cp('node_modules/@mediapipe/tasks-vision/wasm', 'dist/awake/wasm', {
           recursive: true,
         });
+        // Tiny camera controls are part of the offline UI. Inference/model assets stay opt-in.
         const assets = (await readdir('dist/assets')).filter(
           (x) =>
-            !/^(awake-engine|AwakeAssist|MaterialEffects|MaterialSettings|materials|ambientSound)-/.test(
+            !/^(awake-engine|MaterialEffects|MaterialSettings|materials|ambientSound)-/.test(
               x,
             ),
         );
