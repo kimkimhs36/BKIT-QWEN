@@ -1,5 +1,7 @@
 import { test, expect, type Page } from './local-fixture';
 import { materials } from '../../src/themes/material';
+// Keep network mocks outside the worker; worker/offline upgrade is verified separately.
+test.use({ serviceWorkers: 'block' });
 import { readFile, mkdir } from 'node:fs/promises';
 const qa = 'docs/material-world-20261023/verified';
 const before = JSON.parse(
@@ -144,6 +146,10 @@ test('simulated gyro: permission is not input; invalid, calibration, stale, rota
 }) => {
   await page.addInitScript(() => {
     let requests = 0;
+    (window as any).__calibrations = 0;
+    window.addEventListener('bkit:material-calibrate', () => {
+      (window as any).__calibrations++;
+    });
     Object.defineProperty(window.DeviceOrientationEvent, 'requestPermission', {
       configurable: true,
       value: () => {
@@ -171,22 +177,37 @@ test('simulated gyro: permission is not input; invalid, calibration, stale, rota
   await expect(control).toContainText('미수신');
   await tilt(30, 0);
   await expect(control).toContainText('센서값 수신 중');
-  await tilt(45, 22);
+  for (let i = 0; i < 6; i++) {
+    await tilt(45, 22);
+    await page.waitForTimeout(40);
+  }
   await expect(control).toContainText('반응 활성화');
   await expect
     .poll(() =>
-      page.evaluate(() => Number(document.documentElement.style.getPropertyValue('--sensor-x'))),
+      (async () => {
+        await tilt(45, 22);
+        return page.evaluate(() =>
+          Number(document.documentElement.style.getPropertyValue('--sensor-x')),
+        );
+      })(),
     )
     .toBeGreaterThan(0.1);
   await page.getByRole('button', { name: '현재 자세로 보정' }).click();
   await expect(control).toContainText('센서 대기 중');
-  await tilt(45, 22);
-  await tilt(45, 22);
+  expect(await page.evaluate(() => (window as any).__calibrations)).toBe(1);
+  await expect(page.locator('.material-touch')).toHaveCount(0);
+  for (let i = 0; i < 6; i++) {
+    await tilt(45, 22);
+    await page.waitForTimeout(40);
+  }
   await expect
     .poll(() =>
-      page.evaluate(() =>
-        Math.abs(Number(document.documentElement.style.getPropertyValue('--sensor-x'))),
-      ),
+      (async () => {
+        await tilt(45, 22);
+        return page.evaluate(() =>
+          Math.abs(Number(document.documentElement.style.getPropertyValue('--sensor-x'))),
+        );
+      })(),
     )
     .toBeLessThan(0.05);
   await page.evaluate(() => dispatchEvent(new Event('orientationchange')));

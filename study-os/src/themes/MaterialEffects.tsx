@@ -94,6 +94,7 @@ export function MaterialSensorControl() {
       </div>
       <div className="material-sensor-actions">
         <button
+          type="button"
           disabled={!s.enabled}
           onClick={() => window.dispatchEvent(new Event(CALIBRATE_EVENT))}
         >
@@ -191,15 +192,20 @@ export function MaterialEffects({
       received = 0;
     let baseline: { beta: number; gamma: number } | null = null;
     const tick = (now: number) => {
-      const dt = Math.min(0.025, Math.max(0.001, (now - (last || now - 16)) / 1000));
+      const elapsed = Math.min(0.16, Math.max(0.001, (now - (last || now - 16)) / 1000));
       last = now;
+      const steps = Math.ceil(elapsed / 0.016);
+      const dt = elapsed / steps;
       const stiffness =
         prefs.id === 'gold' ? 120 : prefs.id === 'forest' ? 45 : prefs.id === 'night' ? 155 : 82;
       const damping = prefs.id === 'droplets' ? 13 : prefs.id === 'forest' ? 14 : 19;
-      vx += ((tx - x) * stiffness - vx * damping) * dt;
-      vy += ((ty - y) * stiffness - vy * damping) * dt;
-      x = clamp(x + vx * dt);
-      y = clamp(y + vy * dt);
+      // Keep light responsive at low frame rates with small, bounded catch-up steps.
+      for (let i = 0; i < steps; i++) {
+        vx += ((tx - x) * stiffness - vx * damping) * dt;
+        vy += ((ty - y) * stiffness - vy * damping) * dt;
+        x = clamp(x + vx * dt);
+        y = clamp(y + vy * dt);
+      }
       root.style.setProperty('--sensor-x', x.toFixed(4));
       root.style.setProperty('--sensor-y', y.toFixed(4));
       root.style.setProperty('--light-x', `${50 + x * 48 * prefs.intensity}%`);
@@ -307,7 +313,7 @@ export function MaterialEffects({
       if (
         e.target instanceof Element &&
         e.target.closest(
-          '.learning-workspace,.problem-workspace,.pdf-reader,.digital-paper,input,textarea,select',
+          'button,a,input,textarea,select,label,summary,nav,header,dialog,[role="dialog"],[role="button"],.learning-workspace,.problem-workspace,.pdf-reader,.digital-paper',
         )
       )
         return;
