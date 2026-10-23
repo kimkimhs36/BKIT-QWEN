@@ -1,6 +1,5 @@
 {
-  "sourceCommit": "fe97b70c3c7e47eafc1241ee1a3329ffa03c8158",
-  "baselineSource": "9777ddc4bcb504b6fc24daea4ab5f38f43c12afa",
-  "createdAt": "2026-10-23T14:43:16.680608+00:00",
-  "productionEntryChanged": false
+  "sourceCommit": "55fd2539e851086eef69645c9b2dd934397035c8",
+  "url": "https://teambkit.com/previews/bkit-material-world-20261023/",
+  "scope": "Isolated preview; root production unchanged"
 }
