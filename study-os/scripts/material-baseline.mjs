@@ -24,11 +24,12 @@ for (const [device, opts] of [
     await p.getByRole('button', { name: '테마 선택', exact: true }).click();
     await p.locator(`[data-swatch="${id}"]`).click();
     await p.getByRole('button', { name: '닫기', exact: true }).click();
-    await p.waitForTimeout(200);
+    await p.waitForTimeout(1000);
     await p.screenshot({
       path: `docs/material-world-20261023/before/${device}-${id}.png`,
       animations: 'disabled',
     });
+    await p.waitForTimeout(1000);
     out.push(
       await p.evaluate(
         ({ device, id }) => ({

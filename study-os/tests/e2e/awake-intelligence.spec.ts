@@ -40,16 +40,10 @@ async function syntheticCamera(page: Page) {
       w.__streams.push(stream);
       return stream;
     };
-    if (!navigator.mediaDevices)
-      Object.defineProperty(navigator, 'mediaDevices', {
-        configurable: true,
-        value: { getUserMedia },
-      });
-    else
-      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
-        configurable: true,
-        value: getUserMedia,
-      });
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia },
+    });
   });
   await page.route(/\/assets\/engine-[^/]+\.js$/, async (route) =>
     route.fulfill({

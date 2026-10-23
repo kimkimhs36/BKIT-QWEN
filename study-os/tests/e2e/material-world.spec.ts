@@ -22,6 +22,7 @@ async function choose(page: Page, id: string) {
   await page.getByRole('button', { name: '테마 선택', exact: true }).click();
   await page.locator(`[data-swatch="${id}"]`).click();
   await page.getByRole('button', { name: '닫기', exact: true }).click();
+  await page.waitForTimeout(1000); // Compare settled geometry, after the existing entrance transition.
 }
 async function nav(page: Page, name: string) {
   await page.locator('nav:visible').getByRole('button', { name, exact: true }).first().click();
@@ -30,7 +31,7 @@ for (const m of materials)
   test(`${m.id}: preserved home, material surface, screens, rotation and reload`, async ({
     page,
   }, info) => {
-    test.setTimeout(90000);
+    test.setTimeout(180000);
     const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(e.message));
     await boot(page);

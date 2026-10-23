@@ -247,7 +247,8 @@ export function MaterialEffects({
     };
     const center = () => {
       baseline = null;
-      target(0, 0);
+      tx = ty = 0;
+      if (!frame) frame = requestAnimationFrame(tick);
     };
     const calibrate = () => {
       center();
