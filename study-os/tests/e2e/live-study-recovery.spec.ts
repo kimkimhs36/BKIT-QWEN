@@ -274,6 +274,7 @@ test('task-linked materials keep QUESTION RACE, problem draft and selected quest
 test('camera input and real local OCR remain usable; AI configuration failure keeps manual text and confirmed saving', async ({
   page,
 }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await seed(page);
   await nav(page, '도구');
   await page.getByRole('button', { name: '공지 정리', exact: true }).click();
@@ -328,13 +329,11 @@ test('existing JSON backup and restore preserve tasks, schedules, and original p
   const snapshot = JSON.parse(Buffer.concat(chunks).toString());
   expect(snapshot.tasks).toEqual(original.tasks);
   const before = await page.evaluate((key) => localStorage.getItem(key), key);
-  await page
-    .getByLabel('JSON 백업 파일', { exact: true })
-    .setInputFiles({
-      name: 'backup.json',
-      mimeType: 'application/json',
-      buffer: Buffer.from(JSON.stringify(snapshot)),
-    });
+  await page.getByLabel('JSON 백업 파일', { exact: true }).setInputFiles({
+    name: 'backup.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(snapshot)),
+  });
   await page.getByRole('button', { name: '백업으로 교체', exact: true }).click();
   expect((await state(page)).tasks).toEqual(original.tasks);
   expect(
@@ -344,4 +343,28 @@ test('existing JSON backup and restore preserve tasks, schedules, and original p
         .map((k) => localStorage.getItem(k)),
     ),
   ).toContain(before);
+});
+
+test('reduced motion and low power keep the existing light atmosphere visible through resize and reload', async ({
+  page,
+}) => {
+  await seed(page);
+  const surface = page.locator('.surreal-surface');
+  await expect(surface).toHaveAttribute('data-ready', 'true');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(surface).toHaveAttribute('data-still', 'true');
+  await expect(surface).toBeHidden();
+  expect(
+    await page.locator('.surreal-atmosphere').evaluate((e) => getComputedStyle(e).backgroundImage),
+  ).not.toBe('none');
+  await nav(page, '집중');
+  await expect(surface).toBeHidden();
+  await page.getByRole('button', { name: '테마 선택', exact: true }).click();
+  await page.getByRole('switch', { name: '배터리 절약' }).check();
+  await page.getByRole('button', { name: '닫기', exact: true }).click();
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.reload();
+  await expect(surface).toBeHidden();
+  await expect(page.locator('html')).toHaveAttribute('data-effects', 'none');
+  await expect(page.getByRole('button', { name: '지금 공부 시작', exact: true })).toBeVisible();
 });

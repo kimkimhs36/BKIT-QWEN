@@ -345,9 +345,17 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
       if (!document.hidden) wake();
     };
     const policy = () => {
-      if (still()) {
+      const frozen = still();
+      canvas.dataset.still = String(frozen);
+      if (frozen) {
+        // Safari may discard a non-preserved drawing buffer after its last
+        // frame. Show the existing CSS atmosphere while rendering is stopped.
+        cancelAnimationFrame(frame);
+        frame = 0;
         clear();
         energy = 0;
+        delete canvas.dataset.ready;
+        return;
       }
       lastDraw = 0;
       wake();
@@ -394,6 +402,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
       clearTimeout(resizeTimer);
       disposeGpu();
       delete canvas.dataset.ready;
+      delete canvas.dataset.still;
       canvas.removeEventListener('webglcontextlost', contextLost);
       canvas.removeEventListener('webglcontextrestored', contextRestored);
       document.removeEventListener('pointerdown', down);

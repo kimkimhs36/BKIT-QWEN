@@ -1,6 +1,6 @@
 # Preserved production study recovery · 2026-10-23
 
-Production baseline: https://teambkit.com, main `0f63f235055b5fafb8f94db701eb8aa1bfc07d84`, release source `79630329fcda2fb76cec040132b94488dd651c8c`. GitHub Pages legacy root/main build is `built` at that main SHA. The source branch's later commits only add verification documents. The production-only 김호진 banner is retained byte for byte in the source entry HTML.
+Production baseline: https://teambkit.com, main `0f63f235055b5fafb8f94db701eb8aa1bfc07d84`, release source `79630329fcda2fb76cec040132b94488dd651c8c`. GitHub Pages legacy root/main build is `built` at that main SHA. The source branch's later commits only add verification documents. The production-only 김호진 banner was captured in the baseline and initially preserved. The owner subsequently explicitly requested its removal; the candidate removes only that banner while preserving the home layout below it.
 
 `before/` contains actual production screenshots of iPhone WebKit home/focus/tasks/settings/theme picker, iPad WebKit home and desktop home. Browser contexts are isolated synthetic learner sessions, with no owner authentication. Screenshots are browser emulation, not physical device proof.
 
@@ -15,3 +15,5 @@ Read-only AI diagnostics: production health/config HTTP 200, Origin https://team
 Validation and release identity will be recorded after the exact candidate passes. Initial local E2E launch used the wrong preview base path and was corrected. Old compact viewport assertions did not account for the later production banner; they now measure the same app viewport budget below its actual root offset and retain action/dock hit-area checks. A multi-worker local run overloaded software rendering and hit a timeout; device CI uses one worker per runner. Failures are retained in the session evidence and not reported as passes.
 
 Rollback: retain the entire previous main tree and hashed assets. Publish only by a fast-forward push based on freshly fetched main; never delete unrelated routes/assets or force-push. A rollback is a new commit restoring the prior entry HTML, service worker, alternate entry and release record, keeping both generations' hashed assets and all browser data.
+
+A second device pass found inherited square aspect-ratio spacing pushing task-focus controls under the mobile dock and a stopped non-preserved WebGL buffer displaying black on Safari. The candidate removes only the old focus instrument ratio, and shows the existing static atmosphere when motion/low-power/protected-workspace rendering is stopped. Normal theme animation is unchanged. Desktop optical QA now uses mouse input where touch is unavailable. The initial CI failures remain visible in run 39917017692; they are not claimed as passes.

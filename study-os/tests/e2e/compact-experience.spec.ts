@@ -503,7 +503,8 @@ test('liquid background has full color coverage on tall Safari surfaces and touc
   let pixels = await coverage();
   expect(pixels.error).toBe(0);
   expect(pixels.colors.every((c) => c[0] > 100 && c[1] > 80 && c[2] > 70)).toBe(true);
-  await page.touchscreen.tap(8, 300);
+  if (info.project.use.hasTouch) await page.touchscreen.tap(8, 300);
+  else await page.mouse.click(8, 300);
   await page.waitForTimeout(250);
   pixels = await coverage();
   expect(pixels.colors.every((c) => c[0] > 100 && c[1] > 80 && c[2] > 70)).toBe(true);

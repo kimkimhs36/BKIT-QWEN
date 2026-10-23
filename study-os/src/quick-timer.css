@@ -48,3 +48,5 @@ html[data-effects='none'] .quick-timer *{animation:none!important;transition:non
 .focus-first-action { text-align: left; margin: 12px 0; font-size: 13px; line-height: 1.6; }
 .focus-first-action p { margin: 0 0 4px; overflow-wrap: anywhere; }
 .focus-first-action .text-button { min-height: 44px; }
+/* The old circular instrument's square ratio must not push compact controls under the dock. */
+html[data-material] .app-shell.premium-os.is-focusing .focus-instrument { aspect-ratio: auto !important; }
