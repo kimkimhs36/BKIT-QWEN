@@ -912,3 +912,55 @@ html[data-material] .calendar-dialog .mini-month .is-outside:not(.is-today) {
 html[data-material] .app-shell.atelier-os.premium-os.page-today main {
   animation: none !important;
 }
+
+/* BKIT 4.1: a selected date is an actionable school day, not only a read-only calendar. */
+.calendar-create-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px 0 15px;
+}
+.calendar-create-actions > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 6px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--mat-ink) 13%, transparent);
+  background: color-mix(in srgb, var(--mat-paper) 90%, transparent);
+  color: var(--mat-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  word-break: keep-all;
+}
+.calendar-create-actions > button:active,
+.calendar-study-start:active { transform: scale(.985); }
+.calendar-create-actions > button:focus-visible,
+.calendar-study-start:focus-visible { outline: 2px solid var(--mat-accent); outline-offset: 3px; }
+.calendar-study-start {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  width: 100%;
+  margin: 2px 0 8px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--mat-accent) 28%, transparent);
+  background: color-mix(in srgb, var(--mat-accent) 8%, var(--mat-paper));
+  color: var(--mat-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+.calendar-undated-deadlines { display: grid; gap: 8px; margin: 14px 0; min-width: 0; }
+.calendar-undated-deadlines .calendar-date-only { width: 100%; min-height: 54px; text-align: left; }
+.calendar-undated-deadlines .calendar-no-time { font-size: 12px; opacity: .75; white-space: nowrap; }
+@media (max-width: 365px) {
+  .calendar-create-actions { gap: 5px; }
+  .calendar-create-actions > button { font-size: 11px; padding-inline: 3px; gap: 2px; }
+}
