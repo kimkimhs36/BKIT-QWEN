@@ -1,14 +1,57 @@
 {
-  "product": "BKIT STUDY OS · Compact Experience",
-  "sourceCommit": "79630329fcda2fb76cec040132b94488dd651c8c",
-  "sourceBranch": "feat/bkit-compact-experience-20261021",
-  "artifactsCommit": "df7fe294e996ec749e212b8afcbe6eb72c455a93",
-  "publishedAt": "2026-10-20T17:37:05.544297+00:00",
-  "validation": "TypeScript + root and preview Vite builds; 223 unit tests; 30 core WebKit iPhone/iPad scenarios passed CI; 3 additional first-use offline theme and study recording scenarios passed locally",
-  "previousSource": "ce5bfac9108887995277ab9e769b19e9733db280",
-  "rollbackCommit": "92a3019688582225fd103cc5cb5c3cb5d056586e",
-  "screenshots": "https://teambkit.com/compact-review/",
-  "notes": "Owner explicitly authorized GitHub Pages production release. Study schema and browser storage keys unchanged; PDFs/ink/attachments preserved. All 9 themes kept; opt-in gyro, scoped worker caches, deferred activation and prior hashed assets retained. Android/desktop verification deferred at owner request; physical Apple sensor/keyboard confirmation remains separate.",
-  "previousProductionCommit": "fe016c29a163df67c13790cb60caaf31fa676698",
-  "fix": "First offline theme picker is bundled with the cached app shell."
+  "product": "BKIT STUDY OS · Preserved Live Study",
+  "sourceCommit": "9777ddc4bcb504b6fc24daea4ab5f38f43c12afa",
+  "sourceBranch": "fix/bkit-live-study-start-20261023",
+  "artifactsCommit": "6368a148d137e7bf90e7e81f5b8dfadb58d488b5",
+  "publishedAt": "2026-10-23T07:53:39.073347+00:00",
+  "validation": "Exact-source CI 39919901841: TypeScript, 225 unit tests, root build; 60/60 E2E across desktop, iPhone WebKit and iPad WebKit; 9 public-preview learning/recovery scenarios plus 2 final-source preview checks passed. No skipped tests or retries.",
+  "previousSource": "79630329fcda2fb76cec040132b94488dd651c8c",
+  "rollbackCommit": "0f63f235055b5fafb8f94db701eb8aa1bfc07d84",
+  "screenshots": "https://github.com/kimkimhs36/BKIT-QWEN/tree/9777ddc4bcb504b6fc24daea4ab5f38f43c12afa/study-os/docs/live-study-20261023",
+  "notes": "Owner-authorized production release. Existing home layout, button labels and nine themes preserved; owner subsequently requested removal of the standalone name banner. Existing storage keys and schema version retained with optional workspace answerDraft; no data migration. Old hashed assets, independent routes, CNAME, PWA, PDF/OCR and worker lifecycle retained. Physical-device camera/Pencil and owner-authenticated paid AI flow remain unverified.",
+  "previousProductionCommit": "0f63f235055b5fafb8f94db701eb8aa1bfc07d84",
+  "fix": "Durable first-question drafts and attempts, exact task selection, quick-workspace receipts, selected-date capture and one-day schedule changes; compact focus controls and static Safari background corrected.",
+  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/39919901841",
+  "previousRelease": "/releases/20261023-before-live-study.json",
+  "entryAssets": [
+    {
+      "path": "/assets/index-CYHpkX9C.js",
+      "sha256": "6a3df953e61426970b477e800cc744f46f0b4620f9e16dcaa94809abeb47ef19"
+    },
+    {
+      "path": "/assets/react-vendor-DENrKhsk.js",
+      "sha256": "dd9228d2be4c9de35f311eb10c9fcb090d035042a6a64c80a5ca02ee7fdfb028"
+    },
+    {
+      "path": "/assets/schema-vendor-DYuAzjeD.js",
+      "sha256": "39c943cd9f1cc1045ac58ce7dc150b31de745ae378e00ed8365fcb94cf036e68"
+    },
+    {
+      "path": "/assets/index-BJ0N4dSB.css",
+      "sha256": "94b9958395ca2b65146b65c6762864ddefd70a554662f1715b6f175fbe4d890e"
+    }
+  ],
+  "deployment": {
+    "provider": "GitHub Pages",
+    "branch": "main",
+    "path": "/",
+    "url": "https://teambkit.com"
+  },
+  "aiVerification": {
+    "health": "200; configured briefing only",
+    "config": "200",
+    "productionOrigin": "allowed; POST preflight verified",
+    "foreignPreviewOrigin": "403",
+    "unauthenticatedOwner": "401",
+    "model": "deepseek-flash; official documentation confirmed",
+    "dailyKRW": 1000,
+    "callLimit": "existing server cap at most 60; unchanged",
+    "ownerGoogleLogin": "unverified",
+    "paidDeepSeekResponse": "unverified; zero paid calls authorized or made",
+    "planCoachAssistant": "server unsupported; local rules retained"
+  },
+  "postDeployVerification": {
+    "status": "pending",
+    "required": "exact Pages commit, public HTML/assets, browser flows and existing-origin data preservation"
+  }
 }
