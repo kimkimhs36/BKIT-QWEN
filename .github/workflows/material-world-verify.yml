@@ -8,6 +8,10 @@ permissions:
   contents: read
 jobs:
   verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [desktop, webkit-iphone, webkit-ipad]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     defaults:
@@ -33,12 +37,11 @@ jobs:
         run: >-
           npm run test:e2e -- tests/e2e/live-study-recovery.spec.ts
           tests/e2e/compact-experience.spec.ts tests/e2e/compact-offline.spec.ts tests/e2e/material-world.spec.ts
-          tests/e2e/awake-intelligence.spec.ts --project=desktop
-          --project=webkit-iphone --project=webkit-ipad --workers=2
+          tests/e2e/awake-intelligence.spec.ts --project=${{ matrix.browser }} --workers=2
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: material-world-verification-${{ github.sha }}
+          name: material-world-verification-${{ github.sha }}-${{ matrix.browser }}
           path: |
             study-os/docs/material-world-20261023/verified/
             study-os/test-results/

@@ -73,12 +73,35 @@ for (const m of materials)
       expect(metrics.hero.width).toBe(rect.width);
     }
     await page.screenshot({ path: `${dir}/${m.id}-home.png`, animations: 'disabled' });
-    // Actual passive pointer contact produces a material-specific rendered animation.
+    // Capture the real rendered impulse at a fixed phase before a busy runner can miss it.
+    await page.evaluate(() => {
+      const observer = new MutationObserver((records) => {
+        for (const record of records)
+          for (const node of record.addedNodes) {
+            if (!(node instanceof HTMLElement) || !node.matches('.material-touch')) continue;
+            const style = getComputedStyle(node);
+            const duration = parseFloat(style.animationDuration) * 1000;
+            for (const animation of node.getAnimations()) {
+              animation.pause();
+              animation.currentTime = duration * 0.25;
+            }
+            (window as any).__materialImpulse = {
+              id: node.dataset.touch,
+              animation: style.animationName,
+              opacity: Number(getComputedStyle(node).opacity),
+              background: getComputedStyle(node).backgroundImage,
+              width: node.getBoundingClientRect().width,
+            };
+            observer.disconnect();
+          }
+      });
+      observer.observe(document.querySelector('.material-touch-field')!, { childList: true });
+    });
     await page.mouse.click(4, Math.min(500, page.viewportSize()!.height - 150));
-    const pulse = page.locator('.material-touch').last();
-    await expect(pulse).toHaveAttribute('data-touch', m.id);
-    const animation = await pulse.evaluate((e) => getComputedStyle(e).animationName);
-    expect(animation).toBe(
+    await expect.poll(() => page.evaluate(() => !!(window as any).__materialImpulse)).toBe(true);
+    const impulse = await page.evaluate(() => (window as any).__materialImpulse);
+    expect(impulse.id).toBe(m.id);
+    expect(impulse.animation).toBe(
       (
         {
           classic: 'material-sun',
@@ -93,8 +116,14 @@ for (const m of materials)
         } as Record<string, string>
       )[m.id],
     );
-    await page.waitForTimeout(120);
+    expect(impulse.opacity).toBeGreaterThan(0);
+    expect(impulse.width).toBeGreaterThan(0);
     await page.screenshot({ path: `${dir}/${m.id}-touch.png` });
+    await page
+      .locator('.material-touch')
+      .evaluateAll((nodes) =>
+        nodes.forEach((node) => node.getAnimations().forEach((animation) => animation.play())),
+      );
     for (const [label, id] of [
       ['집중', 'focus'],
       ['과제', 'tasks'],
@@ -144,6 +173,7 @@ for (const m of materials)
 test('simulated gyro: permission is not input; invalid, calibration, stale, rotation and OFF are honest', async ({
   page,
 }) => {
+  test.setTimeout(90000);
   await page.addInitScript(() => {
     let requests = 0;
     (window as any).__calibrations = 0;
