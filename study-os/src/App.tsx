@@ -3087,7 +3087,7 @@ export default function App() {
             </button>,
             document.body,
           )}
-        {calendarOpen&&<StudyCalendar selectedDay={calendarDay} onSelectedDay={setCalendarDay} state={s} now={now} onClose={()=>setCalendarOpen(false)} onTask={task=>{setCalendarOpen(false);taskEditor(task);}} onSchedule={(schedule,date)=>{setCalendarOpen(false);scheduleEditor(schedule,date);}} onAdd={date=>{setCalendarOpen(false);taskEditor();setCaptureDay(date);}} onCancel={(schedule,date)=>{
+        {calendarOpen&&<StudyCalendar selectedDay={calendarDay} onSelectedDay={setCalendarDay} state={s} now={now} onClose={()=>setCalendarOpen(false)} onTask={task=>{setCalendarOpen(false);taskEditor(task);}} onSchedule={(schedule,date)=>{setCalendarOpen(false);scheduleEditor(schedule,date);}} onAdd={(date,kind='task')=>{setCalendarOpen(false);if(kind==='schedule'){scheduleEditor(null,date);}else if(kind==='assessment'){addAssessmentNow();setCaptureDay(date);}else{taskEditor();setCaptureDay(date);}}} onStudy={task=>{setCalendarOpen(false);start(5,task.id);}} onCancel={(schedule,date)=>{
           try{const candidate=cancelOccurrence(s,schedule,date);setCalendarOpen(false);setEditSchedule(schedule);setScheduleChange({state:candidate,revision:s.revision,description:`${date} · ${schedule.title} 취소`,day:date});open('schedule-review');}catch(error){setNotice(inputError(error));}
         }}/>}
         {modal && (
