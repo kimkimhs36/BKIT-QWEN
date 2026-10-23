@@ -155,3 +155,18 @@ describe('live task attachment without material', () => {
     expect(v.tasks[0]).toMatchObject({ status: 'doing', submitted: false });
   });
 });
+
+it('free question work preserves a paused five-minute clock and all answer evidence at finish', async () => {
+  const { attachQuickStudy, finishQuickResource } = await import('../src/quickTimer');
+  const began = t('2026-10-23T04:00:00Z');
+  const paused = pauseQuick(startQuick(newState(), 'countdown', 5, began, 'free-question'), began + 70_000);
+  let state = attachQuickStudy(paused);
+  expect(state.active).toMatchObject({id: 'free-question', taskId: null, elapsed: 70, segmentStart: null, target: 5});
+  state.active!.workspace = {problem:'내 실제 질문',source:'학습지',answerDraft:'생각 중',attempts:[]};
+  state = stateSchema.parse(JSON.parse(JSON.stringify(state)));
+  expect(state.active!.workspace!.answerDraft).toBe('생각 중');
+  const finished = stateSchema.parse(finishQuickResource(state,began+400_000));
+  expect(finished.sessions[0]).toMatchObject({seconds:70,problems:0,workspace:state.active!.workspace});
+  expect(finishQuickResource(finished,began+500_000)).toEqual(finished);
+  expect(finished.tasks).toEqual(paused.tasks);
+});

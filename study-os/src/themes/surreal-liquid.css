@@ -211,3 +211,7 @@ html[data-effects='none'][data-material='glass'] :is(
     background: #fff6e9 !important;
   }
 }
+
+/* A stopped WebGL buffer must never cover the readable static atmosphere. */
+.surreal-surface[data-still='true'] { display: none; }
+.surreal-world:has(.surreal-surface[data-still='true']) .surreal-atmosphere { animation: none; }

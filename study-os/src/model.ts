@@ -106,6 +106,7 @@ export const learningAttemptSchema = z.object({
     .optional(),
 });
 export const problemWorkspaceSchema = z.object({
+  answerDraft: note.optional(),
   problem: note.min(1),
   source: text,
   sourceType: z

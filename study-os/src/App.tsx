@@ -18,6 +18,7 @@ import {
 } from 'react';
 import { TaskMaterials, emptyTaskMaterials, type TaskMaterialDraft } from './TaskMaterials';
 import { flushLearning } from './learningFlush';
+import { changeOccurrence } from './scheduleOccurrence';
 import { QuickStudyTimer } from './QuickStudyTimer';
 import { useGarage } from './drive/useGarage';
 import { BREAK_KEY, restoreBrowserBreak, type StudyBreak, type BreakActivity } from './drive/break';
@@ -28,6 +29,7 @@ import {
   finishQuick,
   attachQuickResource,
   attachQuickTask,
+  attachQuickStudy,
   finishQuickResource,
   labelQuick,
   quickSeconds,
@@ -334,6 +336,9 @@ export default function App() {
   }
   const sleep = useSleepGuard(now, Boolean(s.active));
   const [energy, setEnergy] = useState<'low' | 'normal'>('normal');
+  const [captureDay, setCaptureDay] = useState('');
+  const [occurrenceDay, setOccurrenceDay] = useState('');
+  const [scheduleDay, setScheduleDay] = useState('');
   const [taskPresetKind, setTaskPresetKind] = useState<Task['kind']>('숙제');
   const [taskDraftId, setTaskDraftId] = useState<string>(uid);
   const [taskMaterials, setTaskMaterials] = useState<TaskMaterialDraft>(() => emptyTaskMaterials());
@@ -356,6 +361,7 @@ export default function App() {
     [quickEditingId, setQuickEditingId] = useState<string | null>(null);
   const todayDetailsRef = useRef<HTMLDetailsElement>(null);
   const [orbitOpen, setOrbitOpen] = useState(false);
+  const [problemToolsSession, setProblemToolsSession] = useState<string | null>(null);
   // A fixed tab bar changes content but not the document's scroll position.
   // Reset before paint, then again after Safari has laid out the new section.
   useLayoutEffect(() => {
@@ -637,6 +643,7 @@ export default function App() {
     setModal(kind);
   }
   function taskEditor(t: Task | null = null) {
+    setCaptureDay('');
     setTaskDraftId(t?.id ?? uid());
     setTaskMaterials(emptyTaskMaterials(t));
     setEditTask(t);
@@ -644,13 +651,16 @@ export default function App() {
     open(t ? 'task' : 'capture');
   }
   function addAssessmentNow() {
+    setCaptureDay('');
     setTaskDraftId(uid());
     setTaskMaterials(emptyTaskMaterials());
     setEditTask(null);
     setTaskPresetKind('수행평가');
     open('task');
   }
-  function scheduleEditor(t: Schedule | null = null) {
+  function scheduleEditor(t: Schedule | null = null, selectedDay = '', singleDay = '') {
+    setScheduleDay(selectedDay);
+    setOccurrenceDay(singleDay);
     setEditSchedule(t);
     open('schedule');
   }
@@ -833,6 +843,10 @@ export default function App() {
     onResume: resumeQuickNow,
     onFinish: finishQuickNow,
     onAttachTask: (id: string) => start(5, id),
+    onLearn: () => {
+      const timer = memory.current.quickTimer;
+      if (timer && commit(attachQuickStudy)) setProblemToolsSession(timer.id);
+    },
     onLabel: saveQuickLabel,
     onCloseEdit: () => setQuickEditingId(null),
   };
@@ -845,6 +859,10 @@ export default function App() {
     examCount?: number,
   ) {
     if (!flushLearning(() => start(minutes, task, resourceId, problemId, examCount))) return;
+    if (task && task !== '__free__' && !s.tasks.some(t => t.id === task && t.status !== 'done')) {
+      setNotice('시작할 미완료 과제를 다시 확인해 주세요. 진행 중인 공부는 유지됩니다.');
+      return;
+    }
     if (examCount && (s.active || s.quickTimer)) {
       setNotice('진행 중인 학습을 저장하고 종료한 뒤 모의시험을 시작하세요.');
       return;
@@ -870,6 +888,10 @@ export default function App() {
       return;
     }
     if (s.active) {
+      if (task && task !== '__free__' && task !== s.active.taskId) {
+        setNotice(`진행 중인 “${s.active.action}” 학습을 저장하고 종료한 뒤 다른 과제를 시작해 주세요.`);
+        return;
+      }
       if (resourceId && resourceId !== s.active.resourceId)
         setNotice('현재 학습을 종료한 뒤 다른 자료를 열어 주세요.');
       else if (resourceId && problemId) commit((v) => moveProblem(v, resourceId, problemId));
@@ -1015,8 +1037,15 @@ export default function App() {
     )
       setNotice('문제를 준비했어. 이제 내 답을 먼저 적어봐.');
   }
+  function saveAnswerDraft(answerDraft: string) {
+    return commit((v) => v.active?.workspace ? {
+      ...v, active: { ...v.active, workspace: { ...v.active.workspace, answerDraft } },
+    } : v);
+  }
   function addLearningAttempt(answer: string, meta: AttemptMeta) {
-    if (!s.active?.workspace || s.active.workspace.attempts.length >= 20) return false;
+    const workspace = memory.current.active?.workspace;
+    const last = workspace?.attempts.at(-1);
+    if (!answer.trim() || !workspace || workspace.attempts.length >= 20 || last?.selfCheck === 'unreviewed') return false;
     const saved = commit((v) => {
       if (!v.active?.workspace) return v;
       return {
@@ -1033,6 +1062,7 @@ export default function App() {
           ...v.active,
           workspace: {
             ...v.active.workspace,
+            answerDraft: '',
             attempts: [
               ...v.active.workspace.attempts,
               {
@@ -1318,8 +1348,9 @@ export default function App() {
     const f = new FormData(e.currentTarget);
     try {
       const date = String(f.get('date') || '');
+      const exceptionDay = occurrenceDay || (editSchedule && !editSchedule.date && date ? date : '');
       const t = scheduleSchema.parse({
-        id: editSchedule?.id || uid(),
+        id: exceptionDay ? uid() : editSchedule?.id || uid(),
         title: f.get('title'),
         subject: f.get('subject'),
         kind: f.get('kind'),
@@ -1339,13 +1370,13 @@ export default function App() {
           .filter(Boolean),
       });
       if (
-        commit((v) => ({
-          ...v,
-          schedules: editSchedule
-            ? v.schedules.map((x) => (x.id === t.id ? t : x))
-            : [...v.schedules, t],
-          undo: null,
-        }))
+        commit((v) => exceptionDay && editSchedule
+          ? changeOccurrence(v, editSchedule, exceptionDay, t)
+          : ({
+            ...v,
+            schedules: editSchedule ? v.schedules.map((x) => (x.id === t.id ? t : x)) : [...v.schedules, t],
+            undo: null,
+          }))
       ) {
         setModal(null);
         setNotice('고정 일정을 저장했습니다. 충돌이 생긴 계획은 복구 버튼으로 다시 검토하세요.');
@@ -1806,9 +1837,13 @@ export default function App() {
                     value={day}
                     onChange={(e) => e.target.value && setDay(e.target.value)}
                   />
-                  <button className="primary" onClick={() => scheduleEditor()}>
+                  <button className="primary" onClick={() => scheduleEditor(null, day)}>
                     <Plus size={16} /> 일정 등록
                   </button>
+                </div>
+                <div className="command-actions" role="group" aria-label="선택 날짜에 추가">
+                  <button className="text-button" onClick={() => { taskEditor(); setCaptureDay(day); open('task'); }}><Plus size={15} /> 과제</button>
+                  <button className="text-button" onClick={() => { addAssessmentNow(); setCaptureDay(day); }}><Plus size={15} /> 수행평가</button>
                 </div>
                 <section className="panel">
                   {conflicts.length > 0 && (
@@ -1848,10 +1883,15 @@ export default function App() {
                             <p>준비물: {f.materials || '아직 입력하지 않았어요'}</p>
                           </div>
                           <button
+                            className="text-button"
+                            onClick={() => scheduleEditor(s.schedules.find(x => x.id === f.id.split('@')[0]) || null, dayKey(f.classStart), dayKey(f.classStart))}
+                            aria-label={f.title + ' 이 날짜만 수정'}
+                          >이 날짜만</button>
+                          <button
                             className="icon-button"
                             aria-label={f.title + ' 수정'}
                             onClick={() =>
-                              scheduleEditor(s.schedules.find((x) => x.id === f.id) || null)
+                              scheduleEditor(s.schedules.find((x) => x.id === f.id.split('@')[0]) || null)
                             }
                           >
                             <Pencil size={17} />
@@ -1863,6 +1903,16 @@ export default function App() {
                       예시 시간표를 실제 일정으로 넣지 않습니다. 수업별로 요일과 시간을 등록하세요.
                     </Empty>
                   )}
+                </section>
+                <section className="panel spaced" aria-label="선택 날짜 과제 마감">
+                  <h2>과제 · 수행평가 마감</h2>
+                  {s.tasks.filter(t => (t.deadline?.date ?? (t.due ? dayKey(t.due) : '')) === day).map(t => (
+                    <div className="schedule-row" key={t.id}>
+                      <button className="text-button" onClick={() => taskEditor(t)}>{t.subject} · {t.title}<br />{formatTaskDeadline(t)} · {t.status === 'done' ? '학습 완료' : '미완료'}{t.submitted ? ' · 제출 완료' : needsSubmission(t) ? ' · 제출 확인 필요' : ''}</button>
+                      {t.status !== 'done' && t.quantity?.remaining !== 0 && <button className="text-button" onClick={() => start(5, t.id)} aria-label={t.title + ' 5분 공부 시작'}><Play size={15} /> 5분 시작</button>}
+                    </div>
+                  ))}
+                  {!s.tasks.some(t => (t.deadline?.date ?? (t.due ? dayKey(t.due) : '')) === day) && <p className="muted">등록된 마감이 없어요.</p>}
                 </section>
                 <section className="panel spaced">
                   <div className="section-head">
@@ -2185,9 +2235,15 @@ export default function App() {
                         </div>
                       )}
                       {s.active && (
+                        <div className="focus-first-action">
+                          <p>{s.active.workspace ? '이어서 내 답을 작성하고, 해설을 확인한 뒤 직접 평가해 주세요.' : firstLearningAction(s.tasks.find(t => t.id === s.active?.taskId), energy === 'low')}</p>
+                          {!s.active.resourceId && <button type="button" className="text-button" onClick={() => setProblemToolsSession(s.active!.id)}>첫 문제 기록 <BookOpen size={14} /></button>}
+                        </div>
+                      )}
+                      {s.active && (
                         <details
                           className="focus-workspace-tools"
-                          open={!!(s.active.resourceId || s.active.workspace)}
+                          open={!!(s.active.resourceId || s.active.workspace || problemToolsSession === s.active.id)}
                         >
                           <summary>
                             학습 자료 · 문제 풀이
@@ -2205,7 +2261,9 @@ export default function App() {
                           )}
                           {s.active && !s.active.resourceId && (
                             <ProblemWorkspace
+                              key={s.active.id}
                               active={s.active}
+                              onSaveDraft={saveAnswerDraft}
                               onSetProblem={setLearningProblem}
                               onRecordAttempt={addLearningAttempt}
                               onSelfCheck={markLearningAttempt}
@@ -3071,7 +3129,7 @@ export default function App() {
                       type="date"
                       name="dueDate"
                       defaultValue={
-                        editTask?.deadline?.date ?? (editTask?.due ? dayKey(editTask.due) : '')
+                        editTask?.deadline?.date ?? (editTask?.due ? dayKey(editTask.due) : captureDay)
                       }
                     />
                   </Field>
@@ -3277,7 +3335,8 @@ export default function App() {
                   </div>
                 </div>
                 <Field label="하루만 적용할 날짜 (입력하면 반복 요일보다 우선)">
-                  <input name="date" type="date" defaultValue={editSchedule?.date || ''} />
+                  <input name="date" type="date" defaultValue={occurrenceDay || editSchedule?.date || scheduleDay}
+                    readOnly={!!occurrenceDay} />
                 </Field>
                 <div className="form-grid">
                   <Field label="수업 · 일정 시작">
@@ -3342,7 +3401,16 @@ export default function App() {
                   일정으로 등록하세요.
                 </p>
                 <div className="modal-actions">
-                  {editSchedule && (
+                  {editSchedule && occurrenceDay && (
+                    <button type="button" className="danger-button" onClick={() => {
+                      try {
+                        if (commit(v => changeOccurrence(v, editSchedule, occurrenceDay))) {
+                          setModal(null); setNotice(`${occurrenceDay} 일정만 취소했어요. 원래 시간표는 유지됩니다.`);
+                        }
+                      } catch (error) { setFormError(inputError(error)); }
+                    }}>이 날짜만 취소</button>
+                  )}
+                  {editSchedule && !occurrenceDay && (
                     <button
                       type="button"
                       className="danger-button"
