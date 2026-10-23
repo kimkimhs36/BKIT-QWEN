@@ -308,7 +308,9 @@ test('camera input and real local OCR remain usable; AI configuration failure ke
   await expect(page.getByLabel('과제 1 내용', { exact: true })).toHaveValue('수학 학습지 3문제');
   await page.getByLabel('과제 1 확인', { exact: true }).check();
   await page.getByRole('button', { name: '확인하고 BKIT에 저장', exact: false }).click();
-  expect((await state(page)).tasks).toHaveLength(1);
+  // Confirmation verifies photo originals asynchronously before committing.
+  await expect.poll(async () => (await state(page)).tasks.length).toBe(1);
+  await expect(page.getByRole('dialog', { name: 'BKIT 학습 준비실' })).toBeHidden();
   expect((await state(page)).tasks[0].attachmentIds).toHaveLength(1);
 });
 
