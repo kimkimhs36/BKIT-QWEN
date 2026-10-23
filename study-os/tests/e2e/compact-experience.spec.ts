@@ -35,9 +35,12 @@ async function fit(page: Page, noScroll = false) {
     height: innerHeight,
     scrollWidth: document.documentElement.scrollWidth,
     scrollHeight: document.documentElement.scrollHeight,
+    // Production's separately maintained friend-verification banner precedes
+    // the full-height app. Preserve it and verify the app's own screen budget.
+    appTop: document.querySelector('#root')!.getBoundingClientRect().top + scrollY,
   }));
   expect(m.scrollWidth).toBeLessThanOrEqual(m.width + 1);
-  if (noScroll) expect(m.scrollHeight).toBeLessThanOrEqual(m.height + 2);
+  if (noScroll) expect(m.scrollHeight).toBeLessThanOrEqual(m.height + m.appTop + 2);
   return m;
 }
 async function aboveDock(page: Page, selector: string) {

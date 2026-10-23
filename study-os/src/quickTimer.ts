@@ -168,6 +168,21 @@ export function attachQuickResource(state: State, resourceId: string, problemId?
     },
   };
 }
+/** Open the existing problem workspace with the exact same free-study clock. */
+export function attachQuickStudy(state: State): State {
+  const timer = state.quickTimer;
+  if (!timer || state.active) return state;
+  return {
+    ...state,
+    quickTimer: null,
+    active: {
+      id: timer.id, quick: true, quickMode: timer.mode, taskId: null,
+      subject: '자율 학습', action: '자유 공부', target: timer.targetMinutes,
+      started: timer.started, segmentStart: timer.segmentStart,
+      elapsed: timer.elapsed, segments: timer.segments, pauses: [],
+    },
+  };
+}
 /** Link an already running or paused stopwatch without resetting any elapsed time. */
 export function attachQuickTask(state: State, taskId: string): State {
   const timer = state.quickTimer;
@@ -223,6 +238,7 @@ export function finishQuickResource(state: State, now: number): State {
             taskId: active.taskId,
             subject: active.subject,
             action: active.action,
+            workspace: active.workspace,
             resourceId: active.resourceId,
             questionPace: active.questionPace,
             exam: active.exam,

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { ArrowRight, BookOpenCheck, Check, RotateCcw } from 'lucide-react';
 import type { State } from './model';
+import { useStudyDraft } from './useStudyDraft';
 import {
   ERROR_LABELS,
   type AttemptMeta,
@@ -17,13 +18,16 @@ export function ProblemWorkspace({
   onSetProblem,
   onRecordAttempt,
   onSelfCheck,
+  onSaveDraft,
 }: {
   active: Active;
+  onSaveDraft: (draft: string) => boolean;
   onSetProblem: (problem: string, source: string, meta: ProblemSourceMeta) => void;
   onRecordAttempt: (answer: string, meta: AttemptMeta) => boolean;
   onSelfCheck: (attemptId: string, outcome: 'remembered' | 'retry', errorTag?: ErrorTag) => void;
 }) {
-  const [draft, setDraft] = useState('');
+  const answerDraft = useStudyDraft(active.workspace?.answerDraft ?? '', onSaveDraft);
+  const { value: draft, setValue: setDraft } = answerDraft;
   const [hintUsed, setHintUsed] = useState(false);
   const [confidence, setConfidence] = useState<'' | 'low' | 'medium' | 'high'>('');
   const [errorTag, setErrorTag] = useState<ErrorTag>('unknown');
@@ -45,7 +49,7 @@ export function ProblemWorkspace({
   function submitAnswer(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const value = draft.trim();
-    if (!value || attempts.length >= 20) return;
+    if (!value || attempts.length >= 20 || !answerDraft.flush()) return;
     if (onRecordAttempt(value, { hintUsed, confidence: confidence || undefined })) {
       setDraft('');
       setHintUsed(false);
@@ -183,7 +187,20 @@ export function ProblemWorkspace({
                 placeholder="해설이나 AI 정답을 보기 전에 내 생각을 적어봐."
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
+                onBlur={() => answerDraft.flush()}
               />
+              <small role="status">
+                {answerDraft.status === 'error'
+                  ? '초안 저장 실패 · 내용을 복사하거나 다시 저장해 주세요.'
+                  : answerDraft.status === 'pending'
+                    ? '초안 저장 중…'
+                    : '답안 초안은 이 기기에 보관해요.'}
+              </small>
+              {answerDraft.status === 'error' && (
+                <button type="button" onClick={() => answerDraft.flush()}>
+                  초안 다시 저장
+                </button>
+              )}
               <label className="sleep-check">
                 <input
                   type="checkbox"

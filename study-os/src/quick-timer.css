@@ -43,3 +43,8 @@ html[data-effects='none'] .quick-timer *{animation:none!important;transition:non
 .quick-timer-modes button,.quick-timer-lengths button,.quick-timer-actions button{min-height:44px}
 .quick-timer button:focus-visible,.quick-timer-form :is(input,select,textarea,button):focus-visible{outline:2px solid currentColor;outline-offset:3px}
 .session-row .quick-timer-form{margin-top:12px;max-width:640px}
+
+/* Guidance stays inside the existing focus surface; home geometry is unchanged. */
+.focus-first-action { text-align: left; margin: 12px 0; font-size: 13px; line-height: 1.6; }
+.focus-first-action p { margin: 0 0 4px; overflow-wrap: anywhere; }
+.focus-first-action .text-button { min-height: 44px; }

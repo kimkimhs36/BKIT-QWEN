@@ -1,4 +1,5 @@
 import { AnimatedClock } from './AnimatedClock';
+import { firstLearningAction } from './now';
 
 import { useEffect, useState } from 'react';
 import { Check, Pause, Play, RotateCcw, Timer, Clock3, ChevronDown } from 'lucide-react';
@@ -20,6 +21,7 @@ type Props = {
   onResume: () => void;
   onFinish: () => void;
   onAttachTask: (taskId: string) => void;
+  onLearn: () => void;
   onLabel: (
     id: string,
     subject: string,
@@ -43,6 +45,7 @@ export function QuickStudyTimer({
   onResume,
   onFinish,
   onAttachTask,
+  onLearn,
   onLabel,
   onCloseEdit,
   compact,
@@ -192,6 +195,12 @@ export function QuickStudyTimer({
             </button>
             <button type="button" className="primary" onClick={onFinish}>
               <Check size={17} /> 끝내고 시간 저장
+            </button>
+          </div>
+          <div className="focus-first-action">
+            <p>{firstLearningAction()}</p>
+            <button type="button" className="text-button" onClick={onLearn}>
+              첫 문제 기록 <Play size={14} />
             </button>
           </div>
           {tasks.some((t) => t.status !== 'done') && (
