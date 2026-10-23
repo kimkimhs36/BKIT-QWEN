@@ -192,6 +192,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
       const { prefs: p, protectedStudy: protect } = current.current;
       return (
         motion.matches ||
+        document.documentElement.dataset.awakeCamera === 'true' ||
         p.lowPower ||
         p.motion !== 'auto' ||
         p.intensity === 0 ||
@@ -236,7 +237,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
       const { prefs: p, studying: quiet } = current.current;
       const frozen = still();
       const alive = !frozen && (handTarget > 0 || time - lastTrail < 7);
-      const interval = frozen ? Infinity : alive ? 1000 / 30 : quiet ? 1000 / 12 : 1000 / 24;
+      const interval = frozen ? Infinity : alive ? 1000 / 30 : quiet ? 1000 / 8 : 1000 / 12;
       if (!lastDraw || now - lastDraw >= interval - 1) {
         const dt = Math.min(0.08, Math.max(0, (now - (last || now)) / 1000));
         if (!frozen) time += dt;
@@ -393,6 +394,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
     window.addEventListener('blur', reset);
     window.addEventListener('resize', resize, { passive: true });
     window.addEventListener('bkit:liquid-policy', policy);
+    window.addEventListener('bkit:camera-load', policy);
     motion.addEventListener('change', policy);
     size();
     policy();
@@ -414,6 +416,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
       window.removeEventListener('blur', reset);
       window.removeEventListener('resize', resize);
       window.removeEventListener('bkit:liquid-policy', policy);
+      window.removeEventListener('bkit:camera-load', policy);
       motion.removeEventListener('change', policy);
     };
   }, [active, contextRevision]);

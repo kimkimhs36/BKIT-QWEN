@@ -1,26 +1,4 @@
 /* BKIT 3.8 · clear optics floating above a living peach material. */
-html[data-material='glass'],
-[data-preview='glass'] {
-  --mat-bg: #f5c7ae;
-  --mat-paper: #fffaf02e;
-  --mat-panel: #fffaf024;
-  --mat-control: #fffaf047;
-  --mat-ink: #44352f;
-  --mat-muted: #71564b;
-  --mat-accent: #873e2f;
-  --mat-on-accent: #fffaf3;
-  --mat-line: #fffbef94;
-  --mat-soft: #fff4e34d;
-  --mat-blur: 8px;
-  --mat-shadow:
-    inset 0 1px 1px #fffef3ed, inset 1px 0 1px #fff9e599,
-    inset -1px -1px 1px #9e645d26, inset 0 -2px 5px #fff8e329,
-    0 2px 4px #79473806, 0 18px 42px -24px #784b4647;
-  --identity-surface: linear-gradient(125deg, #fffdf53d, #fff9e50a 52%, #fff9f229);
-  --identity-button: linear-gradient(155deg, #fffdf563, #fff9ef14 55%, #fffaf038);
-  --mat-card: var(--identity-surface);
-  --mat-button: var(--identity-button);
-}
 
 .surreal-world {
   position: fixed;
@@ -66,7 +44,7 @@ html[data-material='glass'] .app-shell.premium-os {
   --hero-soft: var(--mat-muted);
 }
 html[data-material='glass'] .app-shell.premium-os .topbar {
-  background: #fff6e817 !important;
+  background: transparent !important;
   border-bottom-color: #fff9ed57 !important;
 }
 html[data-material='glass'] .app-shell.premium-os :is(
@@ -74,11 +52,11 @@ html[data-material='glass'] .app-shell.premium-os :is(
   .bkit-quick-search-field
 ),
 html[data-material='glass'] body > .orbit-nav {
-  background: var(--identity-surface) !important;
+  background: var(--mat-card) !important;
   border: 1px solid var(--mat-line) !important;
   box-shadow: var(--mat-shadow) !important;
-  -webkit-backdrop-filter: blur(8px) saturate(1.12) !important;
-  backdrop-filter: blur(8px) saturate(1.12) !important;
+  -webkit-backdrop-filter: blur(var(--mat-blur)) saturate(1.08) !important;
+  backdrop-filter: blur(var(--mat-blur)) saturate(1.08) !important;
 }
 html[data-material='glass'] .app-shell.premium-os .study-start {
   color: var(--mat-ink);
@@ -91,7 +69,7 @@ html[data-material='glass'] .app-shell.premium-os :is(
   .panel, .focus-card, .study-site-card, .resource-card, .quick-timer,
   .resource-resume, .note-card, .sleep-card, .session-receipt
 ) {
-  background: var(--identity-surface) !important;
+  background: var(--mat-card) !important;
   border-color: var(--mat-line) !important;
   box-shadow: var(--mat-shadow) !important;
 }
@@ -99,7 +77,7 @@ html[data-material='glass'] .app-shell.premium-os :is(
   .primary, .quick-timer-begin, .study-start-primary
 ),
 html[data-material='glass'] .study-dialog .primary {
-  background: linear-gradient(155deg, #a9573de8, #843b2be8) !important;
+  background: var(--mat-primary) !important;
   color: var(--mat-on-accent) !important;
   border: 1px solid #ffe8ca80 !important;
   box-shadow: inset 0 1px #fff2d47a, inset 0 -1px #61312442, 0 5px 16px -8px #7e372b70 !important;
@@ -107,7 +85,7 @@ html[data-material='glass'] .study-dialog .primary {
 html[data-material='glass'] .app-shell.premium-os :is(
   .secondary, .study-start-five, .study-small-icon, .study-submission
 ) {
-  background: var(--identity-button) !important;
+  background: var(--mat-button) !important;
   color: var(--mat-accent) !important;
   border-color: var(--mat-line) !important;
   box-shadow: inset 0 1px #fff9e9c9, 0 4px 12px -9px #80544755 !important;
@@ -152,7 +130,7 @@ html[data-material='glass'] .study-dialog :is(input, select, textarea) {
     radial-gradient(ellipse at 95% 60%, #ee9d8b, transparent 70%), #f5c7ae;
 }
 .study-theme-preview[data-preview='glass'] .study-preview-focus {
-  background: var(--identity-surface);
+  background: var(--mat-card);
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
 }

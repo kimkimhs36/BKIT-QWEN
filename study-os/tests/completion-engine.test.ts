@@ -296,11 +296,17 @@ describe('experimental camera uncertainty', () => {
       const start = episode * 4000;
       for (let at = start; at <= start + 2250; at += 250)
         s = observeEyes(s, { at, face: true, left: 0.9, right: 0.9, angled: false });
-      s = observeEyes(s, { at: start + 2500, face: true, left: 0.1, right: 0.1, angled: false });
+      // Keep sampling open eyes between episodes; an unobserved 1.5s gap is uncertain.
+      for (let at = start + 2500; at < start + 4000; at += 250)
+        s = observeEyes(s, { at, face: true, left: 0.1, right: 0.1, angled: false });
     }
     expect(s.status).toBe('rest');
     expect(s.episodes).toHaveLength(3);
     s = observeEyes(s, { at: 200000, face: true, left: 0, right: 0, angled: false });
+    // A long observation gap cannot be treated as continuous reliable video.
+    expect(s.status).toBe('uncertain');
+    for (const at of [200250, 200500, 200750, 201000])
+      s = observeEyes(s, { at, face: true, left: 0, right: 0, angled: false });
     expect(s.status).toBe('observing');
   });
 });

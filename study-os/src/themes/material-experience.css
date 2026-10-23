@@ -44,7 +44,7 @@ html[data-material] .main-shell {
   background: transparent !important;
 }
 html[data-material] .app-shell.atelier-os .topbar {
-  background: var(--mat-bg) !important;
+  background: transparent !important;
   border-bottom: 1px solid color-mix(in srgb, var(--mat-line) 65%, transparent) !important;
   box-shadow: none !important;
 }
@@ -190,7 +190,7 @@ html[data-material] button {
 }
 html[data-material] .app-shell.atelier-os :is(.primary, .now-focus-primary, .quick-timer-begin),
 html[data-material] dialog .primary {
-  background: var(--mat-accent) !important;
+  background: var(--mat-primary) !important;
   color: var(--mat-on-accent) !important;
   border: 1px solid transparent !important;
   border-radius: var(--mat-button-radius) !important;
@@ -655,7 +655,7 @@ html[data-material='gold']
     0 2px 2px #60502c15 !important;
 }
 html[data-material='classic'] .app-shell.atelier-os .page-head h1 {
-  font-family: Georgia, 'Noto Serif KR', serif;
+  font-family: inherit;
   font-weight: 400;
   letter-spacing: -0.07em;
 }

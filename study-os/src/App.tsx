@@ -192,6 +192,9 @@ const LearningEvidence = lazy(() =>
 const ProblemReviewQueue = lazy(() =>
   import('./ProblemReviewQueue').then((m) => ({ default: m.ProblemReviewQueue })),
 );
+const AwakeRest = lazy(() =>
+  import('./drive/WakeBomb').then((m) => ({ default: m.WakeBomb })),
+);
 const AwakeAssist = lazy(() => import('./AwakeAssist').then((m) => ({ default: m.AwakeAssist })));
 const GlobalSearch = lazy(() =>
   import('./GlobalSearch').then((m) => ({ default: m.GlobalSearch })),
@@ -289,6 +292,20 @@ export default function App() {
         '화면 모드는 바뀌었지만 브라우저가 설정 저장을 막았어요. 다시 접속하면 원래대로 돌아올 수 있어요.',
       );
   };
+  const [awakeRestUntil, setAwakeRestUntil] = useState<number | null>(null);
+  function pauseForAwakeRest(short = false) {
+    if (!flushLearning(() => pauseForAwakeRest(short))) return;
+    const current = memory.current;
+    if (
+      (current.active || current.quickTimer) &&
+      !commit((v) => {
+        const paused = pauseQuick(v, Date.now());
+        return { ...paused, active: current.active ? closeSegment(current.active, Date.now()) : null };
+      })
+    ) return;
+    if (short) setAwakeRestUntil(Date.now() + 30000);
+    else setTab('sleep');
+  }
   const [atelierOpen, setAtelierOpen] = useState(false);
   const [atelierStep, setAtelierStep] = useState<'capture' | undefined>();
   function openAtelier(step?: 'capture') {
@@ -1588,13 +1605,14 @@ export default function App() {
         />
         <MaterialEffects
           prefs={material}
-          studying={!!(s.active?.resourceId || s.active?.workspace)}
+          studying={!!(s.active?.segmentStart || s.quickTimer?.segmentStart || s.active?.resourceId || s.active?.workspace)}
         />
         <div className="theme-scenery" aria-hidden="true">
           <i />
           <i />
           <i />
         </div>
+        {awakeRestUntil !== null && <Suspense fallback={null}><AwakeRest garage={garageController.garage} until={awakeRestUntil} onReturn={() => setAwakeRestUntil(null)} onDuration={seconds => setAwakeRestUntil(Date.now() + seconds * 1000)} /></Suspense>}
         <a className="skip" href="#main">
           본문으로 이동
         </a>
@@ -2061,6 +2079,7 @@ export default function App() {
             {tab === 'study' && (
               <>
                 {!s.active && <QuickStudyTimer {...quickProps} compact />}
+                {s.quickTimer && <Suspense fallback={null}><AwakeAssist onRest={() => pauseForAwakeRest()} onShortRest={() => pauseForAwakeRest(true)} /></Suspense>}
                 {!s.active && (
                   <button className="focus-library-link" onClick={() => setTab('materials')}>
                     <BookOpen size={18} />
@@ -2234,6 +2253,7 @@ export default function App() {
                           <FocusStayAwake running />
                         </div>
                       )}
+                      {s.active && <Suspense fallback={null}><AwakeAssist onRest={() => pauseForAwakeRest()} onShortRest={() => pauseForAwakeRest(true)} /></Suspense>}
                       {s.active && (
                         <div className="focus-first-action">
                           <p>{s.active.workspace ? '이어서 내 답을 작성하고, 해설을 확인한 뒤 직접 평가해 주세요.' : firstLearningAction(s.tasks.find(t => t.id === s.active?.taskId), energy === 'low')}</p>
@@ -2625,7 +2645,7 @@ export default function App() {
                     <h2>실험실</h2>
                     <p>기기와 환경에 따라 정확도가 달라지는 보조 도구예요.</p>
                     <Suspense fallback={<p role="status">실험 도구를 여는 중…</p>}>
-                      <AwakeAssist onRest={() => setTab('sleep')} />
+                      <AwakeAssist onRest={() => pauseForAwakeRest()} onShortRest={() => pauseForAwakeRest(true)} />
                     </Suspense>
                   </section>
                 </details>

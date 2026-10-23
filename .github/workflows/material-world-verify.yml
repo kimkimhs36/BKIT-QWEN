@@ -1,0 +1,45 @@
+name: Material World and Awake Intelligence verification
+on:
+  push:
+    branches: [feat/bkit-material-world-awake-20261023]
+    paths-ignore: ['study-os/docs/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: study-os
+    env:
+      APP_BASE: /
+      BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: node scripts/check-local-vision.mjs
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Existing learning, materials, camera lifecycle and sensor simulation
+        run: >-
+          npm run test:e2e -- tests/e2e/live-study-recovery.spec.ts
+          tests/e2e/compact-experience.spec.ts tests/e2e/material-world.spec.ts
+          tests/e2e/awake-intelligence.spec.ts --project=desktop
+          --project=webkit-iphone --project=webkit-ipad
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: material-world-verification-${{ github.sha }}
+          path: |
+            study-os/docs/material-world-20261023/verified/
+            study-os/test-results/
+            artifacts/compact-experience/

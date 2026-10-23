@@ -1,11 +1,20 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import { localVisionOnly } from './localVision';
 import { readdir, readFile, writeFile, mkdir, copyFile, cp } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { OCR_ASSET_DIR } from './src/ocrAssets';
 export default defineConfig(({ mode }) => ({
   plugins: [
+    {
+      name: 'bkit-local-only-vision',
+      enforce: 'pre',
+      transform(code, id) {
+        if (/\/node_modules\/@mediapipe\/tasks-vision\/vision_bundle\.mjs(?:\?|$)/.test(id))
+          return { code: localVisionOnly(code), map: null };
+      },
+    },
     react(),
     {
       name: 'bkit-offline-shell',
@@ -81,6 +90,8 @@ export default defineConfig(({ mode }) => ({
       },
     },
   ],
+  // Keep the privacy transform in the development path as well as production.
+  optimizeDeps: { exclude: ['@mediapipe/tasks-vision'] },
   // Stable vendor chunks can stay cached when local learning screens change.
   build: {
     rollupOptions: {
