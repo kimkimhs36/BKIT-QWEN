@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f6dcd2" />
+    <script>
+      /* Restore display preferences before paint; never write study storage. */ try {
+        const r = document.documentElement,
+          savedTheme = localStorage.getItem('bkit.study-os.theme.v1'),
+          d = savedTheme === 'dark',
+          p = JSON.parse(localStorage.getItem('bkit.material.v1') || 'null'),
+          c = {
+            classic: '#f4f1e8',
+            forest: '#102019',
+            glass: '#f6dcd2',
+            peach: '#f7dbcc',
+            diamond: '#e9f0f7',
+            gold: '#e9e1ce',
+            jelly: '#ece3f3',
+            droplets: '#d9eeea',
+            night: '#101827',
+          },
+          valid =
+            p &&
+            Object.hasOwn(c, p.id) &&
+            ['auto', 'reduced', 'off'].includes(p.motion) &&
+            Number.isFinite(p.intensity) &&
+            p.intensity >= 0 &&
+            p.intensity <= 1 &&
+            typeof p.lowPower === 'boolean' &&
+            ['forest', 'night'].includes(p.id) === d,
+          id = valid ? p.id : d ? 'forest' : savedTheme !== null ? 'classic' : 'glass';
+        r.dataset.bkitTheme = d ? 'dark' : 'light';
+        r.dataset.material = id;
+        r.dataset.effects =
+          valid && (p.lowPower || p.motion !== 'auto')
+            ? 'none'
+            : 'auto';
+        r.dataset.motion = valid ? p.lowPower ? 'off' : p.motion : 'auto';
+        r.style.backgroundColor = c[id];
+        document.querySelector('meta[name="theme-color"]').content = c[id];
+      } catch {
+        document.documentElement.dataset.bkitTheme = 'light';
+        document.documentElement.dataset.material = 'glass';
+      }
+    </script>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="icon" href="./icon.svg" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <title>BKIT STUDY OS — 나의 공부 공간</title>
+    <script type="module" crossorigin src="/previews/bkit-material-world-20261023/assets/index-DyItScZY.js"></script>
+    <link rel="modulepreload" crossorigin href="/previews/bkit-material-world-20261023/assets/react-vendor-DENrKhsk.js">
+    <link rel="modulepreload" crossorigin href="/previews/bkit-material-world-20261023/assets/schema-vendor-DYuAzjeD.js">
+    <link rel="stylesheet" crossorigin href="/previews/bkit-material-world-20261023/assets/index-C4lD2OGe.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
