@@ -260,6 +260,12 @@ export function MaterialEffects({
     };
     const calibrate = () => {
       center();
+      // Rebase both input and momentum, even when render frames arrive slowly.
+      x = y = vx = vy = 0;
+      root.style.setProperty('--sensor-x', '0');
+      root.style.setProperty('--sensor-y', '0');
+      root.style.setProperty('--light-x', '50%');
+      root.style.setProperty('--light-y', '35%');
       received = 0;
       reportSensor(true, 'waiting', '현재 자세로 다시 보정해요. 다음 센서값을 기다려요.');
     };
