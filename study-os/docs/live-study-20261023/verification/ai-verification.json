@@ -1,0 +1,34 @@
+{
+  "checkedAt": "2026-10-23T07:40:28.770972+00:00",
+  "health": {
+    "service": "bkit-api",
+    "sourceCommit": "95d7a4f0737dc49af1299f8692a5859315306967",
+    "stage": "private-briefing-v1",
+    "mode": "configured",
+    "push": false,
+    "model": "deepseek-flash",
+    "authConfigured": true,
+    "budgetConfigured": true,
+    "dailyKRW": 1000,
+    "features": {
+      "briefing": true,
+      "plan": false,
+      "coach": false,
+      "assistant": false
+    }
+  },
+  "config": {
+    "googleClientId": "315213935537-bogo50v5o3ji182d0tn8pfmhf1slj414.apps.googleusercontent.com",
+    "model": "deepseek-flash",
+    "briefingEnabled": true
+  },
+  "origin": "https://teambkit.com",
+  "ownerUnauthenticatedStatus": 401,
+  "foreignPreviewStatus": 403,
+  "officialModelDocumentation": "https://api-docs.deepseek.com/quick_start/pricing",
+  "officialModel": "deepseek-flash",
+  "ownerGoogleLogin": "unverified; no authorized owner browser session",
+  "redisBudgetReservation": "source/test verified; authenticated live reservation unverified",
+  "paidDeepSeekResponse": "not requested; no paid authorization",
+  "jsonAndConfirmation": "synthetic contract and manual confirmation tests only; real model chain unverified"
+}

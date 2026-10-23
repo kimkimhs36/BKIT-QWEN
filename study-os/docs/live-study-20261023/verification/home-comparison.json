@@ -1,0 +1,44 @@
+[
+  {
+    "device": "iphone",
+    "sameContentAndSize": true,
+    "verticalDelta": [
+      -60.0,
+      -60.0,
+      -60.0,
+      -60.0,
+      -60.0,
+      0
+    ],
+    "beforeErrors": [],
+    "afterErrors": []
+  },
+  {
+    "device": "ipad",
+    "sameContentAndSize": true,
+    "verticalDelta": [
+      -78.0,
+      -78.0,
+      -78.0,
+      -78.0,
+      -78.0,
+      0
+    ],
+    "beforeErrors": [],
+    "afterErrors": []
+  },
+  {
+    "device": "desktop",
+    "sameContentAndSize": true,
+    "verticalDelta": [
+      -78.0,
+      -78.0,
+      -78.0,
+      -78.0,
+      -78.0,
+      0
+    ],
+    "beforeErrors": [],
+    "afterErrors": []
+  }
+]

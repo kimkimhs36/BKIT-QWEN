@@ -1,0 +1,16 @@
+
+> bkit-study-os@3.7.0 test:e2e
+> playwright test tests/e2e/live-study-recovery.spec.ts --project=desktop --project=webkit-ipad --grep camera input --workers=1 --output=test-results-confirmation
+
+
+Running 2 tests using 1 worker
+
+(node:14832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/e2e/live-study-recovery.spec.ts:274:1 › camera input and real local OCR remain usable; AI configuration failure keeps manual text and confirmed saving (5.5s)
+(node:14998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓  2 [webkit-ipad] › tests/e2e/live-study-recovery.spec.ts:274:1 › camera input and real local OCR remain usable; AI configuration failure keeps manual text and confirmed saving (14.2s)
+
+  2 passed (22.4s)

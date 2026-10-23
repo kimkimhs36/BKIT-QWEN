@@ -129,7 +129,7 @@ const snapshot = await page.evaluate(async () => ({
       q.onerror = () => reject(q.error);
     };
   }),
-  release: await fetch('/release.json', { cache: 'no-store' }).then((r) => r.json()),
+  release: await fetch('/release.json?upgrade=' + Date.now(), { cache: 'no-store' }).then((r) => r.json()),
 }));
 await writeFile('/workspace/evidence/' + mode + '-upgrade.json', JSON.stringify(snapshot, null, 2));
 if (mode === 'after') {

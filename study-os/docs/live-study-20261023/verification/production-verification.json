@@ -1,0 +1,54 @@
+{
+  "checkedAt": "2026-10-23T08:01:35.693703+00:00",
+  "productionURL": "https://teambkit.com",
+  "sourceCommit": "9777ddc4bcb504b6fc24daea4ab5f38f43c12afa",
+  "artifactsCommit": "6368a148d137e7bf90e7e81f5b8dfadb58d488b5",
+  "verifiedProductionCommit": "4cb7730b7b26f0a2e154122e6aa47c5622041359",
+  "ci": {
+    "url": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/39919901841",
+    "desktop": 20,
+    "webkitIPhone": 20,
+    "webkitIPad": 20,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0,
+    "unitTests": 225
+  },
+  "productionBrowserQA": {
+    "normalServiceWorkerRun": {
+      "passed": 9,
+      "failed": 1,
+      "failure": "Synthetic API-config failure was not intercepted after service-worker activation; real production config succeeded and displayed Google connection. No paid call or authentication was made."
+    },
+    "controlledAPIFailureRun": {
+      "passed": 1,
+      "failed": 0,
+      "serviceWorkers": "blocked only in this isolated synthetic test context to enforce route interception"
+    },
+    "uniqueScenariosPassed": 10
+  },
+  "http": {
+    "matchingAssets": 58,
+    "asset404s": 0,
+    "htmlAndSourceMatch": true,
+    "nameRemoved": true
+  },
+  "dataUpgrade": {
+    "syntheticExistingProductionProfile": true,
+    "fromSource": "79630329fcda2fb76cec040132b94488dd651c8c",
+    "toSource": "9777ddc4bcb504b6fc24daea4ab5f38f43c12afa",
+    "preserved": {
+      "tasks": true,
+      "schedules": true,
+      "sessions": true,
+      "learning": true
+    },
+    "photoBytesIdentical": true,
+    "browserStorageCleared": false
+  },
+  "ai": "Read-only diagnostic and official model documented; owner Google login, authenticated budget reservation and paid DeepSeek response unverified; zero paid requests",
+  "limitations": [
+    "Physical iPhone/iPad camera, Pencil and hardware Safari not tested",
+    "No owner-authenticated paid briefing performed"
+  ]
+}

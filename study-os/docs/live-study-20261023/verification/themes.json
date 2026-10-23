@@ -1,0 +1,65 @@
+[
+  {
+    "theme": "classic",
+    "persisted": "classic",
+    "motion": "auto",
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "theme": "forest",
+    "persisted": "forest",
+    "motion": "auto",
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "theme": "glass",
+    "persisted": "glass",
+    "motion": "auto",
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "theme": "peach",
+    "persisted": "peach",
+    "motion": "auto",
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "theme": "diamond",
+    "persisted": "diamond",
+    "motion": "auto",
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "theme": "gold",
+    "persisted": "gold",
+    "motion": "auto",
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "theme": "jelly",
+    "persisted": "jelly",
+    "motion": "auto",
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "theme": "droplets",
+    "persisted": "droplets",
+    "motion": "auto",
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "theme": "night",
+    "persisted": "night",
+    "motion": "auto",
+    "overflow": false,
+    "violations": []
+  }
+]

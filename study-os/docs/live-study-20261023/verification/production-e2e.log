@@ -1,0 +1,61 @@
+
+> bkit-study-os@3.7.0 test:e2e
+> playwright test tests/e2e/live-study-recovery.spec.ts tests/e2e/compact-offline.spec.ts --project=webkit-iphone --workers=1 --output=test-results-production
+
+
+Running 10 tests using 1 worker
+
+(node:16883) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓   1 [webkit-iphone] › tests/e2e/compact-offline.spec.ts:4:1 › a first offline visit can open all themes and complete a study without loading a theme chunk (15.1s)
+  ✓   2 [webkit-iphone] › tests/e2e/live-study-recovery.spec.ts:52:1 › free five-minute study: first action, draft, pause, reload, explicit attempt and one saved receipt (18.4s)
+  ✓   3 [webkit-iphone] › tests/e2e/live-study-recovery.spec.ts:109:1 › a selected task is exact; another task never silently opens the current task session (21.2s)
+  ✓   4 [webkit-iphone] › tests/e2e/live-study-recovery.spec.ts:134:1 › failed draft storage preserves the answer and blocks route changes until retry succeeds (12.0s)
+  ✓   5 [webkit-iphone] › tests/e2e/live-study-recovery.spec.ts:162:1 › selected school date adds a task and an assessment with no invented deadline time (32.0s)
+  ✓   6 [webkit-iphone] › tests/e2e/live-study-recovery.spec.ts:198:1 › one-day schedule edit and cancellation preserve the weekly original and next week (14.8s)
+  ✓   7 [webkit-iphone] › tests/e2e/live-study-recovery.spec.ts:241:1 › task-linked materials keep QUESTION RACE, problem draft and selected question after reload (7.1s)
+  ✘   8 [webkit-iphone] › tests/e2e/live-study-recovery.spec.ts:274:1 › camera input and real local OCR remain usable; AI configuration failure keeps manual text and confirmed saving (12.8s)
+(node:17942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓   9 [webkit-iphone] › tests/e2e/live-study-recovery.spec.ts:317:1 › existing JSON backup and restore preserve tasks, schedules, and original pre-restore bytes (10.3s)
+  ✓  10 [webkit-iphone] › tests/e2e/live-study-recovery.spec.ts:350:1 › reduced motion and low power keep the existing light atmosphere visible through resize and reload (5.2s)
+
+
+  1) [webkit-iphone] › tests/e2e/live-study-recovery.spec.ts:274:1 › camera input and real local OCR remain usable; AI configuration failure keeps manual text and confirmed saving 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('status').filter({ hasText: 'AI 서버에 연결하지 못했어요' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('status').filter({ hasText: 'AI 서버에 연결하지 못했어요' }) with timeout 5000ms
+      - waiting for getByRole('status').filter({ hasText: 'AI 서버에 연결하지 못했어요' })
+
+
+      301 |   await expect(
+      302 |     page.getByRole('status').filter({ hasText: 'AI 서버에 연결하지 못했어요' }),
+    > 303 |   ).toBeVisible();
+          |     ^
+      304 |   await expect(page.getByLabel('오늘 해야 할 일', { exact: true })).toHaveValue(
+      305 |     '수학 학습지 3문제',
+      306 |   );
+        at /workspace/BKIT-QWEN/study-os/tests/e2e/live-study-recovery.spec.ts:303:5
+
+    Error Context: test-results-production/live-study-recovery-camera-5877b-l-text-and-confirmed-saving-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-production/live-study-recovery-camera-5877b-l-text-and-confirmed-saving-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-production/live-study-recovery-camera-5877b-l-text-and-confirmed-saving-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [webkit-iphone] › tests/e2e/live-study-recovery.spec.ts:274:1 › camera input and real local OCR remain usable; AI configuration failure keeps manual text and confirmed saving 
+  9 passed (2.6m)

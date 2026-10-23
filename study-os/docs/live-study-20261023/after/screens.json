@@ -1,0 +1,416 @@
+{
+  "base": "http://127.0.0.1:4173/",
+  "metrics": [
+    {
+      "device": "iphone",
+      "screen": "home",
+      "errors": [],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "elements": [
+          {
+            "tag": "SECTION",
+            "class": "study-start",
+            "text": "공부 시작타이머를 켜고, 가볍게 시작해요.지금 공부 시작5분만 시작하기",
+            "rect": {
+              "x": 18,
+              "y": 155.25,
+              "width": 354,
+              "height": 173.546875,
+              "top": 155.25,
+              "right": 372,
+              "bottom": 328.796875,
+              "left": 18
+            }
+          },
+          {
+            "tag": "BUTTON",
+            "class": "study-start-primary",
+            "text": "지금 공부 시작",
+            "rect": {
+              "x": 41,
+              "y": 257.796875,
+              "width": 202,
+              "height": 48,
+              "top": 257.796875,
+              "right": 243,
+              "bottom": 305.796875,
+              "left": 41
+            }
+          },
+          {
+            "tag": "BUTTON",
+            "class": "study-start-five",
+            "text": "5분만 시작하기",
+            "rect": {
+              "x": 251,
+              "y": 257.796875,
+              "width": 98,
+              "height": 48,
+              "top": 257.796875,
+              "right": 349,
+              "bottom": 305.796875,
+              "left": 251
+            }
+          },
+          {
+            "tag": "SECTION",
+            "class": "study-agenda",
+            "text": "오늘 할 일을 추가해 보세요.",
+            "rect": {
+              "x": 18,
+              "y": 340.796875,
+              "width": 354,
+              "height": 74,
+              "top": 340.796875,
+              "right": 372,
+              "bottom": 414.796875,
+              "left": 18
+            }
+          },
+          {
+            "tag": "BUTTON",
+            "class": "study-day-summary",
+            "text": "오늘 공부 시간0분",
+            "rect": {
+              "x": 18,
+              "y": 426.796875,
+              "width": 354,
+              "height": 64,
+              "top": 426.796875,
+              "right": 372,
+              "bottom": 490.796875,
+              "left": 18
+            }
+          },
+          {
+            "tag": "NAV",
+            "class": "orbit-nav",
+            "text": "오늘집중과제기록도구",
+            "rect": {
+              "x": 14,
+              "y": 585,
+              "width": 362,
+              "height": 69,
+              "top": 585,
+              "right": 376,
+              "bottom": 654,
+              "left": 14
+            }
+          }
+        ]
+      }
+    },
+    {
+      "device": "iphone",
+      "screen": "focus",
+      "errors": [],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "elements": [
+          {
+            "tag": "NAV",
+            "class": "orbit-nav",
+            "text": "오늘집중과제기록도구",
+            "rect": {
+              "x": 14,
+              "y": 585,
+              "width": 362,
+              "height": 69,
+              "top": 585,
+              "right": 376,
+              "bottom": 654,
+              "left": 14
+            }
+          }
+        ]
+      }
+    },
+    {
+      "device": "iphone",
+      "screen": "tasks",
+      "errors": [],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "elements": [
+          {
+            "tag": "NAV",
+            "class": "orbit-nav",
+            "text": "오늘집중과제기록도구",
+            "rect": {
+              "x": 14,
+              "y": 585,
+              "width": 362,
+              "height": 69,
+              "top": 585,
+              "right": 376,
+              "bottom": 654,
+              "left": 14
+            }
+          }
+        ]
+      }
+    },
+    {
+      "device": "iphone",
+      "screen": "settings",
+      "errors": [
+        "/bkit-api.vercel.app/api/config due to access control checks."
+      ],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "elements": [
+          {
+            "tag": "NAV",
+            "class": "orbit-nav",
+            "text": "오늘집중과제기록도구",
+            "rect": {
+              "x": 14,
+              "y": 585,
+              "width": 362,
+              "height": 69,
+              "top": 585,
+              "right": 376,
+              "bottom": 654,
+              "left": 14
+            }
+          }
+        ]
+      }
+    },
+    {
+      "device": "iphone",
+      "screen": "themes",
+      "errors": [
+        "/bkit-api.vercel.app/api/config due to access control checks."
+      ],
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390,
+        "elements": [
+          {
+            "tag": "NAV",
+            "class": "orbit-nav",
+            "text": "오늘집중과제기록도구",
+            "rect": {
+              "x": 14,
+              "y": 585,
+              "width": 362,
+              "height": 69,
+              "top": 585,
+              "right": 376,
+              "bottom": 654,
+              "left": 14
+            }
+          }
+        ]
+      }
+    },
+    {
+      "device": "ipad",
+      "screen": "home",
+      "errors": [],
+      "geometry": {
+        "width": 834,
+        "scrollWidth": 834,
+        "elements": [
+          {
+            "tag": "SECTION",
+            "class": "study-start",
+            "text": "공부 시작타이머를 켜고, 가볍게 시작해요.지금 공부 시작5분만 시작하기",
+            "rect": {
+              "x": 57,
+              "y": 249.140625,
+              "width": 720,
+              "height": 196.890625,
+              "top": 249.140625,
+              "right": 777,
+              "bottom": 446.03125,
+              "left": 57
+            }
+          },
+          {
+            "tag": "BUTTON",
+            "class": "study-start-primary",
+            "text": "지금 공부 시작",
+            "rect": {
+              "x": 86,
+              "y": 367.03125,
+              "width": 189.828125,
+              "height": 50,
+              "top": 367.03125,
+              "right": 275.828125,
+              "bottom": 417.03125,
+              "left": 86
+            }
+          },
+          {
+            "tag": "BUTTON",
+            "class": "study-start-five",
+            "text": "5분만 시작하기",
+            "rect": {
+              "x": 287.828125,
+              "y": 368.03125,
+              "width": 103.84375,
+              "height": 48,
+              "top": 368.03125,
+              "right": 391.671875,
+              "bottom": 416.03125,
+              "left": 287.828125
+            }
+          },
+          {
+            "tag": "SECTION",
+            "class": "study-agenda",
+            "text": "오늘 할 일을 추가해 보세요.",
+            "rect": {
+              "x": 57,
+              "y": 462.03125,
+              "width": 720,
+              "height": 86,
+              "top": 462.03125,
+              "right": 777,
+              "bottom": 548.03125,
+              "left": 57
+            }
+          },
+          {
+            "tag": "BUTTON",
+            "class": "study-day-summary",
+            "text": "오늘 공부 시간0분",
+            "rect": {
+              "x": 57,
+              "y": 564.03125,
+              "width": 720,
+              "height": 66.390625,
+              "top": 564.03125,
+              "right": 777,
+              "bottom": 630.421875,
+              "left": 57
+            }
+          },
+          {
+            "tag": "NAV",
+            "class": "orbit-nav",
+            "text": "오늘집중과제기록도구",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "device": "desktop",
+      "screen": "home",
+      "errors": [],
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "elements": [
+          {
+            "tag": "SECTION",
+            "class": "study-start",
+            "text": "공부 시작타이머를 켜고, 가볍게 시작해요.지금 공부 시작5분만 시작하기",
+            "rect": {
+              "x": 360,
+              "y": 249.140625,
+              "width": 720,
+              "height": 196.890625,
+              "top": 249.140625,
+              "right": 1080,
+              "bottom": 446.03125,
+              "left": 360
+            }
+          },
+          {
+            "tag": "BUTTON",
+            "class": "study-start-primary",
+            "text": "지금 공부 시작",
+            "rect": {
+              "x": 389,
+              "y": 367.03125,
+              "width": 189.828125,
+              "height": 50,
+              "top": 367.03125,
+              "right": 578.828125,
+              "bottom": 417.03125,
+              "left": 389
+            }
+          },
+          {
+            "tag": "BUTTON",
+            "class": "study-start-five",
+            "text": "5분만 시작하기",
+            "rect": {
+              "x": 590.828125,
+              "y": 368.03125,
+              "width": 103.84375,
+              "height": 48,
+              "top": 368.03125,
+              "right": 694.671875,
+              "bottom": 416.03125,
+              "left": 590.828125
+            }
+          },
+          {
+            "tag": "SECTION",
+            "class": "study-agenda",
+            "text": "오늘 할 일을 추가해 보세요.",
+            "rect": {
+              "x": 360,
+              "y": 462.03125,
+              "width": 720,
+              "height": 86,
+              "top": 462.03125,
+              "right": 1080,
+              "bottom": 548.03125,
+              "left": 360
+            }
+          },
+          {
+            "tag": "BUTTON",
+            "class": "study-day-summary",
+            "text": "오늘 공부 시간0분",
+            "rect": {
+              "x": 360,
+              "y": 564.03125,
+              "width": 720,
+              "height": 66.390625,
+              "top": 564.03125,
+              "right": 1080,
+              "bottom": 630.421875,
+              "left": 360
+            }
+          },
+          {
+            "tag": "NAV",
+            "class": "orbit-nav",
+            "text": "오늘집중과제기록도구",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

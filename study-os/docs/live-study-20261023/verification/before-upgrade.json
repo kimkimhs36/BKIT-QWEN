@@ -1,0 +1,173 @@
+{
+  "state": {
+    "version": 1,
+    "learning": {
+      "version": 1,
+      "resources": [
+        {
+          "id": "60fcdbc2-4c5f-4d14-844f-36153866b330",
+          "title": "기존 문제 자료",
+          "subject": "수학",
+          "sourceType": "school-worksheet",
+          "linkedTaskId": "legacy-homework",
+          "linkedMediaIds": [],
+          "currentProblemId": "a9a0f239-114e-4258-ba4c-ad363e0ffded",
+          "lastOpenedAt": null,
+          "createdAt": "2026-10-23T07:27:34.895Z",
+          "updatedAt": "2026-10-23T07:27:34.895Z"
+        }
+      ],
+      "problems": [
+        {
+          "id": "a9a0f239-114e-4258-ba4c-ad363e0ffded",
+          "resourceId": "60fcdbc2-4c5f-4d14-844f-36153866b330",
+          "ordinal": 1,
+          "title": "1번",
+          "body": "기존 실제 문제",
+          "sourceReference": "",
+          "mediaId": null,
+          "concept": "",
+          "referenceAnswer": "",
+          "example": "",
+          "draft": "배포 전 작성한 답안",
+          "draftFields": {},
+          "createdAt": "2026-10-23T07:27:34.895Z",
+          "updatedAt": "2026-10-23T07:27:34.895Z"
+        }
+      ],
+      "attempts": []
+    },
+    "revision": 1,
+    "tasks": [
+      {
+        "id": "legacy-homework",
+        "subject": "수학",
+        "title": "기존 학습지",
+        "kind": "숙제",
+        "due": null,
+        "attachmentIds": [
+          "preserved-photo"
+        ],
+        "priority": 2,
+        "minutes": 25,
+        "remaining": 25,
+        "status": "todo",
+        "submitted": false,
+        "optional": false,
+        "notes": "운영 버전에서 보존할 메모",
+        "link": ""
+      },
+      {
+        "id": "legacy-assessment",
+        "subject": "수학",
+        "title": "기존 수행평가",
+        "kind": "수행평가",
+        "due": null,
+        "attachmentIds": [],
+        "priority": 2,
+        "minutes": 25,
+        "remaining": 25,
+        "status": "todo",
+        "submitted": false,
+        "optional": false,
+        "notes": "운영 버전에서 보존할 메모",
+        "link": ""
+      }
+    ],
+    "schedules": [
+      {
+        "id": "legacy-class",
+        "title": "기존 학원",
+        "subject": "수학",
+        "kind": "academy",
+        "days": [
+          5
+        ],
+        "start": "20:00",
+        "end": "20:50",
+        "prep": 0,
+        "travel": 0,
+        "buffer": 0,
+        "materials": "교재",
+        "date": null,
+        "excluded": []
+      }
+    ],
+    "sessions": [
+      {
+        "id": "legacy-record",
+        "taskId": "legacy-homework",
+        "subject": "수학",
+        "action": "기존 공부",
+        "started": "2026-10-22T04:00:00Z",
+        "ended": "2026-10-22T04:05:00Z",
+        "seconds": 300,
+        "target": 5,
+        "problems": 1,
+        "concepts": "기존 개념",
+        "rating": "보통",
+        "reason": "",
+        "pauses": [],
+        "mistake": "",
+        "reviewDate": null
+      }
+    ],
+    "active": null,
+    "quickTimer": null,
+    "plan": [],
+    "undo": null,
+    "settings": {
+      "wake": "07:00",
+      "bed": "23:00",
+      "minSleep": 8,
+      "focus": 25,
+      "mealStart": "18:00",
+      "mealMinutes": 45,
+      "breakMinutes": 5,
+      "goal": "오늘의 작은 학습을 차분히 완성하기"
+    },
+    "grades": [],
+    "reviewsDone": [],
+    "learningEvents": [
+      {
+        "id": "8e12dfef-12dd-4f32-90fc-16e2d85d30f8",
+        "type": "RecommendationShown",
+        "at": "2026-10-23T07:27:37.527Z",
+        "foregroundAt": "2026-10-23T07:27:37.331Z",
+        "taskId": "legacy-assessment",
+        "sessionId": null,
+        "action": "기존 수행평가 · 첫 질문에 내 답을 적어보기"
+      }
+    ],
+    "reviewProgress": []
+  },
+  "photos": [
+    {
+      "id": "preserved-photo",
+      "bytes": [
+        1,
+        3,
+        7,
+        9
+      ],
+      "mime": "image/png",
+      "name": "기존 원본",
+      "size": 4,
+      "digest": "synthetic"
+    }
+  ],
+  "release": {
+    "product": "BKIT STUDY OS · Compact Experience",
+    "sourceCommit": "79630329fcda2fb76cec040132b94488dd651c8c",
+    "sourceBranch": "feat/bkit-compact-experience-20261021",
+    "artifactsCommit": "df7fe294e996ec749e212b8afcbe6eb72c455a93",
+    "publishedAt": "2026-10-20T17:37:05.544297+00:00",
+    "validation": "TypeScript + root and preview Vite builds; 223 unit tests; 30 core WebKit iPhone/iPad scenarios passed CI; 3 additional first-use offline theme and study recording scenarios passed locally",
+    "previousSource": "ce5bfac9108887995277ab9e769b19e9733db280",
+    "rollbackCommit": "92a3019688582225fd103cc5cb5c3cb5d056586e",
+    "screenshots": "https://teambkit.com/compact-review/",
+    "notes": "Owner explicitly authorized GitHub Pages production release. Study schema and browser storage keys unchanged; PDFs/ink/attachments preserved. All 9 themes kept; opt-in gyro, scoped worker caches, deferred activation and prior hashed assets retained. Android/desktop verification deferred at owner request; physical Apple sensor/keyboard confirmation remains separate.",
+    "previousProductionCommit": "fe016c29a163df67c13790cb60caaf31fa676698",
+    "fix": "First offline theme picker is bundled with the cached app shell."
+  }
+}
