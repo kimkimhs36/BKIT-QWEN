@@ -250,6 +250,20 @@ test('simulated gyro: permission is not input; invalid, calibration, stale, rota
   await expect(control).toContainText('절전으로 일시중지');
   await page.getByRole('button', { name: '센서 끄기', exact: true }).click();
   await expect(control).toContainText('비활성화');
+  await page.getByRole('switch', { name: '배터리 절약' }).uncheck();
+  await page.getByRole('button', { name: '센서 연결', exact: true }).click();
+  await expect(control).toContainText('센서 대기 중');
+  // Deliver a queued event in the same task, before React's listener cleanup.
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    Object.defineProperty(document, 'hidden', { configurable: true, value: false });
+    document.dispatchEvent(new Event('visibilitychange'));
+    const e = new Event('deviceorientation');
+    Object.defineProperties(e, { beta: { value: 30 }, gamma: { value: 20 } });
+    dispatchEvent(e);
+  });
+  await expect(control).toContainText('비활성화');
 });
 test('unsupported sensors retain touch and reduced motion removes animation', async ({ page }) => {
   await page.addInitScript(() =>

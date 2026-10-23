@@ -223,6 +223,8 @@ export function MaterialEffects({
       if (!frame) frame = requestAnimationFrame(tick);
     };
     const orientation = (e: DeviceOrientationEvent) => {
+      // A queued event can arrive before React removes the listener on tab exit.
+      if (!sensorSnapshot.enabled || document.hidden) return;
       if (
         e.beta == null ||
         e.gamma == null ||
