@@ -93,6 +93,7 @@ export function StudyCalendar({
   onSchedule,
   onAdd,
   onCancel,
+  onStudy,
   selectedDay,
   onSelectedDay,
 }: {
@@ -101,8 +102,9 @@ export function StudyCalendar({
   onClose: () => void;
   onTask: (task: Task) => void;
   onSchedule: (schedule: Schedule, day: string) => void;
-  onAdd: (day: string) => void;
+  onAdd: (day: string, kind?: 'task' | 'assessment' | 'schedule') => void;
   onCancel: (schedule: Schedule, day: string) => void;
+  onStudy?: (task: Task) => void;
   selectedDay?: string;
   onSelectedDay?: (day: string) => void;
 }) {
@@ -252,7 +254,7 @@ export function StudyCalendar({
                         <b
                           className={[
                             day === today ? 'is-today' : '',
-                            day === selectedDay ? 'is-selected' : '',
+                            day === selected ? 'is-selected' : '',
                           ].join(' ')}
                         >
                           {number(day)}
@@ -275,7 +277,7 @@ export function StudyCalendar({
             )}
             {view === 'day' && (
               <div className="calendar-day-flow">
-                <span className="calendar-flow-caption">오늘의 시간 · 한국 표준시</span>
+                <span className="calendar-flow-caption">선택한 날짜의 일정 · 한국 표준시</span>
                 {events
                   .filter((e) => e.start !== undefined)
                   .map((e) => (
@@ -297,6 +299,32 @@ export function StudyCalendar({
                   ))}
                 {!events.some((e) => e.start !== undefined) && (
                   <p className="calendar-empty">시간이 정해진 일정이 없어요.</p>
+                )}
+                {events.some((e) => e.start === undefined) && (
+                  <div className="calendar-undated-deadlines" aria-label="마감 시간 미정">
+                    <span className="calendar-flow-caption">시간이 정해지지 않은 마감</span>
+                    {events
+                      .filter((e) => e.start === undefined)
+                      .map((e) => (
+                        <button
+                          key={e.id}
+                          type="button"
+                          className={'calendar-flow-item calendar-date-only ' + e.kind}
+                          onClick={() => entryClick(e)}
+                        >
+                          <span className="calendar-no-time">시간 미정</span>
+                          <span>
+                            <b>{e.title}</b>
+                            <small>
+                              {LABELS[e.kind]}
+                              {e.done ? ' · 완료' : ''}
+                              {e.submitted ? ' · 제출' : ''}
+                            </small>
+                          </span>
+                          <ArrowUpRight size={16} aria-hidden="true" />
+                        </button>
+                      ))}
+                  </div>
                 )}
               </div>
             )}
@@ -355,8 +383,19 @@ export function StudyCalendar({
                 <small>{selected === today ? 'TODAY' : 'SELECTED DAY'}</small>
                 <h3>{fullDate(at(selected, '12:00'))}</h3>
               </div>
-              <button aria-label="선택 날짜에 등록" onClick={() => onAdd(selected)}>
+              <button aria-label="선택 날짜에 과제 등록" onClick={() => onAdd(selected, 'task')}>
                 <Plus size={20} />
+              </button>
+            </div>
+            <div className="calendar-create-actions" role="group" aria-label="선택 날짜에 추가">
+              <button type="button" onClick={() => onAdd(selected, 'task')}>
+                <Plus size={15} aria-hidden="true" /> 과제
+              </button>
+              <button type="button" onClick={() => onAdd(selected, 'assessment')}>
+                <Plus size={15} aria-hidden="true" /> 수행평가
+              </button>
+              <button type="button" onClick={() => onAdd(selected, 'schedule')}>
+                <Plus size={15} aria-hidden="true" /> 학교·학원
               </button>
             </div>
             <div className="calendar-detail-list">
@@ -376,6 +415,22 @@ export function StudyCalendar({
                     </span>
                     <ChevronRight size={16} />
                   </button>
+                  {onStudy &&
+                    ['task', 'assessment', 'study'].includes(e.kind) &&
+                    (() => {
+                      const task = state.tasks.find((t) => t.id === e.sourceId);
+                      return task && task.status !== 'done' && task.quantity?.remaining !== 0 ? (
+                        <button
+                          type="button"
+                          className="calendar-study-start"
+                          aria-label={task.title + ' 5분 공부 시작'}
+                          onClick={() => onStudy(task)}
+                        >
+                          <span>5분 공부 시작</span>
+                          <ArrowUpRight size={15} aria-hidden="true" />
+                        </button>
+                      ) : null;
+                    })()}
                   {['school', 'academy', 'fixed'].includes(e.kind) && (
                     <button
                       className="calendar-cancel"
