@@ -1,0 +1,86 @@
+{
+  "product": "BKIT STUDY OS · Material World 2.0 + Awake Intelligence",
+  "sourceCommit": "bb79f409bd536bd9196a2f4e61532af728620c72",
+  "sourceBranch": "feat/bkit-material-world-awake-20261023",
+  "artifactsCommit": "55d1fbcd53b60716f8900b48847d5f2f152c83d8",
+  "publishedAt": "2026-10-24T11:53:21.240711+00:00",
+  "validation": "Exact-source CI: TypeScript, 262 unit tests in 41 files, root build, telemetry-absence gate, 105/105 E2E (35 each: desktop Chromium, Linux WebKit iPhone/iPad profiles). Physical iOS hardware remains unverified.",
+  "previousSource": "9777ddc4bcb504b6fc24daea4ab5f38f43c12afa",
+  "rollbackCommit": "c183ce0bceef9072720dc4eca6c1dc02e643c240",
+  "previousProductionCommit": "c183ce0bceef9072720dc4eca6c1dc02e643c240",
+  "previousRelease": "/releases/20261023-before-material-world.json",
+  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40090542880",
+  "entryAssets": [
+    {
+      "path": "/assets/index-ueiII1hm.js",
+      "sha256": "20feef8a8bf1511f7b42a1fabc1efcf568cb30e464e30c1d7aea9535d7c2b0cc"
+    },
+    {
+      "path": "/assets/react-vendor-DENrKhsk.js",
+      "sha256": "dd9228d2be4c9de35f311eb10c9fcb090d035042a6a64c80a5ca02ee7fdfb028"
+    },
+    {
+      "path": "/assets/schema-vendor-DYuAzjeD.js",
+      "sha256": "39c943cd9f1cc1045ac58ce7dc150b31de745ae378e00ed8365fcb94cf036e68"
+    },
+    {
+      "path": "/assets/index-CtS4s4Lt.css",
+      "sha256": "21ded91ae898eebbf2ee76ac8c1fafc1d1eac8eadcf0a994529a82675ed7ddfe"
+    }
+  ],
+  "deployment": {
+    "provider": "GitHub Pages",
+    "branch": "main",
+    "path": "/",
+    "url": "https://teambkit.com"
+  },
+  "notes": "Owner-authorized release. Compact home layout/navigation, nine material IDs and study data keys/schema retained. Old hashed assets, CNAME, independent routes and waiting-worker policy preserved. Awake is OFF by default, on-device only; explicit user start and track cleanup. Signals are rest-guidance heuristics, not a medical sleep diagnosis. No PR26/27 merge.",
+  "evidence": "https://teambkit.com/previews/bkit-material-world-20261023/review/",
+  "aiVerification": {
+    "scope": "Carried forward from previous release; AI unchanged and no paid calls made for this release",
+    "previous": {
+      "health": "200; configured briefing only",
+      "config": "200",
+      "productionOrigin": "allowed; POST preflight verified",
+      "foreignPreviewOrigin": "403",
+      "unauthenticatedOwner": "401",
+      "model": "deepseek-flash; official documentation confirmed",
+      "dailyKRW": 1000,
+      "callLimit": "existing server cap at most 60; unchanged",
+      "ownerGoogleLogin": "unverified",
+      "paidDeepSeekResponse": "unverified; zero paid calls authorized or made",
+      "planCoachAssistant": "server unsupported; local rules retained"
+    }
+  },
+  "postDeployVerification": {
+    "status": "verified",
+    "checkedAt": "2026-10-24T12:02:19.578393+00:00",
+    "sourceCommit": "bb79f409bd536bd9196a2f4e61532af728620c72",
+    "verifiedProductionCommit": "849119f8b1474c219bd491986e0e0c77c8010109",
+    "artifactsCommit": "55d1fbcd53b60716f8900b48847d5f2f152c83d8",
+    "matchingPublishedFiles": 271,
+    "asset404s": 0,
+    "preservedFiles": 716,
+    "htmlMatchesVerifiedBuild": true,
+    "productionThemes": 9,
+    "studyStartSettingsAwakeOff": true,
+    "cameraScope": "Real MediaPipe CPU/WASM model with Chromium-generated camera. No real face or physical camera/accuracy test.",
+    "cameraTracksEnded": true,
+    "noOutgoingPost": true,
+    "visibilityStopsAndDoesNotRestart": true,
+    "offlineRelaunchAndReload": true,
+    "dataPreservation": {
+      "scope": "Same-origin synthetic learner profile from original production; personal owner storage not accessed",
+      "unchangedFields": [
+        "tasks",
+        "schedules",
+        "sessions",
+        "learning"
+      ],
+      "photoBytesUnchanged": true
+    },
+    "physicalIphoneIpadCameraGyroscopeThermalsInstalledPwa": "unverified",
+    "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40090542880",
+    "evidence": "https://teambkit.com/previews/bkit-material-world-20261023/review/"
+  }
+}

@@ -1,19 +1,27 @@
 {
-  "product": "BKIT STUDY OS · Material World 2.0 + Awake Intelligence",
-  "sourceCommit": "bb79f409bd536bd9196a2f4e61532af728620c72",
-  "sourceBranch": "feat/bkit-material-world-awake-20261023",
-  "artifactsCommit": "55d1fbcd53b60716f8900b48847d5f2f152c83d8",
-  "publishedAt": "2026-10-24T11:53:21.240711+00:00",
-  "validation": "Exact-source CI: TypeScript, 262 unit tests in 41 files, root build, telemetry-absence gate, 105/105 E2E (35 each: desktop Chromium, Linux WebKit iPhone/iPad profiles). Physical iOS hardware remains unverified.",
-  "previousSource": "9777ddc4bcb504b6fc24daea4ab5f38f43c12afa",
-  "rollbackCommit": "c183ce0bceef9072720dc4eca6c1dc02e643c240",
-  "previousProductionCommit": "c183ce0bceef9072720dc4eca6c1dc02e643c240",
-  "previousRelease": "/releases/20261023-before-material-world.json",
-  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40090542880",
+  "product": "BKIT STUDY OS · Calendar + Help + Device Polish",
+  "sourceCommit": "12e8a83bc5bf69ad7d45a49216f023d4fcef221f",
+  "sourceBranch": "feat/bkit-calendar-help-polish-20261025",
+  "publishedAt": "2026-10-24T17:03:08.120485+00:00",
+  "validation": "Typecheck, 265 unit tests (42 files), root production build and local-only vision gate passed. Local calendar/help/plan/clock scenarios and responsive page checks exercised desktop and WebKit iPhone/iPad. Full maintained regression matrix (168 cases across four profiles) still running at owner-requested immediate deployment; see CI URL for final result. Physical iOS hardware unverified.",
+  "previousSource": "bb79f409bd536bd9196a2f4e61532af728620c72",
+  "rollbackCommit": "c22f710f8d0b83abdf61c7445a8e90870d68cb14",
+  "previousProductionCommit": "c22f710f8d0b83abdf61c7445a8e90870d68cb14",
+  "previousRelease": "/releases/20261025-before-calendar-help.json",
+  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40114252245",
+  "verificationCommit": "58b52c57f972e60f9e1a033bca42c15224777a8c",
+  "ciStatusAtDeploy": "in_progress",
+  "immediateDeploymentRequestedByOwner": true,
+  "deployment": {
+    "provider": "GitHub Pages",
+    "branch": "main",
+    "path": "/",
+    "url": "https://teambkit.com"
+  },
   "entryAssets": [
     {
-      "path": "/assets/index-ueiII1hm.js",
-      "sha256": "20feef8a8bf1511f7b42a1fabc1efcf568cb30e464e30c1d7aea9535d7c2b0cc"
+      "path": "/assets/index-CBzU0_v9.js",
+      "sha256": "3ef41f544ae075f55b48a5f515f9c7dfa0ef1589389b4fbe038eb8ab7a466865"
     },
     {
       "path": "/assets/react-vendor-DENrKhsk.js",
@@ -24,18 +32,12 @@
       "sha256": "39c943cd9f1cc1045ac58ce7dc150b31de745ae378e00ed8365fcb94cf036e68"
     },
     {
-      "path": "/assets/index-CtS4s4Lt.css",
-      "sha256": "21ded91ae898eebbf2ee76ac8c1fafc1d1eac8eadcf0a994529a82675ed7ddfe"
+      "path": "/assets/index-BOUWHiMZ.css",
+      "sha256": "669332ab334b6706423569360f5ede95f502817a004d8dc5e362322563cafb4e"
     }
   ],
-  "deployment": {
-    "provider": "GitHub Pages",
-    "branch": "main",
-    "path": "/",
-    "url": "https://teambkit.com"
-  },
-  "notes": "Owner-authorized release. Compact home layout/navigation, nine material IDs and study data keys/schema retained. Old hashed assets, CNAME, independent routes and waiting-worker policy preserved. Awake is OFF by default, on-device only; explicit user start and track cleanup. Signals are rest-guidance heuristics, not a medical sleep diagnosis. No PR26/27 merge.",
-  "evidence": "https://teambkit.com/previews/bkit-material-world-20261023/review/",
+  "notes": "Preserved the current Material World/Awake source lineage, study schemas/keys, home study flow, nine themes, older hashed assets, independent routes and waiting-worker lifecycle. Calendar is primary navigation. No TOHESAR changes, no historical PR merge, no user-data migration.",
+  "physicalIphoneIpadHardware": "unverified",
   "aiVerification": {
     "scope": "Carried forward from previous release; AI unchanged and no paid calls made for this release",
     "previous": {
@@ -51,36 +53,5 @@
       "paidDeepSeekResponse": "unverified; zero paid calls authorized or made",
       "planCoachAssistant": "server unsupported; local rules retained"
     }
-  },
-  "postDeployVerification": {
-    "status": "verified",
-    "checkedAt": "2026-10-24T12:02:19.578393+00:00",
-    "sourceCommit": "bb79f409bd536bd9196a2f4e61532af728620c72",
-    "verifiedProductionCommit": "849119f8b1474c219bd491986e0e0c77c8010109",
-    "artifactsCommit": "55d1fbcd53b60716f8900b48847d5f2f152c83d8",
-    "matchingPublishedFiles": 271,
-    "asset404s": 0,
-    "preservedFiles": 716,
-    "htmlMatchesVerifiedBuild": true,
-    "productionThemes": 9,
-    "studyStartSettingsAwakeOff": true,
-    "cameraScope": "Real MediaPipe CPU/WASM model with Chromium-generated camera. No real face or physical camera/accuracy test.",
-    "cameraTracksEnded": true,
-    "noOutgoingPost": true,
-    "visibilityStopsAndDoesNotRestart": true,
-    "offlineRelaunchAndReload": true,
-    "dataPreservation": {
-      "scope": "Same-origin synthetic learner profile from original production; personal owner storage not accessed",
-      "unchangedFields": [
-        "tasks",
-        "schedules",
-        "sessions",
-        "learning"
-      ],
-      "photoBytesUnchanged": true
-    },
-    "physicalIphoneIpadCameraGyroscopeThermalsInstalledPwa": "unverified",
-    "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40090542880",
-    "evidence": "https://teambkit.com/previews/bkit-material-world-20261023/review/"
   }
 }
