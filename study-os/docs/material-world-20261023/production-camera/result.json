@@ -1,0 +1,82 @@
+{
+  "base": "https://teambkit.com/",
+  "scope": "Real MediaPipe CPU/WASM model with Chromium-generated camera. No real face or physical camera/accuracy test.",
+  "tracks": [
+    {
+      "kind": "video",
+      "state": "ended"
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/assets/index-ueiII1hm.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/assets/react-vendor-DENrKhsk.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/assets/schema-vendor-DYuAzjeD.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/assets/index-CtS4s4Lt.css"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/fonts/PretendardVariable.woff2"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/icon.svg"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/assets/AwakeAssist-7fkZfuKm.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/assets/AwakeAssist-032_9aRg.css"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/assets/ResourceReviews-2Uu_jECX.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/assets/ProblemReviewQueue-CW8oWyl5.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/assets/dm-sans-latin-400-normal-CW0RaeGs.woff2"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/assets/engine-Dwkj_GhU.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/assets/awake-engine-BSMsFJjF.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/awake/wasm/vision_wasm_internal.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/awake/wasm/vision_wasm_internal.wasm"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/awake/face_landmarker.task"
+    }
+  ],
+  "errors": [],
+  "passed": true
+}

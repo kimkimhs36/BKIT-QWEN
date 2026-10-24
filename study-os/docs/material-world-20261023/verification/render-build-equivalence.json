@@ -1,0 +1,8 @@
+{
+  "renderEvidenceSource": "6649c1db36b0ef1478a4729b8d3539b9108fdf88",
+  "releaseSource": "bb79f409bd536bd9196a2f4e61532af728620c72",
+  "differentFiles": [
+    "build-info.json"
+  ],
+  "allProductAssetsIdentical": true
+}
