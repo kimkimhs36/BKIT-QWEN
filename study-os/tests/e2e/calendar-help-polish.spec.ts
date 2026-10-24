@@ -46,6 +46,14 @@ async function seed(page: import('@playwright/test').Page) {
     if (!localStorage.getItem('bkit.study-os.v1'))
       localStorage.setItem('bkit.study-os.v1', JSON.stringify(s));
   }, s);
+  await page.route('**/api/config', (route) =>
+    route.fulfill({
+      status: 503,
+      headers: { 'access-control-allow-origin': '*' },
+      contentType: 'application/json',
+      body: '{"error":"offline UI verification"}',
+    }),
+  );
   await page.goto('./');
 }
 const read = (page: import('@playwright/test').Page) =>
