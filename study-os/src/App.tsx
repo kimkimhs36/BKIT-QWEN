@@ -2600,7 +2600,7 @@ export default function App() {
                         </p>
                       )}
                     </section>
-                    <p className="muted">학습 기록 검색·수정·삭제는 위의 학습 기록 관리에서 할 수 있어요.</p>                  </div>
+                    <p className="muted">학습 기록 검색·수정·삭제는 위의 학습 기록 관리에서 할 수 있어요.</p>\n                  </div>
                 </details>
               </>
             )}
