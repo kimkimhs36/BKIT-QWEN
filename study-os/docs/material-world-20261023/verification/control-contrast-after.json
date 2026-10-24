@@ -1,0 +1,117 @@
+{
+  "note": "Computed opaque gradient-stop contrast. Alpha textures and blur require separate visual review.",
+  "result": [
+    {
+      "id": "classic",
+      "color": "rgb(255, 255, 247)",
+      "gradient": "linear-gradient(170deg, rgb(82, 105, 79), rgb(61, 86, 63))",
+      "fontSize": "14px",
+      "weight": "650",
+      "opaqueStops": [
+        "rgb(82, 105, 79)",
+        "rgb(61, 86, 63)"
+      ],
+      "minimumOpaqueStopContrast": 5.984330571710268
+    },
+    {
+      "id": "forest",
+      "color": "rgb(26, 45, 25)",
+      "gradient": "linear-gradient(155deg, rgb(210, 223, 184), rgb(178, 200, 149))",
+      "fontSize": "14px",
+      "weight": "650",
+      "opaqueStops": [
+        "rgb(210, 223, 184)",
+        "rgb(178, 200, 149)"
+      ],
+      "minimumOpaqueStopContrast": 8.085240950304199
+    },
+    {
+      "id": "glass",
+      "color": "rgb(255, 250, 245)",
+      "gradient": "linear-gradient(155deg, rgb(155, 102, 85), rgb(119, 72, 59))",
+      "fontSize": "14px",
+      "weight": "650",
+      "opaqueStops": [
+        "rgb(155, 102, 85)",
+        "rgb(119, 72, 59)"
+      ],
+      "minimumOpaqueStopContrast": 4.574635263235138
+    },
+    {
+      "id": "peach",
+      "color": "rgb(255, 250, 244)",
+      "gradient": "linear-gradient(155deg, rgb(161, 95, 77), rgb(137, 75, 64))",
+      "fontSize": "14px",
+      "weight": "650",
+      "opaqueStops": [
+        "rgb(161, 95, 77)",
+        "rgb(137, 75, 64)"
+      ],
+      "minimumOpaqueStopContrast": 4.750030981514202
+    },
+    {
+      "id": "diamond",
+      "color": "rgb(255, 255, 255)",
+      "gradient": "linear-gradient(120deg, rgb(37, 65, 93), rgb(84, 115, 143) 48%, rgb(39, 67, 95) 49%, rgb(55, 87, 115))",
+      "fontSize": "14px",
+      "weight": "650",
+      "opaqueStops": [
+        "rgb(37, 65, 93)",
+        "rgb(84, 115, 143)",
+        "rgb(39, 67, 95)",
+        "rgb(55, 87, 115)"
+      ],
+      "minimumOpaqueStopContrast": 4.969366110254537
+    },
+    {
+      "id": "gold",
+      "color": "rgb(255, 250, 240)",
+      "gradient": "repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0px, rgba(255, 255, 255, 0.035) 1px, rgba(0, 0, 0, 0) 1px, rgba(0, 0, 0, 0) 3px), linear-gradient(115deg, rgb(102, 81, 49), rgb(125, 103, 66) 47%, rgb(103, 83, 51))",
+      "fontSize": "14px",
+      "weight": "650",
+      "opaqueStops": [
+        "rgb(102, 81, 49)",
+        "rgb(125, 103, 66)",
+        "rgb(103, 83, 51)"
+      ],
+      "minimumOpaqueStopContrast": 5.187798540102106
+    },
+    {
+      "id": "jelly",
+      "color": "rgb(255, 246, 255)",
+      "gradient": "linear-gradient(155deg, rgb(136, 88, 160), rgb(117, 74, 145))",
+      "fontSize": "14px",
+      "weight": "650",
+      "opaqueStops": [
+        "rgb(136, 88, 160)",
+        "rgb(117, 74, 145)"
+      ],
+      "minimumOpaqueStopContrast": 5.032036202735479
+    },
+    {
+      "id": "droplets",
+      "color": "rgb(245, 255, 249)",
+      "gradient": "linear-gradient(155deg, rgb(50, 119, 111), rgb(36, 99, 95))",
+      "fontSize": "14px",
+      "weight": "650",
+      "opaqueStops": [
+        "rgb(50, 119, 111)",
+        "rgb(36, 99, 95)"
+      ],
+      "minimumOpaqueStopContrast": 5.133606912383088
+    },
+    {
+      "id": "night",
+      "color": "rgb(20, 36, 58)",
+      "gradient": "linear-gradient(160deg, rgb(189, 211, 237), rgb(145, 173, 206))",
+      "fontSize": "14px",
+      "weight": "650",
+      "opaqueStops": [
+        "rgb(189, 211, 237)",
+        "rgb(145, 173, 206)"
+      ],
+      "minimumOpaqueStopContrast": 6.75452071924235
+    }
+  ],
+  "sourceCommit": "db4332d7673cabbf6a7a4ab38cab29585044c55a"
+}

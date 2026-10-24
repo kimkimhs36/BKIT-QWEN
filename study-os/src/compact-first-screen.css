@@ -22,7 +22,7 @@ html[data-material] input,
 html[data-material] select,
 html[data-material] textarea {
   font-family: inherit;
-  letter-spacing: -0.025em;
+  letter-spacing: var(--mat-tracking, -0.025em);
 }
 html[data-material] :is(h1, h2, h3, strong) {
   text-wrap: pretty;
@@ -87,8 +87,8 @@ html[data-material] .premium-os .page-head {
 }
 html[data-material] .premium-os .page-head h1 {
   font-size: 30px !important;
-  font-weight: 730 !important;
-  letter-spacing: -0.055em !important;
+  font-weight: var(--mat-heading-weight, 730) !important;
+  letter-spacing: var(--mat-tracking, -0.055em) !important;
   line-height: 1.28 !important;
 }
 html[data-material] .premium-os .page-head .eyebrow {
@@ -154,8 +154,8 @@ html[data-material] .premium-os .study-start h2 {
   font-size: 30px !important;
   line-height: 1.25 !important;
   margin: 0 0 9px !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.045em !important;
+  font-weight: var(--mat-heading-weight, 700) !important;
+  letter-spacing: var(--mat-tracking, -0.045em) !important;
   white-space: normal;
 }
 html[data-material] .premium-os .study-start p {
@@ -191,9 +191,7 @@ html[data-material] .premium-os .study-start-five {
   font-size: 13px;
   border-radius: 16px !important;
 }
-html[data-material] .premium-os .study-start::after {
-  display: none !important;
-}
+
 html[data-material] .premium-os .study-agenda {
   padding: 20px 24px !important;
   border-radius: var(--mat-radius);
@@ -316,7 +314,7 @@ html[data-material] .premium-os .study-day-summary {
   padding: 16px 22px !important;
   border: 1px solid var(--mat-line);
   border-radius: var(--mat-radius);
-  background: var(--identity-surface, var(--mat-paper));
+  background: var(--mat-card);
   color: var(--mat-ink);
   box-shadow: var(--mat-shadow);
 }
@@ -478,7 +476,7 @@ html[data-material] .premium-os :is(.focus-library-link, .settings-theme-entry) 
   padding: 12px 17px;
   color: var(--mat-ink);
   border: 1px solid var(--mat-line);
-  background: var(--identity-surface, var(--mat-paper));
+  background: var(--mat-card);
   border-radius: 16px;
   margin: 12px 0;
   font-size: 14px;
@@ -547,7 +545,7 @@ html[data-material] .premium-os .focus-readout .timer {
   font-size: clamp(54px, 10vw, 80px) !important;
   font-weight: 500 !important;
   line-height: 1.2;
-  letter-spacing: -0.055em !important;
+  letter-spacing: var(--mat-tracking, -0.055em) !important;
 }
 html[data-material] .premium-os .focus-readout > span {
   font-size: 12px;
@@ -679,7 +677,7 @@ html[data-material] .premium-os .task-empty {
 html[data-material] .premium-os .compact-section {
   border: 1px solid var(--mat-line);
   border-radius: 16px;
-  background: var(--identity-surface, var(--mat-paper));
+  background: var(--mat-card);
   margin: 12px 0;
   overflow: hidden;
 }
@@ -722,7 +720,7 @@ html[data-material] .premium-os .compact-record-stats {
   gap: 12px;
 }
 html[data-material] .premium-os .compact-record-stats > div {
-  background: var(--identity-surface, var(--mat-paper));
+  background: var(--mat-card);
   border: 1px solid var(--mat-line);
   border-radius: var(--mat-radius);
   padding: 22px;
@@ -814,7 +812,7 @@ html[data-material] .premium-os .more-hub-link {
   min-height: 126px !important;
   border: 1px solid var(--mat-line) !important;
   border-radius: var(--mat-radius) !important;
-  background: var(--identity-surface, var(--mat-paper)) !important;
+  background: var(--mat-card) !important;
   box-shadow: var(--mat-shadow);
   padding: 18px !important;
   color: var(--mat-ink);
@@ -830,7 +828,7 @@ html[data-material] .premium-os .more-hub-link > span:last-child {
 html[data-material] .premium-os .more-hub-link strong {
   font-size: 15px;
   font-weight: 650;
-  letter-spacing: -0.025em;
+  letter-spacing: var(--mat-tracking, -0.025em);
 }
 html[data-material] .premium-os .more-hub-link small {
   font-size: 11px;
@@ -997,7 +995,7 @@ html[data-material] .theme-dialog {
   border-top: 1px solid var(--mat-line);
   background: transparent;
 }
-.theme-picker .material-sensor-control > div {
+.theme-picker .material-sensor-control > div:first-child {
   display: flex;
   align-items: center;
   justify-content: space-between;

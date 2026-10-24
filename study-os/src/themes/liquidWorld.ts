@@ -21,7 +21,7 @@ vec2 world(vec2 uv) {
 
 void main() {
   vec2 p = world(gl_FragCoord.xy / uResolution);
-  float t = uTime * 0.075;
+  float t = uTime * mix(0.075, 0.042, uPeach);
   vec2 q = p + uDrift * 0.035;
   q += 0.17 * vec2(sin(p.y * 1.8 + t), cos(p.x * 1.4 - t * 0.83));
 
@@ -42,6 +42,8 @@ void main() {
     // Warped, asymmetric distance creates seismic folds, never perfect circles.
     d += 0.10 * vec2(sin(d.y * 3.1 + seed), sin(d.x * 2.7 - seed));
     d *= mat2(1.0, 0.14 * sin(seed), 0.12 * cos(seed), 0.88);
+    // Satin spreads along the weave; glass has a compact optical disturbance.
+    d *= mix(vec2(1.0), vec2(0.65, 1.1), uPeach);
     float radius = max(length(d), 0.001);
     // Bound the center gradient: overlapping touch waves must never produce
     // a sharp spike or a bright pinhole on a small mobile framebuffer.
@@ -49,19 +51,20 @@ void main() {
     float angle = atan(d.y, d.x);
     float organic = 0.065 * sin(angle * 3.0 + seed + age * 0.23)
                   + 0.035 * sin(angle * 5.0 - seed);
-    float front = radius + organic * smoothstep(0.05, 0.4, radius) - age * 0.43;
-    float width = 0.24 + age * 0.065;
+    float front = radius + organic * smoothstep(0.05, 0.4, radius) - age * mix(0.43, 0.16, uPeach);
+    float width = mix(0.24, 0.6, uPeach) + age * mix(0.065, 0.12, uPeach);
     float envelope = exp(-front * front / (width * width));
-    float fade = exp(-age * 0.43) * smoothstep(0.0, 0.16, age)
+    float fade = exp(-age * mix(0.43, 0.6, uPeach)) * smoothstep(0.0, 0.16, age)
                  * (1.0 - smoothstep(8.0, 10.0, age));
-    float phase = front * 13.0 + 0.4 * sin(angle * 2.0 + seed);
-    float amplitude = wave.w * uEnergy * 0.14 * fade;
+    float frequency = mix(13.0, 4.2, uPeach);
+    float phase = front * frequency + 0.4 * sin(angle * 2.0 + seed);
+    float amplitude = wave.w * uEnergy * mix(0.14, 0.075, uPeach) * fade;
     float fold = sin(phase) * envelope * amplitude;
-    float derivative = (13.0 * cos(phase) - 2.0 * front / (width * width)
+    float derivative = (frequency * cos(phase) - 2.0 * front / (width * width)
                        * sin(phase)) * envelope * amplitude;
     // The impact rises and settles beneath the travelling wave packet.
-    float mound = exp(-radius * radius / 0.14) * sin(age * 4.2)
-                  * exp(-age * 1.5) * wave.w * uEnergy * 0.23;
+    float mound = exp(-radius * radius / 0.14) * mix(sin(age * 4.2) * exp(-age * 1.5),
+                      (1.0 - exp(-age * 4.0)) * exp(-age * 0.8), uPeach) * wave.w * uEnergy * 0.23;
     height += fold + mound;
     slope += direction * (derivative - mound * radius / 0.07);
     disturbance += abs(fold) + abs(mound);
@@ -69,14 +72,14 @@ void main() {
 
   vec2 handDelta = p - world(uHand.xy);
   float handRadius = dot(handDelta, handDelta);
-  float held = exp(-handRadius / 0.19) * uHand.z * uEnergy * 0.25;
+  float held = exp(-handRadius / 0.19) * uHand.z * uEnergy * mix(0.25, 0.09, uPeach);
   height += held;
   slope -= handDelta * held * 10.5;
   disturbance += abs(held);
   // Softly bound interference so many touches form folds instead of flashing.
   slope = slope / (1.0 + length(slope) * 0.4);
   vec3 normal = normalize(vec3(-slope, 1.0));
-  vec2 refracted = q - slope * 0.42 + vec2(height * 0.32, -height * 0.24);
+  vec2 refracted = q - slope * mix(0.42, 0.16, uPeach) + vec2(height * 0.32, -height * 0.24);
 
   // Peach / coral / cream marbling is sampled AFTER displacement.
   float ribbon = sin(refracted.x * 1.8 + refracted.y * 0.8 + t * 0.63
@@ -94,12 +97,12 @@ void main() {
   // Wide reflections and narrow caustic crests reveal the displaced geometry.
   vec3 light = normalize(vec3(-0.45, 0.6, 1.3));
   float diffuse = dot(normal, light);
-  float specular = pow(max(dot(reflect(-light, normal), vec3(0.0, 0.0, 1.0)), 0.0), 28.0);
+  float specular = pow(max(dot(reflect(-light, normal), vec3(0.0, 0.0, 1.0)), 0.0), mix(28.0, 10.0, uPeach));
   float fresnel = pow(max(0.0, 1.0 - normal.z), 2.0);
   float caustic = pow(max(0.0, 1.0 - abs(ribbon + height * 2.0) * 5.0), 3.0);
   color *= 0.94 + diffuse * 0.075;
-  color += vec3(1.0, 0.96, 0.90) * (specular * 0.13 + fresnel * 0.16);
-  color += caustic * (0.018 + min(disturbance, 0.3) * 0.18);
+  color += vec3(1.0, 0.96, 0.90) * (specular * mix(0.13, 0.045, uPeach) + fresnel * mix(0.16, 0.03, uPeach));
+  color += caustic * mix(1.0, 0.15, uPeach) * (0.018 + min(disturbance, 0.3) * 0.18);
   color -= min(disturbance, 0.25) * vec3(0.10, 0.16, 0.17);
   // Subpixel dither prevents banding without a grain overlay or extra texture.
   // gl_FragCoord may be mediump even in a highp fragment shader. An unbounded

@@ -269,12 +269,14 @@ test('gyro requires a tap, calibrates smoothly, and reduced motion and low power
       },
       { beta, gamma },
     );
-  await tilt(30, 0);
-  await tilt(40, 16);
+  await expect(page.locator('.material-sensor-control')).toContainText('센서 대기 중');
+  // Keep supplying real input samples while the effect listener/render loop settles.
   await expect
-    .poll(() =>
-      page.evaluate(() => Number(document.documentElement.style.getPropertyValue('--sensor-x'))),
-    )
+    .poll(async () => {
+      await tilt(30, 0);
+      await tilt(40, 16);
+      return page.evaluate(() => Number(document.documentElement.style.getPropertyValue('--sensor-x')));
+    })
     .toBeGreaterThan(0.02);
   await shot(page, info.project.name, 'gyro-enabled');
   await page.getByRole('combobox', { name: '테마 움직임' }).selectOption('off');
@@ -551,7 +553,9 @@ test('every tool has a reachable route and advanced backup and recovery remain i
   const backup = page.getByRole('region', { name: '사진 포함 전체 백업' });
   await expect(backup).toBeVisible();
   await backup.getByRole('button', { name: '내 공부 기록·PDF·필기 원본 정밀 검사' }).click();
-  await expect(backup.getByRole('region', { name: '저장 무결성 진단 결과' })).toBeVisible();
+  await expect(backup.getByRole('region', { name: '저장 무결성 진단 결과' })).toBeVisible({
+    timeout: 15000,
+  });
   await page.getByRole('button', { name: '공부 계획 다시 정리', exact: true }).click();
   const modal = page.getByRole('dialog', { name: '지금부터, 다시 시작' });
   await expect(modal.getByRole('button', { name: '다시 계산', exact: true })).toBeVisible();

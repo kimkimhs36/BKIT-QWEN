@@ -1,0 +1,22 @@
+{
+  "sourceCommit": "bb79f409bd536bd9196a2f4e61532af728620c72",
+  "run": 40090542880,
+  "artifacts": [
+    {
+      "profile": "desktop",
+      "sha256": "832277ef9d5ff9ca82d1ac34dc6b74304a2007d03c47fd3685097f3bfd6df73e",
+      "renderedScreenshots": 73
+    },
+    {
+      "profile": "iphone",
+      "sha256": "895526c7fce81f2868b558aeddf1774075edaee2d979fc307385879ec7873e48",
+      "renderedScreenshots": 73
+    },
+    {
+      "profile": "ipad",
+      "sha256": "ebe7919f4b5114ea86315f94f2b2f104dd27f585ab831e8b172d1c8983cd52ed",
+      "renderedScreenshots": 73,
+      "artifactId": 12559331246
+    }
+  ]
+}

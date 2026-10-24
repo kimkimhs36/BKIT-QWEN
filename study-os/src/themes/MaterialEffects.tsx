@@ -2,61 +2,106 @@ import { useEffect, useState } from 'react';
 import { Move3D } from 'lucide-react';
 import { materialCharacter, type MaterialId, type MaterialPreferences } from './material';
 import './materials.css';
-
-const SENSOR_EVENT = 'bkit:material-sensor';
-const STATUS_EVENT = 'bkit:material-sensor-status';
+const SENSOR_EVENT = 'bkit:material-sensor',
+  STATUS_EVENT = 'bkit:material-sensor-status',
+  CALIBRATE_EVENT = 'bkit:material-calibrate';
 const clamp = (n: number, limit = 1) => Math.max(-limit, Math.min(limit, n));
-function reportSensor(enabled: boolean, message: string) {
-  document.documentElement.dataset.materialSensor = enabled ? 'on' : 'off';
-  window.dispatchEvent(new CustomEvent(STATUS_EVENT, { detail: { enabled, message } }));
+type SensorState =
+  | 'unsupported'
+  | 'permission'
+  | 'denied'
+  | 'waiting'
+  | 'receiving'
+  | 'active'
+  | 'power'
+  | 'reduced'
+  | 'study'
+  | 'off';
+const sensorLabels: Record<SensorState, string> = {
+  unsupported: '지원되지 않음',
+  permission: '권한 필요',
+  denied: '권한 거부',
+  waiting: '센서 대기 중',
+  receiving: '센서값 수신 중',
+  active: '반응 활성화',
+  power: '절전으로 일시중지',
+  reduced: '모션 감소로 일시중지',
+  study: '집중 중 빛 반응 일시중지',
+  off: '비활성화',
+};
+let sensorSnapshot: { enabled: boolean; state: SensorState; message: string } = {
+  enabled: false,
+  state: 'permission',
+  message: '빛과 장식만 반응해요. 센서 정보는 전송하지 않아요.',
+};
+function reportSensor(enabled: boolean, state: SensorState, message: string) {
+  sensorSnapshot = { enabled, state, message };
+  document.documentElement.dataset.materialSensor =
+    state === 'active' || state === 'receiving' ? 'on' : 'off';
+  document.documentElement.dataset.materialSensorStatus = state;
+  window.dispatchEvent(new CustomEvent(STATUS_EVENT, { detail: sensorSnapshot }));
 }
-
-/** iOS requests permission synchronously from this user gesture; never at startup. */
+/** Permission request is called directly from a tap, never from an effect. */
 export function MaterialSensorControl() {
-  const [enabled, setEnabled] = useState(document.documentElement.dataset.materialSensor === 'on');
-  const [message, setMessage] = useState('빛과 장식만 반응해요. 센서 정보는 전송하지 않아요.');
+  const [s, setS] = useState(sensorSnapshot);
   useEffect(() => {
-    const status = (event: Event) => {
-      const detail = (event as CustomEvent<{ enabled: boolean; message: string }>).detail;
-      setEnabled(detail.enabled);
-      setMessage(detail.message);
-    };
-    window.addEventListener(STATUS_EVENT, status);
-    return () => window.removeEventListener(STATUS_EVENT, status);
+    const update = () => setS({ ...sensorSnapshot });
+    window.addEventListener(STATUS_EVENT, update);
+    return () => window.removeEventListener(STATUS_EVENT, update);
   }, []);
   async function toggle() {
-    if (enabled) {
+    if (s.enabled) {
       window.dispatchEvent(new CustomEvent(SENSOR_EVENT, { detail: false }));
-      reportSensor(false, '센서 반응을 껐어요. 터치로 빛을 움직일 수 있어요.');
+      reportSensor(false, 'off', '센서 반응을 껐어요. 터치로 빛을 움직일 수 있어요.');
       return;
     }
     const ctor = window.DeviceOrientationEvent as
       (typeof DeviceOrientationEvent & { requestPermission?: () => Promise<string> }) | undefined;
     if (!ctor || !window.isSecureContext) {
-      setMessage('이 환경에서는 터치와 포인터로 반응해요.');
+      reportSensor(false, 'unsupported', '이 환경에서는 터치와 포인터로 반응해요.');
       return;
     }
     try {
       if (ctor.requestPermission && (await ctor.requestPermission()) !== 'granted') {
-        setMessage('권한 없이도 모든 학습 기능과 터치 반응을 사용할 수 있어요.');
+        reportSensor(false, 'denied', '권한 없이도 모든 학습 기능과 터치 반응을 사용할 수 있어요.');
         return;
       }
-      reportSensor(true, '센서 신호를 기다리고 있어요. 기기를 가볍게 기울여 보세요.');
+      reportSensor(true, 'waiting', '센서 신호를 기다리고 있어요. 기기를 가볍게 기울여 보세요.');
       window.dispatchEvent(new CustomEvent(SENSOR_EVENT, { detail: true }));
     } catch {
-      setMessage('센서에 연결하지 못했어요. 터치 반응을 이용해 주세요.');
+      reportSensor(false, 'denied', '센서 권한을 확인하지 못했어요. 터치 반응을 이용해 주세요.');
     }
   }
   return (
     <div className="material-sensor-control">
       <div>
-        <span>기울기에 반응하는 빛</span>
-        <button type="button" aria-pressed={enabled} onClick={() => void toggle()}>
+        <span>기울기 센서</span>
+        <button type="button" aria-pressed={s.enabled} onClick={() => void toggle()}>
           <Move3D size={17} />
-          {enabled ? '센서 끄기' : '센서 연결'}
+          {s.enabled ? '센서 끄기' : '센서 연결'}
         </button>
       </div>
-      <small role="status">{message}</small>
+      <div className="material-sensor-diagnostic">
+        <dl>
+          <dt>상태</dt>
+          <dd role="status">{sensorLabels[s.state]}</dd>
+          <dt>입력</dt>
+          <dd>{s.state === 'active' || s.state === 'receiving' ? '정상' : '미수신 · 터치 가능'}</dd>
+          <dt>광원 이동</dt>
+          <dd>{s.state === 'active' ? '활성' : '대기'}</dd>
+        </dl>
+        <div className="material-sensor-preview" role="img" aria-label="기울기 광원 미리보기" />
+      </div>
+      <div className="material-sensor-actions">
+        <button
+          type="button"
+          disabled={!s.enabled}
+          onClick={() => window.dispatchEvent(new Event(CALIBRATE_EVENT))}
+        >
+          현재 자세로 보정
+        </button>
+      </div>
+      <small>{s.message}</small>
     </div>
   );
 }
@@ -103,7 +148,13 @@ export function MaterialEffects({
     window.dispatchEvent(new Event('bkit:effects'));
   }, [quiet, studying, prefs.intensity]);
   useEffect(() => {
-    const visibility = () => setHidden(document.hidden);
+    const visibility = () => {
+      setHidden(document.hidden);
+      if (document.hidden) {
+        setSensor(false);
+        reportSensor(false, 'off', '탭을 떠나 센서 반응을 종료했어요.');
+      }
+    };
     const enable = (event: Event) => setSensor(Boolean((event as CustomEvent).detail));
     document.addEventListener('visibilitychange', visibility);
     window.addEventListener(SENSOR_EVENT, enable);
@@ -113,12 +164,16 @@ export function MaterialEffects({
     };
   }, []);
 
-  // Directional lighting: low-pass the input, then integrate a damped spring.
+  // Only material light coordinates change. No layout node receives a tilt transform.
   useEffect(() => {
     const root = document.documentElement;
     if (quiet) {
       if (sensor)
-        reportSensor(true, '센서 연결은 유지하고, 집중·절전·모션 감소 중에는 반응을 쉬어요.');
+        reportSensor(
+          true,
+          prefs.lowPower ? 'power' : reduce || prefs.motion !== 'auto' ? 'reduced' : 'study',
+          '터치·기울기 움직임을 쉬고 정적인 재질을 표시해요.',
+        );
       root.style.setProperty('--sensor-x', '0');
       root.style.setProperty('--sensor-y', '0');
       root.style.setProperty('--light-x', '32%');
@@ -132,20 +187,29 @@ export function MaterialEffects({
       tx = 0,
       ty = 0,
       frame = 0,
-      last = 0;
+      last = 0,
+      lastSignal = 0,
+      received = 0;
     let baseline: { beta: number; gamma: number } | null = null;
-    let received = false;
     const tick = (now: number) => {
-      const dt = Math.min(0.025, Math.max(0.001, (now - (last || now - 16)) / 1000));
+      const elapsed = Math.min(0.16, Math.max(0.001, (now - (last || now - 16)) / 1000));
       last = now;
-      vx += ((tx - x) * 82 - vx * 15) * dt;
-      vy += ((ty - y) * 82 - vy * 15) * dt;
-      x = clamp(x + vx * dt);
-      y = clamp(y + vy * dt);
+      const steps = Math.ceil(elapsed / 0.016);
+      const dt = elapsed / steps;
+      const stiffness =
+        prefs.id === 'gold' ? 120 : prefs.id === 'forest' ? 45 : prefs.id === 'night' ? 155 : 82;
+      const damping = prefs.id === 'droplets' ? 13 : prefs.id === 'forest' ? 14 : 19;
+      // Keep light responsive at low frame rates with small, bounded catch-up steps.
+      for (let i = 0; i < steps; i++) {
+        vx += ((tx - x) * stiffness - vx * damping) * dt;
+        vy += ((ty - y) * stiffness - vy * damping) * dt;
+        x = clamp(x + vx * dt);
+        y = clamp(y + vy * dt);
+      }
       root.style.setProperty('--sensor-x', x.toFixed(4));
       root.style.setProperty('--sensor-y', y.toFixed(4));
-      root.style.setProperty('--light-x', `${32 + x * 36 * prefs.intensity}%`);
-      root.style.setProperty('--light-y', `${12 + y * 32 * prefs.intensity}%`);
+      root.style.setProperty('--light-x', `${50 + x * 48 * prefs.intensity}%`);
+      root.style.setProperty('--light-y', `${35 + y * 46 * prefs.intensity}%`);
       if (Math.abs(tx - x) + Math.abs(ty - y) + Math.abs(vx) + Math.abs(vy) > 0.002)
         frame = requestAnimationFrame(tick);
       else {
@@ -154,65 +218,129 @@ export function MaterialEffects({
       }
     };
     const target = (a: number, b: number) => {
-      const nx = Math.abs(a) < 0.02 ? 0 : clamp(a);
-      const ny = Math.abs(b) < 0.02 ? 0 : clamp(b);
-      if (Math.abs(nx - tx) + Math.abs(ny - ty) < 0.002) return;
-      tx += (nx - tx) * 0.22;
-      ty += (ny - ty) * 0.22;
+      tx += (clamp(a) - tx) * 0.3;
+      ty += (clamp(b) - ty) * 0.3;
       if (!frame) frame = requestAnimationFrame(tick);
     };
     const orientation = (e: DeviceOrientationEvent) => {
+      // A queued event can arrive before React removes the listener on tab exit.
+      if (!sensorSnapshot.enabled || document.hidden) return;
       if (
         e.beta == null ||
         e.gamma == null ||
         !Number.isFinite(e.beta) ||
-        !Number.isFinite(e.gamma)
+        !Number.isFinite(e.gamma) ||
+        Math.abs(e.beta) > 180 ||
+        Math.abs(e.gamma) > 90
       )
         return;
-      if (!received) {
-        received = true;
-        reportSensor(true, '연결됐어요. 기울이면 소재의 빛과 장식이 반응해요.');
-      }
-      if (!baseline) baseline = { beta: e.beta, gamma: e.gamma };
+      baseline ??= { beta: e.beta, gamma: e.gamma };
       const angle = ((screen.orientation?.angle ?? window.orientation ?? 0) * Math.PI) / 180;
+      // Avoid wrapping jumps across beta +/-180. Clamp outliers before low-pass filtering.
+      const db = ((e.beta - baseline.beta + 540) % 360) - 180;
+      if (Math.abs(db) > 85 || Math.abs(e.gamma - baseline.gamma) > 85) return;
+      lastSignal = performance.now();
+      received++;
+      if (received === 1)
+        reportSensor(true, 'receiving', '유효한 센서값을 받았어요. 현재 자세를 중립으로 사용해요.');
+      if (received === 2 || sensorSnapshot.state === 'waiting')
+        reportSensor(true, 'active', '기울이면 소재의 빛이 움직여요. 버튼과 글자는 고정돼요.');
       const a = clamp((e.gamma - baseline.gamma) / 24),
-        b = clamp((e.beta - baseline.beta) / 30);
+        b = clamp(db / 30);
       target(a * Math.cos(angle) + b * Math.sin(angle), b * Math.cos(angle) - a * Math.sin(angle));
     };
     const pointer = (e: PointerEvent) => {
-      if (!sensor) target((e.clientX / innerWidth) * 2 - 1, (e.clientY / innerHeight) * 2 - 1);
+      if (!sensor || performance.now() - lastSignal > 1500)
+        target((e.clientX / innerWidth) * 2 - 1, (e.clientY / innerHeight) * 2 - 1);
     };
     const center = () => {
       baseline = null;
-      target(0, 0);
+      tx = ty = 0;
+      if (!frame) frame = requestAnimationFrame(tick);
     };
-    if (sensor) window.addEventListener('deviceorientation', orientation, { passive: true });
+    const calibrate = () => {
+      center();
+      // Rebase both input and momentum, even when render frames arrive slowly.
+      x = y = vx = vy = 0;
+      root.style.setProperty('--sensor-x', '0');
+      root.style.setProperty('--sensor-y', '0');
+      root.style.setProperty('--light-x', '50%');
+      root.style.setProperty('--light-y', '35%');
+      received = 0;
+      reportSensor(true, 'waiting', '현재 자세로 다시 보정해요. 다음 센서값을 기다려요.');
+    };
+    if (sensor) {
+      reportSensor(true, 'waiting', '실제 센서값을 기다려요. 터치 반응도 사용할 수 있어요.');
+      window.addEventListener('deviceorientation', orientation, { passive: true });
+    }
     document.addEventListener('pointermove', pointer, { passive: true });
     document.addEventListener('pointerdown', pointer, { passive: true });
     document.addEventListener('pointerleave', center);
     window.addEventListener('orientationchange', center);
     window.addEventListener('blur', center);
+    window.addEventListener(CALIBRATE_EVENT, calibrate);
     const timeout = sensor
-      ? window.setTimeout(() => {
-          if (!received) {
-            setSensor(false);
-            reportSensor(false, '센서 신호가 없어요. 터치와 포인터로 반응해요.');
+      ? window.setInterval(() => {
+          if (performance.now() - lastSignal > 2200 && sensorSnapshot.state !== 'waiting') {
+            received = 0;
+            reportSensor(true, 'waiting', '센서 신호가 없어요. 터치와 포인터로 반응해요.');
           }
-        }, 3500)
+        }, 1000)
       : undefined;
     return () => {
       cancelAnimationFrame(frame);
-      clearTimeout(timeout);
+      clearInterval(timeout);
       window.removeEventListener('deviceorientation', orientation);
       document.removeEventListener('pointermove', pointer);
       document.removeEventListener('pointerdown', pointer);
       document.removeEventListener('pointerleave', center);
       window.removeEventListener('orientationchange', center);
       window.removeEventListener('blur', center);
+      window.removeEventListener(CALIBRATE_EVENT, calibrate);
       root.style.setProperty('--sensor-x', '0');
       root.style.setProperty('--sensor-y', '0');
     };
-  }, [sensor, quiet, prefs.intensity]);
+  }, [sensor, quiet, prefs.intensity, prefs.id, prefs.lowPower, prefs.motion, reduce]);
+
+  useEffect(() => {
+    if (quiet) return;
+    const layer = document.createElement('div');
+    layer.className = 'material-touch-field';
+    layer.setAttribute('aria-hidden', 'true');
+    document.querySelector('.app-shell')?.append(layer);
+    const down = (e: PointerEvent) => {
+      if (
+        e.pointerType === 'pen' ||
+        document.documentElement.dataset.awakeCamera === 'true' ||
+        e.clientX < 0 ||
+        e.clientY < 0 ||
+        e.clientX > innerWidth ||
+        e.clientY > innerHeight
+      )
+        return;
+      if (
+        e.target instanceof Element &&
+        e.target.closest(
+          'button,a,input,textarea,select,label,summary,nav,header,dialog,[role="dialog"],[role="button"],.learning-workspace,.problem-workspace,.pdf-reader,.digital-paper',
+        )
+      )
+        return;
+      while (layer.children.length >= 4) layer.firstChild?.remove();
+      const pulse = document.createElement('span');
+      pulse.className = 'material-touch';
+      pulse.dataset.touch = prefs.id;
+      pulse.style.setProperty('--touch-x', `${e.clientX}px`);
+      pulse.style.setProperty('--touch-y', `${e.clientY}px`);
+      pulse.append(document.createElement('i'), document.createElement('i'));
+      pulse.addEventListener('animationend', () => pulse.remove(), { once: true });
+      layer.append(pulse);
+    };
+    document.addEventListener('pointerdown', down, { passive: true });
+    return () => {
+      document.removeEventListener('pointerdown', down);
+      layer.remove();
+    };
+  }, [quiet, prefs.id]);
 
   useEffect(() => {
     if (hidden || reduce || studying) return;

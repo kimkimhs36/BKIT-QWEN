@@ -1,53 +1,4 @@
 /* BKIT / A quiet place to begin. One final design layer for all study surfaces. */
-html[data-material='classic'],
-[data-preview='classic'] {
-  --mat-bg: #f6f5f0;
-  --mat-paper: #fdfcf9;
-  --mat-ink: #253c34;
-  --mat-muted: #68746b;
-  --mat-accent: #385b47;
-  --mat-soft: #e9ede4;
-  --mat-line: #dde1d8;
-  --mat-radius: 22px;
-  --mat-button-radius: 12px;
-  --mat-shadow: 0 5px 20px -16px #203e3233;
-}
-html[data-material='forest'],
-[data-preview='forest'] {
-  --mat-bg: #111e19;
-  --mat-paper: #1a2a22;
-  --mat-ink: #ebeee5;
-  --mat-muted: #adbcb0;
-  --mat-accent: #c0d2aa;
-  --mat-soft: #263a2d;
-  --mat-line: #35493c;
-  --mat-radius: 22px;
-  --mat-button-radius: 12px;
-}
-html[data-material='glass'],
-[data-preview='glass'] {
-  --mat-bg: #e9eff1;
-  --mat-paper: #f9fdffbd;
-  --mat-ink: #263f4b;
-  --mat-muted: #5a707b;
-  --mat-accent: #355f72;
-  --mat-soft: #dce9ef;
-  --mat-line: #bdcfd9;
-  --mat-radius: 24px;
-  --mat-button-radius: 14px;
-}
-html[data-material='jelly'],
-[data-preview='jelly'] {
-  --mat-bg: #f0ecf4;
-  --mat-paper: #fbf8fd;
-  --mat-ink: #4b3b5b;
-  --mat-muted: #7a6989;
-  --mat-accent: #796091;
-  --mat-soft: #e9e0f0;
-  --mat-line: #ddd1e7;
-  --mat-radius: 28px;
-  --mat-button-radius: 18px;
-}
 html {
   scroll-padding-top: 110px;
 }
@@ -70,24 +21,9 @@ html[data-material] .app-shell.premium-os {
   padding: 0 !important;
   isolation: isolate;
   color: var(--mat-ink);
-  --hero-bg: #284d3d;
-  --hero-ink: #f2f5eb;
-  --hero-soft: #bfcfbf;
-}
-html[data-material='forest'] .app-shell.premium-os {
-  --hero-bg: #263f2d;
-  --hero-ink: #f0f3e5;
-  --hero-soft: #becfb4;
-}
-html[data-material='glass'] .app-shell.premium-os {
-  --hero-bg: #315968;
-  --hero-ink: #f0f9fd;
-  --hero-soft: #c2d9e3;
-}
-html[data-material='jelly'] .app-shell.premium-os {
-  --hero-bg: #756185;
-  --hero-ink: #fcf5ff;
-  --hero-soft: #e3d4ed;
+  --hero-bg: var(--mat-card);
+  --hero-ink: var(--mat-ink);
+  --hero-soft: var(--mat-muted);
 }
 html[data-material] .premium-os .main-shell {
   width: min(1120px, calc(100% - 80px)) !important;
@@ -1716,13 +1652,7 @@ html[data-effects='none'] :is(.premium-os *, .study-dialog, .study-dialog-overla
 }
 /* Keep Korean typography consistent with the Latin interface. */
 html[data-material] .premium-os :is(h1, h2, h3, .timer) {
-  font-family:
-    'DM Sans',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Apple SD Gothic Neo',
-    'Noto Sans KR',
-    sans-serif !important;
+  font-family: inherit !important;
   font-style: normal !important;
 }
 html[data-material] .premium-os .tablet-primary-nav {

@@ -1,0 +1,173 @@
+{
+  "base": "https://teambkit.com/",
+  "scope": "Real MediaPipe and generated camera; injected visibility event, not physical iOS backgrounding.",
+  "fonts": [
+    {
+      "id": "classic",
+      "rendered": {
+        "fonts": [
+          {
+            "familyName": "Pretendard Variable",
+            "postScriptName": "PretendardVariable-Regular",
+            "isCustomFont": true,
+            "glyphCount": 18
+          }
+        ]
+      },
+      "style": {
+        "family": "\"BKIT Pretendard\", \"DM Sans\", -apple-system, BlinkMacSystemFont, sans-serif",
+        "weight": "680",
+        "spacing": "-0.84px"
+      }
+    },
+    {
+      "id": "forest",
+      "rendered": {
+        "fonts": [
+          {
+            "familyName": "Pretendard Variable",
+            "postScriptName": "PretendardVariable-Regular",
+            "isCustomFont": true,
+            "glyphCount": 18
+          }
+        ]
+      },
+      "style": {
+        "family": "\"BKIT Pretendard\", \"DM Sans\", -apple-system, BlinkMacSystemFont, sans-serif",
+        "weight": "620",
+        "spacing": "-0.6px"
+      }
+    },
+    {
+      "id": "glass",
+      "rendered": {
+        "fonts": [
+          {
+            "familyName": "Pretendard Variable",
+            "postScriptName": "PretendardVariable-Regular",
+            "isCustomFont": true,
+            "glyphCount": 18
+          }
+        ]
+      },
+      "style": {
+        "family": "\"BKIT Pretendard\", \"DM Sans\", -apple-system, BlinkMacSystemFont, sans-serif",
+        "weight": "660",
+        "spacing": "-1.05px"
+      }
+    },
+    {
+      "id": "peach",
+      "rendered": {
+        "fonts": [
+          {
+            "familyName": "Pretendard Variable",
+            "postScriptName": "PretendardVariable-Regular",
+            "isCustomFont": true,
+            "glyphCount": 18
+          }
+        ]
+      },
+      "style": {
+        "family": "\"BKIT Pretendard\", \"DM Sans\", -apple-system, BlinkMacSystemFont, sans-serif",
+        "weight": "630",
+        "spacing": "-0.96px"
+      }
+    },
+    {
+      "id": "diamond",
+      "rendered": {
+        "fonts": [
+          {
+            "familyName": "Pretendard Variable",
+            "postScriptName": "PretendardVariable-Regular",
+            "isCustomFont": true,
+            "glyphCount": 18
+          }
+        ]
+      },
+      "style": {
+        "family": "\"BKIT Pretendard\", \"DM Sans\", -apple-system, BlinkMacSystemFont, sans-serif",
+        "weight": "720",
+        "spacing": "-1.35px"
+      }
+    },
+    {
+      "id": "gold",
+      "rendered": {
+        "fonts": [
+          {
+            "familyName": "Pretendard Variable",
+            "postScriptName": "PretendardVariable-Regular",
+            "isCustomFont": true,
+            "glyphCount": 18
+          }
+        ]
+      },
+      "style": {
+        "family": "\"BKIT Pretendard\", \"DM Sans\", -apple-system, BlinkMacSystemFont, sans-serif",
+        "weight": "580",
+        "spacing": "-0.54px"
+      }
+    },
+    {
+      "id": "jelly",
+      "rendered": {
+        "fonts": [
+          {
+            "familyName": "Pretendard Variable",
+            "postScriptName": "PretendardVariable-Regular",
+            "isCustomFont": true,
+            "glyphCount": 18
+          }
+        ]
+      },
+      "style": {
+        "family": "\"BKIT Pretendard\", \"DM Sans\", -apple-system, BlinkMacSystemFont, sans-serif",
+        "weight": "640",
+        "spacing": "-0.9px"
+      }
+    },
+    {
+      "id": "droplets",
+      "rendered": {
+        "fonts": [
+          {
+            "familyName": "Pretendard Variable",
+            "postScriptName": "PretendardVariable-Regular",
+            "isCustomFont": true,
+            "glyphCount": 18
+          }
+        ]
+      },
+      "style": {
+        "family": "\"BKIT Pretendard\", \"DM Sans\", -apple-system, BlinkMacSystemFont, sans-serif",
+        "weight": "570",
+        "spacing": "-0.72px"
+      }
+    },
+    {
+      "id": "night",
+      "rendered": {
+        "fonts": [
+          {
+            "familyName": "Pretendard Variable",
+            "postScriptName": "PretendardVariable-Regular",
+            "isCustomFont": true,
+            "glyphCount": 18
+          }
+        ]
+      },
+      "style": {
+        "family": "\"BKIT Pretendard\", \"DM Sans\", -apple-system, BlinkMacSystemFont, sans-serif",
+        "weight": "680",
+        "spacing": "-0.3px"
+      }
+    }
+  ],
+  "tracks": [
+    "ended"
+  ],
+  "automaticRestart": false,
+  "cameraStatus": "카메라\nOFF\n관찰 상태\n꺼짐\n감도\n기본"
+}

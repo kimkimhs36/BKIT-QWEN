@@ -1,0 +1,402 @@
+/* Canonical material tokens. No theme palette is redeclared in component CSS. */
+html[data-material='classic'],
+[data-preview='classic'] {
+  --mat-bg: #f4f1e8;
+  --mat-paper: #fffefb;
+  --mat-ink: #2d3b32;
+  --mat-muted: #5f6b5e;
+  --mat-accent: #3e5c45;
+  --mat-on-accent: #fffff7;
+  --mat-line: #dedfd2;
+  --mat-soft: #e9eddf;
+  --mat-card:
+    radial-gradient(ellipse at var(--light-x, 32%) 0%, #fffef6, transparent 70%),
+    repeating-linear-gradient(1deg, #72805d04 0 1px, transparent 1px 3px), #fffdf6;
+  --mat-panel: #f9f7f1;
+  --mat-button: linear-gradient(180deg, #fffefa, #f1f0e7);
+  --mat-control: #f3f1e9;
+  --mat-shadow: 0 4px 15px -12px #253e3126;
+  --mat-radius: 14px;
+  --mat-button-radius: 9px;
+  --mat-blur: 0px;
+  --mat-speed: 220ms;
+  --mat-light: #eee8ce;
+  --mat-ambient: #d6dfc3;
+  --mat-grain: 0.32;
+  --identity-page: identity-paper-enter;
+  --identity-speed: 260ms;
+  --identity-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --mat-primary: linear-gradient(170deg, #52694f, #3d563f);
+  --mat-world:
+    radial-gradient(ellipse at var(--light-x, 32%) var(--light-y, 12%), #fffbed99, transparent 65%),
+    #f4f1e8;
+  --mat-edge: linear-gradient(125deg, #fffdf5, transparent 38%, #cacbb433);
+  --mat-tracking: -0.028em;
+  --mat-heading-weight: 680;
+  --mat-signal: #e9d9a4;
+  --mat-duration: 1800ms;
+}
+html[data-material='forest'],
+[data-preview='forest'] {
+  --mat-bg: #102019;
+  --mat-paper: #18281f;
+  --mat-ink: #e7efdf;
+  --mat-muted: #adbeae;
+  --mat-accent: #c3d4a8;
+  --mat-on-accent: #1a2d19;
+  --mat-line: #b3d4b22d;
+  --mat-soft: #263b29;
+  --mat-card:
+    radial-gradient(ellipse at var(--light-x, 32%) 0%, #6d8a5530, transparent 58%),
+    linear-gradient(145deg, #23392c, #15271f);
+  --mat-panel: #14231a;
+  --mat-button: linear-gradient(145deg, #2b4130, #1b2d20);
+  --mat-control: #101f17;
+  --mat-shadow: inset 0 1px #eaffd00a, 0 14px 32px -23px #000b;
+  --mat-radius: 20px;
+  --mat-button-radius: 12px;
+  --mat-blur: 0px;
+  --mat-speed: 260ms;
+  --mat-light: #b3c79b;
+  --mat-ambient: #435b38;
+  --mat-grain: 0.26;
+  --identity-page: identity-forest-enter;
+  --identity-speed: 380ms;
+  --identity-ease: cubic-bezier(0.16, 0.6, 0.24, 1);
+  --mat-primary: linear-gradient(155deg, #d2dfb8, #b2c895);
+  --mat-world:
+    radial-gradient(ellipse at var(--light-x, 32%) var(--light-y, 12%), #487b5938, transparent 65%),
+    linear-gradient(150deg, #102019, #0c1914);
+  --mat-edge: linear-gradient(
+    calc(140deg + var(--sensor-x, 0) * 25deg),
+    #9bc58c33,
+    transparent 48%,
+    #69896e19
+  );
+  --mat-tracking: -0.02em;
+  --mat-heading-weight: 620;
+  --mat-signal: #afcc91;
+  --mat-duration: 2200ms;
+}
+html[data-material='glass'],
+[data-preview='glass'] {
+  --mat-bg: #f6dcd2;
+  --mat-paper: #fffaf19e;
+  --mat-ink: #403936;
+  --mat-muted: #5b4c46;
+  --mat-accent: #794637;
+  --mat-on-accent: #fffaf5;
+  --mat-line: #ffffffa8;
+  --mat-soft: #fff9ec66;
+  --mat-card:
+    radial-gradient(ellipse at var(--light-x, 32%) 0%, #ffffff8a, transparent 65%),
+    linear-gradient(135deg, #fffdf774, #fff8f033 58%, #edf7ff70);
+  --mat-panel: #fffaf024;
+  --mat-button: linear-gradient(155deg, #fffdf563, #fff9ef14 55%, #fffaf038);
+  --mat-control: #fffaf084;
+  --mat-shadow:
+    inset 0 1px 0 #fffdf8f0, inset 1px 0 0 #ffffff75, inset -1px -1px 1px #99766d18,
+    0 18px 40px -28px #754d454a;
+  --mat-radius: 26px;
+  --mat-button-radius: 24px;
+  --mat-blur: 12px;
+  --mat-speed: 280ms;
+  --mat-light: #fff;
+  --mat-ambient: #adc4d0;
+  --mat-grain: 0;
+  --identity-page: identity-glass-enter;
+  --identity-speed: 430ms;
+  --identity-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --mat-primary: linear-gradient(155deg, #9b6655, #77483b);
+  --mat-world:
+    radial-gradient(ellipse at 8% 15%, #fff5e9, transparent 65%),
+    radial-gradient(ellipse at 95% 40%, #eeb8b4, transparent 60%), #f6dcd2;
+  --mat-edge: linear-gradient(
+    calc(130deg + var(--sensor-x, 0) * 32deg),
+    #ffffffff,
+    #ffffff0a 28%,
+    #d8f3ff7a 75%,
+    #fff9dfaa
+  );
+  --mat-tracking: -0.035em;
+  --mat-heading-weight: 660;
+  --mat-signal: #effaff;
+  --mat-duration: 1200ms;
+}
+html[data-material='peach'],
+[data-preview='peach'] {
+  --mat-bg: #f7dbcc;
+  --mat-paper: #fff6eee8;
+  --mat-ink: #593c37;
+  --mat-muted: #745249;
+  --mat-accent: #984c40;
+  --mat-on-accent: #fffaf4;
+  --mat-line: #fff4e8bd;
+  --mat-soft: #f6ddcf;
+  --mat-card:
+    radial-gradient(ellipse at var(--light-x, 32%) var(--light-y, 12%), #fff8eab0, transparent 75%),
+    linear-gradient(145deg, #fff5e9f7, #f7d4bfea);
+  --mat-panel: #fff4e9c7;
+  --mat-button: linear-gradient(165deg, #fff9f2, #f2dfd0);
+  --mat-control: #f4e5d8;
+  --mat-shadow: inset 0 1px 1px #fffdf8, 0 15px 40px -28px #9f584d59;
+  --mat-radius: 25px;
+  --mat-button-radius: 15px;
+  --mat-blur: 0px;
+  --mat-speed: 330ms;
+  --mat-light: #fff2db;
+  --mat-ambient: #d79c86;
+  --mat-grain: 0.06;
+  --mat-primary: linear-gradient(155deg, #a15f4d, #894b40);
+  --mat-world:
+    radial-gradient(ellipse at var(--light-x, 32%) 10%, #fff0dc, transparent 68%),
+    radial-gradient(ellipse at 100% 80%, #e8ae9e66, transparent 70%), #f7dbcc;
+  --mat-edge: linear-gradient(170deg, #fff6dfb0, transparent 50%, #e8b2a055);
+  --mat-tracking: -0.032em;
+  --mat-heading-weight: 630;
+  --mat-signal: #f6ab8d;
+  --mat-duration: 2400ms;
+}
+html[data-material='diamond'],
+[data-preview='diamond'] {
+  --mat-bg: #e9f0f7;
+  --mat-paper: #f9fcff;
+  --mat-ink: #263b51;
+  --mat-muted: #4b6075;
+  --mat-accent: #405c7d;
+  --mat-on-accent: #fff;
+  --mat-line: #bbcddd;
+  --mat-soft: #dfeaf5;
+  --mat-card: linear-gradient(
+    calc(117deg + var(--sensor-x, 0) * 18deg),
+    #faffff 0%,
+    #f3f8fc 67%,
+    #dfedf7 100%
+  );
+  --mat-panel: #f4f6fc;
+  --mat-button: linear-gradient(135deg, #fff, #e8edf6);
+  --mat-control: #e9edf7;
+  --mat-shadow: inset 1px 1px #fff, inset -1px -1px #a9bfd4, 0 14px 26px -23px #23426070;
+  --mat-radius: 14px;
+  --mat-button-radius: 10px;
+  --mat-blur: 0px;
+  --mat-speed: 160ms;
+  --mat-light: #f5eeff;
+  --mat-ambient: #b0c4df;
+  --mat-grain: 0;
+  --mat-primary: linear-gradient(
+    calc(120deg + var(--sensor-x, 0) * 28deg),
+    #25415d,
+    #54738f 48%,
+    #27435f 49%,
+    #375773
+  );
+  --mat-world: conic-gradient(
+    from 140deg at var(--light-x, 32%) var(--light-y, 12%),
+    #e8f2fa 0deg,
+    #fafdff 43deg,
+    #cfdfef 44deg,
+    #e5eff7 82deg,
+    #f8fcff 83deg,
+    #dfebf6 137deg,
+    #f9fcff 138deg,
+    #d3e3ef 202deg,
+    #edf6fa 203deg,
+    #d9e6f0 266deg,
+    #fbfdff 267deg,
+    #e8f2fa
+  );
+  --mat-edge: conic-gradient(
+    from calc(132deg + var(--sensor-x, 0) * 85deg) at var(--light-x, 32%) var(--light-y, 12%),
+    #fff 0deg,
+    #91bad7 28deg,
+    #fff 29deg,
+    #f5fdff 78deg,
+    #a7c9ed 79deg,
+    #f1e5f9 83deg,
+    #ecf9f5 87deg,
+    #fff 91deg,
+    #b8cfdf 128deg,
+    #fff 129deg,
+    #9ebdd6 192deg,
+    #fff 193deg,
+    #d6eaf8 265deg,
+    #fff 266deg,
+    #b9d0e3 330deg,
+    #fff
+  );
+  --mat-tracking: -0.045em;
+  --mat-heading-weight: 720;
+  --mat-signal: #b5deff;
+  --mat-duration: 1050ms;
+}
+html[data-material='gold'],
+[data-preview='gold'] {
+  --mat-bg: #e9e1ce;
+  --mat-paper: #f5f1e6;
+  --mat-ink: #4b4130;
+  --mat-muted: #5a503d;
+  --mat-accent: #634d2d;
+  --mat-on-accent: #fffaf0;
+  --mat-line: #d0c4aa;
+  --mat-soft: #e3dac5;
+  --mat-card:
+    repeating-linear-gradient(0deg, #ffffff0a 0 1px, #66522c03 1px 2px),
+    linear-gradient(
+      calc(110deg + var(--sensor-x, 0) * 35deg),
+      #ded3b9,
+      #fbf6e9 34%,
+      #e6dcc4 62%,
+      #f4eddd
+    );
+  --mat-panel: #eae3d4;
+  --mat-button:
+    repeating-linear-gradient(0deg, #ffffff25 0 1px, #00000003 1px 2px),
+    linear-gradient(120deg, #d8ccb0, #f7f0dd 42%, #d7cbae);
+  --mat-control: #e6ddca;
+  --mat-shadow:
+    inset 0 1px #fff9, inset 0 -1px #91836733, 0 3px 4px #65532c07, 0 13px 28px -22px #48391966;
+  --mat-radius: 16px;
+  --mat-button-radius: 7px;
+  --mat-blur: 0px;
+  --mat-speed: 150ms;
+  --mat-light: #fff5d9;
+  --mat-ambient: #b7a176;
+  --mat-grain: 0;
+  --mat-primary:
+    repeating-linear-gradient(0deg, #ffffff09 0 1px, transparent 1px 3px),
+    linear-gradient(calc(115deg + var(--sensor-x, 0) * 40deg), #665131, #7d6742 47%, #675333);
+  --mat-world:
+    repeating-linear-gradient(0deg, #ffffff09 0 1px, transparent 1px 3px),
+    conic-gradient(
+      from calc(32deg + var(--sensor-x, 0) * 35deg) at 45% 20%,
+      #e8dec5,
+      #f8f2e2,
+      #d5c6a5,
+      #f4ead4,
+      #e8dec5
+    );
+  --mat-edge: linear-gradient(
+    calc(105deg + var(--sensor-x, 0) * 48deg),
+    #b3a17b,
+    #fff9e9 34%,
+    #ad9463 52%,
+    #fff3d4 76%,
+    #c6b48c
+  );
+  --mat-tracking: -0.018em;
+  --mat-heading-weight: 580;
+  --mat-signal: #fff1cb;
+  --mat-duration: 950ms;
+}
+html[data-material='jelly'],
+[data-preview='jelly'] {
+  --mat-bg: #ece3f3;
+  --mat-paper: #fff6ffe3;
+  --mat-ink: #50395e;
+  --mat-muted: #695074;
+  --mat-accent: #7d5295;
+  --mat-on-accent: #fff6ff;
+  --mat-line: #fffbffb3;
+  --mat-soft: #eadcf3;
+  --mat-card:
+    radial-gradient(ellipse at var(--light-x, 32%) -20%, #fff 8%, #fff7ff77 55%, transparent 80%),
+    linear-gradient(150deg, #fbeeff, #eadcf5);
+  --mat-panel: #f9f0fd;
+  --mat-button: linear-gradient(165deg, #fffaff, #efdefa);
+  --mat-control: #eee3f5;
+  --mat-shadow:
+    inset 2px 3px 4px #fffd, inset -2px -4px 7px #af8bc029, 0 4px 0 -1px #c9b5dc66,
+    0 15px 30px -21px #76608655;
+  --mat-radius: 30px;
+  --mat-button-radius: 22px;
+  --mat-blur: 0px;
+  --mat-speed: 300ms;
+  --mat-light: #fff0fd;
+  --mat-ambient: #c2a9d5;
+  --mat-grain: 0;
+  --identity-page: identity-jelly-enter;
+  --identity-speed: 520ms;
+  --identity-ease: cubic-bezier(0.18, 0.9, 0.27, 1.15);
+  --mat-primary: linear-gradient(155deg, #8858a0, #754a91);
+  --mat-world:
+    radial-gradient(ellipse at 4% 8%, #f9dbea, transparent 60%),
+    radial-gradient(ellipse at 95% 60%, #c5c3ef88, transparent 65%), #ece3f3;
+  --mat-edge: linear-gradient(150deg, #fffc, transparent 50%, #b49aca66);
+  --mat-tracking: -0.03em;
+  --mat-heading-weight: 640;
+  --mat-signal: #d3acf1;
+  --mat-duration: 1500ms;
+}
+html[data-material='droplets'],
+[data-preview='droplets'] {
+  --mat-bg: #d9eeea;
+  --mat-paper: #f4fffdc7;
+  --mat-ink: #254c4b;
+  --mat-muted: #3b5c59;
+  --mat-accent: #286662;
+  --mat-on-accent: #f5fff9;
+  --mat-line: #f5ffffc9;
+  --mat-soft: #d1e4d9;
+  --mat-card:
+    radial-gradient(ellipse at var(--light-x, 32%) 0%, #fff9, transparent 65%),
+    linear-gradient(145deg, #f9fffdcf, #dff4eea1 60%, #f3fffecc);
+  --mat-panel: #e7f2ebcc;
+  --mat-button: linear-gradient(145deg, #ffffffde, #dfefe594);
+  --mat-control: #dcece1;
+  --mat-shadow:
+    inset 1px 2px 2px #fff, inset -1px -2px 3px #5f9c7c1a, 0 3px 5px #345a4610,
+    0 17px 34px -22px #48785f40;
+  --mat-radius: 28px;
+  --mat-button-radius: 18px 22px 19px 24px;
+  --mat-blur: 6px;
+  --mat-speed: 320ms;
+  --mat-light: #faffed;
+  --mat-ambient: #9ebda9;
+  --mat-grain: 0;
+  --mat-primary: linear-gradient(155deg, #32776f, #24635f);
+  --mat-world:
+    radial-gradient(ellipse at var(--light-x, 32%) var(--light-y, 12%), #f4fffa, transparent 60%),
+    linear-gradient(150deg, #d9eeea, #b5d7d9);
+  --mat-edge:
+    radial-gradient(ellipse at var(--light-x, 32%) 0%, #fff, transparent 70%),
+    linear-gradient(155deg, #e9ffff, #79adaa55, #f7ffff);
+  --mat-tracking: -0.024em;
+  --mat-heading-weight: 570;
+  --mat-signal: #77bcb4;
+  --mat-duration: 1900ms;
+}
+html[data-material='night'],
+[data-preview='night'] {
+  --mat-bg: #101827;
+  --mat-paper: #17243bcf;
+  --mat-ink: #e3edfa;
+  --mat-muted: #a3b6d3;
+  --mat-accent: #afc9f4;
+  --mat-on-accent: #14243a;
+  --mat-line: #c6dbff29;
+  --mat-soft: #243746;
+  --mat-card:
+    repeating-linear-gradient(90deg, #8fa8c003 0 1px, transparent 1px 4px),
+    linear-gradient(150deg, #21324a, #142135);
+  --mat-panel: #16222e;
+  --mat-button: linear-gradient(165deg, #293a4b, #1c2a38);
+  --mat-control: #152330;
+  --mat-shadow: inset 0 1px #e1f5ff0d, 0 3px 4px #0002, 0 18px 35px -20px #020812b3;
+  --mat-radius: 14px;
+  --mat-button-radius: 6px;
+  --mat-blur: 0px;
+  --mat-speed: 140ms;
+  --mat-light: #bedbff;
+  --mat-ambient: #345471;
+  --mat-grain: 0.09;
+  --mat-primary: linear-gradient(160deg, #bdd3ed, #91adce);
+  --mat-world:
+    radial-gradient(ellipse at var(--light-x, 32%) var(--light-y, 12%), #3b5b8233, transparent 60%),
+    linear-gradient(150deg, #142034, #101827);
+  --mat-edge: linear-gradient(100deg, #98b5d54a, transparent 25%, transparent 75%, #769ab92a);
+  --mat-tracking: -0.01em;
+  --mat-heading-weight: 680;
+  --mat-signal: #9ebcdd;
+  --mat-duration: 650ms;
+}
