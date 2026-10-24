@@ -275,7 +275,9 @@ test('gyro requires a tap, calibrates smoothly, and reduced motion and low power
     .poll(async () => {
       await tilt(30, 0);
       await tilt(40, 16);
-      return page.evaluate(() => Number(document.documentElement.style.getPropertyValue('--sensor-x')));
+      return page.evaluate(() =>
+        Number(document.documentElement.style.getPropertyValue('--sensor-x')),
+      );
     })
     .toBeGreaterThan(0.02);
   await shot(page, info.project.name, 'gyro-enabled');
@@ -539,7 +541,9 @@ test('every tool has a reachable route and advanced backup and recovery remain i
       .getByRole('navigation', { name: '추가 도구' })
       .getByRole('button', { name: label, exact: true })
       .click();
-    if (label === '수면 루틴')
+    if (label === '시간표')
+      await expect(page.getByRole('region', { name: '월간 달력', exact: true })).toBeVisible();
+    else if (label === '수면 루틴')
       await expect(page.getByRole('region', { name: 'Sleep Guard', exact: true })).toBeVisible();
     else
       await expect(
