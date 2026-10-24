@@ -2464,6 +2464,8 @@ export default function App() {
                 />
                 <StudyRecordManager
                   sessions={s.sessions}
+                  tasks={s.tasks}
+                  onQuickLabel={saveQuickLabel}
                   canUndo={!!deletedStudyRecords?.length}
                   onEdit={updateStudyRecord}
                   onDelete={removeStudyRecords}
