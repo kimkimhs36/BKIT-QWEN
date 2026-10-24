@@ -3,6 +3,8 @@ import { MaterialSettings } from './themes/MaterialSettings';
 import { AnimatedClock } from './AnimatedClock';
 import { MaterialEffects } from './themes/MaterialEffects';
 import { RecordOverview } from './RecordOverview';
+import { StudyRecordManager } from './StudyRecordManager';
+import { discardUnsavedTimer, editStudySession, deleteStudySessions, restoreStudySessions, type SessionEdits } from './studyRecordOps';
 import { PremiumHome } from './PremiumHome';
 import { Modal } from './Modal';
 import { MotionConfig } from 'motion/react';
@@ -147,6 +149,7 @@ import {
   type State,
   type Task,
   type Schedule,
+  type Session,
 } from './model';
 import { at, MIN, clock, dayKey, addDays, fullDate, iso, localInput, fromInput } from './time';
 import {
@@ -873,6 +876,7 @@ export default function App() {
   const quickElapsed = s.quickTimer ? quickSeconds(s.quickTimer, now) : 0;
   const quickRecent = [...s.sessions].reverse().find((entry) => entry.quick);
   const [historyEditingId, setHistoryEditingId] = useState<string | null>(null);
+  const [deletedStudyRecords, setDeletedStudyRecords] = useState<Session[] | null>(null);
   const quickToday = quickDaySeconds(s, now);
   function beginQuick(mode: 'stopwatch' | 'countdown', target: number) {
     if (!flushLearning(() => beginQuick(mode, target))) return;
@@ -908,6 +912,52 @@ export default function App() {
       setNotice('공부 시간 저장 완료. 과목이나 메모는 나중에 적어도 돼요.');
     }
   }
+  function discardTimerNow() {
+    if (!flushLearning(discardTimerNow)) return;
+    const state = memory.current;
+    const active = state.active;
+    const quick = state.quickTimer;
+    if (!active && !quick) return;
+    const duration = active ? elapsed(active, Date.now()) : quickSeconds(quick!, Date.now());
+    const important = !!(
+      active?.workspace?.attempts.length ||
+      active?.workspace?.answerDraft?.trim() ||
+      active?.resourceId ||
+      active?.exam
+    );
+    if (
+      (important || duration >= 90) &&
+      !confirm(
+        '공부 기록을 저장하지 않고 타이머만 종료할까요?\\n과제·자료·이미 저장한 답안은 유지됩니다.',
+      )
+    )
+      return;
+    if (commit(discardUnsavedTimer)) {
+      setModal(null);
+      setQuickEditingId(null);
+      setTab('today');
+      setNotice('기록 없이 타이머를 종료했어요. 과제와 저장한 자료는 유지돼요.');
+    }
+  }
+  function updateStudyRecord(id: string, edits: SessionEdits) {
+    return commit((v) => editStudySession(v, id, edits));
+  }
+  function removeStudyRecords(ids: string[]) {
+    const selected = new Set(ids);
+    const deleted = memory.current.sessions.filter((entry) => selected.has(entry.id));
+    if (!deleted.length || !commit((v) => deleteStudySessions(v, ids))) return false;
+    setDeletedStudyRecords(deleted);
+    setHistoryEditingId(null);
+    setNotice(deleted.length + '개 기록을 삭제했어요. 기록 탭에서 되돌릴 수 있어요.');
+    return true;
+  }
+  function undoStudyRecordDeletion() {
+    if (!deletedStudyRecords?.length) return false;
+    if (!commit((v) => restoreStudySessions(v, deletedStudyRecords))) return false;
+    setDeletedStudyRecords(null);
+    setNotice('삭제한 공부 기록을 복원했어요.');
+    return true;
+  }
   function saveQuickLabel(
     id: string,
     subject: string,
@@ -929,6 +979,7 @@ export default function App() {
     onPause: pauseQuickNow,
     onResume: resumeQuickNow,
     onFinish: finishQuickNow,
+    onDiscard: discardTimerNow,
     onAttachTask: (id: string) => start(5, id),
     onLearn: () => {
       const timer = memory.current.quickTimer;
@@ -2273,6 +2324,9 @@ export default function App() {
                           >
                             <Check size={17} /> 학습량 기록 · 종료
                           </button>
+                          <button type="button" className="secondary" onClick={discardTimerNow}>
+                            기록 없이 종료
+                          </button>
                         </div>
                       )}
                       {s.active?.segmentStart && (
@@ -2408,6 +2462,15 @@ export default function App() {
                     setTab('study');
                   }}
                 />
+                <StudyRecordManager
+                  sessions={s.sessions}
+                  tasks={s.tasks}
+                  onQuickLabel={saveQuickLabel}
+                  canUndo={!!deletedStudyRecords?.length}
+                  onEdit={updateStudyRecord}
+                  onDelete={removeStudyRecords}
+                  onUndo={undoStudyRecordDeletion}
+                />
                 <details className="compact-section compact-progress-detail">
                   <summary>
                     과목별 분석 · 오답 복습 · 성적 · 코치 <ChevronRight size={16} />
@@ -2539,88 +2602,7 @@ export default function App() {
                         </p>
                       )}
                     </section>
-                    <section className="panel spaced">
-                      <div className="section-head">
-                        <h2>학습 기록</h2>
-                      </div>
-                      {[...s.sessions]
-                        .reverse()
-                        .slice(0, 50)
-                        .map((x) => (
-                          <div className="session-row" key={x.id}>
-                            <div>
-                              {x.exam && (
-                                <details>
-                                  <summary>모의시험 · {x.exam.problemIds.length}문항 결과</summary>
-                                  <p>
-                                    {x.exam.finishedAt ? '시험 시간 종료' : '직접 종료'} · 실제{' '}
-                                    {quickClock(x.seconds)} / {quickClock(x.exam.duration)}
-                                  </p>
-                                  <p>
-                                    검토 {x.questionPace?.review.length ?? 0} · 건너뜀{' '}
-                                    {x.questionPace?.skipped?.length ?? 0}
-                                  </p>
-                                  {x.questionPace &&
-                                    x.exam.problemIds.map((id, i) => (
-                                      <p key={id}>
-                                        {i + 1}번 ·{' '}
-                                        {quickClock(
-                                          (x.questionPace!.seconds[id] ?? 0) +
-                                            (x.questionPace!.current === id
-                                              ? Math.max(0, x.seconds - x.questionPace!.anchor)
-                                              : 0),
-                                        )}
-                                      </p>
-                                    ))}
-                                </details>
-                              )}
-                              <span className="subject">
-                                {x.subject} · {dayKey(x.ended)}
-                              </span>
-                              <h3>{x.action}</h3>
-                              <p>
-                                {clock(x.started)}–{clock(x.ended)} · {Math.floor(x.seconds / 60)}분
-                                타이머 · {x.problems}문제 · {x.rating}
-                              </p>
-                              {x.concepts && <p>개념: {x.concepts}</p>}
-                              {x.quick && (
-                                <button
-                                  type="button"
-                                  className="secondary"
-                                  aria-expanded={historyEditingId === x.id}
-                                  onClick={() =>
-                                    setHistoryEditingId(historyEditingId === x.id ? null : x.id)
-                                  }
-                                >
-                                  공부 기록 수정
-                                </button>
-                              )}
-                              {x.quick && historyEditingId === x.id && (
-                                <QuickSessionEditor
-                                  key={x.id}
-                                  session={x}
-                                  tasks={s.tasks}
-                                  onSave={saveQuickLabel}
-                                  onClose={() => setHistoryEditingId(null)}
-                                />
-                              )}
-
-                              {x.reason && <p>종료 사유: {x.reason}</p>}
-                              {x.pauses.map((p, i) => (
-                                <p key={i}>
-                                  일시정지 {clock(p.at)}: {p.reason}
-                                </p>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      {!s.sessions.length && (
-                        <Empty title="기록은 시작한 뒤 쌓여요">
-                          실제 학습량과 자기평가를 기록하면 여기에서 확인할 수 있어요.
-                        </Empty>
-                      )}
-                    </section>
-                  </div>
+                    <p className="muted">학습 기록 검색·수정·삭제는 위의 학습 기록 관리에서 할 수 있어요.</p>\n                  </div>
                 </details>
               </>
             )}
@@ -3740,6 +3722,9 @@ export default function App() {
                 )}
                 <button className="primary" type="submit">
                   학습 기록 저장 · 종료
+                </button>
+                <button type="button" className="secondary" onClick={discardTimerNow}>
+                  저장하지 않고 종료
                 </button>
               </form>
             )}

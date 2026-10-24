@@ -1,7 +1,7 @@
 name: Calendar, help and preserved Material World verification
 on:
   push:
-    branches: [feat/bkit-calendar-help-polish-20261025]
+    branches: [feat/bkit-calendar-help-polish-20261025, fix/bkit-skip-save-record-management-20261025]
     paths-ignore: ['study-os/docs/**']
   workflow_dispatch:
 permissions:
@@ -39,7 +39,7 @@ jobs:
           npm run test:e2e -- tests/e2e/live-study-recovery.spec.ts
           tests/e2e/compact-experience.spec.ts tests/e2e/compact-offline.spec.ts
           tests/e2e/material-world.spec.ts tests/e2e/awake-intelligence.spec.ts
-          tests/e2e/calendar-help-polish.spec.ts --project=${{ matrix.browser }} --workers=2
+          tests/e2e/calendar-help-polish.spec.ts tests/e2e/study-record-management.spec.ts --project=${{ matrix.browser }} --workers=2
       - uses: actions/upload-artifact@v4
         if: always()
         with:

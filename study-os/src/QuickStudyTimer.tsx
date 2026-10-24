@@ -20,6 +20,7 @@ type Props = {
   onPause: () => void;
   onResume: () => void;
   onFinish: () => void;
+  onDiscard: () => void;
   onAttachTask: (taskId: string) => void;
   onLearn: () => void;
   onLabel: (
@@ -44,6 +45,7 @@ export function QuickStudyTimer({
   onPause,
   onResume,
   onFinish,
+  onDiscard,
   onAttachTask,
   onLearn,
   onLabel,
@@ -195,6 +197,9 @@ export function QuickStudyTimer({
             </button>
             <button type="button" className="primary" onClick={onFinish}>
               <Check size={17} /> 끝내고 시간 저장
+            </button>
+            <button type="button" className="secondary" onClick={onDiscard}>
+              기록 없이 종료
             </button>
           </div>
           <div className="focus-first-action">
