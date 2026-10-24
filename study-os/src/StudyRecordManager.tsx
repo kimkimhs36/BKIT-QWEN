@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { ChevronDown, RotateCcw, Search, Trash2, X } from 'lucide-react';
-import type { Session } from './model';
+import type { Session, Task } from './model';
+import { QuickSessionEditor } from './QuickSessionEditor';
 import type { SessionEdits } from './studyRecordOps';
 import { clock, dayKey } from './time';
 import { quickClock } from './quickTimer';
@@ -8,18 +9,21 @@ import './study-record-manager.css';
 
 type Props = {
   sessions: Session[];
+  tasks: Task[];
+  onQuickLabel: (id: string, subject: string, action: string, note: string, taskId?: string) => boolean;
   canUndo: boolean;
   onEdit: (id: string, edits: SessionEdits) => boolean;
   onDelete: (ids: string[]) => boolean;
   onUndo: () => boolean;
 };
 
-export function StudyRecordManager({ sessions, canUndo, onEdit, onDelete, onUndo }: Props) {
+export function StudyRecordManager({ sessions, tasks, onQuickLabel, canUndo, onEdit, onDelete, onUndo }: Props) {
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState<'all' | 'quick' | 'focus'>('all');
   const [selected, setSelected] = useState<string[]>([]);
   const [pending, setPending] = useState<string[] | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
+  const [linking, setLinking] = useState<string | null>(null);
   const [draft, setDraft] = useState<SessionEdits | null>(null);
   const [error, setError] = useState('');
   const [limit, setLimit] = useState(15);
@@ -76,6 +80,7 @@ export function StudyRecordManager({ sessions, canUndo, onEdit, onDelete, onUndo
       setEditing(null);
       setDraft(null);
     }
+    if (linking && pending.includes(linking)) setLinking(null);
     setPending(null);
     setError('');
   }
@@ -196,6 +201,29 @@ export function StudyRecordManager({ sessions, canUndo, onEdit, onDelete, onUndo
                   <strong>{session.subject} · {session.action}</strong>
                   <p>{quickClock(session.seconds)} · {session.problems}문제 · {session.rating}</p>
                   {session.concepts && <p className="record-manager-note">{session.concepts}</p>}
+                  {session.reason && <p className="record-manager-note">종료 사유: {session.reason}</p>}
+                  {session.mistake && <p className="record-manager-note">다시 볼 개념: {session.mistake}</p>}
+                  {session.pauses.length > 0 && (
+                    <details>
+                      <summary>일시정지 내역 {session.pauses.length}개</summary>
+                      {session.pauses.map((p, i) => <p key={i}>{clock(p.at)} · {p.reason}</p>)}
+                    </details>
+                  )}
+                  {session.exam && (
+                    <details>
+                      <summary>모의시험 · {session.exam.problemIds.length}문항 결과</summary>
+                      <p>{session.exam.finishedAt ? '시험 시간 종료' : '직접 종료'} · {quickClock(session.seconds)} / {quickClock(session.exam.duration)}</p>
+                      <p>검토 {session.questionPace?.review.length ?? 0} · 건너뜀 {session.questionPace?.skipped?.length ?? 0}</p>
+                      {session.questionPace && session.exam.problemIds.map((id, i) => (
+                        <p key={id}>{i + 1}번 · {quickClock(
+                          (session.questionPace!.seconds[id] ?? 0) +
+                          (session.questionPace!.current === id
+                            ? Math.max(0, session.seconds - session.questionPace!.anchor)
+                            : 0),
+                        )}</p>
+                      ))}
+                    </details>
+                  )}
                   {editing === session.id && draft && (
                     <form className="record-manager-editor" onSubmit={save}>
                       <label>과목
@@ -230,10 +258,26 @@ export function StudyRecordManager({ sessions, canUndo, onEdit, onDelete, onUndo
                     <button type="button" onClick={() => editing === session.id ? (setEditing(null), setDraft(null)) : edit(session)}>
                       {editing === session.id ? '수정 닫기' : '수정'}
                     </button>
+                    {session.quick && (
+                      <button
+                        type="button"
+                        onClick={() => setLinking(linking === session.id ? null : session.id)}
+                        aria-expanded={linking === session.id}
+                      >과제 연결</button>
+                    )}
                     <button type="button" onClick={() => setPending([session.id])}>
                       <Trash2 size={14} /> 삭제
                     </button>
                   </div>
+                  {session.quick && linking === session.id && (
+                    <QuickSessionEditor
+                      key={session.id}
+                      session={session}
+                      tasks={tasks}
+                      onSave={onQuickLabel}
+                      onClose={() => setLinking(null)}
+                    />
+                  )}
                 </div>
               </article>
             ))}
