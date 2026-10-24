@@ -464,3 +464,32 @@ html[data-material] .app-shell.premium-os.page-settings .compact-section .compac
     flex-shrink: 0;
   }
 }
+@media (max-width: 650px) and (max-height: 740px) {
+  html[data-material] .app-shell.premium-os.page-today:has(.study-empty-agenda) main {
+    padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  html[data-material] .app-shell.premium-os.page-today:has(.study-empty-agenda) .study-home {
+    gap: 6px !important;
+  }
+  html[data-material] .app-shell.premium-os .study-agenda:has(.study-empty-agenda) {
+    padding: 6px 16px !important;
+  }
+  html[data-material] .app-shell.premium-os.page-today:has(.study-empty-agenda) .study-day-summary {
+    min-height: 52px !important;
+    padding: 8px 16px !important;
+  }
+  html[data-material]
+    .app-shell.premium-os.page-today:has(.study-empty-agenda)
+    .study-calendar-link {
+    padding-block: 4px !important;
+  }
+  html[data-material] .app-shell.premium-os .more-hub-link {
+    min-height: 72px !important;
+  }
+  html[data-material] .app-shell.premium-os .more-hub nav {
+    gap: 10px !important;
+  }
+  html[data-material] .app-shell.premium-os.page-more main {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
