@@ -1,7 +1,8 @@
 import { test, expect } from './local-fixture';
 import { newState, scheduleSchema, taskSchema } from '../../src/model';
 test.setTimeout(90000);
-test.use({ reducedMotion: 'reduce' });
+// UI routing stays outside the service worker; compact-offline.spec verifies the real worker.
+test.use({ reducedMotion: 'reduce', serviceWorkers: 'block' });
 const date = '2026-10-25';
 async function seed(page: import('@playwright/test').Page) {
   const s = newState();

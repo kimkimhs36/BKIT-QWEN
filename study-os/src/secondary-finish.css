@@ -493,3 +493,9 @@ html[data-material] .app-shell.premium-os.page-settings .compact-section .compac
     padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
+
+@media (max-width: 650px) and (max-height: 740px) {
+  html[data-material] .app-shell.premium-os.page-study main {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
