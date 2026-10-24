@@ -1,0 +1,31 @@
+{
+  "base": "https://teambkit.com/previews/bkit-material-world-20261023/",
+  "build": {
+    "sourceCommit": "bb79f409bd536bd9196a2f4e61532af728620c72",
+    "environment": "local-verified-build"
+  },
+  "scope": "Linux WebKit iPhone profile; injected orientation, not physical hardware",
+  "orientationAngle": 90,
+  "positions": [
+    {
+      "width": 82,
+      "left": 40,
+      "top": 21.6875
+    },
+    {
+      "width": 82,
+      "left": 40,
+      "top": 17.484375
+    },
+    {
+      "width": 82,
+      "left": 40,
+      "top": 24.8125
+    },
+    {
+      "width": 82,
+      "left": 40,
+      "top": 20.40625
+    }
+  ]
+}

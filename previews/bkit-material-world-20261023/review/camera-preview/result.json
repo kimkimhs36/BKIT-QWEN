@@ -1,0 +1,82 @@
+{
+  "base": "https://teambkit.com/previews/bkit-material-world-20261023/",
+  "scope": "Real MediaPipe CPU/WASM model with Chromium-generated camera. No real face or physical camera/accuracy test.",
+  "tracks": [
+    {
+      "kind": "video",
+      "state": "ended"
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/assets/index-B9En6lpT.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/assets/react-vendor-DENrKhsk.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/assets/schema-vendor-DYuAzjeD.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/assets/index-CtiHSORy.css"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/fonts/PretendardVariable.woff2"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/icon.svg"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/assets/AwakeAssist-Dq4hciw7.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/assets/AwakeAssist-032_9aRg.css"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/assets/ResourceReviews-BLFRcO_f.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/assets/ProblemReviewQueue-D0LnyuRP.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/assets/dm-sans-latin-400-normal-CW0RaeGs.woff2"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/assets/engine-BVZcSalw.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/assets/awake-engine-BSMsFJjF.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/awake/wasm/vision_wasm_internal.js"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/awake/wasm/vision_wasm_internal.wasm"
+    },
+    {
+      "method": "GET",
+      "url": "https://teambkit.com/previews/bkit-material-world-20261023/awake/face_landmarker.task"
+    }
+  ],
+  "errors": [],
+  "passed": true
+}

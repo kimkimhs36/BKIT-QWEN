@@ -1,0 +1,20 @@
+
+> bkit-study-os@3.7.0 test:e2e
+> playwright test tests/e2e/material-world.spec.ts --project=desktop --project=webkit-iphone --project=webkit-ipad --grep simulated gyro --output=/workspace/gyro-6649c1d
+
+
+Running 3 tests using 1 worker
+
+(node:37436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/e2e/material-world.spec.ts:173:1 › simulated gyro: permission is not input; invalid, calibration, stale, rotation and OFF are honest (16.2s)
+(node:37611) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓  2 [webkit-ipad] › tests/e2e/material-world.spec.ts:173:1 › simulated gyro: permission is not input; invalid, calibration, stale, rotation and OFF are honest (26.6s)
+(node:37726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓  3 [webkit-iphone] › tests/e2e/material-world.spec.ts:173:1 › simulated gyro: permission is not input; invalid, calibration, stale, rotation and OFF are honest (26.0s)
+
+  3 passed (1.2m)

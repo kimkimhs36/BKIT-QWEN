@@ -1,0 +1,17 @@
+{
+  "sourceCommit": "bb79f409bd536bd9196a2f4e61532af728620c72",
+  "baselineSource": "9777ddc4bcb504b6fc24daea4ab5f38f43c12afa",
+  "workflowRun": 40090542880,
+  "unitTests": 262,
+  "browserScenariosPerProfile": 35,
+  "profiles": [
+    "desktop",
+    "webkit-iphone",
+    "webkit-ipad"
+  ],
+  "status": "passed",
+  "e2eTests": 105,
+  "skipped": 0,
+  "retries": 0,
+  "checkedAt": "2026-10-24"
+}

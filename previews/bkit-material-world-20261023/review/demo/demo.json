@@ -1,0 +1,54 @@
+{
+  "base": "https://teambkit.com/previews/bkit-material-world-20261023/",
+  "build": {
+    "sourceCommit": "6649c1db36b0ef1478a4729b8d3539b9108fdf88",
+    "environment": "local-verified-build"
+  },
+  "metadata": [
+    {
+      "id": "classic",
+      "source": "Simulated orientation events, not physical sensors",
+      "textPositionFixed": true
+    },
+    {
+      "id": "forest",
+      "source": "Simulated orientation events, not physical sensors",
+      "textPositionFixed": true
+    },
+    {
+      "id": "glass",
+      "source": "Simulated orientation events, not physical sensors",
+      "textPositionFixed": true
+    },
+    {
+      "id": "peach",
+      "source": "Simulated orientation events, not physical sensors",
+      "textPositionFixed": true
+    },
+    {
+      "id": "diamond",
+      "source": "Simulated orientation events, not physical sensors",
+      "textPositionFixed": true
+    },
+    {
+      "id": "gold",
+      "source": "Simulated orientation events, not physical sensors",
+      "textPositionFixed": true
+    },
+    {
+      "id": "jelly",
+      "source": "Simulated orientation events, not physical sensors",
+      "textPositionFixed": true
+    },
+    {
+      "id": "droplets",
+      "source": "Simulated orientation events, not physical sensors",
+      "textPositionFixed": true
+    },
+    {
+      "id": "night",
+      "source": "Simulated orientation events, not physical sensors",
+      "textPositionFixed": true
+    }
+  ]
+}

@@ -1,0 +1,1712 @@
+[
+  {
+    "device": "iphone",
+    "id": "classic",
+    "els": {
+      "html": {
+        "bg": "rgb(245, 243, 236) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "body": {
+        "bg": "rgb(245, 243, 236) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(245, 243, 236) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 0,
+          "width": 354,
+          "height": 68
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgb(244, 241, 232) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": -33.923500061035156,
+          "y": -46.24177551269531,
+          "width": 452.375,
+          "height": 770.21875
+        }
+      },
+      ".study-start": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgb(44, 79, 60), rgb(40, 72, 50)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(242, 245, 235)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 155.25,
+          "width": 354,
+          "height": 171.546875
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgb(255, 254, 251) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 338.796875,
+          "width": 354,
+          "height": 74
+        }
+      }
+    },
+    "themeColor": "#f5f3ec"
+  },
+  {
+    "device": "iphone",
+    "id": "forest",
+    "els": {
+      "html": {
+        "bg": "rgb(14, 25, 20) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(231, 239, 223)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "body": {
+        "bg": "rgba(0, 0, 0, 0) radial-gradient(at 10% 0%, rgb(27, 48, 35), rgb(14, 25, 20) 65%) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(231, 239, 223)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(231, 239, 223)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(231, 239, 223)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(14, 25, 20) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(232, 240, 232)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 0,
+          "width": 354,
+          "height": 68
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(150deg, rgb(19, 37, 29), rgb(13, 26, 21) 75%) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(231, 239, 223)",
+        "filter": "none",
+        "rect": {
+          "x": -36.18550109863281,
+          "y": -44.34937286376953,
+          "width": 452.375,
+          "height": 770.21875
+        }
+      },
+      ".study-start": {
+        "bg": "radial-gradient(at 95% 20%, rgba(59, 89, 59, 0.267), rgba(0, 0, 0, 0) 70%) repeat scroll 0% 0% / auto padding-box border-box, rgb(28, 51, 35) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(240, 243, 229)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 155.25,
+          "width": 354,
+          "height": 173.546875
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(140deg, rgba(45, 72, 53, 0.66), rgba(22, 44, 35, 0.85)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(231, 239, 223)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 340.796875,
+          "width": 354,
+          "height": 74
+        }
+      }
+    },
+    "themeColor": "#0e1914"
+  },
+  {
+    "device": "iphone",
+    "id": "glass",
+    "els": {
+      "html": {
+        "bg": "rgb(246, 220, 210) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "body": {
+        "bg": "rgb(246, 220, 210) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".topbar": {
+        "bg": "rgba(255, 246, 232, 0.09) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 0,
+          "width": 354,
+          "height": 68
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(145deg, rgb(234, 246, 255), rgb(215, 230, 250) 50%, rgb(229, 239, 249)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      ".study-start": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgba(255, 253, 247, 0.565), rgba(255, 248, 240, 0.24) 58%, rgba(255, 248, 246, 0.42)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "blur(12px) saturate(1.07)",
+        "rect": {
+          "x": 18,
+          "y": 155.25,
+          "width": 354,
+          "height": 173.546875
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgba(255, 253, 247, 0.565), rgba(255, 248, 240, 0.24) 58%, rgba(255, 248, 246, 0.42)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "blur(12px) saturate(1.07)",
+        "rect": {
+          "x": 18,
+          "y": 340.796875,
+          "width": 354,
+          "height": 74
+        }
+      }
+    },
+    "themeColor": "#f6dcd2"
+  },
+  {
+    "device": "iphone",
+    "id": "peach",
+    "els": {
+      "html": {
+        "bg": "rgb(247, 219, 204) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "body": {
+        "bg": "rgb(247, 219, 204) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(247, 219, 204) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 0,
+          "width": 354,
+          "height": 68
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgb(247, 219, 204) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      ".study-start": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(145deg, rgba(255, 246, 233, 0.85), rgba(245, 206, 187, 0.73)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 155.25,
+          "width": 354,
+          "height": 171.546875
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(145deg, rgba(255, 248, 239, 0.93), rgba(255, 241, 228, 0.72)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 338.796875,
+          "width": 354,
+          "height": 74
+        }
+      }
+    },
+    "themeColor": "#f7dbcc"
+  },
+  {
+    "device": "iphone",
+    "id": "diamond",
+    "els": {
+      "html": {
+        "bg": "rgb(237, 240, 245) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "body": {
+        "bg": "rgb(237, 240, 245) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(237, 240, 245) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 0,
+          "width": 354,
+          "height": 68
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(145deg, rgb(236, 241, 248), rgb(228, 229, 246) 60%, rgb(233, 246, 248)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": -36.5443000793457,
+          "y": -45.232574462890625,
+          "width": 452.375,
+          "height": 770.21875
+        }
+      },
+      ".study-start": {
+        "bg": "rgb(40, 77, 61) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(242, 245, 235)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 155.25,
+          "width": 354,
+          "height": 171.546875
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgba(255, 255, 255, 0.933), rgba(248, 249, 255, 0.88) 60%, rgba(233, 244, 255, 0.69)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 338.796875,
+          "width": 354,
+          "height": 74
+        }
+      }
+    },
+    "themeColor": "#edf0f5"
+  },
+  {
+    "device": "iphone",
+    "id": "gold",
+    "els": {
+      "html": {
+        "bg": "rgb(238, 233, 221) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "body": {
+        "bg": "rgb(238, 233, 221) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(238, 233, 221) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 0,
+          "width": 354,
+          "height": 68
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgb(238, 229, 208), rgb(248, 242, 227) 50%, rgb(229, 216, 185)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": -38.41389846801758,
+          "y": -45.27217483520508,
+          "width": 452.375,
+          "height": 770.21875
+        }
+      },
+      ".study-start": {
+        "bg": "rgb(40, 77, 61) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(242, 245, 235)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 155.25,
+          "width": 354,
+          "height": 171.546875
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(130deg, rgba(255, 252, 240, 0.92), rgba(245, 238, 219, 0.85) 64%, rgba(255, 249, 234, 0.87)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 338.796875,
+          "width": 354,
+          "height": 74
+        }
+      }
+    },
+    "themeColor": "#eee9dd"
+  },
+  {
+    "device": "iphone",
+    "id": "jelly",
+    "els": {
+      "html": {
+        "bg": "rgb(241, 233, 245) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "body": {
+        "bg": "rgb(241, 233, 245) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(241, 233, 245) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 0,
+          "width": 354,
+          "height": 68
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgb(245, 231, 241), rgb(234, 223, 246) 60%, rgb(224, 228, 247)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": -35.53150177001953,
+          "y": -45.527774810791016,
+          "width": 452.375,
+          "height": 770.21875
+        }
+      },
+      ".study-start": {
+        "bg": "radial-gradient(at 90% 0%, rgba(251, 214, 233, 0.63), rgba(0, 0, 0, 0) 70%) repeat scroll 0% 0% / auto padding-box border-box, rgba(0, 0, 0, 0) linear-gradient(135deg, rgb(253, 240, 250), rgb(223, 206, 243)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(86, 52, 95)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 155.25,
+          "width": 354,
+          "height": 175.546875
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgba(255, 252, 255, 0.9), rgba(249, 232, 255, 0.77)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 342.796875,
+          "width": 354,
+          "height": 74
+        }
+      }
+    },
+    "themeColor": "#f1e9f5"
+  },
+  {
+    "device": "iphone",
+    "id": "droplets",
+    "els": {
+      "html": {
+        "bg": "rgb(217, 238, 234) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "body": {
+        "bg": "rgb(217, 238, 234) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(217, 238, 234) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 0,
+          "width": 354,
+          "height": 68
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(150deg, rgb(228, 243, 239), rgb(199, 228, 225) 65%, rgb(179, 213, 217)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": -36.545501708984375,
+          "y": -46.14817428588867,
+          "width": 452.375,
+          "height": 770.21875
+        }
+      },
+      ".study-start": {
+        "bg": "rgb(40, 77, 61) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(242, 245, 235)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 155.25,
+          "width": 354,
+          "height": 171.546875
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgba(247, 255, 254, 0.89), rgba(235, 255, 249, 0.68) 60%, rgba(244, 255, 255, 0.808)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 338.796875,
+          "width": 354,
+          "height": 74
+        }
+      }
+    },
+    "themeColor": "#d9eeea"
+  },
+  {
+    "device": "iphone",
+    "id": "night",
+    "els": {
+      "html": {
+        "bg": "rgb(16, 24, 39) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(227, 237, 250)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "body": {
+        "bg": "rgb(16, 24, 39) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(227, 237, 250)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(227, 237, 250)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(227, 237, 250)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 664
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(16, 24, 39) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(232, 240, 232)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 0,
+          "width": 354,
+          "height": 68
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(150deg, rgb(21, 34, 53), rgb(16, 22, 35) 65%) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(227, 237, 250)",
+        "filter": "none",
+        "rect": {
+          "x": -38.41389846801758,
+          "y": -45.71497344970703,
+          "width": 452.375,
+          "height": 770.21875
+        }
+      },
+      ".study-start": {
+        "bg": "rgb(40, 77, 61) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(242, 245, 235)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 155.25,
+          "width": 354,
+          "height": 171.546875
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(140deg, rgba(39, 59, 89, 0.37), rgba(20, 33, 53, 0.863)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(227, 237, 250)",
+        "filter": "none",
+        "rect": {
+          "x": 18,
+          "y": 338.796875,
+          "width": 354,
+          "height": 74
+        }
+      }
+    },
+    "themeColor": "#101827"
+  },
+  {
+    "device": "desktop",
+    "id": "classic",
+    "els": {
+      "html": {
+        "bg": "rgb(245, 243, 236) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "body": {
+        "bg": "rgb(245, 243, 236) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(245, 243, 236) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": 220,
+          "y": 0,
+          "width": 1000,
+          "height": 77
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgb(244, 241, 232) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": -116.9791030883789,
+          "y": -74.19560241699219,
+          "width": 1670.375,
+          "height": 1160
+        }
+      },
+      ".study-start": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgb(44, 79, 60), rgb(40, 72, 50)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(242, 245, 235)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 249.140625,
+          "width": 720,
+          "height": 194.890625
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgb(255, 254, 251) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(45, 59, 50)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 460.03125,
+          "width": 720,
+          "height": 86
+        }
+      }
+    },
+    "themeColor": "#f5f3ec"
+  },
+  {
+    "device": "desktop",
+    "id": "forest",
+    "els": {
+      "html": {
+        "bg": "rgb(14, 25, 20) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(231, 239, 223)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "body": {
+        "bg": "rgba(0, 0, 0, 0) radial-gradient(at 10% 0%, rgb(27, 48, 35), rgb(14, 25, 20) 65%) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(231, 239, 223)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(231, 239, 223)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(231, 239, 223)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(14, 25, 20) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(232, 240, 232)",
+        "filter": "none",
+        "rect": {
+          "x": 220,
+          "y": 0,
+          "width": 1000,
+          "height": 77
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(150deg, rgb(19, 37, 29), rgb(13, 26, 21) 75%) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(231, 239, 223)",
+        "filter": "none",
+        "rect": {
+          "x": -118.01709747314453,
+          "y": -72.98480224609375,
+          "width": 1670.375,
+          "height": 1160
+        }
+      },
+      ".study-start": {
+        "bg": "radial-gradient(at 95% 20%, rgba(59, 89, 59, 0.267), rgba(0, 0, 0, 0) 70%) repeat scroll 0% 0% / auto padding-box border-box, rgb(28, 51, 35) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(240, 243, 229)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 256.140625,
+          "width": 720,
+          "height": 196.890625
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(140deg, rgba(45, 72, 53, 0.66), rgba(22, 44, 35, 0.85)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(231, 239, 223)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 469.03125,
+          "width": 720,
+          "height": 86
+        }
+      }
+    },
+    "themeColor": "#0e1914"
+  },
+  {
+    "device": "desktop",
+    "id": "glass",
+    "els": {
+      "html": {
+        "bg": "rgb(246, 220, 210) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "body": {
+        "bg": "rgb(246, 220, 210) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".topbar": {
+        "bg": "rgba(255, 246, 232, 0.09) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "none",
+        "rect": {
+          "x": 220,
+          "y": 0,
+          "width": 1000,
+          "height": 77
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(145deg, rgb(234, 246, 255), rgb(215, 230, 250) 50%, rgb(229, 239, 249)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      ".study-start": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgba(255, 253, 247, 0.565), rgba(255, 248, 240, 0.24) 58%, rgba(255, 248, 246, 0.42)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "blur(12px) saturate(1.07)",
+        "rect": {
+          "x": 360,
+          "y": 249.140625,
+          "width": 720,
+          "height": 196.890625
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgba(255, 253, 247, 0.565), rgba(255, 248, 240, 0.24) 58%, rgba(255, 248, 246, 0.42)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(64, 57, 54)",
+        "filter": "blur(12px) saturate(1.07)",
+        "rect": {
+          "x": 360,
+          "y": 462.03125,
+          "width": 720,
+          "height": 86
+        }
+      }
+    },
+    "themeColor": "#f6dcd2"
+  },
+  {
+    "device": "desktop",
+    "id": "peach",
+    "els": {
+      "html": {
+        "bg": "rgb(247, 219, 204) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "body": {
+        "bg": "rgb(247, 219, 204) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(247, 219, 204) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 220,
+          "y": 0,
+          "width": 1000,
+          "height": 77
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgb(247, 219, 204) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      ".study-start": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(145deg, rgba(255, 246, 233, 0.85), rgba(245, 206, 187, 0.73)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 249.140625,
+          "width": 720,
+          "height": 194.890625
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(145deg, rgba(255, 248, 239, 0.93), rgba(255, 241, 228, 0.72)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(89, 60, 55)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 460.03125,
+          "width": 720,
+          "height": 86
+        }
+      }
+    },
+    "themeColor": "#f7dbcc"
+  },
+  {
+    "device": "desktop",
+    "id": "diamond",
+    "els": {
+      "html": {
+        "bg": "rgb(237, 240, 245) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "body": {
+        "bg": "rgb(237, 240, 245) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(237, 240, 245) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": 220,
+          "y": 0,
+          "width": 1000,
+          "height": 77
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(145deg, rgb(236, 241, 248), rgb(228, 229, 246) 60%, rgb(233, 246, 248)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": -118.20189666748047,
+          "y": -73.2488021850586,
+          "width": 1670.375,
+          "height": 1160
+        }
+      },
+      ".study-start": {
+        "bg": "rgb(40, 77, 61) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(242, 245, 235)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 249.140625,
+          "width": 720,
+          "height": 194.890625
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgba(255, 255, 255, 0.933), rgba(248, 249, 255, 0.88) 60%, rgba(233, 244, 255, 0.69)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(52, 63, 87)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 460.03125,
+          "width": 720,
+          "height": 86
+        }
+      }
+    },
+    "themeColor": "#edf0f5"
+  },
+  {
+    "device": "desktop",
+    "id": "gold",
+    "els": {
+      "html": {
+        "bg": "rgb(238, 233, 221) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "body": {
+        "bg": "rgb(238, 233, 221) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(238, 233, 221) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": 220,
+          "y": 0,
+          "width": 1000,
+          "height": 77
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgb(238, 229, 208), rgb(248, 242, 227) 50%, rgb(229, 216, 185)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": -118.92790222167969,
+          "y": -73.26319885253906,
+          "width": 1670.375,
+          "height": 1160
+        }
+      },
+      ".study-start": {
+        "bg": "rgb(40, 77, 61) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(242, 245, 235)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 249.140625,
+          "width": 720,
+          "height": 194.890625
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(130deg, rgba(255, 252, 240, 0.92), rgba(245, 238, 219, 0.85) 64%, rgba(255, 249, 234, 0.87)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(75, 65, 48)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 460.03125,
+          "width": 720,
+          "height": 86
+        }
+      }
+    },
+    "themeColor": "#eee9dd"
+  },
+  {
+    "device": "desktop",
+    "id": "jelly",
+    "els": {
+      "html": {
+        "bg": "rgb(241, 233, 245) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "body": {
+        "bg": "rgb(241, 233, 245) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(241, 233, 245) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": 220,
+          "y": 0,
+          "width": 1000,
+          "height": 77
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgb(245, 231, 241), rgb(234, 223, 246) 60%, rgb(224, 228, 247)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": -117.7291030883789,
+          "y": -74.2136001586914,
+          "width": 1670.375,
+          "height": 1160
+        }
+      },
+      ".study-start": {
+        "bg": "radial-gradient(at 90% 0%, rgba(251, 214, 233, 0.63), rgba(0, 0, 0, 0) 70%) repeat scroll 0% 0% / auto padding-box border-box, rgba(0, 0, 0, 0) linear-gradient(135deg, rgb(253, 240, 250), rgb(223, 206, 243)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(86, 52, 95)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 256.140625,
+          "width": 720,
+          "height": 198.890625
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgba(255, 252, 255, 0.9), rgba(249, 232, 255, 0.77)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(80, 57, 94)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 471.03125,
+          "width": 720,
+          "height": 86
+        }
+      }
+    },
+    "themeColor": "#f1e9f5"
+  },
+  {
+    "device": "desktop",
+    "id": "droplets",
+    "els": {
+      "html": {
+        "bg": "rgb(217, 238, 234) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "body": {
+        "bg": "rgb(217, 238, 234) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(217, 238, 234) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": 220,
+          "y": 0,
+          "width": 1000,
+          "height": 77
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(150deg, rgb(228, 243, 239), rgb(199, 228, 225) 65%, rgb(179, 213, 217)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": -118.1863021850586,
+          "y": -74.09239959716797,
+          "width": 1670.375,
+          "height": 1160
+        }
+      },
+      ".study-start": {
+        "bg": "rgb(40, 77, 61) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(242, 245, 235)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 249.140625,
+          "width": 720,
+          "height": 194.890625
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(135deg, rgba(247, 255, 254, 0.89), rgba(235, 255, 249, 0.68) 60%, rgba(244, 255, 255, 0.808)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(37, 76, 75)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 460.03125,
+          "width": 720,
+          "height": 86
+        }
+      }
+    },
+    "themeColor": "#d9eeea"
+  },
+  {
+    "device": "desktop",
+    "id": "night",
+    "els": {
+      "html": {
+        "bg": "rgb(16, 24, 39) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(227, 237, 250)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "body": {
+        "bg": "rgb(16, 24, 39) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(227, 237, 250)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "#root": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(227, 237, 250)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".app-shell": {
+        "bg": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(227, 237, 250)",
+        "filter": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      ".topbar": {
+        "bg": "rgb(16, 24, 39) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(232, 240, 232)",
+        "filter": "none",
+        "rect": {
+          "x": 220,
+          "y": 0,
+          "width": 1000,
+          "height": 77
+        }
+      },
+      ".theme-scenery": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(150deg, rgb(21, 34, 53), rgb(16, 22, 35) 65%) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(227, 237, 250)",
+        "filter": "none",
+        "rect": {
+          "x": -118.92430114746094,
+          "y": -73.98919677734375,
+          "width": 1670.375,
+          "height": 1160
+        }
+      },
+      ".study-start": {
+        "bg": "rgb(40, 77, 61) none repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(242, 245, 235)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 249.140625,
+          "width": 720,
+          "height": 194.890625
+        }
+      },
+      ".study-agenda": {
+        "bg": "rgba(0, 0, 0, 0) linear-gradient(140deg, rgba(39, 59, 89, 0.37), rgba(20, 33, 53, 0.863)) repeat scroll 0% 0% / auto padding-box border-box",
+        "color": "rgb(227, 237, 250)",
+        "filter": "none",
+        "rect": {
+          "x": 360,
+          "y": 460.03125,
+          "width": 720,
+          "height": 86
+        }
+      }
+    },
+    "themeColor": "#101827"
+  }
+]

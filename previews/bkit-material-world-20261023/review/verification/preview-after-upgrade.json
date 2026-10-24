@@ -1,0 +1,257 @@
+{
+  "state": {
+    "version": 1,
+    "learning": {
+      "version": 1,
+      "resources": [
+        {
+          "id": "28c549f8-732d-42e0-8370-6d5ca273c101",
+          "title": "기존 문제 자료",
+          "subject": "수학",
+          "sourceType": "school-worksheet",
+          "linkedTaskId": "legacy-homework",
+          "linkedMediaIds": [],
+          "currentProblemId": "f076f5a3-663a-4779-9cb6-cdd44fdb8d50",
+          "lastOpenedAt": null,
+          "createdAt": "2026-10-23T13:16:58.552Z",
+          "updatedAt": "2026-10-23T13:16:58.552Z"
+        }
+      ],
+      "problems": [
+        {
+          "id": "f076f5a3-663a-4779-9cb6-cdd44fdb8d50",
+          "resourceId": "28c549f8-732d-42e0-8370-6d5ca273c101",
+          "ordinal": 1,
+          "title": "1번",
+          "body": "기존 실제 문제",
+          "sourceReference": "",
+          "mediaId": null,
+          "concept": "",
+          "referenceAnswer": "",
+          "example": "",
+          "draft": "배포 전 작성한 답안",
+          "draftFields": {},
+          "createdAt": "2026-10-23T13:16:58.552Z",
+          "updatedAt": "2026-10-23T13:16:58.552Z"
+        }
+      ],
+      "attempts": []
+    },
+    "revision": 4,
+    "tasks": [
+      {
+        "id": "legacy-homework",
+        "subject": "수학",
+        "title": "기존 학습지",
+        "kind": "숙제",
+        "due": null,
+        "attachmentIds": [
+          "preserved-photo"
+        ],
+        "priority": 2,
+        "minutes": 25,
+        "remaining": 25,
+        "status": "todo",
+        "submitted": false,
+        "optional": false,
+        "notes": "운영 버전에서 보존할 메모",
+        "link": ""
+      },
+      {
+        "id": "legacy-assessment",
+        "subject": "수학",
+        "title": "기존 수행평가",
+        "kind": "수행평가",
+        "due": null,
+        "attachmentIds": [],
+        "priority": 2,
+        "minutes": 25,
+        "remaining": 25,
+        "status": "todo",
+        "submitted": false,
+        "optional": false,
+        "notes": "운영 버전에서 보존할 메모",
+        "link": ""
+      }
+    ],
+    "schedules": [
+      {
+        "id": "legacy-class",
+        "title": "기존 학원",
+        "subject": "수학",
+        "kind": "academy",
+        "days": [
+          5
+        ],
+        "start": "20:00",
+        "end": "20:50",
+        "prep": 0,
+        "travel": 0,
+        "buffer": 0,
+        "materials": "교재",
+        "date": null,
+        "excluded": []
+      }
+    ],
+    "sessions": [
+      {
+        "id": "legacy-record",
+        "taskId": "legacy-homework",
+        "subject": "수학",
+        "action": "기존 공부",
+        "started": "2026-10-22T04:00:00Z",
+        "ended": "2026-10-22T04:05:00Z",
+        "seconds": 300,
+        "target": 5,
+        "problems": 1,
+        "concepts": "기존 개념",
+        "rating": "보통",
+        "reason": "",
+        "pauses": [],
+        "mistake": "",
+        "reviewDate": null
+      }
+    ],
+    "active": null,
+    "quickTimer": null,
+    "plan": [],
+    "undo": null,
+    "settings": {
+      "wake": "07:00",
+      "bed": "23:00",
+      "minSleep": 8,
+      "focus": 25,
+      "mealStart": "18:00",
+      "mealMinutes": 45,
+      "breakMinutes": 5,
+      "goal": "오늘의 작은 학습을 차분히 완성하기"
+    },
+    "grades": [],
+    "reviewsDone": [],
+    "learningEvents": [
+      {
+        "id": "ec2f3f0d-2c6b-4c91-8228-ca8c84a8d4c6",
+        "type": "RecommendationShown",
+        "at": "2026-10-23T13:17:01.730Z",
+        "foregroundAt": "2026-10-23T13:17:00.832Z",
+        "taskId": "legacy-assessment",
+        "sessionId": null,
+        "action": "기존 수행평가 · 첫 질문에 내 답을 적어보기"
+      },
+      {
+        "id": "8137ba41-eee9-4a3d-88a5-cd5e361d6e23",
+        "type": "RecommendationShown",
+        "at": "2026-10-24T11:50:14.982Z",
+        "foregroundAt": "2026-10-24T11:50:14.127Z",
+        "taskId": "legacy-assessment",
+        "sessionId": null,
+        "action": "기존 수행평가 · 첫 질문에 내 답을 적어보기"
+      },
+      {
+        "id": "8a9e97ce-568d-462d-b933-8c98ca55825f",
+        "type": "RecommendationShown",
+        "at": "2026-10-24T11:50:15.497Z",
+        "foregroundAt": "2026-10-24T11:50:15.106Z",
+        "taskId": "legacy-assessment",
+        "sessionId": null,
+        "action": "기존 수행평가 · 첫 질문에 내 답을 적어보기"
+      },
+      {
+        "id": "5883f90d-ebae-4cd2-ae42-8046313aaf20",
+        "type": "RecommendationShown",
+        "at": "2026-10-24T11:53:11.537Z",
+        "foregroundAt": "2026-10-24T11:53:10.223Z",
+        "taskId": "legacy-assessment",
+        "sessionId": null,
+        "action": "기존 수행평가 · 첫 질문에 내 답을 적어보기"
+      }
+    ],
+    "reviewProgress": []
+  },
+  "photos": [
+    {
+      "id": "preserved-photo",
+      "bytes": [
+        1,
+        3,
+        7,
+        9
+      ],
+      "mime": "image/png",
+      "name": "기존 원본",
+      "size": 4,
+      "digest": "synthetic"
+    }
+  ],
+  "build": {
+    "sourceCommit": "bb79f409bd536bd9196a2f4e61532af728620c72",
+    "environment": "local-verified-build"
+  },
+  "release": {
+    "product": "BKIT STUDY OS · Preserved Live Study",
+    "sourceCommit": "9777ddc4bcb504b6fc24daea4ab5f38f43c12afa",
+    "sourceBranch": "fix/bkit-live-study-start-20261023",
+    "artifactsCommit": "6368a148d137e7bf90e7e81f5b8dfadb58d488b5",
+    "publishedAt": "2026-10-23T07:53:39.073347+00:00",
+    "validation": "Exact-source CI 39919901841: TypeScript, 225 unit tests, root build; 60/60 E2E across desktop, iPhone WebKit and iPad WebKit; 9 public-preview learning/recovery scenarios plus 2 final-source preview checks passed. No skipped tests or retries.",
+    "previousSource": "79630329fcda2fb76cec040132b94488dd651c8c",
+    "rollbackCommit": "0f63f235055b5fafb8f94db701eb8aa1bfc07d84",
+    "screenshots": "https://github.com/kimkimhs36/BKIT-QWEN/tree/bb3b25d/study-os/docs/live-study-20261023/after",
+    "notes": "Owner-authorized production release. Existing home layout, button labels and nine themes preserved; owner subsequently requested removal of the standalone name banner. Existing storage keys and schema version retained with optional workspace answerDraft; no data migration. Old hashed assets, independent routes, CNAME, PWA, PDF/OCR and worker lifecycle retained. Physical-device camera/Pencil and owner-authenticated paid AI flow remain unverified.",
+    "previousProductionCommit": "0f63f235055b5fafb8f94db701eb8aa1bfc07d84",
+    "fix": "Durable first-question drafts and attempts, exact task selection, quick-workspace receipts, selected-date capture and one-day schedule changes; compact focus controls and static Safari background corrected.",
+    "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/39919901841",
+    "previousRelease": "/releases/20261023-before-live-study.json",
+    "entryAssets": [
+      {
+        "path": "/assets/index-CYHpkX9C.js",
+        "sha256": "6a3df953e61426970b477e800cc744f46f0b4620f9e16dcaa94809abeb47ef19"
+      },
+      {
+        "path": "/assets/react-vendor-DENrKhsk.js",
+        "sha256": "dd9228d2be4c9de35f311eb10c9fcb090d035042a6a64c80a5ca02ee7fdfb028"
+      },
+      {
+        "path": "/assets/schema-vendor-DYuAzjeD.js",
+        "sha256": "39c943cd9f1cc1045ac58ce7dc150b31de745ae378e00ed8365fcb94cf036e68"
+      },
+      {
+        "path": "/assets/index-BJ0N4dSB.css",
+        "sha256": "94b9958395ca2b65146b65c6762864ddefd70a554662f1715b6f175fbe4d890e"
+      }
+    ],
+    "deployment": {
+      "provider": "GitHub Pages",
+      "branch": "main",
+      "path": "/",
+      "url": "https://teambkit.com"
+    },
+    "aiVerification": {
+      "health": "200; configured briefing only",
+      "config": "200",
+      "productionOrigin": "allowed; POST preflight verified",
+      "foreignPreviewOrigin": "403",
+      "unauthenticatedOwner": "401",
+      "model": "deepseek-flash; official documentation confirmed",
+      "dailyKRW": 1000,
+      "callLimit": "existing server cap at most 60; unchanged",
+      "ownerGoogleLogin": "unverified",
+      "paidDeepSeekResponse": "unverified; zero paid calls authorized or made",
+      "planCoachAssistant": "server unsupported; local rules retained"
+    },
+    "postDeployVerification": {
+      "status": "verified",
+      "checkedAt": "2026-10-23T08:02:32.323667+00:00",
+      "verifiedProductionCommit": "4cb7730b7b26f0a2e154122e6aa47c5622041359",
+      "matchingPublishedAssets": 58,
+      "asset404s": 0,
+      "htmlMatchesVerifiedBuild": true,
+      "requestedNameRemoved": true,
+      "browserScenariosVerified": 10,
+      "browserRunDetails": "9 passed with real production worker; the API-error mock was bypassed by the worker and received healthy config. The same OCR/API-error/manual-confirmation scenario passed in an isolated worker-blocked test context; no production worker/security setting changed. Both logs retained.",
+      "dataPreservation": "Existing-origin synthetic learner profile from source 7963032 retained exact tasks, assessment, schedule, sessions, material/problem draft and IndexedDB photo bytes after upgrade. Personal owner storage not accessed.",
+      "evidence": "https://github.com/kimkimhs36/BKIT-QWEN/tree/bb3b25d/study-os/docs/live-study-20261023/verification/production-verification.json"
+    },
+    "evidence": "https://github.com/kimkimhs36/BKIT-QWEN/tree/bb3b25d/study-os/docs/live-study-20261023"
+  }
+}

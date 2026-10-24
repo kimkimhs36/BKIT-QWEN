@@ -1,0 +1,35 @@
+{
+  "base": "https://teambkit.com/previews/bkit-material-world-20261023/",
+  "result": [
+    {
+      "profile": "desktop",
+      "permissionOnlyFromTap": true,
+      "denial": true,
+      "grantedWithoutInputStaysWaiting": true,
+      "reducedPauses": true,
+      "hiddenTurnsOff": true,
+      "visibleDoesNotReconnect": true,
+      "scope": "Injected permission and orientation/visibility state; not physical sensor"
+    },
+    {
+      "profile": "webkit-iphone",
+      "permissionOnlyFromTap": true,
+      "denial": true,
+      "grantedWithoutInputStaysWaiting": true,
+      "reducedPauses": true,
+      "hiddenTurnsOff": true,
+      "visibleDoesNotReconnect": true,
+      "scope": "Injected permission and orientation/visibility state; not physical sensor"
+    },
+    {
+      "profile": "webkit-ipad",
+      "permissionOnlyFromTap": true,
+      "denial": true,
+      "grantedWithoutInputStaysWaiting": true,
+      "reducedPauses": true,
+      "hiddenTurnsOff": true,
+      "visibleDoesNotReconnect": true,
+      "scope": "Injected permission and orientation/visibility state; not physical sensor"
+    }
+  ]
+}
