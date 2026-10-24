@@ -53,6 +53,34 @@
     }
   },
   "postDeployVerification": {
-    "status": "pending"
+    "status": "verified",
+    "checkedAt": "2026-10-24T12:02:19.578393+00:00",
+    "sourceCommit": "bb79f409bd536bd9196a2f4e61532af728620c72",
+    "verifiedProductionCommit": "849119f8b1474c219bd491986e0e0c77c8010109",
+    "artifactsCommit": "55d1fbcd53b60716f8900b48847d5f2f152c83d8",
+    "matchingPublishedFiles": 271,
+    "asset404s": 0,
+    "preservedFiles": 716,
+    "htmlMatchesVerifiedBuild": true,
+    "productionThemes": 9,
+    "studyStartSettingsAwakeOff": true,
+    "cameraScope": "Real MediaPipe CPU/WASM model with Chromium-generated camera. No real face or physical camera/accuracy test.",
+    "cameraTracksEnded": true,
+    "noOutgoingPost": true,
+    "visibilityStopsAndDoesNotRestart": true,
+    "offlineRelaunchAndReload": true,
+    "dataPreservation": {
+      "scope": "Same-origin synthetic learner profile from original production; personal owner storage not accessed",
+      "unchangedFields": [
+        "tasks",
+        "schedules",
+        "sessions",
+        "learning"
+      ],
+      "photoBytesUnchanged": true
+    },
+    "physicalIphoneIpadCameraGyroscopeThermalsInstalledPwa": "unverified",
+    "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40090542880",
+    "evidence": "https://teambkit.com/previews/bkit-material-world-20261023/review/"
   }
 }

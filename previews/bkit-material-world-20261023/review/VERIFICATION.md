@@ -54,9 +54,20 @@ Diamond의 각진 결정면·속이 빈 프리즘 테두리와 Glass의 매끄�
 
 ## 운영 전환과 데이터
 
-운영 전환 전, 이전 운영에서 만든 같은 영속 프로필을 새 Preview의 정확한 엔트리 `/previews/bkit-material-world-20261023/assets/index-B9En6lpT.js`로 열었습니다. 과제·수행평가, 시간표, 기록, 학습 자료·답안 초안과 사진 바이트가 동일함을 확인했습니다 (`verification/preview-before-upgrade.json`, `preview-after-upgrade.json`). 운영 후 같은 검사를 루트 주소에서도 반복합니다. 운영 루트 교체 전에는 Preview 경로만 변경합니다. 새 root 빌드는 기존 해시 자산을 삭제하지 않고 추가하며 CNAME·독립 페이지·오프라인 활성화 대기 정책을 유지합니다. 기존 release.json을 별도 보존하고 원격 main HEAD와 충돌 여부를 확인합니다.
+- 운영: **https://teambkit.com**.
+- 실제 배포 릴리스: `849119f8b1474c219bd491986e0e0c77c8010109`.
+- 제품 빌드 자산 커밋: `55d1fbcd53b60716f8900b48847d5f2f152c83d8`.
+- 제품 소스: `bb79f409bd536bd9196a2f4e61532af728620c72`.
+- [Pages 배포 성공](https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40091771970).
+- 롤백 체크포인트: `c183ce0bceef9072720dc4eca6c1dc02e643c240`; 이전 release.json은 `/releases/20261023-before-material-world.json`에 보존했습니다.
 
-운영 전/후 같은 실제 출처·동일 영속 브라우저 프로필의 합성 학습자 데이터를 비교합니다. 과제·수행평가 2개, 시간표, 공부 기록, 자료·문제 답안 초안과 IndexedDB 사진 원본 바이트를 비교합니다. 사용자의 개인 브라우저 저장소에 접근하지 않습니다.
+배포 후 공개 파일 **271개**의 SHA-256이 검증 빌드와 일치했고 404는 **0개**였습니다. 기존 해시 자산·독립 페이지 **716개**의 파일이 그대로이며, 이전 엔트리 자산도 실제 HTTP로 가져올 수 있습니다. CNAME, exam-lab, mock-rescue, 독립 HTML과 기존 SW 활성화 대기 정책을 유지했습니다. main 최신 HEAD를 확인한 뒤 정상 fast-forward로 배포했으며 강제 덮어쓰기를 하지 않았습니다 (`verification/production-assets.json`).
+
+공개 운영 주소에서 테마 9개 전환, 새로고침, 5분 공부 시작, 설정과 Awake 기본 OFF 진입이 통과했습니다 (`production-public/result.json`). 실제 MediaPipe CPU/WASM과 Chromium 생성 카메라로 모델 요청·추론·즉시 종료를 검사했고 모든 영상 트랙이 ended, 외부 POST 없음, 페이지 오류 없음이었습니다 (`production-camera/result.json`). 숨김 이벤트를 주입한 실제 스트림 종료와 자동 재시작 금지도 다시 확인했습니다 (`production-public/visibility-and-fonts.json`).
+
+이전 운영 소스 `9777ddc`에서 만든 같은 영속 Chromium 프로필을 사용했습니다. 새 Preview 엔트리 `/previews/bkit-material-world-20261023/assets/index-B9En6lpT.js`와 실제 운영 엔트리 `/assets/index-ueiII1hm.js`가 로드됐는지 확인한 뒤 원본과 비교했습니다. 과제·수행평가 2개, 시간표, 공부 기록, 자료·문제 답안 초안과 IndexedDB 사진 원본 바이트가 동일했습니다. 검증용 릴리스 메타데이터는 기존 SW의 JSON 캐시와 구별하도록 고유 GET 쿼리로 조회했습니다. 사용자의 개인 브라우저 저장소에는 접근하지 않았습니다 (`verification/preview-before-upgrade.json`, `preview-after-upgrade.json`, `production-after-upgrade.json`).
+
+영속 Chromium 프로필을 실제 오프라인으로 다시 열고 새로고침해 새 엔트리와 기존 데이터가 유지됨을 확인했습니다 (`verification/production-pwa-offline.json`). 설치된 실제 iOS PWA 검증과 구별합니다. 후속 커밋은 검증 기록과 보고서만 추가하며 제품 자산은 위 소스/자산 커밋으로 고정합니다.
 
 ## 추가 실기기 확인
 

@@ -1,0 +1,10 @@
+{
+  "scope": "Persistent Chromium profile offline relaunch/reload; not an installed iOS PWA",
+  "sourceCommit": "bb79f409bd536bd9196a2f4e61532af728620c72",
+  "entry": "/assets/index-ueiII1hm.js",
+  "controller": "https://teambkit.com/sw.js",
+  "material": "glass",
+  "background": "rgb(246, 220, 210)",
+  "legacyDataPreserved": true,
+  "passed": true
+}
