@@ -269,12 +269,14 @@ test('gyro requires a tap, calibrates smoothly, and reduced motion and low power
       },
       { beta, gamma },
     );
-  await tilt(30, 0);
-  await tilt(40, 16);
+  await expect(page.locator('.material-sensor-control')).toContainText('센서 대기 중');
+  // Keep supplying real input samples while the effect listener/render loop settles.
   await expect
-    .poll(() =>
-      page.evaluate(() => Number(document.documentElement.style.getPropertyValue('--sensor-x'))),
-    )
+    .poll(async () => {
+      await tilt(30, 0);
+      await tilt(40, 16);
+      return page.evaluate(() => Number(document.documentElement.style.getPropertyValue('--sensor-x')));
+    })
     .toBeGreaterThan(0.02);
   await shot(page, info.project.name, 'gyro-enabled');
   await page.getByRole('combobox', { name: '테마 움직임' }).selectOption('off');
