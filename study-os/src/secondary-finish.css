@@ -1,0 +1,453 @@
+/* Secondary screens keep the same material, with quieter edges and fewer competing controls. */
+html[data-material]
+  .app-shell.premium-os:not(.page-today)
+  :is(.panel, .quick-timer, .focus-card, .compact-section) {
+  border-width: 1px !important;
+  box-shadow: 0 6px 22px -20px color-mix(in srgb, var(--mat-ink) 35%, transparent) !important;
+}
+html[data-material]
+  .app-shell.premium-os:not(.page-today)
+  :is(.panel, .quick-timer, .focus-card)::after {
+  padding: 1px;
+  opacity: 0.32;
+}
+html[data-material] .app-shell.premium-os:not(.page-today) .secondary {
+  box-shadow: none !important;
+  border-radius: min(14px, var(--mat-button-radius)) !important;
+}
+html[data-material] .app-shell.premium-os:not(.page-today) .segmented {
+  background: var(--mat-soft) !important;
+  border: 1px solid var(--mat-line) !important;
+  box-shadow: none !important;
+  border-radius: 14px !important;
+  padding: 4px;
+}
+html[data-material] .app-shell.premium-os:not(.page-today) .segmented button {
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  min-height: 44px;
+}
+html[data-material] .app-shell.premium-os:not(.page-today) .segmented button.selected {
+  background: var(--mat-paper) !important;
+  color: var(--mat-ink) !important;
+}
+html[data-material] .app-shell.premium-os .task-toolbar {
+  gap: 14px;
+  align-items: stretch;
+}
+html[data-material] .app-shell.premium-os .task-add-actions {
+  justify-content: flex-start;
+  margin-left: 0;
+}
+html[data-material] .app-shell.premium-os .task-list {
+  padding: 0 18px !important;
+}
+html[data-material] .app-shell.premium-os .task-row {
+  box-shadow: none !important;
+}
+html[data-material] .app-shell.premium-os .task-row:last-child {
+  border-bottom: 0 !important;
+}
+html[data-material] .app-shell.premium-os .more-hub-link {
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 15px !important;
+  gap: 12px !important;
+  min-height: 84px !important;
+}
+html[data-material] .app-shell.premium-os .more-hub-link .tool-symbol {
+  position: static !important;
+  width: 30px !important;
+  height: 30px !important;
+  flex: 0 0 30px;
+  opacity: 1;
+  display: grid !important;
+  place-items: center;
+}
+html[data-material] .app-shell.premium-os .more-hub-link > span:last-child {
+  min-width: 0;
+  width: auto;
+}
+html[data-material] .app-shell.premium-os .more-hub-link strong {
+  font-size: 14px;
+  line-height: 1.5;
+}
+html[data-material] .app-shell.premium-os .more-hub-link small {
+  font-size: 11px;
+  margin-top: 3px;
+}
+html[data-material]
+  .app-shell.premium-os.page-settings
+  :is(.settings-theme-entry, .compact-section) {
+  margin: 0 0 10px;
+}
+html[data-material] .app-shell.premium-os.page-settings .compact-section > summary {
+  min-height: 56px;
+  padding: 15px 18px;
+  line-height: 1.5;
+}
+html[data-material] .app-shell.premium-os.page-settings .compact-section .panel {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html[data-material] .app-shell.premium-os.page-settings .theme-preferences {
+  padding: 18px !important;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+html[data-material] .app-shell.premium-os.page-settings .theme-preferences h2 {
+  font-size: 15px;
+}
+html[data-material] .app-shell.premium-os.page-settings .theme-preferences p {
+  font-size: 12px;
+}
+html[data-material] .app-shell.premium-os .settings-layout {
+  gap: 0 20px;
+}
+html[data-material] .app-shell.premium-os .settings-layout > details {
+  align-self: start;
+}
+html[data-material] .app-shell.premium-os .calendar-board {
+  box-shadow: none;
+  background: color-mix(in srgb, var(--mat-paper) 34%, transparent);
+}
+html[data-material] .app-shell.premium-os .calendar-filters {
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.calendar-filters select {
+  width: 120px;
+  min-height: 44px;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+.calendar-filters .text-button {
+  font-size: 12px;
+  display: flex;
+  gap: 6px;
+}
+html[data-material] .app-shell.premium-os .calendar-day-panel {
+  box-shadow: none;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--mat-line);
+  padding: 20px 0 0;
+}
+html[data-material] .app-shell.premium-os .calendar-day-heading {
+  margin-bottom: 12px;
+}
+html[data-material] .app-shell.premium-os .calendar-day-heading h2 {
+  font-size: 18px;
+}
+html[data-material] .app-shell.premium-os .calendar-add {
+  gap: 5px;
+  margin-bottom: 10px;
+}
+html[data-material] .app-shell.premium-os .calendar-add :is(.primary, .secondary) {
+  background: var(--mat-soft) !important;
+  color: var(--mat-ink) !important;
+  box-shadow: none !important;
+  border: 1px solid var(--mat-line) !important;
+  border-radius: 10px !important;
+}
+.calendar-empty {
+  padding: 20px 0;
+}
+.calendar-empty > svg {
+  display: none;
+}
+.calendar-empty h3 {
+  font-size: 14px;
+  font-weight: 500;
+}
+.calendar-agenda > h3 {
+  margin-top: 8px;
+}
+.calendar-weekly-dialog .calendar-weekly-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 4px;
+}
+.calendar-weekly-dialog .calendar-weekly-grid > div {
+  min-width: 0;
+  padding: 12px;
+  border-top: 1px solid var(--mat-line);
+}
+.calendar-weekly-dialog .week-class {
+  background: var(--mat-soft);
+  color: var(--mat-ink);
+  border: 1px solid var(--mat-line);
+}
+html[data-material] .app-shell.premium-os .study-calendar-link {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  padding: 8px 0;
+  text-align: left;
+}
+.study-calendar-stamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 44px;
+  height: 48px;
+  flex: 0 0 44px;
+  border: 1px solid var(--mat-line);
+  border-radius: 10px;
+  background: var(--mat-paper);
+  color: var(--mat-ink);
+  overflow: hidden;
+}
+.study-calendar-stamp small {
+  display: block;
+  font-size: 9px;
+  line-height: 16px;
+  width: 100%;
+  text-align: center;
+  background: var(--mat-soft);
+}
+.study-calendar-stamp strong {
+  font-size: 21px;
+  font-weight: 650;
+  line-height: 29px;
+  font-variant-numeric: tabular-nums;
+}
+.study-calendar-copy {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.study-calendar-copy strong {
+  color: var(--mat-ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+.study-calendar-copy small {
+  font-size: 11px;
+  line-height: 1.5;
+}
+.study-calendar-open {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-size: 11px;
+  flex: none;
+}
+/* Fixed numeral cells include glyph bearings and the full vertical travel. */
+.study-clock-digits {
+  line-height: 1.18;
+  letter-spacing: 0;
+  padding: 0.045em 0.035em;
+  overflow: visible;
+  font-kerning: none;
+}
+.study-clock-digits .clock-cell {
+  display: inline-flex;
+  justify-content: center;
+  flex: 0 0 0.64em;
+  width: 0.64em;
+  overflow: visible;
+  text-align: center;
+}
+.study-clock-digits .clock-colon {
+  flex: 0 0 0.3em;
+  width: 0.3em;
+  text-align: center;
+  overflow: visible;
+}
+.study-clock-digits > span > span {
+  line-height: inherit;
+}
+.study-clock-digits[data-clock-size='wide'] {
+  font-size: 0.82em;
+}
+.study-clock-digits[data-clock-size='extra-wide'] {
+  font-size: 0.72em;
+}
+html[data-material] .app-shell.premium-os .quick-timer-display {
+  overflow: visible;
+  min-width: 0;
+}
+/* Navigation and content settle; data entry and study controls stay still. */
+@keyframes bkit-page-settle {
+  from {
+    opacity: 0.7;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-material][data-motion='auto'][data-effects='auto']
+    .app-shell.premium-os:not(.page-today)
+    main {
+    animation: bkit-page-settle 260ms cubic-bezier(0.16, 1, 0.3, 1) backwards !important;
+  }
+  .calendar-cell {
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease;
+  }
+  html[data-motion='auto'][data-effects='auto'] .help-guide {
+    animation: bkit-page-settle 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+@media (min-width: 760px) {
+  html[data-material] .app-shell.premium-os .calendar-day-panel {
+    border-top: 0;
+    border-left: 1px solid var(--mat-line);
+    padding: 4px 0 4px 24px;
+  }
+  html[data-material]
+    .app-shell.premium-os
+    :is(.calendar-view-day, .calendar-view-week)
+    .calendar-day-panel {
+    border: 0;
+    padding: 12px 0;
+  }
+  html[data-material] .study-dialog.theme-dialog {
+    width: min(800px, calc(100% - 64px)) !important;
+  }
+  .theme-picker {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(240px, 1fr);
+    column-gap: 28px;
+    row-gap: 14px;
+    padding: 0 24px 24px;
+  }
+  .theme-picker-caption {
+    grid-column: 1/-1;
+    margin-bottom: 4px;
+  }
+  .theme-picker-grid {
+    grid-column: 1;
+    grid-row: 2 / 4;
+    gap: 18px 12px;
+    align-content: start;
+  }
+  .theme-picker .theme-swatch {
+    height: 80px;
+  }
+  .theme-picker-controls {
+    grid-column: 2;
+    margin: 0;
+    padding: 0 0 10px;
+    border: 0;
+  }
+  .theme-picker .material-sensor-control {
+    grid-column: 2;
+    margin: 0;
+  }
+  .theme-picker-status {
+    grid-column: 1/-1;
+  }
+  .calendar-weekly-dialog .calendar-weekly-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  html[data-material] .app-shell.premium-os .more-hub-link {
+    padding: 12px !important;
+    gap: 8px !important;
+  }
+  html[data-material] .app-shell.premium-os .more-hub-link strong {
+    font-size: 13px;
+  }
+  html[data-material] .app-shell.premium-os .more-hub-link small {
+    font-size: 10px;
+  }
+  html[data-material] .app-shell.premium-os .calendar-add :is(.primary, .secondary) {
+    padding: 8px 10px !important;
+  }
+  .study-calendar-copy small {
+    font-size: 10px;
+  }
+}
+
+.study-calendar-summary {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+.study-calendar-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  width: 100%;
+  text-align: left;
+  padding: 4px 0;
+  color: var(--mat-muted);
+  font-size: 12px;
+  min-height: 44px;
+}
+.study-calendar-link > span:last-child {
+  display: flex;
+  align-items: center;
+  color: var(--mat-ink);
+}
+.study-calendar-summary .study-next {
+  margin-top: 7px;
+}
+.study-help-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  grid-column: 1 / -1;
+  color: var(--mat-muted);
+  font-size: 12px;
+  padding: 8px;
+}
+/* Settings read as a short list; longer forms open only when needed. */
+html[data-material]
+  .app-shell.premium-os.page-settings
+  :is(.settings-theme-entry, .compact-section, .theme-preferences) {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--mat-line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+html[data-material] .app-shell.premium-os.page-settings .settings-theme-entry {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  text-align: left;
+  min-height: 58px;
+}
+html[data-material] .app-shell.premium-os.page-settings .settings-theme-entry span {
+  flex: 1;
+  text-align: left;
+  font-size: 14px;
+}
+html[data-material] .app-shell.premium-os.page-settings .compact-section > summary {
+  padding: 17px 0;
+  min-height: 58px;
+}
+html[data-material] .app-shell.premium-os.page-settings .theme-preferences {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 !important;
+}
+html[data-material] .app-shell.premium-os.page-settings .theme-preferences p {
+  display: none;
+}
+html[data-material] .app-shell.premium-os.page-settings .theme-preferences-action {
+  width: auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 9px 12px !important;
+  font-size: 12px;
+}
+html[data-material] .app-shell.premium-os.page-settings .compact-section .compact-section {
+  border-bottom: 0 !important;
+}

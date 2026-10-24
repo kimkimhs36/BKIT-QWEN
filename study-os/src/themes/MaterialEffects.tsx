@@ -392,7 +392,7 @@ export function MaterialEffects({
         !el ||
         el.matches(':disabled') ||
         el.closest(
-          '.learning-workspace, .digital-paper, .problem-workspace, .pdf-reader, .race-dialog',
+          '.topbar, .learning-workspace, .digital-paper, .problem-workspace, .pdf-reader, .race-dialog',
         )
       )
         return;

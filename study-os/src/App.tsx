@@ -1,3 +1,4 @@
+import type { HelpAction, HelpTopic } from './HelpCenter';
 import { MaterialSettings } from './themes/MaterialSettings';
 import { AnimatedClock } from './AnimatedClock';
 import { MaterialEffects } from './themes/MaterialEffects';
@@ -134,6 +135,7 @@ import {
   CheckSquare,
   Eye,
   EyeOff,
+  HelpCircle,
 } from 'lucide-react';
 import {
   stateSchema,
@@ -171,6 +173,10 @@ import {
   StorageConflict,
   LEARNING_BACKUP_KEY,
 } from './storage';
+const StudyCalendar = lazy(() =>
+  import('./StudyCalendar').then((m) => ({ default: m.StudyCalendar })),
+);
+const HelpCenter = lazy(() => import('./HelpCenter').then((m) => ({ default: m.HelpCenter })));
 const ResourceLibrary = lazy(() =>
   import('./ResourceLibrary').then((m) => ({ default: m.ResourceLibrary })),
 );
@@ -192,9 +198,7 @@ const LearningEvidence = lazy(() =>
 const ProblemReviewQueue = lazy(() =>
   import('./ProblemReviewQueue').then((m) => ({ default: m.ProblemReviewQueue })),
 );
-const AwakeRest = lazy(() =>
-  import('./drive/WakeBomb').then((m) => ({ default: m.WakeBomb })),
-);
+const AwakeRest = lazy(() => import('./drive/WakeBomb').then((m) => ({ default: m.WakeBomb })));
 const AwakeAssist = lazy(() =>
   import('./AwakeAssist')
     .then((m) => ({ default: m.AwakeAssist }))
@@ -215,7 +219,7 @@ const StudyDirectory = lazy(() =>
 const AIZone = lazy(() => import('./AIZone').then((m) => ({ default: m.AIZone })));
 const NAV = [
   { id: 'today', en: 'NOW', label: '오늘', icon: Home },
-  { id: 'school', en: 'SCHOOL', label: '시간표', icon: CalendarDays },
+  { id: 'school', en: 'CALENDAR', label: '달력', icon: CalendarDays },
   { id: 'tasks', en: 'TASKS', label: '과제', icon: CheckSquare },
   { id: 'study', en: 'LEARN', label: '집중', icon: Focus },
   { id: 'progress', en: 'PROGRESS', label: '기록', icon: Target },
@@ -226,10 +230,10 @@ const NAV = [
   { id: 'materials', en: '', label: '공부 자료', icon: BookOpen },
   { id: 'more', en: 'TOOLS', label: '도구', icon: Menu },
 ];
-const PRIMARY_NAV = ['today', 'study', 'tasks', 'progress', 'more'].map((id) =>
+const PRIMARY_NAV = ['today', 'school', 'study', 'tasks', 'progress', 'more'].map((id) =>
   NAV.find((n) => n.id === id)!,
 );
-const MORE_ROUTES = ['school', 'settings', 'sleep', 'exams', 'sites', 'ai-zone', 'materials'];
+const MORE_ROUTES = ['settings', 'sleep', 'exams', 'sites', 'ai-zone', 'materials'];
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 function Empty({ title, children }: { title: string; children: ReactNode }) {
@@ -267,20 +271,17 @@ export default function App() {
   const garageController = useGarage(s, readBlocked, false);
   const [theme, setTheme] = useState(() => restoreTheme(window.localStorage));
   const [material, setMaterial] = useState(() => restoreMaterial(window.localStorage, theme));
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.dataset.material = material.id;
     applyTheme(theme);
-  }, [theme]);
-  useEffect(() => {
-    document.documentElement.dataset.material = material.id;
-    document.documentElement.style.removeProperty('background-color');
-    const background = getComputedStyle(document.documentElement)
-      .getPropertyValue('--mat-bg')
-      .trim();
+    root.style.removeProperty('background-color');
+    const background = getComputedStyle(root).getPropertyValue('--mat-bg').trim();
     if (background)
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', background);
-    document.documentElement.dataset.motion = material.lowPower ? 'off' : material.motion;
+    root.dataset.motion = material.lowPower ? 'off' : material.motion;
     window.dispatchEvent(new Event('bkit:effects'));
-  }, [material]);
+  }, [theme, material]);
   function changeMaterial(next: MaterialPreferences) {
     setMaterial(next);
     const base = materials.find((m) => m.id === next.id)!.base;
@@ -310,9 +311,13 @@ export default function App() {
       (current.active || current.quickTimer) &&
       !commit((v) => {
         const paused = pauseQuick(v, Date.now());
-        return { ...paused, active: current.active ? closeSegment(current.active, Date.now()) : null };
+        return {
+          ...paused,
+          active: current.active ? closeSegment(current.active, Date.now()) : null,
+        };
       })
-    ) return;
+    )
+      return;
     if (short) setAwakeRestUntil(Date.now() + 30000);
     else setTab('sleep');
   }
@@ -332,6 +337,7 @@ export default function App() {
       | 'assistant'
       | 'tools'
       | 'theme'
+      | 'help'
       | 'task'
       | 'schedule'
       | 'finish'
@@ -363,8 +369,62 @@ export default function App() {
   }
   const sleep = useSleepGuard(now, Boolean(s.active));
   const [energy, setEnergy] = useState<'low' | 'normal'>('normal');
+  const [helpTopic, setHelpTopic] = useState<HelpTopic>('quick');
+  const [helpDestination, setHelpDestination] = useState('');
+  useEffect(() => {
+    if (tab !== 'settings' || !helpDestination) return;
+    const panel = document.getElementById(helpDestination) as HTMLDetailsElement | null;
+    if (panel) {
+      panel.open = true;
+      panel.scrollIntoView({ block: 'start' });
+    }
+    setHelpDestination('');
+  }, [tab, helpDestination]);
+  function showHelp(topic?: HelpTopic) {
+    setHelpTopic(
+      topic ??
+        (
+          {
+            today: 'quick',
+            school: 'calendar',
+            tasks: 'task',
+            study: 'study',
+            progress: 'records',
+            settings: 'theme',
+          } as Record<string, HelpTopic>
+        )[tab] ??
+        'quick',
+    );
+    open('help');
+  }
+  function helpAction(action: HelpAction) {
+    setModal(null);
+    if (action === 'start') {
+      beginQuick('countdown', 5);
+      setTab('study');
+    } else if (action === 'task') taskEditor();
+    else if (action === 'assessment') addAssessmentNow();
+    else if (action === 'theme') open('theme');
+    else if (action === 'calendar') {
+      setDay(dayKey());
+      setTab('school');
+    } else if (action === 'home') setTab('today');
+    else if (action === 'records') setTab('progress');
+    else {
+      setHelpDestination(action === 'awake' ? 'settings-awake' : 'settings-backup');
+      setTab('settings');
+    }
+  }
   const [captureDay, setCaptureDay] = useState('');
   const [occurrenceDay, setOccurrenceDay] = useState('');
+  const [planEditor, setPlanEditor] = useState<{
+    id?: string;
+    taskId: string;
+    day: string;
+    start?: string;
+    end?: string;
+  } | null>(null);
+  const [scheduleRepeat, setScheduleRepeat] = useState(false);
   const [scheduleDay, setScheduleDay] = useState('');
   const [taskPresetKind, setTaskPresetKind] = useState<Task['kind']>('숙제');
   const [taskDraftId, setTaskDraftId] = useState<string>(uid);
@@ -686,6 +746,7 @@ export default function App() {
     open('task');
   }
   function scheduleEditor(t: Schedule | null = null, selectedDay = '', singleDay = '') {
+    setScheduleRepeat(!singleDay && (t ? !t.date : !selectedDay));
     setScheduleDay(selectedDay);
     setOccurrenceDay(singleDay);
     setEditSchedule(t);
@@ -783,7 +844,6 @@ export default function App() {
     energy,
     recommendationTask?.quantity?.remaining,
   ]);
-  const conflicts = fixedConflicts(s, day);
   useEffect(() => {
     const a = s.active;
     if (!a?.segmentStart) return;
@@ -886,7 +946,7 @@ export default function App() {
     examCount?: number,
   ) {
     if (!flushLearning(() => start(minutes, task, resourceId, problemId, examCount))) return;
-    if (task && task !== '__free__' && !s.tasks.some(t => t.id === task && t.status !== 'done')) {
+    if (task && task !== '__free__' && !s.tasks.some((t) => t.id === task && t.status !== 'done')) {
       setNotice('시작할 미완료 과제를 다시 확인해 주세요. 진행 중인 공부는 유지됩니다.');
       return;
     }
@@ -916,7 +976,9 @@ export default function App() {
     }
     if (s.active) {
       if (task && task !== '__free__' && task !== s.active.taskId) {
-        setNotice(`진행 중인 “${s.active.action}” 학습을 저장하고 종료한 뒤 다른 과제를 시작해 주세요.`);
+        setNotice(
+          `진행 중인 “${s.active.action}” 학습을 저장하고 종료한 뒤 다른 과제를 시작해 주세요.`,
+        );
         return;
       }
       if (resourceId && resourceId !== s.active.resourceId)
@@ -1065,14 +1127,25 @@ export default function App() {
       setNotice('문제를 준비했어. 이제 내 답을 먼저 적어봐.');
   }
   function saveAnswerDraft(answerDraft: string) {
-    return commit((v) => v.active?.workspace ? {
-      ...v, active: { ...v.active, workspace: { ...v.active.workspace, answerDraft } },
-    } : v);
+    return commit((v) =>
+      v.active?.workspace
+        ? {
+            ...v,
+            active: { ...v.active, workspace: { ...v.active.workspace, answerDraft } },
+          }
+        : v,
+    );
   }
   function addLearningAttempt(answer: string, meta: AttemptMeta) {
     const workspace = memory.current.active?.workspace;
     const last = workspace?.attempts.at(-1);
-    if (!answer.trim() || !workspace || workspace.attempts.length >= 20 || last?.selfCheck === 'unreviewed') return false;
+    if (
+      !answer.trim() ||
+      !workspace ||
+      workspace.attempts.length >= 20 ||
+      last?.selfCheck === 'unreviewed'
+    )
+      return false;
     const saved = commit((v) => {
       if (!v.active?.workspace) return v;
       return {
@@ -1356,7 +1429,7 @@ export default function App() {
         }))
       ) {
         setModal(null);
-        if (!editTask && t.kind === '수행평가') {
+        if (!editTask && t.kind === '수행평가' && tab !== 'school') {
           setFilter('pending');
           setTab('tasks');
         }
@@ -1375,7 +1448,8 @@ export default function App() {
     const f = new FormData(e.currentTarget);
     try {
       const date = String(f.get('date') || '');
-      const exceptionDay = occurrenceDay || (editSchedule && !editSchedule.date && date ? date : '');
+      const exceptionDay =
+        occurrenceDay || (editSchedule && !editSchedule.date && date ? date : '');
       const t = scheduleSchema.parse({
         id: exceptionDay ? uid() : editSchedule?.id || uid(),
         title: f.get('title'),
@@ -1397,13 +1471,17 @@ export default function App() {
           .filter(Boolean),
       });
       if (
-        commit((v) => exceptionDay && editSchedule
-          ? changeOccurrence(v, editSchedule, exceptionDay, t)
-          : ({
-            ...v,
-            schedules: editSchedule ? v.schedules.map((x) => (x.id === t.id ? t : x)) : [...v.schedules, t],
-            undo: null,
-          }))
+        commit((v) =>
+          exceptionDay && editSchedule
+            ? changeOccurrence(v, editSchedule, exceptionDay, t)
+            : {
+                ...v,
+                schedules: editSchedule
+                  ? v.schedules.map((x) => (x.id === t.id ? t : x))
+                  : [...v.schedules, t],
+                undo: null,
+              },
+        )
       ) {
         setModal(null);
         setNotice('고정 일정을 저장했습니다. 충돌이 생긴 계획은 복구 버튼으로 다시 검토하세요.');
@@ -1501,6 +1579,22 @@ export default function App() {
         (f) =>
           `BEGIN:VEVENT\r\nUID:${esc(f.id)}-${format(f.classStart)}@bkit\r\nDTSTAMP:${format(Date.now())}\r\nDTSTART:${format(f.start)}\r\nDTEND:${format(f.end)}\r\nSUMMARY:${esc(f.title + ' · 준비부터 수업 종료까지')}\r\nDESCRIPTION:${esc('준비 ' + clock(f.start) + ' / 출발 ' + clock(f.depart) + ' / 수업 ' + clock(f.classStart) + ' / ' + f.materials)}\r\nBEGIN:VALARM\r\nTRIGGER:-PT5M\r\nACTION:DISPLAY\r\nDESCRIPTION:준비 시작 확인\r\nEND:VALARM\r\nEND:VEVENT`,
       );
+    for (const task of s.tasks.filter(
+      (t) =>
+        t.due &&
+        (t.deadline?.date ?? dayKey(t.due)) >= today &&
+        (t.deadline?.date ?? dayKey(t.due)) < addDays(today, 14),
+    )) {
+      const date = task.deadline?.date ?? dayKey(task.due!);
+      const dateOnly = task.deadline?.precision === 'date-only';
+      const start = dateOnly
+        ? 'DTSTART;VALUE=DATE:' + date.replaceAll('-', '')
+        : 'DTSTART:' + format(+new Date(task.due!));
+      const end = dateOnly ? '\r\nDTEND;VALUE=DATE:' + addDays(date, 1).replaceAll('-', '') : '';
+      events.push(
+        `BEGIN:VEVENT\r\nUID:task-${esc(task.id)}@bkit\r\nDTSTAMP:${format(Date.now())}\r\n${start}${end}\r\nSUMMARY:${esc(task.subject + ' · ' + task.title)}\r\nDESCRIPTION:${esc(dateOnly ? '날짜 마감 · 시간 미정' : '과제 마감')}\r\nEND:VEVENT`,
+      );
+    }
     download(
       'bkit-next-14-days.ics',
       `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//BKIT//STUDY OS//KO\r\n${events.join('\r\n')}\r\nEND:VCALENDAR\r\n`,
@@ -1615,14 +1709,30 @@ export default function App() {
         />
         <MaterialEffects
           prefs={material}
-          studying={!!(s.active?.segmentStart || s.quickTimer?.segmentStart || s.active?.resourceId || s.active?.workspace)}
+          studying={
+            !!(
+              s.active?.segmentStart ||
+              s.quickTimer?.segmentStart ||
+              s.active?.resourceId ||
+              s.active?.workspace
+            )
+          }
         />
         <div className="theme-scenery" aria-hidden="true">
           <i />
           <i />
           <i />
         </div>
-        {awakeRestUntil !== null && <Suspense fallback={null}><AwakeRest garage={garageController.garage} until={awakeRestUntil} onReturn={() => setAwakeRestUntil(null)} onDuration={seconds => setAwakeRestUntil(Date.now() + seconds * 1000)} /></Suspense>}
+        {awakeRestUntil !== null && (
+          <Suspense fallback={null}>
+            <AwakeRest
+              garage={garageController.garage}
+              until={awakeRestUntil}
+              onReturn={() => setAwakeRestUntil(null)}
+              onDuration={(seconds) => setAwakeRestUntil(Date.now() + seconds * 1000)}
+            />
+          </Suspense>
+        )}
         <a className="skip" href="#main">
           본문으로 이동
         </a>
@@ -1653,6 +1763,15 @@ export default function App() {
               </button>
             </div>
             <div className="home-top-tools">
+              <button
+                type="button"
+                className="icon-button help-entry"
+                aria-label="도움말 열기"
+                aria-haspopup="dialog"
+                onClick={() => showHelp()}
+              >
+                <HelpCircle size={20} />
+              </button>
               {!online && <span className="offline-label">오프라인</span>}
               <button
                 type="button"
@@ -1702,7 +1821,7 @@ export default function App() {
                     (
                       {
                         today: '오늘의 공부',
-                        school: '시간표',
+                        school: '달력 · 시간표',
                         tasks: '과제',
                         materials: '공부 자료',
                         study: '집중',
@@ -1827,7 +1946,10 @@ export default function App() {
                   beginQuick(minutes ? 'countdown' : 'stopwatch', minutes ?? 480);
                   setTab('study');
                 }}
-                onNavigate={setTab}
+                onNavigate={(route) => {
+                  if (route === 'school') setDay(today);
+                  setTab(route);
+                }}
                 onAdd={() => taskEditor()}
                 onEdit={taskEditor}
                 onSubmissions={() => {
@@ -1835,6 +1957,7 @@ export default function App() {
                   setTab('tasks');
                 }}
                 onResource={openResource}
+                onHelp={() => showHelp('quick')}
               />
             )}
             {tab === 'materials' && (
@@ -1843,148 +1966,43 @@ export default function App() {
               </Suspense>
             )}
             {tab === 'school' && (
-              <>
-                <div className="toolbar">
-                  <div className="segmented">
-                    <button
-                      className={day === today ? 'selected' : ''}
-                      onClick={() => setDay(today)}
-                    >
-                      오늘
-                    </button>
-                    <button
-                      className={day === addDays(today, 1) ? 'selected' : ''}
-                      onClick={() => setDay(addDays(today, 1))}
-                    >
-                      내일
-                    </button>
-                  </div>
-                  <input
-                    aria-label="조회 날짜"
-                    type="date"
-                    value={day}
-                    onChange={(e) => e.target.value && setDay(e.target.value)}
-                  />
-                  <button className="primary" onClick={() => scheduleEditor(null, day)}>
-                    <Plus size={16} /> 일정 등록
-                  </button>
-                </div>
-                <div className="command-actions" role="group" aria-label="선택 날짜에 추가">
-                  <button className="text-button" onClick={() => { taskEditor(); setCaptureDay(day); open('task'); }}><Plus size={15} /> 과제</button>
-                  <button className="text-button" onClick={() => { addAssessmentNow(); setCaptureDay(day); }}><Plus size={15} /> 수행평가</button>
-                </div>
-                <section className="panel">
-                  {conflicts.length > 0 && (
-                    <p className="warning">
-                      고정 일정 충돌: {conflicts.join(', ')}. 원본 일정은 유지됩니다. 시간을
-                      확인하세요.
-                    </p>
-                  )}
-                  <div className="section-head">
-                    <h2>{fullDate(at(day, '12:00'))}의 일정</h2>
-                    <button className="text-button" onClick={exportCalendar}>
-                      <Download size={16} /> 캘린더
-                    </button>
-                  </div>
-                  {fixedForDay(s, day).filter((f) => !['sleep', 'meal'].includes(f.kind)).length ? (
-                    fixedForDay(s, day)
-                      .filter((f) => !['sleep', 'meal'].includes(f.kind))
-                      .map((f) => (
-                        <div className="schedule-row" key={f.id}>
-                          <div className="schedule-time">
-                            {clock(f.classStart)}
-                            <small>{clock(f.end)}</small>
-                          </div>
-                          <div>
-                            <span className="chip">
-                              {f.kind === 'school'
-                                ? '학교'
-                                : f.kind === 'academy'
-                                  ? '학원'
-                                  : '고정'}
-                            </span>
-                            <h3>{f.title}</h3>
-                            <p>
-                              준비 {clock(f.start)} → 출발 {clock(f.depart)} → 도착{' '}
-                              {clock(f.arrive)}
-                            </p>
-                            <p>준비물: {f.materials || '아직 입력하지 않았어요'}</p>
-                          </div>
-                          <button
-                            className="text-button"
-                            onClick={() => scheduleEditor(s.schedules.find(x => x.id === f.id.split('@')[0]) || null, dayKey(f.classStart), dayKey(f.classStart))}
-                            aria-label={f.title + ' 이 날짜만 수정'}
-                          >이 날짜만</button>
-                          <button
-                            className="icon-button"
-                            aria-label={f.title + ' 수정'}
-                            onClick={() =>
-                              scheduleEditor(s.schedules.find((x) => x.id === f.id.split('@')[0]) || null)
-                            }
-                          >
-                            <Pencil size={17} />
-                          </button>
-                        </div>
-                      ))
-                  ) : (
-                    <Empty title="등록된 수업이 없어요">
-                      예시 시간표를 실제 일정으로 넣지 않습니다. 수업별로 요일과 시간을 등록하세요.
-                    </Empty>
-                  )}
-                </section>
-                <section className="panel spaced" aria-label="선택 날짜 과제 마감">
-                  <h2>과제 · 수행평가 마감</h2>
-                  {s.tasks.filter(t => (t.deadline?.date ?? (t.due ? dayKey(t.due) : '')) === day).map(t => (
-                    <div className="schedule-row" key={t.id}>
-                      <button className="text-button" onClick={() => taskEditor(t)}>{t.subject} · {t.title}<br />{formatTaskDeadline(t)} · {t.status === 'done' ? '학습 완료' : '미완료'}{t.submitted ? ' · 제출 완료' : needsSubmission(t) ? ' · 제출 확인 필요' : ''}</button>
-                      {t.status !== 'done' && t.quantity?.remaining !== 0 && <button className="text-button" onClick={() => start(5, t.id)} aria-label={t.title + ' 5분 공부 시작'}><Play size={15} /> 5분 시작</button>}
-                    </div>
-                  ))}
-                  {!s.tasks.some(t => (t.deadline?.date ?? (t.due ? dayKey(t.due) : '')) === day) && <p className="muted">등록된 마감이 없어요.</p>}
-                </section>
-                <section className="panel spaced">
-                  <div className="section-head">
-                    <h2>매주 반복하는 일정</h2>
-                    <span className="muted">월요일부터 일요일까지</span>
-                  </div>
-                  <div className="week-grid" tabIndex={0} role="region" aria-label="요일별 시간표">
-                    {[1, 2, 3, 4, 5, 6, 0].map((d) => (
-                      <div key={d}>
-                        <h3>{DAYS[d]}</h3>
-                        {s.schedules
-                          .filter((x) => !x.date && x.days.includes(d))
-                          .sort((a, b) => a.start.localeCompare(b.start))
-                          .map((x) => (
-                            <button
-                              key={x.id}
-                              className="week-class"
-                              onClick={() => scheduleEditor(x)}
-                            >
-                              <small>
-                                {x.start}–{x.end}
-                              </small>
-                              <strong>{x.title}</strong>
-                            </button>
-                          ))}
-                        {!s.schedules.some((x) => !x.date && x.days.includes(d)) && (
-                          <span className="muted">미등록</span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </section>
-                <section className="note-card">
-                  <h3>과거 학원 일정, 확인 후 추가하세요</h3>
-                  <p>
-                    수·금 수학 18:00–22:00 / 일 국어 19:00–22:00. 현재 확정 일정으로 등록되어 있지
-                    않습니다. 일정 등록에서 직접 확인하고 입력하세요.
-                  </p>
-                  <p>
-                    휴업·시험일에는 원래 수업의 제외 날짜를 입력하고, 해당 날짜의 임시 일정을 추가할
-                    수 있습니다.
-                  </p>
-                </section>
-              </>
+              <Suspense fallback={<p role="status">달력을 여는 중…</p>}>
+                <StudyCalendar
+                  state={s}
+                  day={day}
+                  today={today}
+                  onDay={setDay}
+                  onSchedule={scheduleEditor}
+                  onEdit={taskEditor}
+                  onStart={(id) => start(5, id)}
+                  onTask={(kind, date) => {
+                    taskEditor();
+                    setTaskPresetKind(kind);
+                    setCaptureDay(date);
+                    open('task');
+                  }}
+                  onExport={exportCalendar}
+                  onPlan={(taskId, date, blockId) => {
+                    const block = s.plan.find((b) => b.id === blockId);
+                    setPlanEditor({
+                      id: blockId,
+                      taskId,
+                      day: date,
+                      start: block ? localInput(block.start) : undefined,
+                      end: block ? localInput(block.end) : undefined,
+                    });
+                    open('block');
+                  }}
+                  onRemoveBlock={(id) => {
+                    if (confirm('이 공부 계획 시간을 취소할까요? 과제는 유지돼요.'))
+                      commit((v) => ({
+                        ...v,
+                        plan: v.plan.filter((b) => b.id !== id),
+                        undo: null,
+                      }));
+                  }}
+                />
+              </Suspense>
             )}
             {tab === 'exams' && (
               <Suspense fallback={<p>시험 정보를 여는 중…</p>}>
@@ -2089,7 +2107,14 @@ export default function App() {
             {tab === 'study' && (
               <>
                 {!s.active && <QuickStudyTimer {...quickProps} compact />}
-                {s.quickTimer && <Suspense fallback={null}><AwakeAssist onRest={() => pauseForAwakeRest()} onShortRest={() => pauseForAwakeRest(true)} /></Suspense>}
+                {s.quickTimer && (
+                  <Suspense fallback={null}>
+                    <AwakeAssist
+                      onRest={() => pauseForAwakeRest()}
+                      onShortRest={() => pauseForAwakeRest(true)}
+                    />
+                  </Suspense>
+                )}
                 {!s.active && (
                   <button className="focus-library-link" onClick={() => setTab('materials')}>
                     <BookOpen size={18} />
@@ -2263,17 +2288,45 @@ export default function App() {
                           <FocusStayAwake running />
                         </div>
                       )}
-                      {s.active && <Suspense fallback={null}><AwakeAssist onRest={() => pauseForAwakeRest()} onShortRest={() => pauseForAwakeRest(true)} /></Suspense>}
+                      {s.active && (
+                        <Suspense fallback={null}>
+                          <AwakeAssist
+                            onRest={() => pauseForAwakeRest()}
+                            onShortRest={() => pauseForAwakeRest(true)}
+                          />
+                        </Suspense>
+                      )}
                       {s.active && (
                         <div className="focus-first-action">
-                          <p>{s.active.workspace ? '이어서 내 답을 작성하고, 해설을 확인한 뒤 직접 평가해 주세요.' : firstLearningAction(s.tasks.find(t => t.id === s.active?.taskId), energy === 'low')}</p>
-                          {!s.active.resourceId && <button type="button" className="text-button" onClick={() => setProblemToolsSession(s.active!.id)}>첫 문제 기록 <BookOpen size={14} /></button>}
+                          <p>
+                            {s.active.workspace
+                              ? '이어서 내 답을 작성하고, 해설을 확인한 뒤 직접 평가해 주세요.'
+                              : firstLearningAction(
+                                  s.tasks.find((t) => t.id === s.active?.taskId),
+                                  energy === 'low',
+                                )}
+                          </p>
+                          {!s.active.resourceId && (
+                            <button
+                              type="button"
+                              className="text-button"
+                              onClick={() => setProblemToolsSession(s.active!.id)}
+                            >
+                              첫 문제 기록 <BookOpen size={14} />
+                            </button>
+                          )}
                         </div>
                       )}
                       {s.active && (
                         <details
                           className="focus-workspace-tools"
-                          open={!!(s.active.resourceId || s.active.workspace || problemToolsSession === s.active.id)}
+                          open={
+                            !!(
+                              s.active.resourceId ||
+                              s.active.workspace ||
+                              problemToolsSession === s.active.id
+                            )
+                          }
                         >
                           <summary>
                             학습 자료 · 문제 풀이
@@ -2573,10 +2626,15 @@ export default function App() {
             )}
             {tab === 'settings' && (
               <>
+                <button className="settings-theme-entry" onClick={() => showHelp('quick')}>
+                  <HelpCircle size={20} />
+                  <span>도움말 · 빠른 시작</span>
+                  <ChevronRight size={18} />
+                </button>
                 <section className="theme-preferences panel" aria-label="화면 모드 설정">
                   <div>
                     <h2>화면 모드</h2>
-                    <p>눈이 편한 다크모드로 전환해도 공부 기록과 파일은 변경되지 않아요.</p>
+                    <p>공부 기록은 그대로, 눈에 편한 화면으로.</p>
                   </div>
                   <button
                     type="button"
@@ -2593,7 +2651,7 @@ export default function App() {
                   <span>테마와 움직임</span>
                   <ChevronRight size={18} />
                 </button>
-                <details className="compact-section">
+                <details className="compact-section" id="settings-backup">
                   <summary>
                     백업 · 복구
                     <ChevronRight size={16} />
@@ -2607,7 +2665,10 @@ export default function App() {
                       <button
                         className="text-button"
                         disabled={!pending.length}
-                        onClick={() => open('block')}
+                        onClick={() => {
+                          setPlanEditor(null);
+                          open('block');
+                        }}
                       >
                         <LockKeyhole size={15} /> 학습 시간 직접 고정
                       </button>
@@ -2643,127 +2704,6 @@ export default function App() {
                     <Suspense fallback={<p role="status">전체 백업을 여는 중…</p>}>
                       <CompleteBackupPanel studying={!!s.active || !!s.quickTimer} />
                     </Suspense>
-                  </div>
-                </details>
-                <details className="compact-section">
-                  <summary>
-                    실험실
-                    <ChevronRight size={16} />
-                  </summary>
-                  <section className="panel experimental-settings">
-                    <span className="eyebrow">EXPERIMENTAL · 기본 OFF</span>
-                    <h2>실험실</h2>
-                    <p>기기와 환경에 따라 정확도가 달라지는 보조 도구예요.</p>
-                    <Suspense fallback={<p role="status">실험 도구를 여는 중…</p>}>
-                      <AwakeAssist onRest={() => pauseForAwakeRest()} onShortRest={() => pauseForAwakeRest(true)} />
-                    </Suspense>
-                  </section>
-                </details>
-                <div className="settings-layout">
-                  <section className="panel">
-                    <div className="section-head">
-                      <h2>생활 리듬</h2>
-                    </div>
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        const f = new FormData(e.currentTarget);
-                        if (
-                          commit((v) => ({
-                            ...v,
-                            settings: {
-                              wake: String(f.get('wake')),
-                              bed: String(f.get('bed')),
-                              minSleep: Number(f.get('minSleep')),
-                              focus: Number(f.get('focus')),
-                              mealStart: String(f.get('mealStart')),
-                              mealMinutes: Number(f.get('mealMinutes')),
-                              breakMinutes: Number(f.get('breakMinutes')),
-                              goal: String(f.get('goal')),
-                            },
-                            undo: null,
-                          }))
-                        )
-                          setNotice(
-                            '생활 리듬을 저장했습니다. 기존 계획은 복구로 다시 확인하세요.',
-                          );
-                      }}
-                    >
-                      <div className="form-grid">
-                        <Field label="기상">
-                          <input type="time" name="wake" required defaultValue={s.settings.wake} />
-                        </Field>
-                        <Field label="취침">
-                          <input type="time" name="bed" required defaultValue={s.settings.bed} />
-                        </Field>
-                        <Field label="최소 수면 (시간)">
-                          <input
-                            type="number"
-                            name="minSleep"
-                            min="7"
-                            max="12"
-                            step="0.5"
-                            required
-                            defaultValue={s.settings.minSleep}
-                          />
-                        </Field>
-                        <Field label="계획의 집중 구간 (분)">
-                          <input
-                            type="number"
-                            name="focus"
-                            min="5"
-                            max="120"
-                            required
-                            defaultValue={s.settings.focus}
-                          />
-                        </Field>
-                        <Field label="식사 시작">
-                          <input
-                            type="time"
-                            name="mealStart"
-                            required
-                            defaultValue={s.settings.mealStart}
-                          />
-                        </Field>
-                        <Field label="식사 · 쉬는 시간 (분)">
-                          <input
-                            type="number"
-                            name="mealMinutes"
-                            min="15"
-                            max="120"
-                            required
-                            defaultValue={s.settings.mealMinutes}
-                          />
-                        </Field>
-                        <Field label="세션 사이 휴식 (분)">
-                          <input
-                            type="number"
-                            name="breakMinutes"
-                            min="5"
-                            max="30"
-                            required
-                            defaultValue={s.settings.breakMinutes}
-                          />
-                        </Field>
-                      </div>
-                      <Field label="장기 목표">
-                        <textarea name="goal" maxLength={200} defaultValue={s.settings.goal} />
-                      </Field>
-                      <p className="hint">
-                        기본값은 생활 선호 설정입니다. 최소 수면이 부족하면 계획 엔진은 취침을
-                        앞당겨 보호합니다. 여러 식사·휴식은 고정 일정으로 추가하세요.
-                      </p>
-                      <button className="primary" type="submit">
-                        설정 저장
-                      </button>
-                    </form>
-                  </section>
-                  <div>
-                    <PrivateSyncPanel sync={privateSync} />
-                    <details className="panel">
-                      <summary>Google Sheets 연동 (이전 방식 · 별도 설정)</summary>
-                      <CloudSyncPanel cloud={cloud} />
-                    </details>
                     <section className="panel">
                       <div className="section-head">
                         <h2>내 데이터</h2>
@@ -2881,42 +2821,189 @@ export default function App() {
                         제공하지 않습니다.
                       </p>
                     </section>
-                    <section className="panel spaced">
+                  </div>
+                </details>
+                <details className="compact-section" id="settings-awake">
+                  <summary>
+                    실험실
+                    <ChevronRight size={16} />
+                  </summary>
+                  <section className="panel experimental-settings">
+                    <span className="eyebrow">EXPERIMENTAL · 기본 OFF</span>
+                    <h2>실험실</h2>
+                    <p>기기와 환경에 따라 정확도가 달라지는 보조 도구예요.</p>
+                    <Suspense fallback={<p role="status">실험 도구를 여는 중…</p>}>
+                      <AwakeAssist
+                        onRest={() => pauseForAwakeRest()}
+                        onShortRest={() => pauseForAwakeRest(true)}
+                      />
+                    </Suspense>
+                  </section>
+                </details>
+                <div className="settings-layout">
+                  <details className="compact-section settings-rhythm">
+                    <summary>
+                      생활 리듬 <ChevronRight size={16} />
+                    </summary>
+                    <section className="panel">
                       <div className="section-head">
-                        <h2>PWA · 알림</h2>
+                        <h2>생활 리듬</h2>
                       </div>
-                      <p>iPhone Safari 공유 → ‘홈 화면에 추가’로 설치할 수 있습니다.</p>
-                      <p className="muted">
-                        오프라인 기능은 한 번 온라인으로 연 뒤 사용할 수 있습니다. 백그라운드 Web
-                        Push는 현재 구현되지 않았습니다. iOS 16.4 이상 설치형 PWA에서도 서버
-                        예약·권한 설정이 추가로 필요합니다.
-                      </p>
-                      <p className="hint">
-                        캘린더 파일을 가져온 뒤 캘린더 앱에서 알림을 직접 확인하세요. 앱이 꺼져 있을
-                        때 알림을 보낸다고 표시하지 않습니다.
-                      </p>
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const f = new FormData(e.currentTarget);
+                          if (
+                            commit((v) => ({
+                              ...v,
+                              settings: {
+                                wake: String(f.get('wake')),
+                                bed: String(f.get('bed')),
+                                minSleep: Number(f.get('minSleep')),
+                                focus: Number(f.get('focus')),
+                                mealStart: String(f.get('mealStart')),
+                                mealMinutes: Number(f.get('mealMinutes')),
+                                breakMinutes: Number(f.get('breakMinutes')),
+                                goal: String(f.get('goal')),
+                              },
+                              undo: null,
+                            }))
+                          )
+                            setNotice(
+                              '생활 리듬을 저장했습니다. 기존 계획은 복구로 다시 확인하세요.',
+                            );
+                        }}
+                      >
+                        <div className="form-grid">
+                          <Field label="기상">
+                            <input
+                              type="time"
+                              name="wake"
+                              required
+                              defaultValue={s.settings.wake}
+                            />
+                          </Field>
+                          <Field label="취침">
+                            <input type="time" name="bed" required defaultValue={s.settings.bed} />
+                          </Field>
+                          <Field label="최소 수면 (시간)">
+                            <input
+                              type="number"
+                              name="minSleep"
+                              min="7"
+                              max="12"
+                              step="0.5"
+                              required
+                              defaultValue={s.settings.minSleep}
+                            />
+                          </Field>
+                          <Field label="계획의 집중 구간 (분)">
+                            <input
+                              type="number"
+                              name="focus"
+                              min="5"
+                              max="120"
+                              required
+                              defaultValue={s.settings.focus}
+                            />
+                          </Field>
+                          <Field label="식사 시작">
+                            <input
+                              type="time"
+                              name="mealStart"
+                              required
+                              defaultValue={s.settings.mealStart}
+                            />
+                          </Field>
+                          <Field label="식사 · 쉬는 시간 (분)">
+                            <input
+                              type="number"
+                              name="mealMinutes"
+                              min="15"
+                              max="120"
+                              required
+                              defaultValue={s.settings.mealMinutes}
+                            />
+                          </Field>
+                          <Field label="세션 사이 휴식 (분)">
+                            <input
+                              type="number"
+                              name="breakMinutes"
+                              min="5"
+                              max="30"
+                              required
+                              defaultValue={s.settings.breakMinutes}
+                            />
+                          </Field>
+                        </div>
+                        <Field label="장기 목표">
+                          <textarea name="goal" maxLength={200} defaultValue={s.settings.goal} />
+                        </Field>
+                        <p className="hint">
+                          기본값은 생활 선호 설정입니다. 최소 수면이 부족하면 계획 엔진은 취침을
+                          앞당겨 보호합니다. 여러 식사·휴식은 고정 일정으로 추가하세요.
+                        </p>
+                        <button className="primary" type="submit">
+                          설정 저장
+                        </button>
+                      </form>
                     </section>
+                  </details>
+                  <div>
+                    <details className="compact-section">
+                      <summary>
+                        기기 간 연동 <ChevronRight size={16} />
+                      </summary>
+                      <div className="settings-detail-body">
+                        <PrivateSyncPanel sync={privateSync} />
+                      </div>
+                      <details className="panel">
+                        <summary>Google Sheets 연동 (이전 방식 · 별도 설정)</summary>
+                        <CloudSyncPanel cloud={cloud} />
+                      </details>
+                    </details>
+                    <details className="compact-section">
+                      <summary>
+                        앱 설치 · 알림 <ChevronRight size={16} />
+                      </summary>
+                      <section className="panel spaced">
+                        <div className="section-head">
+                          <h2>PWA · 알림</h2>
+                        </div>
+                        <p>iPhone Safari 공유 → ‘홈 화면에 추가’로 설치할 수 있습니다.</p>
+                        <p className="muted">
+                          오프라인 기능은 한 번 온라인으로 연 뒤 사용할 수 있습니다. 백그라운드 Web
+                          Push는 현재 구현되지 않았습니다. iOS 16.4 이상 설치형 PWA에서도 서버
+                          예약·권한 설정이 추가로 필요합니다.
+                        </p>
+                        <p className="hint">
+                          캘린더 파일을 가져온 뒤 캘린더 앱에서 알림을 직접 확인하세요. 앱이 꺼져
+                          있을 때 알림을 보낸다고 표시하지 않습니다.
+                        </p>
+                      </section>
+                    </details>
                     <details className="compact-section">
                       <summary>
                         API 연결 · 고급 설정
                         <ChevronRight size={16} />
                       </summary>
                       <ApiReadinessPanel />
+                      <section className="note-card">
+                        <h3>AI 연결 상태</h3>
+                        <p className="mode-label">
+                          {'과제 브리핑 AI · Google 본인 인증 후 선택 사용'}
+                        </p>
+                        <p>
+                          계획 복구·코치·일반 비서는 로컬 규칙 기반입니다. 현재 운영 API는 이 세 AI
+                          기능을 지원하지 않습니다.
+                        </p>
+                        <p>
+                          과제 브리핑은 공지 정리 화면에서 Google로 연결하고 정리 버튼을 누를 때만
+                          입력 글자를 보냅니다. 사진·PDF는 보내지 않으며 초안을 확인한 뒤
+                          저장합니다.
+                        </p>
+                      </section>
                     </details>
-                    <section className="note-card">
-                      <h3>AI 연결 상태</h3>
-                      <p className="mode-label">
-                        {'과제 브리핑 AI · Google 본인 인증 후 선택 사용'}
-                      </p>
-                      <p>
-                        계획 복구·코치·일반 비서는 로컬 규칙 기반입니다. 현재 운영 API는 이 세 AI
-                        기능을 지원하지 않습니다.
-                      </p>
-                      <p>
-                        과제 브리핑은 공지 정리 화면에서 Google로 연결하고 정리 버튼을 누를 때만
-                        입력 글자를 보냅니다. 사진·PDF는 보내지 않으며 초안을 확인한 뒤 저장합니다.
-                      </p>
-                    </section>
                   </div>
                 </div>
               </>
@@ -3021,6 +3108,7 @@ export default function App() {
                     ? '수행평가 등록'
                     : '새 과제',
                 schedule: editSchedule ? '일정 수정' : '고정 일정 등록',
+                help: 'BKIT 사용 가이드',
                 finish: '집중을 기록으로 남기기',
                 recover: '지금부터, 다시 시작',
                 grade: '시험 기록',
@@ -3036,7 +3124,7 @@ export default function App() {
               }
               setModal(null);
             }}
-            className={modal === 'theme' ? 'theme-dialog' : ''}
+            className={modal === 'theme' ? 'theme-dialog' : modal === 'help' ? 'help-dialog' : ''}
             nonModal={modal === 'tools'}
             returnFocus={modalTrigger.current}
           >
@@ -3044,6 +3132,11 @@ export default function App() {
               <p role="alert" className="warning form-error">
                 {formError}
               </p>
+            )}
+            {modal === 'help' && (
+              <Suspense fallback={<p role="status">가이드를 여는 중…</p>}>
+                <HelpCenter initialTopic={helpTopic} onAction={helpAction} />
+              </Suspense>
             )}
             {modal === 'theme' && (
               <Suspense fallback={<p role="status">테마를 여는 중…</p>}>
@@ -3159,7 +3252,8 @@ export default function App() {
                       type="date"
                       name="dueDate"
                       defaultValue={
-                        editTask?.deadline?.date ?? (editTask?.due ? dayKey(editTask.due) : captureDay)
+                        editTask?.deadline?.date ??
+                        (editTask?.due ? dayKey(editTask.due) : captureDay)
                       }
                     />
                   </Field>
@@ -3341,14 +3435,38 @@ export default function App() {
                     <select name="kind" defaultValue={editSchedule?.kind || 'school'}>
                       <option value="school">학교</option>
                       <option value="academy">학원</option>
-                      <option value="fixed">개인 고정 일정 · 식사 · 휴식</option>
+                      <option value="fixed">기타 일정 · 식사 · 휴식</option>
                     </select>
                   </Field>
                   <Field label="연결 과목">
                     <input name="subject" maxLength={200} defaultValue={editSchedule?.subject} />
                   </Field>
                 </div>
-                <div className="field">
+                {!occurrenceDay && (
+                  <div
+                    className="segmented schedule-repeat-choice"
+                    role="group"
+                    aria-label="일정 반복 설정"
+                  >
+                    <button
+                      type="button"
+                      aria-pressed={!scheduleRepeat}
+                      className={!scheduleRepeat ? 'selected' : ''}
+                      onClick={() => setScheduleRepeat(false)}
+                    >
+                      하루 일정
+                    </button>
+                    <button
+                      type="button"
+                      aria-pressed={scheduleRepeat}
+                      className={scheduleRepeat ? 'selected' : ''}
+                      onClick={() => setScheduleRepeat(true)}
+                    >
+                      매주 반복
+                    </button>
+                  </div>
+                )}
+                <div className="field" hidden={!scheduleRepeat}>
                   <span>반복 요일</span>
                   <div className="day-checks">
                     {[1, 2, 3, 4, 5, 6, 0].map((d) => (
@@ -3358,15 +3476,22 @@ export default function App() {
                           name="days"
                           value={d}
                           defaultChecked={editSchedule?.days.includes(d)}
+                          disabled={!scheduleRepeat}
                         />
                         {DAYS[d]}
                       </label>
                     ))}
                   </div>
                 </div>
-                <Field label="하루만 적용할 날짜 (입력하면 반복 요일보다 우선)">
-                  <input name="date" type="date" defaultValue={occurrenceDay || editSchedule?.date || scheduleDay}
-                    readOnly={!!occurrenceDay} />
+                <Field label="하루만 적용할 날짜 (매주 반복에서는 사용하지 않아요)">
+                  <input
+                    name="date"
+                    type="date"
+                    defaultValue={occurrenceDay || editSchedule?.date || scheduleDay || day}
+                    readOnly={!!occurrenceDay}
+                    disabled={scheduleRepeat}
+                    required={!scheduleRepeat}
+                  />
                 </Field>
                 <div className="form-grid">
                   <Field label="수업 · 일정 시작">
@@ -3427,18 +3552,29 @@ export default function App() {
                   />
                 </Field>
                 <p className="hint">
-                  고정 일정끼리 겹치면 원본을 유지하고 경고합니다. 임시 변경은 제외 날짜 + 하루 적용
-                  일정으로 등록하세요.
+                  반복 수업은 날짜를 비우고 요일을 선택하세요. 하루만 바꾸려면 달력의 ‘이 날짜만
+                  수정’을 사용해요.
                 </p>
                 <div className="modal-actions">
                   {editSchedule && occurrenceDay && (
-                    <button type="button" className="danger-button" onClick={() => {
-                      try {
-                        if (commit(v => changeOccurrence(v, editSchedule, occurrenceDay))) {
-                          setModal(null); setNotice(`${occurrenceDay} 일정만 취소했어요. 원래 시간표는 유지됩니다.`);
+                    <button
+                      type="button"
+                      className="danger-button"
+                      onClick={() => {
+                        try {
+                          if (commit((v) => changeOccurrence(v, editSchedule, occurrenceDay))) {
+                            setModal(null);
+                            setNotice(
+                              `${occurrenceDay} 일정만 취소했어요. 원래 시간표는 유지됩니다.`,
+                            );
+                          }
+                        } catch (error) {
+                          setFormError(inputError(error));
                         }
-                      } catch (error) { setFormError(inputError(error)); }
-                    }}>이 날짜만 취소</button>
+                      }}
+                    >
+                      이 날짜만 취소
+                    </button>
                   )}
                   {editSchedule && !occurrenceDay && (
                     <button
@@ -3781,14 +3917,18 @@ export default function App() {
                   const f = new FormData(e.currentTarget);
                   try {
                     const b = {
-                      id: uid(),
+                      id: planEditor?.id ?? uid(),
                       taskId: String(f.get('taskId')),
                       start: fromInput(String(f.get('start'))),
                       end: fromInput(String(f.get('end'))),
                       locked: true,
                     };
-                    const blocks = [...s.plan.filter((x) => +new Date(x.end) > Date.now()), b];
-                    const errors = validatePlan(s, blocks, Date.now());
+                    const blocks = [...s.plan.filter((x) => x.id !== b.id), b];
+                    const errors = validatePlan(
+                      { ...s, plan: s.plan.filter((x) => x.id !== b.id) },
+                      blocks.filter((x) => x.id === b.id || +new Date(x.end) > Date.now()),
+                      Date.now(),
+                    );
                     if (errors.length) {
                       setFormError(errors.join(' '));
                       return;
@@ -3800,7 +3940,7 @@ export default function App() {
                 }}
               >
                 <Field label="과제">
-                  <select name="taskId" required>
+                  <select name="taskId" required defaultValue={planEditor?.taskId}>
                     {pending.map((t) => (
                       <option value={t.id} key={t.id}>
                         {t.title}
@@ -3809,10 +3949,22 @@ export default function App() {
                   </select>
                 </Field>
                 <Field label="시작 (한국 시각)">
-                  <input name="start" type="datetime-local" required />
+                  <input
+                    name="start"
+                    type="datetime-local"
+                    required
+                    defaultValue={
+                      planEditor?.start ?? (planEditor ? planEditor.day + 'T19:00' : '')
+                    }
+                  />
                 </Field>
                 <Field label="종료">
-                  <input name="end" type="datetime-local" required />
+                  <input
+                    name="end"
+                    type="datetime-local"
+                    required
+                    defaultValue={planEditor?.end ?? (planEditor ? planEditor.day + 'T19:25' : '')}
+                  />
                 </Field>
                 <button className="primary" type="submit">
                   충돌 검사 · 시간 고정

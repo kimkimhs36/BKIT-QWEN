@@ -1,7 +1,8 @@
 import { ArrowRight, ArrowUpRight, BookOpen, ChevronRight, Clock3, Play, Plus } from 'lucide-react';
 import type { State, Task } from './model';
 import type { Fixed } from './engine';
-import { clock, dayKey } from './time';
+import { entriesForDay } from './calendar';
+import { clock, dayKey, addDays } from './time';
 import { formatTaskDeadline } from './capture';
 import { needsSubmission } from './tasks';
 import { quickClock, quickSeconds } from './quickTimer';
@@ -21,6 +22,7 @@ type Props = {
   onEdit: (task: Task) => void;
   onSubmissions: () => void;
   onResource: (id: string) => void;
+  onHelp: () => void;
 };
 export function PremiumHome({
   state,
@@ -36,6 +38,7 @@ export function PremiumHome({
   onEdit,
   onSubmissions,
   onResource,
+  onHelp,
 }: Props) {
   const pending = tasks.filter((t) => t.status !== 'done');
   const awaiting = state.tasks.filter(needsSubmission);
@@ -47,6 +50,10 @@ export function PremiumHome({
   const minutes = Math.floor(studySeconds(state.sessions, dayKey(now)) / 60);
   // Default sleep/meal boundaries protect timers, but are not learner appointments.
   const appointment = current && !['sleep', 'meal'].includes(current.kind) ? current : next;
+  const todayEntries = entriesForDay(state, dayKey(now));
+  const tomorrowEntries = entriesForDay(state, addDays(dayKey(now), 1));
+  const deadlineCount = (entries: typeof todayEntries) =>
+    entries.filter((e) => e.task && e.task.status !== 'done').length;
   return (
     <div className="study-home">
       <section className="study-start" aria-label="바로 공부 시작">
@@ -146,28 +153,50 @@ export function PremiumHome({
           <ChevronRight size={17} />
         </strong>
       </button>
-      {appointment && (
-        <section className="study-next" aria-label="다음 일정">
-          <Clock3 size={20} />
-          <div>
-            <span className="study-kicker">
-              {appointment === current ? '지금 일정' : '다음 일정'}
-            </span>
-            <h3>{appointment.title}</h3>
-            <p>
-              {clock(appointment.start)}–{clock(appointment.end)}
-              {dayKey(appointment.start) !== dayKey(now) && ` · ${dayKey(appointment.start)}`}
-            </p>
-          </div>
-          <button
-            className="study-icon"
-            onClick={() => onNavigate('school')}
-            aria-label="시간표 보기"
-          >
-            <ArrowUpRight size={20} />
-          </button>
-        </section>
-      )}
+      <section className="study-calendar-summary" aria-label="오늘과 내일 일정 요약">
+        <button
+          className="study-calendar-link"
+          onClick={() => onNavigate('school')}
+          aria-label={`오늘 일정 ${todayEntries.filter((e) => e.schedule).length} · 오늘 마감 ${deadlineCount(todayEntries)} · 내일 마감 ${deadlineCount(tomorrowEntries)} 달력 열기`}
+        >
+          <span className="study-calendar-stamp" aria-hidden="true">
+            <small>{Number(dayKey(now).slice(5, 7))}월</small>
+            <strong>{Number(dayKey(now).slice(-2))}</strong>
+          </span>
+          <span className="study-calendar-copy">
+            <strong>나의 달력</strong>
+            <small>
+              오늘 일정 {todayEntries.filter((e) => e.schedule).length} · 오늘 마감{' '}
+              {deadlineCount(todayEntries)} · 내일 마감 {deadlineCount(tomorrowEntries)}
+            </small>
+          </span>
+          <span className="study-calendar-open">
+            달력 열기 <ChevronRight size={16} />
+          </span>
+        </button>
+        {appointment && (
+          <section className="study-next" aria-label="다음 일정">
+            <Clock3 size={20} />
+            <div>
+              <span className="study-kicker">
+                {appointment === current ? '지금 일정' : '다음 일정'}
+              </span>
+              <h3>{appointment.title}</h3>
+              <p>
+                {clock(appointment.start)}–{clock(appointment.end)}
+                {dayKey(appointment.start) !== dayKey(now) && ` · ${dayKey(appointment.start)}`}
+              </p>
+            </div>
+            <button
+              className="study-icon"
+              onClick={() => onNavigate('school')}
+              aria-label="시간표 보기"
+            >
+              <ArrowUpRight size={20} />
+            </button>
+          </section>
+        )}
+      </section>
       {(resource || recent) && (
         <section className="study-recent" aria-label="최근 공부 이어하기">
           <BookOpen size={20} />
@@ -189,6 +218,9 @@ export function PremiumHome({
           </button>
         </section>
       )}
+      <button className="study-help-link" onClick={onHelp}>
+        처음이라면 · 30초 사용 가이드 <ArrowRight size={15} />
+      </button>
     </div>
   );
 }

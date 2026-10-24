@@ -1,0 +1,205 @@
+/* One canvas, from Safari's safe area to the last row. Material changes are atomic. */
+html[data-material],
+html[data-material] body {
+  background-color: var(--mat-bg) !important;
+}
+html[data-material] #root {
+  min-height: 100svh;
+  background: transparent;
+}
+html[data-material] body {
+  transition: none !important;
+}
+html[data-material] .app-shell.premium-os {
+  min-height: 100svh;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+}
+html[data-material] .app-shell.premium-os .main-shell {
+  width: min(
+    1040px,
+    calc(100% - max(36px, env(safe-area-inset-left, 0px) + env(safe-area-inset-right, 0px) + 32px))
+  ) !important;
+}
+html[data-material] .app-shell.premium-os .topbar,
+html[data-material] .app-shell.premium-os .topbar-leading,
+html[data-material] .app-shell.premium-os .brand-theme-button {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+html[data-material] .app-shell.premium-os .topbar::before,
+html[data-material] .app-shell.premium-os .topbar::after {
+  display: none !important;
+}
+/* Match the browser chrome colour at the top; details gradually emerge below it.
+   Masking decoration (never the content) avoids a separate translucent header strip. */
+.theme-scenery,
+.surreal-world {
+  background: var(--mat-bg);
+}
+.theme-scenery {
+  background: var(--mat-bg);
+}
+.theme-scenery::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--mat-world);
+  pointer-events: none;
+}
+.theme-scenery::before,
+.theme-scenery > i,
+.surreal-atmosphere,
+.surreal-surface,
+html[data-material='glass'] .surreal-world::after {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 240px);
+  mask-image: linear-gradient(to bottom, transparent 0px, #000 240px);
+}
+/* Quiet peripheral details: each finish has its own structure, never over text. */
+html[data-material='classic'] .theme-scenery i:nth-child(2) {
+  background:
+    radial-gradient(ellipse at 100% 80%, #b7c5a61a, transparent 48%),
+    repeating-linear-gradient(92deg, #64583303 0 1px, transparent 1px 5px);
+}
+html[data-material='forest'] .theme-scenery i:nth-child(2) {
+  background:
+    radial-gradient(ellipse at 95% 65%, #879d5220, transparent 45%),
+    radial-gradient(ellipse at 5% 85%, #26594935, transparent 50%);
+}
+html[data-material='gold'] .theme-scenery i:first-child {
+  background:
+    repeating-linear-gradient(0deg, #fff5d609 0 1px, transparent 1px 4px),
+    linear-gradient(115deg, transparent 25%, #fff6d733 48%, transparent 70%);
+}
+html[data-material='jelly'] .theme-scenery i:first-child {
+  background:
+    radial-gradient(ellipse at -15% 65%, #e9bfe44a, transparent 50%),
+    radial-gradient(ellipse at 112% 90%, #b4ace044, transparent 45%);
+}
+html[data-material='droplets'] .theme-scenery i:nth-child(2) {
+  background:
+    radial-gradient(ellipse at 100% 85%, #f4fff845, transparent 45%),
+    radial-gradient(ellipse at -10% 55%, #7eb8b91a, transparent 40%);
+}
+html[data-material='night'] .theme-scenery i:nth-child(2) {
+  background:
+    radial-gradient(ellipse at 100% 70%, #6981a71a, transparent 50%),
+    linear-gradient(115deg, transparent 80%, #a3c2ea07 80.1%, transparent 80.5%);
+}
+html[data-material] .app-shell.premium-os .topbar .icon-button {
+  width: 44px;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  height: 44px;
+}
+html[data-material]
+  .app-shell.premium-os
+  :is(
+    .page-head,
+    .calendar-workspace,
+    .settings-layout,
+    .focus-card,
+    .quick-timer,
+    .record-overview
+  ) {
+  min-width: 0;
+}
+html[data-material] .app-shell.premium-os :is(input, select, textarea) {
+  max-width: 100%;
+}
+html[data-material] .study-dialog {
+  scroll-padding-block: 18px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+html[data-material] .study-dialog :is(input, textarea, select) {
+  font-size: 16px;
+}
+html[data-material] .study-dialog :is(.primary, .secondary, .icon-button) {
+  min-height: 44px;
+}
+@media (min-width: 760px) {
+  html[data-material] .app-shell.premium-os .main-shell {
+    width: min(1000px, calc(100% - 64px)) !important;
+  }
+  html[data-material] .app-shell.premium-os .settings-layout {
+    align-items: start;
+  }
+  html[data-material] .app-shell.premium-os .page-head h1 {
+    font-size: 32px !important;
+  }
+  html[data-material] .study-dialog:not(.help-dialog):not(.theme-dialog):not(.tools-dialog) {
+    width: min(680px, calc(100% - 64px));
+  }
+  .settings-theme-entry {
+    min-height: 56px;
+  }
+}
+@media (max-width: 480px) {
+  html[data-material] .app-shell.premium-os .topbar {
+    gap: 2px;
+  }
+  html[data-material] .app-shell.premium-os .home-top-tools {
+    gap: 0;
+  }
+  html[data-material] .app-shell.premium-os .topbar .mobile-brand {
+    font-size: 24px !important;
+    gap: 5px;
+  }
+  html[data-material] .app-shell.premium-os:not(.page-today) .topbar .mobile-brand small {
+    display: none;
+  }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  html[data-material] .app-shell.premium-os .topbar {
+    min-height: 56px !important;
+    padding: 4px 0 !important;
+  }
+  html[data-material] .study-dialog {
+    max-height: calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+}
+/* A sheet must be readable over any screen, including translucent Glass. */
+html[data-material] .study-dialog:not(.tools-dialog) {
+  background: var(--mat-bg) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overscroll-behavior: contain;
+}
+html[data-material] .study-dialog .modal-head {
+  background: var(--mat-bg) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-material] .study-dialog-overlay {
+  background: #10181338 !important;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+html[data-material] .study-dialog [hidden] {
+  display: none !important;
+}
+@media (max-width: 650px) {
+  html[data-material] .app-shell.premium-os main {
+    padding-bottom: calc(116px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  html[data-material] .app-shell.premium-os .calendar-cell {
+    min-height: 60px;
+    height: 60px;
+    gap: 2px;
+  }
+}
+html[data-material] .study-dialog .schedule-repeat-choice {
+  margin-block: 16px;
+}
+html[data-material] .study-dialog .schedule-repeat-choice button[aria-pressed='true'] {
+  background: var(--mat-paper);
+  color: var(--mat-ink);
+}
+html[data-material] .study-dialog:not(.tools-dialog) .modal-head {
+  top: 0 !important;
+}

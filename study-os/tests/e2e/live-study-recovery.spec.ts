@@ -169,6 +169,7 @@ test('selected school date adds a task and an assessment with no invented deadli
     ['과제', '토요일 숙제'],
     ['수행평가', '토요일 수행평가'],
   ]) {
+    await page.getByRole('button', { name: '선택 날짜에 추가', exact: true }).click();
     await page
       .getByRole('group', { name: '선택 날짜에 추가' })
       .getByRole('button', { name: label, exact: true })
@@ -228,9 +229,7 @@ test('one-day schedule edit and cancellation preserve the weekly original and ne
   expect(stored.schedules[1].date).toBe(date);
   await page.getByRole('button', { name: '매주 수학 이 날짜만 수정', exact: true }).click();
   await d.getByRole('button', { name: '이 날짜만 취소', exact: true }).click();
-  await expect(
-    page.getByRole('heading', { name: '등록된 수업이 없어요', exact: true }),
-  ).toBeVisible();
+  await expect(page.getByText('아직 일정이 없어요.', { exact: true })).toBeVisible();
   await page.getByLabel('조회 날짜').fill('2026-10-30');
   await expect(page.locator('.schedule-row')).toContainText('매주 수학');
   stored = await state(page);
