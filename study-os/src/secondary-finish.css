@@ -451,3 +451,16 @@ html[data-material] .app-shell.premium-os.page-settings .theme-preferences-actio
 html[data-material] .app-shell.premium-os.page-settings .compact-section .compact-section {
   border-bottom: 0 !important;
 }
+@media (max-width: 360px) {
+  html[data-material] .app-shell.premium-os .quick-timer-actions button {
+    font-size: 12px !important;
+    padding: 10px !important;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .quick-timer-actions button svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+}
