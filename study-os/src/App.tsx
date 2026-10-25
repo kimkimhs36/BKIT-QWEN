@@ -2028,6 +2028,11 @@ export default function App() {
                 }}
                 onResource={openResource}
                 onHelp={() => showHelp('quick')}
+                accountConnected={privateSync.status === 'connected'}
+                onAccount={() => {
+                  setHelpDestination('settings-sync');
+                  setTab('settings');
+                }}
               />
             )}
             {tab === 'materials' && (
@@ -2954,7 +2959,7 @@ export default function App() {
                     </section>
                   </details>
                   <div>
-                    <details className="compact-section">
+                    <details className="compact-section" id="settings-sync">
                       <summary>
                         기기 간 연동 <ChevronRight size={16} />
                       </summary>

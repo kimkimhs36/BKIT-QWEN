@@ -499,3 +499,6 @@ html[data-material] .app-shell.premium-os.page-settings .compact-section .compac
     padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
+
+.study-home-links { display:flex;align-items:center;justify-content:center;gap:10px;grid-column:1/-1;min-width:0; }
+.study-home-links .study-help-link { min-height:44px;font-size:11px;padding:4px;gap:4px; }

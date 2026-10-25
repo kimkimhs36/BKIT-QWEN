@@ -24,6 +24,8 @@ type Props = {
   onSubmissions: () => void;
   onResource: (id: string) => void;
   onHelp: () => void;
+  onAccount: () => void;
+  accountConnected: boolean;
 };
 export function PremiumHome({
   state,
@@ -40,6 +42,8 @@ export function PremiumHome({
   onSubmissions,
   onResource,
   onHelp,
+  onAccount,
+  accountConnected,
 }: Props) {
   const pending = tasks.filter((t) => t.status !== 'done');
   const awaiting = state.tasks.filter(needsSubmission);
@@ -227,9 +231,14 @@ export function PremiumHome({
           </button>
         </section>
       )}
-      <button className="study-help-link" onClick={onHelp}>
-        처음이라면 · 30초 사용 가이드 <ArrowRight size={15} />
-      </button>
+      <div className="study-home-links">
+        <button className="study-help-link" onClick={onHelp}>
+          처음이라면 · 30초 사용 가이드 <ArrowRight size={15} />
+        </button>
+        <button className="study-help-link" onClick={onAccount}>
+          {accountConnected ? 'Google 연결됨' : 'Google로 이어가기'}
+        </button>
+      </div>
     </div>
   );
 }

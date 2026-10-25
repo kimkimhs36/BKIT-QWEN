@@ -90,7 +90,7 @@ function requestGoogleToken(clientId:string, scopes:string):Promise<string>{
       // Called after a real Connect button interaction. Never automatically
       // display an OAuth consent popup on page load.
       // A returning user should not be forced through consent on every visit.
-      client.requestAccessToken({prompt:'consent'});
+      client.requestAccessToken({prompt:''});
     }catch(e){fail(e instanceof Error?e.message:'Google 로그인을 시작할 수 없어.');}
   });
 }
