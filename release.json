@@ -1,12 +1,13 @@
 {
-  "product": "BKIT STUDY OS · Daily Driver",
-  "sourceCommit": "cb4b426c28ed29d9a6d149a30f904ae6e7a98161",
-  "sourceBranch": "feat/bkit-daily-driver-20261025",
-  "previousSource": "fae5374070b5c835a20f155dba68ee0c640a7349",
-  "rollbackCommit": "7e202aa49393edb6be50c4d4ef2ada8fd7477e96",
-  "publishedAt": "2026-10-25T09:05:16.453Z",
-  "validation": "Production build and TypeScript; remembered Google login WebKit iPhone. Full repeated UI matrix stopped at user request; prior unit/integration: 271 app + 99 API.",
-  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40179005446",
-  "apiSource": "f1439874063df4f17fa60d667fa5efe9ea2ba9f8",
-  "notes": "Static artifacts only; existing hashed assets, independent routes and browser study storage preserved."
+  "product": "BKIT STUDY OS · Session Recovery",
+  "sourceCommit": "1407f937bbf534c88c12031265c976f8c3d5f08d",
+  "sourceBranch": "fix/bkit-session-recovery-20261025",
+  "previousSource": "cb4b426c28ed29d9a6d149a30f904ae6e7a98161",
+  "rollbackCommit": "17bcf08d7bba0625372273c0391c6eea64a7d98d",
+  "publishedAt": "2026-10-25T10:00:40.778Z",
+  "apiSource": "9a0bfb94143a4703ca25788f6027a9ec3dbad0ec",
+  "apiProtocol": 2,
+  "validation": "App/API unit suites, production build, 34 paired real-API WebKit recovery scenarios; Google authorization and Redis transport synthetic, no physical-device claim",
+  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40182347231",
+  "notes": "No study storage reset; old hashed assets and independent routes retained."
 }
