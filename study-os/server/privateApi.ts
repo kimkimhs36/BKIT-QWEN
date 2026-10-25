@@ -56,6 +56,9 @@ local next = actual + 1
 -- ARGV[2] is JSON serialized after Node stateSchema validation. Do not decode
 -- and re-encode it: Redis cjson converts empty arrays into empty objects.
 redis.call('SET', KEYS[1], '{"version":' .. string.format('%.0f', next) .. ',"data":' .. ARGV[2] .. '}')
+-- Discard only the owner-scoped v1 snapshot AFTER the first successful v2 write.
+-- The 30-day login sessions and all unrelated Redis records stay untouched.
+if KEYS[2] ~= KEYS[1] then redis.call('DEL', KEYS[2]) end
 return {1, next}
 `;
 
@@ -147,7 +150,7 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       service: 'bkit-api',
       sourceCommit: env.VERCEL_GIT_COMMIT_SHA || null,
       stage: 'private-briefing-v1',
-      syncProtocolVersion: 2,
+      syncProtocolVersion: 3,
       mode: live ? 'configured' : 'demo',
       push: false,
       model: 'deepseek-flash',
@@ -163,7 +166,7 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       model: 'deepseek-flash',
       briefingEnabled: live,
       rememberSyncEnabled: budgetReady && authReady,
-      syncProtocolVersion: 2,
+      syncProtocolVersion: 3,
     }),
   );
   app.get('/', (_req, res) => res.type('text/plain').send('BKIT private briefing API'));
@@ -211,11 +214,12 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
 
   // Private owner-only snapshots. Redis uses an isolated key and optimistic version checks.
   // No public image storage: task photo IDs and live timers are intentionally excluded.
-  const syncKey =
-    'bkit:private-study:v1:' +
-    createHash('sha256')
-      .update((env.BKIT_OWNER_EMAIL || '').trim().toLowerCase())
-      .digest('hex');
+  const ownerHash = createHash('sha256')
+    .update((env.BKIT_OWNER_EMAIL || '').trim().toLowerCase())
+    .digest('hex');
+  // New clean snapshot, intentionally isolated from legacy corrupted v1.
+  const syncKey = 'bkit:private-study:v2:' + ownerHash;
+  const legacySyncKey = 'bkit:private-study:v1:' + ownerHash;
   async function redisCommand(command: string[]) {
     if (!budgetReady || !redisURL?.startsWith('https://'))
       throw new Error('비공개 동기화 저장소가 준비되지 않았어요.');
@@ -274,7 +278,12 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
   app.get('/api/sync', async (_req, res) => {
     try {
       const raw = await redisCommand(['GET', syncKey]);
-      if (raw === null) return void res.json({ version: 0, state: null });
+      if (raw === null) {
+        // A one-time server-proven fresh namespace authorizes client checkpoint reset.
+        // It does not erase device-local learning data or stored login credentials.
+        const previous = await redisCommand(['EXISTS', legacySyncKey]);
+        return void res.json({ version: 0, state: null, ...(previous === 1 ? { resetNamespace: 2 } : {}) });
+      }
       if (typeof raw !== 'string') throw new Error('동기화 기록이 올바르지 않아요.');
       const record = snapshotEnvelope.parse(JSON.parse(raw));
       res.json({ version: record.version, state: record.data });
@@ -321,8 +330,9 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       const result = await redisCommand([
         'EVAL',
         syncScript,
-        '1',
+        '2',
         syncKey,
+        legacySyncKey,
         String(body.data.expectedVersion),
         JSON.stringify(record),
       ]);
