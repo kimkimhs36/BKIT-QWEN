@@ -5,6 +5,38 @@ import { verifyBkitOwner } from './auth.js';
 import { RedisBudget } from './redisBudget.js';
 import { createHash, randomUUID } from 'node:crypto';
 import { stateSchema } from '../src/model.js';
+import { planSnapshotRecovery } from './snapshotRecovery.js';
+
+const snapshotEnvelope = z.object({
+  version: z.number().int().nonnegative(),
+  data: stateSchema,
+});
+function snapshotSafety(raw: string | null) {
+  if (raw === null) return { status: 'empty' as const };
+  try {
+    const { version, data } = snapshotEnvelope.parse(JSON.parse(raw));
+    return {
+      status: 'healthy' as const,
+      version,
+      counts: { tasks: data.tasks.length, schedules: data.schedules.length, sessions: data.sessions.length },
+    };
+  } catch {
+    try {
+      const plan = planSnapshotRecovery(raw);
+      if (!plan.repairedPaths.length) return { status: 'manual-review' as const };
+      return {
+        status: 'recoverable' as const,
+        version: plan.version,
+        repairedPaths: plan.repairedPaths,
+        counts: plan.counts,
+        // A preview, never a write or an exported private snapshot.
+      };
+    } catch {
+      return { status: 'manual-review' as const };
+    }
+  }
+}
+
 
 const syncScript = `
 local current = redis.call('GET', KEYS[1])
@@ -141,7 +173,9 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       if (token && isStudySession(token)) {
         // A remembered credential cannot authorize AI or issue more sessions.
         authenticated =
-          (req.path === '/sync' || (req.path === '/session' && req.method === 'DELETE')) &&
+          (req.path === '/sync' ||
+            (req.path === '/sync/recovery-status' && req.method === 'GET') ||
+            (req.path === '/session' && req.method === 'DELETE')) &&
           (await sessions.valid(token));
       } else if (token) {
         authenticated = await verify(
@@ -221,17 +255,23 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       res.status(503).json({ error: '서버 연결 해제를 확인하지 못했어요.' });
     }
   });
+  // Read-only, owner-authenticated structural diagnosis. Never return raw learning data.
+  app.get('/api/sync/recovery-status', async (_req, res) => {
+    try {
+      const raw = await redisCommand(['GET', syncKey]);
+      if (raw !== null && typeof raw !== 'string') throw new Error('Invalid snapshot transport');
+      res.json(snapshotSafety(raw));
+    } catch {
+      reportFailure('snapshot-diagnosis', 503, res.locals.requestId);
+      res.status(503).json({ code: 'SYNC_STORE_UNAVAILABLE', requestId: res.locals.requestId });
+    }
+  });
   app.get('/api/sync', async (_req, res) => {
     try {
       const raw = await redisCommand(['GET', syncKey]);
       if (raw === null) return void res.json({ version: 0, state: null });
       if (typeof raw !== 'string') throw new Error('동기화 기록이 올바르지 않아요.');
-      const record = z
-        .object({
-          version: z.number().int().nonnegative(),
-          data: stateSchema,
-        })
-        .parse(JSON.parse(raw));
+      const record = snapshotEnvelope.parse(JSON.parse(raw));
       res.json({ version: record.version, state: record.data });
     } catch (error) {
       const phase =
@@ -262,6 +302,17 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
         .status(400)
         .json({ error: '진행 중인 타이머나 기기 전용 사진은 서버에 보낼 수 없어요.' });
     try {
+      // Never allow an existing malformed snapshot to be overwritten by a stale
+      // browser. Its original bytes must be privately backed up before repair.
+      const currentRaw = await redisCommand(['GET', syncKey]);
+      if (currentRaw !== null) {
+        if (typeof currentRaw !== 'string' || snapshotSafety(currentRaw).status !== 'healthy') {
+          return void res.status(422).json({
+            code: 'SYNC_RECOVERY_REQUIRED',
+            error: '기존 클라우드 원본을 보호하고 있어요. 안전한 복구가 필요합니다.',
+          });
+        }
+      }
       const result = await redisCommand([
         'EVAL',
         syncScript,
