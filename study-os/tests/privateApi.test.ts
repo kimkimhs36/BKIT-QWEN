@@ -496,6 +496,15 @@ describe('private snapshot recovery safety', () => {
         body: JSON.stringify({ expectedVersion: 7, state: newState() }),
       });
       expect(denied.status).toBe(422);
+      remote = JSON.stringify({ version: 9, data: { ...newState(), legacyPrivateField: { value: 'keep' } } });
+      const unknown = await (await fetch(root + '/api/sync/recovery-status', { headers })).json();
+      expect(unknown).toEqual({ status: 'manual-review' });
+      const blocked = await fetch(root + '/api/sync', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ expectedVersion: 9, state: newState() }),
+      });
+      expect(blocked.status).toBe(422);
       remote = JSON.stringify({ version: 8, data: newState() });
       const healthy = await (await fetch(root + '/api/sync/recovery-status', { headers })).json();
       expect(healthy).toMatchObject({
