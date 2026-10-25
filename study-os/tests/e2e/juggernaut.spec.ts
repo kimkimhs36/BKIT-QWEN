@@ -169,130 +169,136 @@ test('offline draft survives a reload and never claims server acknowledgment', a
     await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!).attempts.length, KEY),
   ).toBe(1);
 });
-test('existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry', async ({
-  page,
-  context,
-}) => {
-  const map = new Map<string, string>();
-  let fail = false,
-    dropAck = false,
-    writes = 0;
-  const api = createJuggernautApi(
-    {
-      BKIT_OWNER_EMAIL: 'synthetic@example.test',
-      BKIT_GOOGLE_CLIENT_ID: 'test.apps.googleusercontent.com',
-    },
-    {
-      command: async (args) => {
-        if (args[0] === 'GET' && args[1].startsWith('bkit:sync-session:'))
-          return String(Date.now() + DAY);
-        if (fail) throw Error('Synthetic outage');
-        if (args[0] === 'GET') return map.get(args[1]) ?? null;
-        if (args[0] === 'EVAL') {
-          const current = JSON.parse(map.get(args[3]) || '{"version":0}');
-          if (current.version !== Number(args[4])) return [0, current.version];
-          map.set(
-            args[3],
-            JSON.stringify({ version: current.version + 1, document: JSON.parse(args[5]) }),
-          );
-          writes++;
-          return [1, current.version + 1];
-        }
-        throw Error('Unexpected command');
+test.describe('synthetic cloud transport', () => {
+  // WebKit routes requests from controlled pages through the service worker,
+  // bypassing Playwright's synthetic API intercept. Offline/SW is tested above.
+  test.use({ serviceWorkers: 'block' });
+  test('existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry', async ({
+    page,
+    context,
+  }) => {
+    const map = new Map<string, string>();
+    let fail = false,
+      dropAck = false,
+      writes = 0;
+    const api = createJuggernautApi(
+      {
+        BKIT_OWNER_EMAIL: 'synthetic@example.test',
+        BKIT_GOOGLE_CLIENT_ID: 'test.apps.googleusercontent.com',
       },
-    },
-  );
-  const server = api.listen(0, '127.0.0.1');
-  await new Promise<void>((r) => server.once('listening', r));
-  let expire = false;
-  // WebKit enforces CORS on fulfilled cross-origin requests. Preserve a real
-  // preflight/response contract in the synthetic transport as well.
-  const cors = {
-    'Access-Control-Allow-Origin': new URL(
-      test.info().project.use.baseURL || 'http://127.0.0.1:4173',
-    ).origin,
-    'Access-Control-Allow-Headers': 'Authorization,Content-Type',
-    'Access-Control-Allow-Methods': 'GET,PUT,OPTIONS',
-  };
-  try {
-    await context.route('**/api/sync', (r) =>
-      r.fulfill({ headers: cors, json: { version: 1, state: newState() } }),
-    );
-    await context.route('**/api/juggernaut', async (route) => {
-      if (route.request().method() === 'OPTIONS')
-        return route.fulfill({ status: 204, headers: cors });
-      if (expire) return route.fulfill({ status: 401, headers: cors, json: { error: 'expired' } });
-      const request = route.request();
-      const res = await fetch(
-        `http://127.0.0.1:${(server.address() as AddressInfo).port}/api/juggernaut`,
-        {
-          method: request.method(),
-          headers: {
-            Authorization: request.headers().authorization || '',
-            Origin: 'https://teambkit.com',
-            'Content-Type': 'application/json',
-          },
-          body: request.postData(),
+      {
+        command: async (args) => {
+          if (args[0] === 'GET' && args[1].startsWith('bkit:sync-session:'))
+            return String(Date.now() + DAY);
+          if (fail) throw Error('Synthetic outage');
+          if (args[0] === 'GET') return map.get(args[1]) ?? null;
+          if (args[0] === 'EVAL') {
+            const current = JSON.parse(map.get(args[3]) || '{"version":0}');
+            if (current.version !== Number(args[4])) return [0, current.version];
+            map.set(
+              args[3],
+              JSON.stringify({ version: current.version + 1, document: JSON.parse(args[5]) }),
+            );
+            writes++;
+            return [1, current.version + 1];
+          }
+          throw Error('Unexpected command');
         },
-      );
-      if (dropAck && request.method() === 'PUT') {
-        dropAck = false;
-        return route.abort('failed');
-      }
-      await route.fulfill({
-        headers: cors,
-        status: res.status,
-        body: await res.text(),
-        contentType: 'application/json',
-      });
-    });
-    await visit(page);
-    await page.evaluate(async () => {
-      await new Promise<void>((resolve, reject) => {
-        const r = indexedDB.open('bkit-auth-v1', 1);
-        r.onupgradeneeded = () => r.result.createObjectStore('credentials');
-        r.onerror = () => reject(r.error);
-        r.onsuccess = () => {
-          const t = r.result.transaction('credentials', 'readwrite');
-          t.objectStore('credentials').put(
-            { token: 'bkit_sync_' + 'a'.repeat(64), expiresAt: Date.now() + 86400000 },
-            'sync',
-          );
-          t.oncomplete = () => {
-            r.result.close();
-            resolve();
-          };
-        };
-      });
-    });
-    await page.reload();
-    await expect(page.locator('.jg-status')).toContainText('서버에 저장됨');
-    fail = true;
-    await page.getByRole('button', { name: '지금 첫 문제 시작' }).click();
-    await solve(page);
-    await expect(page.locator('.jg-status')).toContainText('동기화 실패');
-    const localCount = await page.evaluate(
-      (key) => JSON.parse(localStorage.getItem(key)!).attempts.length,
-      KEY,
+      },
     );
-    expect(localCount).toBe(1);
-    fail = false;
-    dropAck = true;
-    await page.getByRole('button', { name: '동기화', exact: true }).click();
-    await expect(page.locator('.jg-status')).toContainText('동기화 실패');
-    await page.getByRole('button', { name: '동기화', exact: true }).click();
-    await expect(page.locator('.jg-status')).toContainText('서버에 저장됨');
-    expect(
-      [...map.values()].map((v) => JSON.parse(v)).find((v) => v.document)?.document.attempts,
-    ).toHaveLength(1);
-    expect(writes).toBeGreaterThan(1);
-    expire = true;
-    await page.getByRole('button', { name: '동기화', exact: true }).click();
-    await expect(page.locator('.jg-status')).toContainText('로그인이 만료');
-    expect(
-      await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!).attempts.length, KEY),
-    ).toBe(1);
-  } finally {
-    server.close();
-  }
+    const server = api.listen(0, '127.0.0.1');
+    await new Promise<void>((r) => server.once('listening', r));
+    let expire = false;
+    // WebKit enforces CORS on fulfilled cross-origin requests. Preserve a real
+    // preflight/response contract in the synthetic transport as well.
+    const cors = {
+      'Access-Control-Allow-Origin': new URL(
+        test.info().project.use.baseURL || 'http://127.0.0.1:4173',
+      ).origin,
+      'Access-Control-Allow-Headers': 'Authorization,Content-Type',
+      'Access-Control-Allow-Methods': 'GET,PUT,OPTIONS',
+    };
+    try {
+      await context.route('**/api/sync', (r) =>
+        r.fulfill({ headers: cors, json: { version: 1, state: newState() } }),
+      );
+      await context.route('**/api/juggernaut', async (route) => {
+        if (route.request().method() === 'OPTIONS')
+          return route.fulfill({ status: 204, headers: cors });
+        if (expire)
+          return route.fulfill({ status: 401, headers: cors, json: { error: 'expired' } });
+        const request = route.request();
+        const res = await fetch(
+          `http://127.0.0.1:${(server.address() as AddressInfo).port}/api/juggernaut`,
+          {
+            method: request.method(),
+            headers: {
+              Authorization: request.headers().authorization || '',
+              Origin: 'https://teambkit.com',
+              'Content-Type': 'application/json',
+            },
+            body: request.postData(),
+          },
+        );
+        if (dropAck && request.method() === 'PUT') {
+          dropAck = false;
+          return route.abort('failed');
+        }
+        await route.fulfill({
+          headers: cors,
+          status: res.status,
+          body: await res.text(),
+          contentType: 'application/json',
+        });
+      });
+      await visit(page);
+      await page.evaluate(async () => {
+        await new Promise<void>((resolve, reject) => {
+          const r = indexedDB.open('bkit-auth-v1', 1);
+          r.onupgradeneeded = () => r.result.createObjectStore('credentials');
+          r.onerror = () => reject(r.error);
+          r.onsuccess = () => {
+            const t = r.result.transaction('credentials', 'readwrite');
+            t.objectStore('credentials').put(
+              { token: 'bkit_sync_' + 'a'.repeat(64), expiresAt: Date.now() + 86400000 },
+              'sync',
+            );
+            t.oncomplete = () => {
+              r.result.close();
+              resolve();
+            };
+          };
+        });
+      });
+      await page.reload();
+      await expect(page.locator('.jg-status')).toContainText('서버에 저장됨');
+      fail = true;
+      await page.getByRole('button', { name: '지금 첫 문제 시작' }).click();
+      await solve(page);
+      await expect(page.locator('.jg-status')).toContainText('동기화 실패');
+      const localCount = await page.evaluate(
+        (key) => JSON.parse(localStorage.getItem(key)!).attempts.length,
+        KEY,
+      );
+      expect(localCount).toBe(1);
+      fail = false;
+      dropAck = true;
+      await page.getByRole('button', { name: '동기화', exact: true }).click();
+      await expect(page.locator('.jg-status')).toContainText('동기화 실패');
+      await page.getByRole('button', { name: '동기화', exact: true }).click();
+      await expect(page.locator('.jg-status')).toContainText('서버에 저장됨');
+      expect(
+        [...map.values()].map((v) => JSON.parse(v)).find((v) => v.document)?.document.attempts,
+      ).toHaveLength(1);
+      expect(writes).toBeGreaterThan(1);
+      expire = true;
+      await page.getByRole('button', { name: '동기화', exact: true }).click();
+      await expect(page.locator('.jg-status')).toContainText('로그인이 만료');
+      expect(
+        await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!).attempts.length, KEY),
+      ).toBe(1);
+    } finally {
+      server.close();
+    }
+  });
 });
