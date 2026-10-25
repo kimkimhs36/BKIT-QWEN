@@ -12,7 +12,8 @@
     "preview": "vite preview --host 0.0.0.0",
     "server": "tsx server/index.ts",
     "format": "prettier --write src server tests *.ts *.json *.md public/*.webmanifest public/*.js",
-    "format:check": "prettier --check src server tests *.ts *.json *.md public/*.webmanifest public/*.js"
+    "format:check": "prettier --check src server tests *.ts *.json *.md public/*.webmanifest public/*.js",
+    "test:redis": "vitest run --config vitest.redis.config.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.7",

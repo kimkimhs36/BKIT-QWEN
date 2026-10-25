@@ -16,7 +16,9 @@ if current then
 end
 if actual ~= tonumber(ARGV[1]) then return {0, actual} end
 local next = actual + 1
-redis.call('SET', KEYS[1], cjson.encode({version=next, data=cjson.decode(ARGV[2])}))
+-- ARGV[2] is JSON serialized after Node stateSchema validation. Do not decode
+-- and re-encode it: Redis cjson converts empty arrays into empty objects.
+redis.call('SET', KEYS[1], '{"version":' .. string.format('%.0f', next) .. ',"data":' .. ARGV[2] .. '}')
 return {1, next}
 `;
 
@@ -153,13 +155,11 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       // Unavailable session storage is not proof that a valid credential expired.
       reportFailure('session-store', 503, res.locals.requestId);
       res.set('Retry-After', '2');
-      res
-        .status(503)
-        .json({
-          error: '로그인 확인 저장소에 잠시 연결할 수 없어요.',
-          code: 'SESSION_STORE_UNAVAILABLE',
-          requestId: res.locals.requestId,
-        });
+      res.status(503).json({
+        error: '로그인 확인 저장소에 잠시 연결할 수 없어요.',
+        code: 'SESSION_STORE_UNAVAILABLE',
+        requestId: res.locals.requestId,
+      });
       return;
     }
     if (!authenticated) {
@@ -240,13 +240,11 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
           : 'snapshot-read';
       reportFailure(phase, 503, res.locals.requestId);
       res.set('Retry-After', '2');
-      res
-        .status(503)
-        .json({
-          error: '비공개 동기화 내용을 불러오지 못했어요.',
-          code: phase === 'snapshot-format' ? 'SYNC_DATA_INVALID' : 'SYNC_STORE_UNAVAILABLE',
-          requestId: res.locals.requestId,
-        });
+      res.status(503).json({
+        error: '비공개 동기화 내용을 불러오지 못했어요.',
+        code: phase === 'snapshot-format' ? 'SYNC_DATA_INVALID' : 'SYNC_STORE_UNAVAILABLE',
+        requestId: res.locals.requestId,
+      });
     }
   });
   app.put('/api/sync', express.json({ limit: '650kb' }), async (req, res) => {
@@ -279,24 +277,20 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       )
         throw new Error('동기화 버전을 확인하지 못했어요.');
       if (result[0] === 0)
-        return void res
-          .status(409)
-          .json({
-            error: '다른 기기에서 이미 수정했어요. 확인 후 다시 동기화해 주세요.',
-            version: result[1],
-          });
+        return void res.status(409).json({
+          error: '다른 기기에서 이미 수정했어요. 확인 후 다시 동기화해 주세요.',
+          version: result[1],
+        });
       if (result[0] !== 1) throw new Error('동기화 기록 오류');
       res.json({ version: result[1] });
     } catch {
       reportFailure('snapshot-write', 503, res.locals.requestId);
       res.set('Retry-After', '2');
-      res
-        .status(503)
-        .json({
-          error: '비공개 동기화를 저장하지 못했어요. 이 기기의 기록은 유지돼요.',
-          code: 'SYNC_STORE_UNAVAILABLE',
-          requestId: res.locals.requestId,
-        });
+      res.status(503).json({
+        error: '비공개 동기화를 저장하지 못했어요. 이 기기의 기록은 유지돼요.',
+        code: 'SYNC_STORE_UNAVAILABLE',
+        requestId: res.locals.requestId,
+      });
     }
   });
 

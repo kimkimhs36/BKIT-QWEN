@@ -29,6 +29,11 @@ jobs:
       - name: Unit tests, including private API access
         run: npm test
         working-directory: study-os
+      - name: Install isolated Redis test binaries
+        run: sudo apt-get update -qq && sudo apt-get install -y redis-server redis-tools
+      - name: Real Redis Lua and API recovery tests
+        run: npm run test:redis
+        working-directory: study-os
       - name: Typecheck
         run: npm run typecheck
         working-directory: study-os
