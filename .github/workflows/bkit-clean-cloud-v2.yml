@@ -2,6 +2,8 @@ name: Verify and release BKIT clean cloud v2
 on:
   push:
     branches: [fix/bkit-clean-cloud-client-20261025]
+  pull_request:
+    branches: [fix/bkit-session-recovery-20261025]
 permissions:
   contents: read
 concurrency:
