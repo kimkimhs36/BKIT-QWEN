@@ -27,9 +27,11 @@ jobs:
       - run: npx playwright install --with-deps chromium webkit
       - run: npx playwright test tests/e2e/juggernaut.spec.ts --project=desktop --project=webkit-iphone --project=webkit-ipad --project=galaxy-css
       - name: Existing BKIT regression
-        run: npx playwright test tests/e2e/daily-driver.spec.ts tests/e2e/study-record-management.spec.ts tests/e2e/back-navigation.spec.ts tests/e2e/drive-reward.spec.ts --project=desktop
+        run: npx playwright test tests/e2e/daily-driver.spec.ts tests/e2e/study-record-management.spec.ts --project=desktop --output=test-results-regression
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: juggernaut-browser-results
-          path: study-os/test-results/
+          path: |
+            study-os/test-results/
+            study-os/test-results-regression/

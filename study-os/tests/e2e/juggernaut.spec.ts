@@ -159,9 +159,9 @@ test('offline draft survives a reload and never claims server acknowledgment', a
   await page.getByRole('radio', { name: '2', exact: true }).check();
   await page.getByRole('button', { name: '첫 답변 제출' }).click();
   await expect(page.locator('.jg-status')).not.toContainText('서버에 저장됨');
-  await context.setOffline(false);
   await page.reload();
   await expect(page.getByText('첫 답변:')).toBeVisible();
+  await context.setOffline(false);
   expect(
     await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!).attempts.length, KEY),
   ).toBe(1);

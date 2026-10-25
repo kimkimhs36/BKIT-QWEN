@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { concepts, questionById, questions, score, type Concept } from './content';
+import { concepts, questionById, questions, score, type Concept } from './content.js';
 export const DAY = 86400000;
 export const KEY = 'bkit.juggernaut.v1.device';
 const stamp = z.number().finite().nonnegative();
