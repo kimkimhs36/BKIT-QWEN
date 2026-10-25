@@ -1,4 +1,11 @@
-import { savedLogin, rememberLogin, forgetLogin } from './rememberLogin';
+import { loginRecord, rememberLogin, forgetLogin, saveLoginCheckpoint } from './rememberLogin';
+import {
+  SyncFailure,
+  syncResponse,
+  transientFailure,
+  MAX_SYNC_RETRIES,
+  retryDelay,
+} from './privateSyncProtocol';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Cloud,
@@ -23,6 +30,10 @@ export function portableStudyState(state: State): State {
     learning: undefined,
     revision: 0,
     tasks: state.tasks.map(({ attachmentIds: _privatePhotos, ...task }) => task),
+    // Device-only identities must not create endless differences with the portable server schema.
+    sessions: state.sessions.map(
+      ({ resourceId: _resource, questionPace: _pace, exam: _exam, ...session }) => session,
+    ),
     active: null,
     quickTimer: null, // device-only live stopwatch must not sync or leak timer metadata
     plan: [],
@@ -53,6 +64,8 @@ export function mergePrivateStudyState(local: State, incoming: State): State {
       return {
         ...session,
         quick: session.quick ?? existing?.quick,
+        questionPace: existing?.questionPace,
+        exam: existing?.exam,
         resourceId: existing?.resourceId,
       };
     }),
@@ -65,304 +78,454 @@ const cloudSchema = z.object({
   state: stateSchema.nullable(),
 });
 const versionSchema = z.object({ version: z.number().int().positive() });
-type Connection = 'disconnected' | 'connecting' | 'connected' | 'conflict' | 'error';
+export type Connection =
+  | 'disconnected'
+  | 'connecting'
+  | 'connected'
+  | 'conflict'
+  | 'offline'
+  | 'retrying'
+  | 'unavailable'
+  | 'expired'
+  | 'forbidden'
+  | 'storage-error'
+  | 'invalid-data';
 const tokenHeaders = (token: string) => ({ Authorization: 'Bearer ' + token });
 export function privateStudySignature(s: State) {
-  // Canonical schema order/defaults: Sheets/JSON/server parsing must not create false conflicts.
   return JSON.stringify(stateSchema.parse(portableStudyState(s)));
 }
 const signature = privateStudySignature;
+async function digest(s: State) {
+  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(signature(s)));
+  return [...new Uint8Array(bytes)].map((n) => n.toString(16).padStart(2, '0')).join('');
+}
 function hasStudyRecords(s: State) {
-  return Boolean(
+  return !!(
     s.tasks.length ||
     s.schedules.length ||
     s.sessions.length ||
     s.grades.length ||
     s.reviewsDone.length ||
     s.reviewProgress?.length ||
-    s.active,
+    s.active
   );
 }
 export function usePrivateStudySync(localState: State, applyIncoming: (state: State) => boolean) {
   const [status, setStatus] = useState<Connection>('disconnected');
+  const statusRef = useRef<Connection>('disconnected');
   const [message, setMessage] = useState(
     '이 기기에만 저장 중 · Google 연결 시 개인 클라우드 동기화',
   );
   const [lastSynced, setLastSynced] = useState('');
-  const [clientId, setClientId] = useState('');
-  const [prepared, setPrepared] = useState(false);
-  const [remember, setRemember] = useState(true);
-  const [rememberSupported, setRememberSupported] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const [prepared, setPrepared] = useState(false),
+    [authError, setAuthError] = useState('');
+  const [remember, setRemember] = useState(true),
+    [rememberSupported, setRememberSupported] = useState(false);
+  const [hasCredential, setHasCredential] = useState(false),
+    [busy, setBusy] = useState(false);
+  const [diagnostic, setDiagnostic] = useState<{
+    kind: string;
+    status?: number;
+    requestId?: string;
+  } | null>(null);
   const local = useRef(localState),
     apply = useRef(applyIncoming);
-  const token = useRef(''),
-    version = useRef(0),
-    baseline = useRef('');
-  const busyRef = useRef(false);
   local.current = localState;
   apply.current = applyIncoming;
-
-  const preparing = useRef(false);
-  // Load identity only when the learner visits the private cloud settings.
-  // Ordinary study and OCR must make no external requests.
+  const token = useRef(''),
+    clientId = useRef('');
+  const creatingSession = useRef(false),
+    initializing = useRef(false);
+  const checkpoint = useRef<{ digest: string; version: number } | null>(null);
+  const busyRef = useRef(false),
+    pending = useRef(false),
+    mounted = useRef(false),
+    generation = useRef(0),
+    retries = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null),
+    preparing = useRef(false);
+  function current(epoch: number) {
+    return mounted.current && epoch === generation.current;
+  }
+  function transition(next: Connection, text: string) {
+    statusRef.current = next;
+    setStatus(next);
+    setMessage(text);
+  }
+  function clearRetry() {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+  }
   async function prepare() {
-    if (preparing.current || prepared) return;
+    if (preparing.current || prepared || token.current) return;
     preparing.current = true;
     try {
-      const res = await fetch(API_URL + '/api/config', { signal: AbortSignal.timeout(10000) });
-      if (!res.ok) throw new Error('서버 연결을 확인하지 못했어요.');
+      const res = await fetch(API_URL + '/api/config', {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!res.ok) throw Error();
       const config = z
         .object({ googleClientId: z.string(), rememberSyncEnabled: z.boolean().optional() })
         .parse(await res.json());
-      if (!config.googleClientId) throw new Error('Google 계정 설정을 준비 중이에요.');
+      if (!config.googleClientId) throw Error();
       await prepareGoogleIdentity();
+      if (!mounted.current) return;
+      clientId.current = config.googleClientId;
       setRememberSupported(config.rememberSyncEnabled === true);
-      setClientId(config.googleClientId);
       setPrepared(true);
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : 'Google 연결 준비에 실패했어요.');
+      setAuthError('');
+    } catch {
+      if (mounted.current)
+        setAuthError('Google 연결 준비에 실패했어요. 로컬 공부는 계속할 수 있어요.');
     } finally {
       preparing.current = false;
     }
   }
-  useEffect(() => {
-    let active = true;
-    void savedLogin()
-      .then(async (saved) => {
-        if (!active || !saved || busyRef.current) return;
-        busyRef.current = true;
-        setBusy(true);
-        setStatus('connecting');
-        token.current = saved.token;
-        try {
-          const remote = await readCloud();
-          if (!active) return;
-          if (remote.state && signature(local.current) === signature(remote.state)) {
-            markSuccess(remote.version, remote.state, '로그인이 유지됐어요. 공부 기록을 이어가요.');
-          } else {
-            version.current = remote.version;
-            setStatus('conflict');
-            setMessage('로그인은 유지됐어요. 이 기기와 클라우드의 다른 기록을 확인해 주세요.');
-          }
-        } catch (e) {
-          if (active) {
-            setStatus('error');
-            setMessage(e instanceof Error ? e.message : '오프라인에서는 이 기기에 저장해요.');
-          }
-        } finally {
-          busyRef.current = false;
-          if (active) setBusy(false);
-        }
-      })
-      .catch(() => {
-        /* Browsers blocking IndexedDB can still study and connect manually. */
+  async function request(path: string, init: RequestInit, epoch: number): Promise<unknown> {
+    if (!navigator.onLine)
+      throw new SyncFailure('network', '오프라인이에요. 로그인과 공부 기록은 이 기기에 유지돼요.');
+    try {
+      const response = await fetch(API_URL + path, {
+        ...init,
+        headers: {
+          ...tokenHeaders(token.current),
+          ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+          ...init.headers,
+        },
+        cache: 'no-store',
+        signal: AbortSignal.timeout(15000),
       });
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  async function readCloud() {
-    const res = await fetch(API_URL + '/api/sync', {
-      headers: tokenHeaders(token.current),
-      cache: 'no-store',
-      signal: AbortSignal.timeout(15000),
-    });
-    if (res.status === 401) {
-      await forgetLogin().catch(() => {});
-      throw new Error('Google 계정 인증이 만료됐어요. 다시 연결해 주세요.');
-    }
-    if (!res.ok) throw new Error('클라우드 기록을 읽지 못했어요. 나중에 다시 시도해 주세요.');
-    return cloudSchema.parse(await res.json());
-  }
-  async function writeCloud(expectedVersion: number, study: State) {
-    if (study.sessions.some((s) => (s.segments?.length ?? 0) > 102))
-      throw new Error(
-        '현재 서버는 기록당 집중 구간 102개까지 지원해요. 이 기기의 전체 시간·구간은 보존되며 ZIP으로 옮길 수 있어요.',
+      if (!current(epoch)) throw new Error('cancelled');
+      return await syncResponse(response);
+    } catch (error) {
+      if (!current(epoch)) throw error;
+      if (error instanceof SyncFailure) throw error;
+      throw new SyncFailure(
+        'network',
+        '네트워크 연결이 불안정해요. 로그인과 이 기기의 공부 기록은 유지돼요.',
       );
-    const res = await fetch(API_URL + '/api/sync', {
-      method: 'PUT',
-      headers: { ...tokenHeaders(token.current), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ expectedVersion, state: portableStudyState(study) }),
-      signal: AbortSignal.timeout(18000),
-    });
-    if (res.status === 409)
-      throw new Error('다른 기기에서 먼저 수정했어요. 어느 기록을 유지할지 확인해 주세요.');
-    if (res.status === 401) {
-      await forgetLogin().catch(() => {});
-      throw new Error('Google 계정 인증이 만료됐어요. 다시 연결해 주세요.');
     }
-    if (!res.ok) throw new Error('클라우드 저장에 실패했어요. 이 기기의 기록은 그대로 있어요.');
-    return versionSchema.parse(await res.json()).version;
   }
-  function markSuccess(nextVersion: number, study: State, description: string) {
-    version.current = nextVersion;
-    baseline.current = signature(study);
+  async function readCloud(epoch: number) {
+    const data = await request('/api/sync', {}, epoch);
+    const parsed = cloudSchema.safeParse(data);
+    if (!parsed.success)
+      throw new SyncFailure(
+        'invalid-data',
+        '클라우드 자료 형식을 확인하지 못했어요. 원본을 유지하고 동기화를 멈췄어요.',
+      );
+    return parsed.data;
+  }
+  async function writeCloud(expectedVersion: number, study: State, epoch: number) {
+    if (study.sessions.some((s) => (s.segments?.length ?? 0) > 102))
+      throw new SyncFailure(
+        'invalid-data',
+        '현재 서버의 집중 구간 지원 범위를 넘었어요. 이 기기의 원본은 유지돼요.',
+      );
+    const data = await request(
+      '/api/sync',
+      {
+        method: 'PUT',
+        body: JSON.stringify({ expectedVersion, state: portableStudyState(study) }),
+      },
+      epoch,
+    );
+    const parsed = versionSchema.safeParse(data);
+    if (!parsed.success)
+      throw new SyncFailure(
+        'invalid-data',
+        '클라우드 저장 확인 응답이 올바르지 않아요. 원본은 유지돼요.',
+      );
+    return parsed.data.version;
+  }
+  async function markSuccess(version: number, study: State, epoch: number, text: string) {
+    const next = { version, digest: await digest(study) };
+    if (!current(epoch)) return;
+    // Keep a small local checkpoint across relaunches; never a second copy of learning content.
+    if (token.current.startsWith('bkit_sync_')) {
+      try {
+        await saveLoginCheckpoint(token.current, next);
+      } catch {
+        throw new SyncFailure(
+          'storage',
+          '로그인 복구 기준을 저장하지 못했어요. 공부 원본은 유지돼요.',
+        );
+      }
+    }
+    if (!current(epoch)) return;
+    initializing.current = false;
+    checkpoint.current = next;
+    retries.current = 0;
+    setDiagnostic(null);
     setLastSynced(new Date().toLocaleTimeString('ko-KR'));
-    setStatus('connected');
-    setMessage(description);
+    transition('connected', text);
+  }
+  async function reconcile(epoch: number, mode: 'sync' | 'initial' | 'cloud' | 'this' = 'sync') {
+    const before = signature(local.current);
+    const remote = await readCloud(epoch);
+    if (!current(epoch)) return;
+    const latest = portableStudyState(local.current);
+    const localDigest = await digest(latest),
+      remoteDigest = remote.state ? await digest(remote.state) : null;
+    if (!current(epoch)) return;
+    if (mode === 'cloud') {
+      if (before !== signature(local.current))
+        throw new SyncFailure(
+          'conflict',
+          '확인하는 동안 이 기기의 기록이 바뀌었어요. 다시 확인해 주세요.',
+        );
+      if (!remote.state)
+        throw new SyncFailure(
+          'conflict',
+          '가져올 클라우드 기록이 없어요. 이 기기의 기록은 유지돼요.',
+        );
+      if (!apply.current(remote.state))
+        throw new SyncFailure(
+          'storage',
+          '클라우드 기록을 이 기기에 저장하지 못했어요. 기존 원본은 유지돼요.',
+        );
+      await markSuccess(remote.version, remote.state, epoch, '클라우드 기록을 가져왔어요.');
+      return;
+    }
+    if (mode === 'this') {
+      const version = await writeCloud(remote.version, latest, epoch);
+      await markSuccess(version, latest, epoch, '이 기기의 기록을 클라우드에 저장했어요.');
+      return;
+    }
+    if (remoteDigest === localDigest) {
+      await markSuccess(
+        remote.version,
+        latest,
+        epoch,
+        '로그인이 유지됐어요. 공부 기록을 이어가요.',
+      );
+      return;
+    }
+    if (mode === 'initial' && !remote.state) {
+      const version = await writeCloud(remote.version, latest, epoch);
+      await markSuccess(
+        version,
+        latest,
+        epoch,
+        '첫 개인 클라우드가 준비됐어요. 이제 공부를 시작해 보세요.',
+      );
+      return;
+    }
+    const base = checkpoint.current;
+    if (base && remote.version === base.version && remoteDigest === base.digest) {
+      const version = await writeCloud(remote.version, latest, epoch);
+      await markSuccess(version, latest, epoch, '오프라인에서 이어간 공부를 동기화했어요.');
+      return;
+    }
+    if (
+      remote.state &&
+      ((base && localDigest === base.digest) ||
+        (mode === 'initial' && !hasStudyRecords(local.current)))
+    ) {
+      // A last synchronous check prevents edits during async hashing from being overwritten.
+      if (signature(local.current) !== signature(latest))
+        throw new SyncFailure(
+          'conflict',
+          '동기화 확인 중 이 기기의 기록이 바뀌었어요. 두 기록을 확인해 주세요.',
+        );
+      if (!apply.current(remote.state))
+        throw new SyncFailure(
+          'storage',
+          '새 클라우드 기록을 저장하지 못했어요. 이 기기의 원본은 유지돼요.',
+        );
+      await markSuccess(
+        remote.version,
+        remote.state,
+        epoch,
+        '다른 기기의 학습 변경사항을 불러왔어요.',
+      );
+      return;
+    }
+    throw new SyncFailure(
+      'conflict',
+      '로그인은 유지됐어요. 이 기기와 클라우드의 다른 기록을 확인해 주세요.',
+    );
+  }
+  async function failure(error: unknown, epoch: number) {
+    if (!current(epoch)) return;
+    const problem =
+      error instanceof SyncFailure
+        ? error
+        : new SyncFailure('invalid-data', '동기화 자료를 확인하지 못했어요. 원본은 유지돼요.');
+    setDiagnostic({ kind: problem.kind, status: problem.httpStatus, requestId: problem.requestId });
+    if (problem.kind === 'expired') {
+      const expiredToken = token.current;
+      token.current = '';
+      checkpoint.current = null;
+      setHasCredential(false);
+      clearRetry();
+      await forgetLogin(expiredToken).catch(() => {});
+      if (current(epoch)) transition('expired', problem.message);
+      return;
+    }
+    if (transientFailure(problem) && token.current) {
+      if (!navigator.onLine) {
+        transition('offline', '오프라인이에요. 로그인은 유지 중이며 연결되면 자동으로 동기화해요.');
+        return;
+      }
+      if (retries.current < MAX_SYNC_RETRIES) {
+        const attempt = ++retries.current,
+          delay = retryDelay(attempt, problem.retryAfterMs);
+        transition(
+          'retrying',
+          `${problem.message} 잠시 후 자동 재시도해요. (${attempt}/${MAX_SYNC_RETRIES})`,
+        );
+        clearRetry();
+        timer.current = setTimeout(() => {
+          timer.current = null;
+          void run();
+        }, delay);
+        return;
+      }
+      transition(
+        'unavailable',
+        `${problem.message} 자동 재시도는 잠시 멈췄어요. 앱으로 돌아오거나 연결이 복구되면 다시 확인해요.`,
+      );
+      return;
+    }
+    const next: Connection =
+      problem.kind === 'conflict'
+        ? 'conflict'
+        : problem.kind === 'forbidden'
+          ? 'forbidden'
+          : problem.kind === 'storage'
+            ? 'storage-error'
+            : 'invalid-data';
+    transition(next, problem.message);
+  }
+  function finish(epoch: number) {
+    if (!current(epoch)) return;
+    busyRef.current = false;
+    setBusy(false);
+    if (pending.current && statusRef.current === 'connected') {
+      pending.current = false;
+      queueMicrotask(() => void run());
+    }
+  }
+  async function establishRememberedSession(epoch: number) {
+    if (!creatingSession.current) return;
+    const raw = await request('/api/session', { method: 'POST' }, epoch);
+    const parsed = z
+      .object({
+        token: z.string().regex(/^bkit_sync_[a-f0-9]{64}$/),
+        expiresAt: z.number().positive(),
+      })
+      .safeParse(raw);
+    if (!parsed.success)
+      throw new SyncFailure('invalid-data', '로그인 유지 응답을 확인하지 못했어요.');
+    try {
+      await rememberLogin(parsed.data);
+    } catch {
+      throw new SyncFailure(
+        'storage',
+        '로그인을 저장하지 못했어요. 이 기기 공부 기록은 그대로예요.',
+      );
+    }
+    if (!current(epoch)) return;
+    token.current = parsed.data.token;
+    creatingSession.current = false;
+  }
+  async function run(mode: 'sync' | 'initial' | 'cloud' | 'this' = 'sync') {
+    if (!mounted.current || !token.current) return;
+    if (busyRef.current) {
+      if (mode === 'sync') pending.current = true;
+      return;
+    }
+    clearRetry();
+    const epoch = generation.current;
+    busyRef.current = true;
+    setBusy(true);
+    try {
+      await establishRememberedSession(epoch);
+      await reconcile(epoch, mode === 'sync' && initializing.current ? 'initial' : mode);
+    } catch (error) {
+      await failure(error, epoch);
+    } finally {
+      finish(epoch);
+    }
+  }
+  function sync() {
+    if (
+      ['conflict', 'expired', 'forbidden', 'invalid-data', 'storage-error'].includes(
+        statusRef.current,
+      )
+    )
+      return;
+    void run();
+  }
+  function retry() {
+    clearRetry();
+    retries.current = 0;
+    void run();
   }
   async function connect() {
-    if (busyRef.current || !prepared || !clientId) return;
-    // This call opens the Google popup from the original click/tap (Safari).
-    const authorization = authorizeGoogleIdentity(clientId);
-    busyRef.current = true;
-    setBusy(true);
-    setStatus('connecting');
-    setMessage('Google 본인 계정을 확인하고 있어요…');
-    try {
-      token.current = await authorization;
-      if (!remember) await forgetLogin();
-      if (remember && rememberSupported) {
-        const session = await fetch(API_URL + '/api/session', {
-          method: 'POST',
-          headers: tokenHeaders(token.current),
-          cache: 'no-store',
-          signal: AbortSignal.timeout(10000),
-        });
-        if (!session.ok)
-          throw new Error(
-            '로그인 유지 연결을 확인하지 못했어요. 다시 시도하거나 로그인 유지를 꺼 주세요.',
-          );
-        const credential = z
-          .object({
-            token: z.string().regex(/^bkit_sync_[a-f0-9]{64}$/),
-            expiresAt: z.number().positive(),
-          })
-          .parse(await session.json());
-        await rememberLogin(credential);
-        token.current = credential.token;
-      }
-      const remote = await readCloud();
-      if (remote.state) {
-        if (
-          hasStudyRecords(local.current) &&
-          signature(local.current) !== signature(remote.state)
-        ) {
-          version.current = remote.version;
-          setStatus('conflict');
-          setMessage('서로 다른 기록이 있어요. 아래에서 어느 쪽을 유지할지 선택해 주세요.');
-          return;
-        }
-        if (!apply.current(remote.state))
-          throw new Error('클라우드 기록을 이 기기에 적용하지 못했어요.');
-        markSuccess(
-          remote.version,
-          remote.state,
-          '연결됐어요. 이 기기의 공부 기록도 자동으로 반영돼요.',
-        );
-      } else {
-        const snapshot = portableStudyState(local.current);
-        const next = await writeCloud(0, snapshot);
-        markSuccess(next, snapshot, '첫 개인 클라우드가 준비됐어요. 이제 공부를 시작해 보세요.');
-      }
-    } catch (e) {
-      token.current = '';
-      setStatus('error');
-      setMessage(e instanceof Error ? e.message : '클라우드 연결을 확인하지 못했어요.');
-    } finally {
-      busyRef.current = false;
-      setBusy(false);
+    if (token.current) {
+      retry();
+      return;
     }
-  }
-  async function sync() {
-    if (busyRef.current || !token.current || !baseline.current || status !== 'connected') return;
+    if (busyRef.current || !prepared || !clientId.current) return;
+    // Retain the existing Google popup gesture and session protocol.
+    const authorization = authorizeGoogleIdentity(clientId.current);
+    const epoch = ++generation.current;
     busyRef.current = true;
     setBusy(true);
+    transition('connecting', 'Google 본인 계정을 확인하고 있어요…');
     try {
-      const remote = await readCloud();
-      const current = portableStudyState(local.current);
-      const localSig = signature(current);
-      const cloudSig = remote.state ? signature(remote.state) : '';
-      const ourChange = localSig !== baseline.current;
-      const cloudChange = cloudSig !== baseline.current || remote.version !== version.current;
-      if (ourChange && cloudChange) {
-        version.current = remote.version;
-        setStatus('conflict');
-        setMessage('두 기기에서 동시에 변경됐어요. 덮어쓰기 전에 확인해 주세요.');
-      } else if (cloudChange) {
-        if (!remote.state || !apply.current(remote.state))
-          throw new Error('새 클라우드 기록을 적용하지 못했어요.');
-        markSuccess(remote.version, remote.state, '다른 기기의 학습 변경사항을 불러왔어요.');
-      } else if (ourChange) {
-        const next = await writeCloud(remote.version, current);
-        markSuccess(next, current, '이 기기의 새 공부 기록을 동기화했어요.');
+      const googleToken = await authorization;
+      if (!current(epoch)) return;
+      token.current = googleToken;
+      if (!remember) await forgetLogin();
+      creatingSession.current = remember && rememberSupported;
+      initializing.current = true;
+      await establishRememberedSession(epoch);
+      setHasCredential(true);
+      await reconcile(epoch, 'initial');
+    } catch (error) {
+      if (!current(epoch)) return;
+      if (!token.current) {
+        transition('disconnected', 'Google 연결을 마치지 못했어요. 다시 연결해 주세요.');
       } else {
-        version.current = remote.version;
-        setLastSynced(new Date().toLocaleTimeString('ko-KR'));
+        setHasCredential(true);
+        await failure(error, epoch);
       }
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : '동기화를 확인하지 못했어요.';
-      if (msg.includes('다른 기기에서')) {
-        setStatus('conflict');
-      } else {
-        setStatus('error');
-      }
-      setMessage(msg);
     } finally {
-      busyRef.current = false;
-      setBusy(false);
+      finish(epoch);
     }
   }
   async function resolve(which: 'cloud' | 'this') {
-    if (busyRef.current || !token.current) return;
-    busyRef.current = true;
-    setBusy(true);
-    try {
-      const remote = await readCloud();
-      if (which === 'cloud') {
-        if (!remote.state || !apply.current(remote.state))
-          throw new Error('가져올 클라우드 기록이 없어요.');
-        markSuccess(remote.version, remote.state, '클라우드 기록을 가져왔어요.');
-      } else {
-        const current = portableStudyState(local.current);
-        const next = await writeCloud(remote.version, current);
-        markSuccess(next, current, '이 기기의 기록을 개인 클라우드에 저장했어요.');
-      }
-    } catch (e) {
-      setStatus('error');
-      setMessage(e instanceof Error ? e.message : '동기화 실패');
-    } finally {
-      busyRef.current = false;
-      setBusy(false);
-    }
+    await run(which);
   }
-  const contentSignature = useMemo(() => signature(localState), [localState]);
-  useEffect(() => {
-    if (status !== 'connected') return;
-    const t = window.setTimeout(() => void sync(), 1800);
-    return () => window.clearTimeout(t);
-  }, [contentSignature, status]);
-  useEffect(() => {
-    if (status !== 'connected') return;
-    const timer = window.setInterval(() => void sync(), 30000);
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') void sync();
-    };
-    document.addEventListener('visibilitychange', onVisible);
-    window.addEventListener('online', onVisible);
-    return () => {
-      window.clearInterval(timer);
-      document.removeEventListener('visibilitychange', onVisible);
-      window.removeEventListener('online', onVisible);
-    };
-  }, [status]);
   async function disconnect() {
-    if (busyRef.current) return;
     const previous = token.current;
-    // Forget only the auth database, never any study storage or photos.
+    const epoch = ++generation.current;
+    busyRef.current = false;
+    setBusy(false);
+    clearRetry();
+    pending.current = false;
+    retries.current = 0;
+    // Old in-flight reads/writes are ignored from here onward.
     try {
       await forgetLogin();
     } catch {
-      setMessage('로그인 저장 해제에 실패했어요. 다시 시도해 주세요.');
+      transition('storage-error', '로그인 저장 해제에 실패했어요. 다시 시도해 주세요.');
       return;
     }
+    if (!current(epoch)) return;
     token.current = '';
-    baseline.current = '';
-    version.current = 0;
-    setStatus('disconnected');
-    setMessage('연결을 끊었어요. 이 기기의 기록은 그대로 있어요.');
+    creatingSession.current = false;
+    initializing.current = false;
+    checkpoint.current = null;
+    busyRef.current = false;
+    setBusy(false);
+    setHasCredential(false);
+    setDiagnostic(null);
+    transition('disconnected', '연결을 끊었어요. 이 기기의 기록은 그대로 있어요.');
     if (previous.startsWith('bkit_sync_')) {
       try {
         const res = await fetch(API_URL + '/api/session', {
@@ -373,12 +536,90 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
         });
         if (!res.ok && res.status !== 401) throw Error();
       } catch {
-        setMessage(
-          '이 기기의 로그인 저장을 해제했어요. 네트워크 문제로 서버 세션 해제는 확인하지 못했어요. 세션은 최대 30일 후 만료돼요.',
-        );
+        if (current(epoch))
+          setMessage(
+            '이 기기의 로그인 저장은 해제했어요. 서버 해제는 연결 문제로 확인하지 못했으며 세션은 최대 30일 후 만료돼요.',
+          );
       }
     }
   }
+  useEffect(() => {
+    mounted.current = true;
+    const epoch = ++generation.current;
+    void loginRecord()
+      .then(async (saved) => {
+        if (!current(epoch) || !saved) return;
+        if (saved.expiresAt <= Date.now()) {
+          await forgetLogin();
+          if (current(epoch))
+            transition('expired', '저장된 로그인 유효 기간이 끝났어요. 다시 연결해 주세요.');
+          return;
+        }
+        token.current = saved.token;
+        checkpoint.current = saved.checkpoint ?? null;
+        setHasCredential(true);
+        transition('connecting', '저장된 로그인으로 동기화를 확인하고 있어요…');
+        await run();
+      })
+      .catch(() => {
+        if (current(epoch))
+          transition(
+            'storage-error',
+            '저장된 로그인에 접근하지 못했어요. 이 기기 공부 기록은 유지돼요.',
+          );
+      });
+    const resume = () => {
+      if (
+        !mounted.current ||
+        !token.current ||
+        busyRef.current ||
+        ['conflict', 'expired', 'forbidden', 'storage-error', 'invalid-data'].includes(
+          statusRef.current,
+        )
+      )
+        return;
+      clearRetry();
+      retries.current = 0;
+      void run();
+    };
+    const visible = () => {
+      if (document.visibilityState === 'visible') resume();
+    };
+    const offline = () => {
+      if (token.current) {
+        clearRetry();
+        transition('offline', '오프라인이에요. 로그인과 공부 기록을 유지하며 연결을 기다려요.');
+      }
+    };
+    window.addEventListener('online', resume);
+    window.addEventListener('offline', offline);
+    window.addEventListener('pageshow', resume);
+    window.addEventListener('focus', visible);
+    document.addEventListener('visibilitychange', visible);
+    return () => {
+      mounted.current = false;
+      busyRef.current = false;
+      pending.current = false;
+      generation.current++;
+      clearRetry();
+      window.removeEventListener('online', resume);
+      window.removeEventListener('offline', offline);
+      window.removeEventListener('pageshow', resume);
+      window.removeEventListener('focus', visible);
+      document.removeEventListener('visibilitychange', visible);
+    };
+  }, []);
+  const contentSignature = useMemo(() => signature(localState), [localState]);
+  useEffect(() => {
+    if (status !== 'connected') return;
+    const handle = setTimeout(sync, 1800);
+    return () => clearTimeout(handle);
+  }, [contentSignature, status]);
+  useEffect(() => {
+    if (status !== 'connected') return;
+    const handle = setInterval(sync, 30000);
+    return () => clearInterval(handle);
+  }, [status]);
   return {
     status,
     message,
@@ -388,19 +629,24 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
     prepare,
     connect,
     sync,
+    retry,
     resolve,
     disconnect,
     remember,
     setRemember,
     rememberSupported,
+    hasCredential,
+    authError,
+    diagnostic,
   };
 }
+
 type PrivateStudyBridge = ReturnType<typeof usePrivateStudySync>;
 export function PrivateSyncPanel({ sync }: { sync: PrivateStudyBridge }) {
   const [advanced, setAdvanced] = useState(false);
   useEffect(() => {
-    void sync.prepare();
-  }, []);
+    if (!sync.hasCredential) void sync.prepare();
+  }, [sync.hasCredential, sync.status === 'expired']);
   return (
     <section className="panel bkit-cloud-panel" aria-label="BKIT 개인 클라우드">
       <div className="section-head">
@@ -408,15 +654,21 @@ export function PrivateSyncPanel({ sync }: { sync: PrivateStudyBridge }) {
           <Cloud size={20} /> BKIT Private Cloud
         </h2>
         <span className={'bkit-cloud-state bkit-cloud-state--' + sync.status}>
-          {sync.status === 'connected'
-            ? '연결됨'
-            : sync.status === 'conflict'
-              ? '선택 필요'
-              : sync.status === 'connecting'
-                ? '연결 중'
-                : sync.status === 'error'
-                  ? '재연결 필요'
-                  : '이 기기만'}
+          {
+            {
+              connected: '연결됨',
+              conflict: '선택 필요',
+              connecting: '로그인 확인 중',
+              offline: '로그인 유지 · 오프라인',
+              retrying: '로그인 유지 · 재시도 중',
+              unavailable: '로그인 유지 · 연결 대기',
+              expired: '로그인 만료',
+              forbidden: '접근 확인 필요',
+              'storage-error': '저장 확인 필요',
+              'invalid-data': '자료 확인 필요',
+              disconnected: '이 기기만',
+            }[sync.status]
+          }
         </span>
       </div>
       <p className="muted">
@@ -426,8 +678,19 @@ export function PrivateSyncPanel({ sync }: { sync: PrivateStudyBridge }) {
       <p role="status" className="bkit-cloud-status">
         {sync.message}
       </p>
+      {sync.authError && !sync.hasCredential && <p className="hint">{sync.authError}</p>}
+      {sync.diagnostic && (
+        <details className="sync-diagnostic">
+          <summary>연결 오류 정보</summary>
+          <small>
+            {sync.diagnostic.kind}
+            {sync.diagnostic.status ? ` · HTTP ${sync.diagnostic.status}` : ''}
+            {sync.diagnostic.requestId ? ` · 요청 ${sync.diagnostic.requestId}` : ''}
+          </small>
+        </details>
+      )}
       {sync.lastSynced && <p className="hint">마지막 확인: {sync.lastSynced}</p>}
-      {sync.rememberSupported && sync.status !== 'connected' && (
+      {sync.rememberSupported && !sync.hasCredential && (
         <label className="private-remember-login">
           <input
             type="checkbox"
@@ -437,13 +700,13 @@ export function PrivateSyncPanel({ sync }: { sync: PrivateStudyBridge }) {
           이 기기에서 로그인 유지 (최대 30일 · 공용 기기는 해제)
         </label>
       )}
-      {!sync.prepared && (
+      {!sync.prepared && !sync.hasCredential && (
         <button type="button" className="text-button" onClick={() => void sync.prepare()}>
           로그인 연결 다시 확인
         </button>
       )}
       <div className="button-stack">
-        {sync.status === 'disconnected' || sync.status === 'error' ? (
+        {!sync.hasCredential && sync.status !== 'connecting' ? (
           <button
             type="button"
             className="primary"
@@ -454,6 +717,19 @@ export function PrivateSyncPanel({ sync }: { sync: PrivateStudyBridge }) {
             {sync.prepared ? 'Google로 개인 클라우드 연결' : 'Google 로그인 준비 중…'}
           </button>
         ) : null}
+        {sync.hasCredential &&
+          [
+            'offline',
+            'retrying',
+            'unavailable',
+            'forbidden',
+            'invalid-data',
+            'storage-error',
+          ].includes(sync.status) && (
+            <button type="button" className="secondary" disabled={sync.busy} onClick={sync.retry}>
+              로그인 유지한 채 다시 동기화
+            </button>
+          )}
         {sync.status === 'connected' && (
           <>
             <button
@@ -474,7 +750,7 @@ export function PrivateSyncPanel({ sync }: { sync: PrivateStudyBridge }) {
             </button>
           </>
         )}
-        {(sync.status === 'conflict' || sync.status === 'error') && (
+        {sync.hasCredential && sync.status !== 'connected' && (
           <button
             type="button"
             className="secondary"
@@ -534,13 +810,13 @@ export function PrivateSyncPanel({ sync }: { sync: PrivateStudyBridge }) {
       {advanced && (
         <p className="hint">
           과제·수행평가·시간표·공부 완료 세션·성적·복습 진행·학습 목표를 개인 클라우드에 저장합니다.
-          사진 원본, 사진 첨부 번호, 진행 중 타이머, 자동 계산 계획표는 공유하지 않습니다. 현재
-          서버는 바로 시작 기록의 수정 표시와 자료 연결 정보를 다른 기기에 전달하지 못하며, 기록당
-          집중 구간 102개를 넘으면 동기화를 중단합니다. 모든 자료 이전에는 전체 ZIP을 사용하세요.
-          로그인 유지를 선택하면 Google 토큰 대신 동기화에만 쓰는 BKIT 세션을 이 기기에 보관해요.
-          연결 해제로 삭제할 수 있어요. 사진·답안 원본은 로그인만으로 다른 기기에 옮겨지지 않아요.
-          로그인하지 않은 친구는 다른 사람의 기록을 볼 수 없습니다. 서버는 설정된 본인 Google 계정만
-          허용합니다. 인터넷이 없어도 이 기기에서 공부할 수 있어요.
+          사진 원본, 사진 첨부 번호, 진행 중 타이머, 자동 계산 계획표는 공유하지 않습니다. 자료·문항
+          연결 정보는 기기별로 보관하며, 기록당 집중 구간 102개를 넘으면 동기화를 중단합니다. 모든
+          자료 이전에는 전체 ZIP을 사용하세요. 로그인 유지를 선택하면 Google 토큰 대신 동기화에만
+          쓰는 BKIT 세션을 이 기기에 보관해요. 연결 해제로 삭제할 수 있어요. 사진·답안 원본은
+          로그인만으로 다른 기기에 옮겨지지 않아요. 로그인하지 않은 친구는 다른 사람의 기록을 볼 수
+          없습니다. 서버는 설정된 본인 Google 계정만 허용합니다. 인터넷이 없어도 이 기기에서 공부할
+          수 있어요.
         </p>
       )}
       <p className="bkit-cloud-privacy">

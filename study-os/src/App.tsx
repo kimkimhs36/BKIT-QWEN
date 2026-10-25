@@ -2049,7 +2049,7 @@ export default function App() {
                 }}
                 onResource={openResource}
                 onHelp={() => showHelp('quick')}
-                accountConnected={privateSync.status === 'connected'}
+                accountConnected={privateSync.hasCredential}
                 onAccount={() => {
                   setHelpDestination('settings-sync');
                   setTab('settings');
