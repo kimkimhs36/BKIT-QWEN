@@ -1,13 +1,13 @@
 {
-  "product": "BKIT STUDY OS · Session Recovery",
-  "sourceCommit": "1407f937bbf534c88c12031265c976f8c3d5f08d",
-  "sourceBranch": "fix/bkit-session-recovery-20261025",
-  "previousSource": "cb4b426c28ed29d9a6d149a30f904ae6e7a98161",
-  "rollbackCommit": "17bcf08d7bba0625372273c0391c6eea64a7d98d",
-  "publishedAt": "2026-10-25T10:00:40.778Z",
-  "apiSource": "9a0bfb94143a4703ca25788f6027a9ec3dbad0ec",
-  "apiProtocol": 2,
-  "validation": "App/API unit suites, production build, 34 paired real-API WebKit recovery scenarios; Google authorization and Redis transport synthetic, no physical-device claim",
-  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40182347231",
-  "notes": "No study storage reset; old hashed assets and independent routes retained."
+  "product": "BKIT STUDY OS · Cloud v2",
+  "sourceCommit": "ca8959c13d45ef04766f5067150a6b5c6104164d",
+  "sourceBranch": "fix/bkit-clean-cloud-client-20261025",
+  "previousSource": "1407f937bbf534c88c12031265c976f8c3d5f08d",
+  "rollbackCommit": "f3ad016ed51c626c6c4761f5864cd49e93b7abf2",
+  "publishedAt": "2026-10-25T11:33:50.422Z",
+  "apiSource": "6b392839a1819494aa9e588a484d918e44d2233b",
+  "apiProtocol": 3,
+  "validation": "App/API unit suites, production build, WebKit clean-cloud rollover/recovery; synthetic OAuth and Redis transport, physical iPhone unverified",
+  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40188873750",
+  "notes": "Owner-approved cloud v2 reset; device-only study files preserved; legacy owner snapshot deleted only on first successful v2 PUT."
 }
