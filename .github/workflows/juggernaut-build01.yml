@@ -11,6 +11,9 @@ jobs:
     timeout-minutes: 20
     env:
       APP_BASE: /
+      # Match the deployed Preview: JUGGERNAUT API shares the app origin.
+      # Production Pages uses its separately approved external API URL.
+      VITE_JUGGERNAUT_API_URL: ''
       BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
     defaults:
       run:
