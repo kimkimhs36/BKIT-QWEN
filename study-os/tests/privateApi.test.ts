@@ -286,3 +286,39 @@ describe('owner-only multi-device study snapshots', () => {
     });
   });
 });
+
+describe('remembered sync sessions', () => {
+  it('issues only after Google verification, stores hashes, restores sync, blocks AI and revokes', async () => {
+    const records = new Map<string,string>();
+    const fetcher = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const args = JSON.parse(String(init?.body)) as string[];
+      let result: unknown = null;
+      if (args[0] === 'SET') { records.set(args[1],args[2]); result='OK'; expect(args.slice(3)).toEqual(['EX','2592000']); }
+      if (args[0] === 'GET') result=records.get(args[1]) ?? null;
+      if (args[0] === 'DEL') result=Number(records.delete(args[1]));
+      return new Response(JSON.stringify({result}));
+    });
+    await withServer(createPrivateApi(env,{fetcher:fetcher as typeof fetch,verify:async t=>t==='google-verified'}), async root => {
+      expect((await fetch(root+'/api/session',{method:'POST',headers})).status).toBe(401);
+      const issued = await fetch(root+'/api/session',{method:'POST',headers:{...headers,Authorization:'Bearer google-verified'}});
+      expect(issued.status).toBe(200);
+      const credential = await issued.json();
+      expect(credential.token).toMatch(/^bkit_sync_[a-f0-9]{64}$/);
+      expect([...records.keys()].join('')).not.toContain(credential.token);
+      const remembered = {...headers,Authorization:'Bearer '+credential.token};
+      expect((await fetch(root+'/api/sync',{headers:remembered})).status).toBe(200);
+      expect((await fetch(root+'/api/briefing',{method:'POST',headers:remembered,body})).status).toBe(401);
+      expect((await fetch(root+'/api/session',{method:'POST',headers:remembered})).status).toBe(401);
+      expect((await fetch(root+'/api/sync',{headers:{...remembered,Origin:'https://other.example'}})).status).toBe(403);
+      expect((await fetch(root+'/api/session',{method:'DELETE',headers:remembered})).status).toBe(204);
+      expect((await fetch(root+'/api/sync',{headers:remembered})).status).toBe(401);
+    });
+  });
+  it('fails closed if persistent storage is unavailable', async () => {
+    await withServer(createPrivateApi(env,{fetcher:async()=>{throw Error('unavailable');},verify:async()=>true}), async root => {
+      const token='bkit_sync_'+'a'.repeat(64);
+      expect((await fetch(root+'/api/sync',{headers:{...headers,Authorization:'Bearer '+token}})).status).toBe(401);
+      expect((await fetch(root+'/api/session',{method:'POST',headers})).status).toBe(503);
+    });
+  });
+});

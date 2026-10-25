@@ -1,3 +1,4 @@
+import { rememberSessions, isStudySession } from './rememberSession.js';
 import express from 'express';
 import { z } from 'zod';
 import { verifyBkitOwner } from './auth.js';
@@ -87,7 +88,7 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       res.set('Access-Control-Allow-Origin', origin);
       res.set('Vary', 'Origin');
     }
-    res.set('Access-Control-Allow-Methods', 'GET,POST,PUT,OPTIONS');
+    res.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     if (req.method === 'OPTIONS') {
       res.status(204).end();
@@ -114,6 +115,7 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       googleClientId: env.BKIT_GOOGLE_CLIENT_ID || '',
       model: 'deepseek-flash',
       briefingEnabled: live,
+      rememberSyncEnabled: budgetReady && authReady,
     }),
   );
   app.get('/', (_req, res) => res.type('text/plain').send('BKIT private briefing API'));
@@ -123,10 +125,16 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       return;
     }
     const token = /^Bearer ([^\s]+)$/.exec(req.get('Authorization') || '')?.[1];
-    if (
-      !token ||
-      !(await verify(token, env.BKIT_OWNER_EMAIL!, env.BKIT_GOOGLE_CLIENT_ID!, fetcher))
-    ) {
+    let authenticated = false;
+    try {
+      if (token && isStudySession(token)) {
+        // A remembered credential cannot authorize AI or issue more sessions.
+        authenticated = (req.path === '/sync' || (req.path === '/session' && req.method === 'DELETE')) && await sessions.valid(token);
+      } else if (token) {
+        authenticated = await verify(token, env.BKIT_OWNER_EMAIL!, env.BKIT_GOOGLE_CLIENT_ID!, fetcher);
+      }
+    } catch { /* Fail closed on unavailable Redis or identity verification. */ }
+    if (!authenticated) {
       res.status(401).json({ error: '본인 Google 계정 연결이 필요해요.' });
       return;
     }
@@ -157,6 +165,16 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       throw new Error('비공개 저장소 응답이 올바르지 않아요.');
     return (data as {result: unknown}).result;
   }
+  const sessions = rememberSessions(redisCommand, env.BKIT_OWNER_EMAIL || '', env.BKIT_GOOGLE_CLIENT_ID || '');
+  app.post('/api/session', async (_req, res) => {
+    try { res.json(await sessions.create()); }
+    catch { res.status(503).json({error:'로그인 유지를 준비하지 못했어요. 이 기기의 공부 기록은 유지돼요.'}); }
+  });
+  app.delete('/api/session', async (req, res) => {
+    const token = /^Bearer ([^\s]+)$/.exec(req.get('Authorization') || '')?.[1] || '';
+    try { await sessions.revoke(token); res.status(204).end(); }
+    catch { res.status(503).json({error:'서버 연결 해제를 확인하지 못했어요.'}); }
+  });
   app.get('/api/sync', async (_req, res) => {
     try {
       const raw = await redisCommand(['GET', syncKey]);
