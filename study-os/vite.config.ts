@@ -20,10 +20,26 @@ export default defineConfig(({ mode }) => ({
       name: 'bkit-offline-shell',
       apply: 'build',
       async closeBundle() {
-        await writeFile('dist/build-info.json', JSON.stringify({
-          sourceCommit: process.env.VERCEL_GIT_COMMIT_SHA || execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
-          environment: process.env.VERCEL_ENV || 'local-verified-build',
-        }, null, 2) + '\n');
+        // GitHub Pages has no SPA rewrites: real directories make JUGGERNAUT
+        // deep links return 200 on first load as well as on reload.
+        for (const route of ['', 'diagnosis', 'train', 'review', 'roadmap', 'progress', 'guide']) {
+          const directory = 'dist/juggernaut' + (route ? '/' + route : '');
+          await mkdir(directory, { recursive: true });
+          await copyFile('dist/index.html', directory + '/index.html');
+        }
+        await writeFile(
+          'dist/build-info.json',
+          JSON.stringify(
+            {
+              sourceCommit:
+                process.env.VERCEL_GIT_COMMIT_SHA ||
+                execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+              environment: process.env.VERCEL_ENV || 'local-verified-build',
+            },
+            null,
+            2,
+          ) + '\n',
+        );
         // Keep OCR out of the initial app shell. Only a user tap downloads the
         // engine/languages; the existing same-origin worker caches fetched assets.
         const ocr = 'dist/' + OCR_ASSET_DIR;
@@ -64,9 +80,7 @@ export default defineConfig(({ mode }) => ({
         // Tiny camera controls are part of the offline UI. Inference/model assets stay opt-in.
         const assets = (await readdir('dist/assets')).filter(
           (x) =>
-            !/^(awake-engine|MaterialEffects|MaterialSettings|materials|ambientSound)-/.test(
-              x,
-            ),
+            !/^(awake-engine|MaterialEffects|MaterialSettings|materials|ambientSound)-/.test(x),
         );
         const shell = [
           'index.html',

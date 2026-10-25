@@ -325,7 +325,10 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
       (mode === 'sync' || mode === 'initial')
     ) {
       if (signature(local.current) !== before)
-        throw new SyncFailure('conflict', '초기화 확인 중 공부 기록이 바뀌었어요. 다시 확인해 주세요.');
+        throw new SyncFailure(
+          'conflict',
+          '초기화 확인 중 공부 기록이 바뀌었어요. 다시 확인해 주세요.',
+        );
       const version = await writeCloud(0, latest, epoch);
       await markSuccess(version, latest, epoch, '새 개인 클라우드에 안전하게 연결했어요.');
       return;
@@ -639,6 +642,27 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
     return () => clearInterval(handle);
   }, [status]);
   return {
+    // Reuse the existing in-memory Google/remembered session; never expose the token.
+    async juggernautRequest(init: RequestInit = {}) {
+      if (!token.current)
+        throw new Error('BKIT 설정에서 본인 계정을 연결해 주세요. 기기 학습은 계속할 수 있어요.');
+      const epoch = generation.current;
+      const base =
+        import.meta.env.VITE_JUGGERNAUT_API_URL ??
+        (location.hostname.endsWith('.vercel.app') ? '' : API_URL);
+      const response = await fetch(base.replace(/\/$/, '') + '/api/juggernaut', {
+        ...init,
+        headers: {
+          ...init.headers,
+          Authorization: 'Bearer ' + token.current,
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!current(epoch)) throw new Error('계정 연결이 바뀌었어요. 기기 원본은 유지돼요.');
+      return response;
+    },
     status,
     message,
     lastSynced,

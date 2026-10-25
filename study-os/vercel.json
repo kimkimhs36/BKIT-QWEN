@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "APP_BASE=/ npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/juggernaut/:path*", "destination": "/api/juggernaut" },
+    { "source": "/juggernaut/:path*", "destination": "/index.html" }
+  ]
+}

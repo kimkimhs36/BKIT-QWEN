@@ -31,6 +31,15 @@ export function MoreHub({
   return (
     <section className="more-hub" aria-label="추가 학습 도구">
       <nav aria-label="추가 도구">
+        <a className="more-hub-link" href={import.meta.env.BASE_URL + 'juggernaut'}>
+          <span className="tool-symbol">
+            <BookOpen size={22} />
+          </span>
+          <span>
+            <strong>JUGGERNAUT 수능관</strong>
+            <small>PROJECT 2028 · 진단과 문제풀이</small>
+          </span>
+        </a>
         {TOOLS.map((item) => (
           <button
             key={item.id}
