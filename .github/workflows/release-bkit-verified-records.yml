@@ -1,0 +1,154 @@
+name: Release verified BKIT records to teambkit.com (no other domain)
+on:
+  push:
+    branches: [fix/bkit-skip-save-record-management-20261025]
+    paths: ['.github/workflows/release-bkit-verified-records.yml']
+permissions:
+  contents: write
+  pages: write
+  actions: read
+jobs:
+  release:
+    name: Publish previously verified, code-identical BKIT
+    if: ${{ github.ref == 'refs/heads/fix/bkit-skip-save-record-management-20261025' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    concurrency:
+      group: bkit-safe-production-teambkit-only
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: source
+          fetch-depth: 0
+      - name: Require all four passing tests for the exact unchanged source
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "kimkimhs36/BKIT-QWEN"
+          tested="fa43e79adcfc2aae59d1d86894d6c315a8e1c9a9"
+          git -C source merge-base --is-ancestor "$tested" HEAD
+          # The only allowed post-verification change is this release workflow.
+          git -C source diff --exit-code "$tested" HEAD -- study-os
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/40170099095/jobs?per_page=100" > /tmp/bkit-passed-matrix.json
+          jq -e '[.jobs[] | select(.name | startswith("verify (")) | .conclusion] | (length == 4 and all(. == "success"))' /tmp/bkit-passed-matrix.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: source/study-os/package-lock.json
+      - name: Rebuild exact green-tested source
+        working-directory: source/study-os
+        env:
+          APP_BASE: /
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run typecheck
+          npm test
+          npm run build
+          node scripts/check-local-vision.mjs
+          test -f dist/index.html
+          test -f dist/manifest.webmanifest
+          test -f dist/sw.js
+          grep -q 'BKIT STUDY OS' dist/index.html
+          grep -q 'BKIT STUDY OS' dist/manifest.webmanifest
+          test -f dist/assets/index-*.js || test -n "$(find dist/assets -maxdepth 1 -name 'index-*.js' -print -quit)"
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+          fetch-depth: 1
+          persist-credentials: true
+      - name: HARD GATE BKIT repository, domain and live baseline
+        env:
+          EXPECTED_BASELINE: 5c01c2a9f23a36ef0df5d816d8bd74bda50fa183
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "kimkimhs36/BKIT-QWEN"
+          test "$GITHUB_REF_NAME" = "fix/bkit-skip-save-record-management-20261025"
+          test "$(git -C site rev-parse HEAD)" = "$EXPECTED_BASELINE"
+          grep -Fxq 'teambkit.com' site/CNAME
+          test -f site/.nojekyll
+          test -f site/exam-lab/index.html
+          test -f site/mock-rescue/index.html
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const p = JSON.parse(fs.readFileSync('site/release.json','utf8'));
+          if (p.sourceCommit !== '12e8a83bc5bf69ad7d45a49216f023d4fcef221f' || !p.product.startsWith('BKIT STUDY OS')) {
+            throw Error('Unexpected live product or baseline; ABORT. Never overwrite a changed production.');
+          }
+          const manifest = JSON.parse(fs.readFileSync('source/study-os/dist/manifest.webmanifest','utf8'));
+          if (manifest.name !== 'BKIT STUDY OS') throw Error('Wrong product manifest; ABORT.');
+          NODE
+      - name: Overlay only BKIT output; preserve old assets and independent routes
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          cp -a source/study-os/dist/. site/
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const prior=JSON.parse(fs.readFileSync('site/release.json','utf8'));
+          fs.writeFileSync('site/release.json',JSON.stringify({
+            product:'BKIT STUDY OS · Optional Records + Timer Exit',
+            sourceCommit:process.env.SOURCE_SHA,
+            sourceBranch:'fix/bkit-skip-save-record-management-20261025',
+            previousSource:prior.sourceCommit,
+            rollbackCommit:'5c01c2a9f23a36ef0df5d816d8bd74bda50fa183',
+            publishedAt:new Date().toISOString(),
+            validation:'269+ Vitest and TypeScript production build; GitHub Actions desktop/iPhone/iPad/iPad landscape WebKit full verified matrix',
+            ci:'https://github.com/'+process.env.GITHUB_REPOSITORY+'/actions/runs/'+process.env.GITHUB_RUN_ID,
+            notes:'Only BKIT deployed. TOHESAR untouched. No site storage wiped. Previous hashed assets and routes retained.'
+          },null,2)+'\n');
+          NODE
+          grep -Fxq 'teambkit.com' site/CNAME
+          test -f site/exam-lab/index.html
+          test -f site/mock-rescue/index.html
+          test -f site/.nojekyll
+          git -C site config user.name 'github-actions[bot]'
+          git -C site config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C site add --all
+          if [ -n "$(git -C site diff --cached --name-only --diff-filter=D)" ]; then
+            echo 'REFUSING TO DELETE existing production files'; exit 1
+          fi
+          git -C site diff --cached --check -- index.html release.json CNAME
+          git -C site commit -m "deploy: optional no-save timer exit and history manager (verified ${SOURCE_SHA})"
+          # Prevent a concurrent push to Pages main from being overwritten.
+          test "$(git -C site rev-parse origin/main)" = "5c01c2a9f23a36ef0df5d816d8bd74bda50fa183"
+          git -C site push origin HEAD:main
+          git -C site rev-parse HEAD > /tmp/bkit-pages-commit
+      - name: Request Pages build and check live version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          site_sha=$(cat /tmp/bkit-pages-commit)
+          # A GITHUB_TOKEN push may not schedule GitHub Pages automatically.
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds" >/tmp/bkit-pages-trigger.json || echo 'Pages may already be building'
+          built=0
+          for i in $(seq 1 45); do
+            if gh api "repos/${GITHUB_REPOSITORY}/pages/builds/latest" > /tmp/bkit-pages-latest.json; then
+              state=$(jq -r '.status' /tmp/bkit-pages-latest.json)
+              commit=$(jq -r '.commit' /tmp/bkit-pages-latest.json)
+              if [ "$state" = built ] && [ "$commit" = "$site_sha" ]; then built=1; break; fi
+              if [ "$state" = errored ] && [ "$commit" = "$site_sha" ]; then
+                echo 'GitHub Pages build failed'; exit 1
+              fi
+            fi
+            sleep 8
+          done
+          test "$built" = 1 || { echo 'Pages exact commit not yet confirmed'; exit 1; }
+          for i in $(seq 1 22); do
+            if curl --max-time 15 --fail --silent --show-error \
+              "https://teambkit.com/release.json?published=${SOURCE_SHA}" > /tmp/bkit-public-release.json; then
+              if jq -e --arg source "$SOURCE_SHA" '.sourceCommit == $source' /tmp/bkit-public-release.json >/dev/null; then
+                echo "LIVE VERIFIED: teambkit.com source=$SOURCE_SHA Pages=$site_sha"
+                exit 0
+              fi
+            fi
+            sleep 8
+          done
+          echo 'Public cache has not exposed the exact verified version yet'; exit 1
