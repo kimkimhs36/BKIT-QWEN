@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { verifyBkitOwner } from './auth.js';
 import { RedisBudget } from './redisBudget.js';
 import { createHash, randomUUID } from 'node:crypto';
+import { isDeepStrictEqual } from 'node:util';
 import { stateSchema } from '../src/model.js';
 import { planSnapshotRecovery } from './snapshotRecovery.js';
 
@@ -14,7 +15,11 @@ const snapshotEnvelope = z.object({
 function snapshotSafety(raw: string | null) {
   if (raw === null) return { status: 'empty' as const };
   try {
-    const { version, data } = snapshotEnvelope.parse(JSON.parse(raw));
+    const decoded: unknown = JSON.parse(raw);
+    const parsed = snapshotEnvelope.parse(decoded);
+    // Zod may strip unknown data; never allow such loss during normal synchronization.
+    if (!isDeepStrictEqual(parsed, decoded)) return { status: 'manual-review' as const };
+    const { version, data } = parsed;
     return {
       status: 'healthy' as const,
       version,
