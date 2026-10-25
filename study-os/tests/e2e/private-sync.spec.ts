@@ -44,8 +44,8 @@ test('owner consent connects an empty first device without touching public study
     };
   });
   await page.goto('./');
-  await page.getByRole('button',{name:'더 보기'}).click();
-  await page.getByRole('button',{name:'설정 열기'}).click();
+
+  await page.getByRole('button',{name:'설정 열기'}).click();await page.getByText('기기 간 연동',{exact:true}).click();
   const panel=page.getByRole('region',{name:'BKIT 개인 클라우드'});
   await expect(panel).toBeVisible();
   await panel.getByRole('button',{name:'Google로 개인 클라우드 연결'}).click();

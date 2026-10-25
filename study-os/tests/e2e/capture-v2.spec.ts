@@ -4,8 +4,8 @@ test('Capture v2: date-only deadline and number of problems survive restart and 
 }) => {
   await page.clock.install({ time: new Date('2026-10-15T05:00:00Z') });
   await page.goto('./');
-  await page.getByRole('button', { name: '더 보기' }).click();
-  await page.getByRole('button', { name: '빠른 한 줄 입력' }).click();
+  // Compact home is now the real task capture entry.
+  await page.getByRole('button', { name: '오늘 과제 추가', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog
     .getByRole('textbox', { name: '할 일을 한 문장으로' })
@@ -49,8 +49,8 @@ test('Capture v2: date-only deadline and number of problems survive restart and 
 test('Capture v2: the confirmed 4 PM deadline stays exact', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-15T05:00:00Z') });
   await page.goto('./');
-  await page.getByRole('button', { name: '더 보기' }).click();
-  await page.getByRole('button', { name: '빠른 한 줄 입력' }).click();
+  // Compact home is now the real task capture entry.
+  await page.getByRole('button', { name: '오늘 과제 추가', exact: true }).click();
   const modal = page.getByRole('dialog');
   await modal
     .getByRole('textbox', { name: '할 일을 한 문장으로' })

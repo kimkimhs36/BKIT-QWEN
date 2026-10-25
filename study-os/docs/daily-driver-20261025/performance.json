@@ -1,0 +1,110 @@
+[
+  {
+    "version": "before",
+    "device": "iphone",
+    "sampleMs": 1500,
+    "idle": {
+      "draws": 18,
+      "contexts": 1,
+      "coarse": true,
+      "canvas": [
+        {
+          "width": 488,
+          "height": 830,
+          "ready": "true"
+        }
+      ]
+    },
+    "studyingDraws": 11
+  },
+  {
+    "version": "before",
+    "device": "ipad",
+    "sampleMs": 1500,
+    "idle": {
+      "draws": 12,
+      "contexts": 1,
+      "coarse": true,
+      "canvas": [
+        {
+          "width": 674,
+          "height": 965,
+          "ready": "true"
+        }
+      ]
+    },
+    "studyingDraws": 2
+  },
+  {
+    "version": "before",
+    "device": "desktop",
+    "sampleMs": 1500,
+    "idle": {
+      "draws": 2,
+      "contexts": 1,
+      "coarse": false,
+      "canvas": [
+        {
+          "width": 1170,
+          "height": 812,
+          "ready": "true"
+        }
+      ]
+    },
+    "studyingDraws": 2
+  },
+  {
+    "version": "after",
+    "device": "iphone",
+    "sampleMs": 1500,
+    "idle": {
+      "draws": 0,
+      "contexts": 0,
+      "coarse": true,
+      "canvas": [
+        {
+          "width": 300,
+          "height": 150,
+          "ready": false
+        }
+      ]
+    },
+    "studyingDraws": 0
+  },
+  {
+    "version": "after",
+    "device": "ipad",
+    "sampleMs": 1500,
+    "idle": {
+      "draws": 0,
+      "contexts": 0,
+      "coarse": true,
+      "canvas": [
+        {
+          "width": 300,
+          "height": 150,
+          "ready": false
+        }
+      ]
+    },
+    "studyingDraws": 0
+  },
+  {
+    "version": "after",
+    "device": "desktop",
+    "sampleMs": 1500,
+    "idle": {
+      "draws": 0,
+      "contexts": 1,
+      "coarse": false,
+      "canvas": [
+        {
+          "width": 720,
+          "height": 500,
+          "ready": "true"
+        }
+      ]
+    },
+    "studyingDraws": 0
+  }
+]

@@ -91,3 +91,20 @@ test('saved sessions are searchable, editable, deletable and reversible', async 
   await page.reload();
   expect((await state(page)).sessions).toHaveLength(2);
 });
+
+test('subject and period filters narrow real records without changing totals or deleting hidden sessions',async({page})=>{
+  let saved=finishQuick(startQuick(newState(),'stopwatch',480,now-180000,'math'),now-120000);
+  saved=finishQuick(startQuick(saved,'stopwatch',480,now-90000,'english'),now-30000);
+  saved.sessions[0].subject='수학';saved.sessions[1].subject='영어';
+  await visit(page,saved);
+  await page.locator('nav:visible').getByRole('button',{name:'기록',exact:true}).first().click();
+  const panel=page.getByRole('region',{name:'학습 기록 관리'});
+  await panel.getByText('과목 · 기간 필터',{exact:true}).click();
+  await panel.getByLabel('기록 과목 필터').selectOption('수학');
+  await expect(panel.locator('.record-manager-item')).toHaveCount(1);
+  await panel.getByLabel('기록 시작일').fill('2026-10-26');
+  await expect(panel.locator('.record-manager-item')).toHaveCount(0);
+  await panel.getByRole('button',{name:'필터 초기화'}).click();
+  await expect(panel.locator('.record-manager-item')).toHaveCount(2);
+  expect((await state(page)).sessions).toEqual(saved.sessions);
+});

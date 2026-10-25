@@ -193,7 +193,9 @@ test('all nine themes apply instantly while running and paused timers survive na
   page,
 }, info) => {
   await seed(page, populated());
-  await page.getByRole('button', { name: '지금 공부 시작', exact: true }).click();
+  // This case specifically checks the unlinked stopwatch; home now starts its recommended task.
+  await nav(page, '집중');
+  await page.getByRole('button', { name: '지금 시작', exact: true }).click();
   await expect(page.locator('.quick-timer-active')).toBeVisible();
   const original = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), key);
   await page.getByRole('button', { name: 'BKIT 로고 · 테마 선택' }).click();
@@ -481,6 +483,20 @@ test('liquid background has full color coverage on tall Safari surfaces and touc
 }, info) => {
   await seed(page);
   const surface = page.locator('.surreal-surface');
+  if (await page.evaluate(() => matchMedia('(pointer: coarse)').matches)) {
+    // Touch hardware intentionally uses a static full-size palette, with no WebGL allocation.
+    await expect(surface).toBeHidden();
+    const atmosphere = await page.locator('.surreal-atmosphere').evaluate(e => ({
+      width:e.getBoundingClientRect().width, height:e.getBoundingClientRect().height,
+      background:getComputedStyle(e).backgroundImage, animation:getComputedStyle(e).animationName,
+    }));
+    expect(atmosphere.width).toBeGreaterThanOrEqual(page.viewportSize()!.width);
+    expect(atmosphere.height).toBeGreaterThanOrEqual(page.viewportSize()!.height);
+    expect(atmosphere.background).toContain('gradient');
+    expect(atmosphere.animation).toBe('none');
+    await shot(page, info.project.name, 'liquid-static-budget');
+    return;
+  }
   await expect(surface).toHaveAttribute('data-ready', 'true');
   const coverage = () =>
     surface.evaluate((c) => {

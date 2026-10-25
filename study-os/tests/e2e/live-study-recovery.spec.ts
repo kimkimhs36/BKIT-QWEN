@@ -351,9 +351,13 @@ test('reduced motion and low power keep the existing light atmosphere visible th
 }) => {
   await seed(page);
   const surface = page.locator('.surreal-surface');
-  await expect(surface).toHaveAttribute('data-ready', 'true');
+  if (!(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)))
+    await expect(surface).toHaveAttribute('data-ready', 'true');
+  else await expect(surface).toBeHidden();
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect(surface).toHaveAttribute('data-still', 'true');
+  // The mobile budget never allocates a GPU context, including at full settings.
+  if (!(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)))
+    await expect(surface).toHaveAttribute('data-still', 'true');
   await expect(surface).toBeHidden();
   expect(
     await page.locator('.surreal-atmosphere').evaluate((e) => getComputedStyle(e).backgroundImage),

@@ -8,11 +8,8 @@ async function openSettings(page: Page) {
       localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
   }, newState());
   await page.goto('./');
-  await page
-    .getByRole('navigation')
-    .getByRole('button', { name: '더보기', exact: true })
-    .filter({ visible: true }).first().click();
-  await page.getByRole('button', { name: '설정', exact: true }).filter({visible:true}).first().click();
+  await page.getByRole('button', { name: '설정 열기', exact: true }).click();
+  await page.getByText('백업 · 복구', { exact: true }).click();
 }
 
 test('storage check is read-only and a manually inspected ZIP can be compared with latest study', async ({page}, testInfo) => {
