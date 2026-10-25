@@ -17,16 +17,20 @@ export const taskDeadlineSchema = z.object({
   precision: z.enum(['date-only', 'exact-time']),
   provenance: z.enum(['explicit', 'inferred', 'user-confirmed']),
 });
-export const taskQuantitySchema = z.object({
-  unit: z.enum(['problems', 'pages', 'passages', 'chapters']),
-  total: z.number().int().min(1).max(10000),
-  remaining: z.number().int().min(0).max(10000),
-}).refine(q => q.remaining <= q.total, '남은 분량은 총량 이하여야 합니다');
-export const taskEstimateSchema = z.object({
-  minMinutes: minutes,
-  maxMinutes: minutes,
-  source: z.enum(['default', 'user', 'history']),
-}).refine(e => e.minMinutes <= e.maxMinutes);
+export const taskQuantitySchema = z
+  .object({
+    unit: z.enum(['problems', 'pages', 'passages', 'chapters']),
+    total: z.number().int().min(1).max(10000),
+    remaining: z.number().int().min(0).max(10000),
+  })
+  .refine((q) => q.remaining <= q.total, '남은 분량은 총량 이하여야 합니다');
+export const taskEstimateSchema = z
+  .object({
+    minMinutes: minutes,
+    maxMinutes: minutes,
+    source: z.enum(['default', 'user', 'history']),
+  })
+  .refine((e) => e.minMinutes <= e.maxMinutes);
 export const taskSchema = z
   .object({
     id,
@@ -43,6 +47,11 @@ export const taskSchema = z
     remaining: minutes,
     status: z.enum(['todo', 'doing', 'done']),
     submitted: z.boolean(),
+    completedAt: instant.optional(),
+    submissionRequired: z.boolean().optional(),
+    capture: z
+      .object({ source: z.enum(['text', 'photo', 'manual']), confirmedByUser: z.boolean() })
+      .optional(),
     optional: z.boolean(),
     notes: note,
     link: z
@@ -101,6 +110,7 @@ export const activeSchema = z.object({
 });
 export const sessionSchema = z.object({
   id,
+  quick: z.boolean().optional(),
   taskId: id.nullable(),
   subject: text,
   action: text,

@@ -212,8 +212,9 @@ describe('owner-only multi-device study snapshots', () => {
         return new Response(JSON.stringify({ result: current }), { status: 200 });
       if (args[0] === 'EVAL') {
         const expected = Number(args[4]);
-        const previous: { version: number; data: unknown } | null =
-          current ? JSON.parse(current) : null;
+        const previous: { version: number; data: unknown } | null = current
+          ? JSON.parse(current)
+          : null;
         const version = previous?.version ?? 0;
         if (expected !== version)
           return new Response(JSON.stringify({ result: [0, version] }), { status: 200 });
@@ -222,51 +223,69 @@ describe('owner-only multi-device study snapshots', () => {
       }
       throw new Error('Unexpected remote command');
     }) as typeof fetch;
-    await withServer(
-      createPrivateApi(env, { fetcher, verify: async () => true }),
-      (root) => perform(root, () => current),
+    await withServer(createPrivateApi(env, { fetcher, verify: async () => true }), (root) =>
+      perform(root, () => current),
     );
   };
   it('permits browser PUT preflight only for the BKIT origin', async () => {
     const fetcher = vi.fn();
-    await withServer(createPrivateApi(env, {fetcher, verify: async () => true}), async root => {
-      const allowed = await fetch(root+'/api/sync',{
-        method:'OPTIONS',
-        headers:{Origin:'https://teambkit.com','Access-Control-Request-Method':'PUT',
-          'Access-Control-Request-Headers':'Authorization,Content-Type'},
+    await withServer(createPrivateApi(env, { fetcher, verify: async () => true }), async (root) => {
+      const allowed = await fetch(root + '/api/sync', {
+        method: 'OPTIONS',
+        headers: {
+          Origin: 'https://teambkit.com',
+          'Access-Control-Request-Method': 'PUT',
+          'Access-Control-Request-Headers': 'Authorization,Content-Type',
+        },
       });
       expect(allowed.status).toBe(204);
       expect(allowed.headers.get('access-control-allow-methods')).toContain('PUT');
-      const blocked = await fetch(root+'/api/sync',{method:'OPTIONS',headers:{Origin:'https://other.example'}});
+      const blocked = await fetch(root + '/api/sync', {
+        method: 'OPTIONS',
+        headers: { Origin: 'https://other.example' },
+      });
       expect(blocked.status).toBe(403);
       expect(fetcher).not.toHaveBeenCalled();
     });
   });
   it('keeps records behind authentication and origin checks', async () => {
     const fetcher = vi.fn();
-    await withServer(createPrivateApi(env, { fetcher, verify: async () => false }), async (root) => {
-      expect((await fetch(root + '/api/sync', {headers})).status).toBe(401);
-      expect((await fetch(root + '/api/sync', {headers: {...headers, Origin:'https://other.example'}})).status).toBe(403);
-      expect(fetcher).not.toHaveBeenCalled();
-    });
+    await withServer(
+      createPrivateApi(env, { fetcher, verify: async () => false }),
+      async (root) => {
+        expect((await fetch(root + '/api/sync', { headers })).status).toBe(401);
+        expect(
+          (
+            await fetch(root + '/api/sync', {
+              headers: { ...headers, Origin: 'https://other.example' },
+            })
+          ).status,
+        ).toBe(403);
+        expect(fetcher).not.toHaveBeenCalled();
+      },
+    );
   });
   it('round-trips an owner snapshot and prevents stale device overwrites', async () => {
     await trial(async (root, inspect) => {
       const state = newState();
       state.settings.goal = '매일 20분 공부';
-      const empty = await (await fetch(root + '/api/sync',{headers})).json();
-      expect(empty).toEqual({version: 0, state: null});
+      const empty = await (await fetch(root + '/api/sync', { headers })).json();
+      expect(empty).toEqual({ version: 0, state: null });
       const first = await fetch(root + '/api/sync', {
-        method:'PUT',headers,body:JSON.stringify({expectedVersion:0,state}),
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ expectedVersion: 0, state }),
       });
       expect(first.status).toBe(200);
-      expect(await first.json()).toEqual({version:1});
+      expect(await first.json()).toEqual({ version: 1 });
       expect(inspect()).toContain('매일 20분 공부');
-      const remote = await (await fetch(root+'/api/sync',{headers})).json();
+      const remote = await (await fetch(root + '/api/sync', { headers })).json();
       expect(remote.version).toBe(1);
       expect(remote.state.settings.goal).toBe('매일 20분 공부');
-      const stale = await fetch(root+'/api/sync',{
-        method:'PUT',headers,body:JSON.stringify({expectedVersion:0,state}),
+      const stale = await fetch(root + '/api/sync', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ expectedVersion: 0, state }),
       });
       expect(stale.status).toBe(409);
       expect((await stale.json()).version).toBe(1);
@@ -275,12 +294,30 @@ describe('owner-only multi-device study snapshots', () => {
   it('rejects sync payloads that contain active timers, private photos or invalid state', async () => {
     await trial(async (root) => {
       const state = newState();
-      const invalid = await fetch(root+'/api/sync',{
-        method:'PUT',headers,body:JSON.stringify({expectedVersion:0,state:{...state,version:42}}),
+      const invalid = await fetch(root + '/api/sync', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ expectedVersion: 0, state: { ...state, version: 42 } }),
       });
       expect(invalid.status).toBe(400);
-      const bad = await fetch(root+'/api/sync',{
-        method:'PUT',headers,body:JSON.stringify({expectedVersion:0,state:{...state,plan:[{id:'missing',taskId:'none',start:'2026-10-18T01:00:00Z',end:'2026-10-18T02:00:00Z',locked:false}]}}),
+      const bad = await fetch(root + '/api/sync', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          expectedVersion: 0,
+          state: {
+            ...state,
+            plan: [
+              {
+                id: 'missing',
+                taskId: 'none',
+                start: '2026-10-18T01:00:00Z',
+                end: '2026-10-18T02:00:00Z',
+                locked: false,
+              },
+            ],
+          },
+        }),
       });
       expect(bad.status).toBe(400);
     });
@@ -289,36 +326,116 @@ describe('owner-only multi-device study snapshots', () => {
 
 describe('remembered sync sessions', () => {
   it('issues only after Google verification, stores hashes, restores sync, blocks AI and revokes', async () => {
-    const records = new Map<string,string>();
+    const records = new Map<string, string>();
     const fetcher = vi.fn(async (_url: unknown, init?: RequestInit) => {
       const args = JSON.parse(String(init?.body)) as string[];
       let result: unknown = null;
-      if (args[0] === 'SET') { records.set(args[1],args[2]); result='OK'; expect(args.slice(3)).toEqual(['EX','2592000']); }
-      if (args[0] === 'GET') result=records.get(args[1]) ?? null;
-      if (args[0] === 'DEL') result=Number(records.delete(args[1]));
-      return new Response(JSON.stringify({result}));
+      if (args[0] === 'SET') {
+        records.set(args[1], args[2]);
+        result = 'OK';
+        expect(args.slice(3)).toEqual(['EX', '2592000']);
+      }
+      if (args[0] === 'GET') result = records.get(args[1]) ?? null;
+      if (args[0] === 'DEL') result = Number(records.delete(args[1]));
+      return new Response(JSON.stringify({ result }));
     });
-    await withServer(createPrivateApi(env,{fetcher:fetcher as typeof fetch,verify:async t=>t==='google-verified'}), async root => {
-      expect((await fetch(root+'/api/session',{method:'POST',headers})).status).toBe(401);
-      const issued = await fetch(root+'/api/session',{method:'POST',headers:{...headers,Authorization:'Bearer google-verified'}});
-      expect(issued.status).toBe(200);
-      const credential = await issued.json();
-      expect(credential.token).toMatch(/^bkit_sync_[a-f0-9]{64}$/);
-      expect([...records.keys()].join('')).not.toContain(credential.token);
-      const remembered = {...headers,Authorization:'Bearer '+credential.token};
-      expect((await fetch(root+'/api/sync',{headers:remembered})).status).toBe(200);
-      expect((await fetch(root+'/api/briefing',{method:'POST',headers:remembered,body})).status).toBe(401);
-      expect((await fetch(root+'/api/session',{method:'POST',headers:remembered})).status).toBe(401);
-      expect((await fetch(root+'/api/sync',{headers:{...remembered,Origin:'https://other.example'}})).status).toBe(403);
-      expect((await fetch(root+'/api/session',{method:'DELETE',headers:remembered})).status).toBe(204);
-      expect((await fetch(root+'/api/sync',{headers:remembered})).status).toBe(401);
-    });
+    await withServer(
+      createPrivateApi(env, {
+        fetcher: fetcher as typeof fetch,
+        verify: async (t) => t === 'google-verified',
+      }),
+      async (root) => {
+        expect((await fetch(root + '/api/session', { method: 'POST', headers })).status).toBe(401);
+        const issued = await fetch(root + '/api/session', {
+          method: 'POST',
+          headers: { ...headers, Authorization: 'Bearer google-verified' },
+        });
+        expect(issued.status).toBe(200);
+        const credential = await issued.json();
+        expect(credential.token).toMatch(/^bkit_sync_[a-f0-9]{64}$/);
+        expect([...records.keys()].join('')).not.toContain(credential.token);
+        const remembered = { ...headers, Authorization: 'Bearer ' + credential.token };
+        expect((await fetch(root + '/api/sync', { headers: remembered })).status).toBe(200);
+        expect(
+          (await fetch(root + '/api/briefing', { method: 'POST', headers: remembered, body }))
+            .status,
+        ).toBe(401);
+        expect(
+          (await fetch(root + '/api/session', { method: 'POST', headers: remembered })).status,
+        ).toBe(401);
+        expect(
+          (
+            await fetch(root + '/api/sync', {
+              headers: { ...remembered, Origin: 'https://other.example' },
+            })
+          ).status,
+        ).toBe(403);
+        expect(
+          (await fetch(root + '/api/session', { method: 'DELETE', headers: remembered })).status,
+        ).toBe(204);
+        expect((await fetch(root + '/api/sync', { headers: remembered })).status).toBe(401);
+      },
+    );
   });
   it('fails closed if persistent storage is unavailable', async () => {
-    await withServer(createPrivateApi(env,{fetcher:async()=>{throw Error('unavailable');},verify:async()=>true}), async root => {
-      const token='bkit_sync_'+'a'.repeat(64);
-      expect((await fetch(root+'/api/sync',{headers:{...headers,Authorization:'Bearer '+token}})).status).toBe(401);
-      expect((await fetch(root+'/api/session',{method:'POST',headers})).status).toBe(503);
-    });
+    await withServer(
+      createPrivateApi(env, {
+        fetcher: async () => {
+          throw Error('unavailable');
+        },
+        verify: async () => true,
+      }),
+      async (root) => {
+        const token = 'bkit_sync_' + 'a'.repeat(64);
+        expect(
+          (
+            await fetch(root + '/api/sync', {
+              headers: { ...headers, Authorization: 'Bearer ' + token },
+            })
+          ).status,
+        ).toBe(503);
+        expect((await fetch(root + '/api/session', { method: 'POST', headers })).status).toBe(503);
+      },
+    );
+  });
+});
+
+it('distinguishes unavailable session storage from expired authentication without leaking tokens', async () => {
+  const records = new Map<string, string>();
+  let down = false;
+  const token = 'bkit_sync_' + 'b'.repeat(64);
+  const calls: string[][] = [];
+  const fetcher = (async (_url: unknown, init?: RequestInit) => {
+    const args = JSON.parse(String(init?.body)) as string[];
+    calls.push(args);
+    if (down) throw Error('Synthetic Redis network failure');
+    if (args[0] === 'SET') {
+      records.set(args[1], args[2]);
+      return new Response('{"result":"OK"}');
+    }
+    return new Response(JSON.stringify({ result: records.get(args[1]) ?? null }));
+  }) as typeof fetch;
+  await withServer(createPrivateApi(env, { fetcher, verify: async () => true }), async (root) => {
+    const issued = await (await fetch(root + '/api/session', { method: 'POST', headers })).json();
+    const auth = { ...headers, Authorization: 'Bearer ' + issued.token };
+    expect((await fetch(root + '/api/sync', { headers: auth })).status).toBe(200);
+    down = true;
+    const failure = await fetch(root + '/api/sync', { headers: auth });
+    expect(failure.status).toBe(503);
+    expect(await failure.json()).toMatchObject({ code: 'SESSION_STORE_UNAVAILABLE' });
+    expect(failure.headers.get('Retry-After')).toBe('2');
+    down = false;
+    expect((await fetch(root + '/api/sync', { headers: auth })).status).toBe(200);
+    expect(
+      (
+        await fetch(root + '/api/sync', {
+          headers: { ...headers, Authorization: 'Bearer ' + token },
+        })
+      ).status,
+    ).toBe(401);
+    const key = [...records.keys()][0];
+    records.set(key, String(Date.now() - 1000));
+    expect((await fetch(root + '/api/sync', { headers: auth })).status).toBe(401);
+    expect(calls.filter((x) => x[0] === 'SET')).toHaveLength(1);
   });
 });

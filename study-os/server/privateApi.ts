@@ -3,7 +3,7 @@ import express from 'express';
 import { z } from 'zod';
 import { verifyBkitOwner } from './auth.js';
 import { RedisBudget } from './redisBudget.js';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { stateSchema } from '../src/model.js';
 
 const syncScript = `
@@ -77,7 +77,13 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
           fetcher,
         )
       : undefined);
+  // Status/phase only: never log headers, credentials, identity or study content.
+  const reportFailure = (phase: string, status: number, requestId: string) => {
+    console.warn(JSON.stringify({ event: 'bkit-sync-failure', phase, status, requestId }));
+  };
   app.use((req, res, next) => {
+    res.locals.requestId = randomUUID();
+    res.set('X-Bkit-Request-Id', res.locals.requestId);
     res.set('Cache-Control', 'no-store');
     const origin = req.get('Origin');
     if (origin && origin !== 'https://teambkit.com') {
@@ -87,6 +93,7 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
     if (origin) {
       res.set('Access-Control-Allow-Origin', origin);
       res.set('Vary', 'Origin');
+      res.set('Access-Control-Expose-Headers', 'X-Bkit-Request-Id,Retry-After');
     }
     res.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type,Authorization');
@@ -101,6 +108,7 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       service: 'bkit-api',
       sourceCommit: env.VERCEL_GIT_COMMIT_SHA || null,
       stage: 'private-briefing-v1',
+      syncProtocolVersion: 2,
       mode: live ? 'configured' : 'demo',
       push: false,
       model: 'deepseek-flash',
@@ -116,6 +124,7 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       model: 'deepseek-flash',
       briefingEnabled: live,
       rememberSyncEnabled: budgetReady && authReady,
+      syncProtocolVersion: 2,
     }),
   );
   app.get('/', (_req, res) => res.type('text/plain').send('BKIT private briefing API'));
@@ -129,11 +138,30 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
     try {
       if (token && isStudySession(token)) {
         // A remembered credential cannot authorize AI or issue more sessions.
-        authenticated = (req.path === '/sync' || (req.path === '/session' && req.method === 'DELETE')) && await sessions.valid(token);
+        authenticated =
+          (req.path === '/sync' || (req.path === '/session' && req.method === 'DELETE')) &&
+          (await sessions.valid(token));
       } else if (token) {
-        authenticated = await verify(token, env.BKIT_OWNER_EMAIL!, env.BKIT_GOOGLE_CLIENT_ID!, fetcher);
+        authenticated = await verify(
+          token,
+          env.BKIT_OWNER_EMAIL!,
+          env.BKIT_GOOGLE_CLIENT_ID!,
+          fetcher,
+        );
       }
-    } catch { /* Fail closed on unavailable Redis or identity verification. */ }
+    } catch {
+      // Unavailable session storage is not proof that a valid credential expired.
+      reportFailure('session-store', 503, res.locals.requestId);
+      res.set('Retry-After', '2');
+      res
+        .status(503)
+        .json({
+          error: '로그인 확인 저장소에 잠시 연결할 수 없어요.',
+          code: 'SESSION_STORE_UNAVAILABLE',
+          requestId: res.locals.requestId,
+        });
+      return;
+    }
     if (!authenticated) {
       res.status(401).json({ error: '본인 Google 계정 연결이 필요해요.' });
       return;
@@ -144,8 +172,11 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
 
   // Private owner-only snapshots. Redis uses an isolated key and optimistic version checks.
   // No public image storage: task photo IDs and live timers are intentionally excluded.
-  const syncKey = 'bkit:private-study:v1:' +
-    createHash('sha256').update((env.BKIT_OWNER_EMAIL || '').trim().toLowerCase()).digest('hex');
+  const syncKey =
+    'bkit:private-study:v1:' +
+    createHash('sha256')
+      .update((env.BKIT_OWNER_EMAIL || '').trim().toLowerCase())
+      .digest('hex');
   async function redisCommand(command: string[]) {
     if (!budgetReady || !redisURL?.startsWith('https://'))
       throw new Error('비공개 동기화 저장소가 준비되지 않았어요.');
@@ -163,55 +194,109 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
     const data: unknown = await reply.json();
     if (!data || typeof data !== 'object' || !('result' in data))
       throw new Error('비공개 저장소 응답이 올바르지 않아요.');
-    return (data as {result: unknown}).result;
+    if ('error' in data && (data as { error?: unknown }).error)
+      throw new Error('Redis command failed');
+    return (data as { result: unknown }).result;
   }
-  const sessions = rememberSessions(redisCommand, env.BKIT_OWNER_EMAIL || '', env.BKIT_GOOGLE_CLIENT_ID || '');
+  const sessions = rememberSessions(
+    redisCommand,
+    env.BKIT_OWNER_EMAIL || '',
+    env.BKIT_GOOGLE_CLIENT_ID || '',
+  );
   app.post('/api/session', async (_req, res) => {
-    try { res.json(await sessions.create()); }
-    catch { res.status(503).json({error:'로그인 유지를 준비하지 못했어요. 이 기기의 공부 기록은 유지돼요.'}); }
+    try {
+      res.json(await sessions.create());
+    } catch {
+      res
+        .status(503)
+        .json({ error: '로그인 유지를 준비하지 못했어요. 이 기기의 공부 기록은 유지돼요.' });
+    }
   });
   app.delete('/api/session', async (req, res) => {
     const token = /^Bearer ([^\s]+)$/.exec(req.get('Authorization') || '')?.[1] || '';
-    try { await sessions.revoke(token); res.status(204).end(); }
-    catch { res.status(503).json({error:'서버 연결 해제를 확인하지 못했어요.'}); }
+    try {
+      await sessions.revoke(token);
+      res.status(204).end();
+    } catch {
+      res.status(503).json({ error: '서버 연결 해제를 확인하지 못했어요.' });
+    }
   });
   app.get('/api/sync', async (_req, res) => {
     try {
       const raw = await redisCommand(['GET', syncKey]);
       if (raw === null) return void res.json({ version: 0, state: null });
       if (typeof raw !== 'string') throw new Error('동기화 기록이 올바르지 않아요.');
-      const record = z.object({
-        version: z.number().int().nonnegative(),
-        data: stateSchema,
-      }).parse(JSON.parse(raw));
-      res.json({version: record.version, state: record.data});
-    } catch {
-      res.status(503).json({error:'비공개 동기화 내용을 불러오지 못했어요.'});
+      const record = z
+        .object({
+          version: z.number().int().nonnegative(),
+          data: stateSchema,
+        })
+        .parse(JSON.parse(raw));
+      res.json({ version: record.version, state: record.data });
+    } catch (error) {
+      const phase =
+        error instanceof z.ZodError || error instanceof SyntaxError
+          ? 'snapshot-format'
+          : 'snapshot-read';
+      reportFailure(phase, 503, res.locals.requestId);
+      res.set('Retry-After', '2');
+      res
+        .status(503)
+        .json({
+          error: '비공개 동기화 내용을 불러오지 못했어요.',
+          code: phase === 'snapshot-format' ? 'SYNC_DATA_INVALID' : 'SYNC_STORE_UNAVAILABLE',
+          requestId: res.locals.requestId,
+        });
     }
   });
-  app.put('/api/sync', express.json({limit:'650kb'}), async (req, res) => {
-    const body = z.object({
-      expectedVersion: z.number().int().min(0).max(1000000),
-      state: stateSchema,
-    }).strict().safeParse(req.body);
-    if (!body.success) return void res.status(400).json({error:'동기화 자료를 확인해 주세요.'});
+  app.put('/api/sync', express.json({ limit: '650kb' }), async (req, res) => {
+    const body = z
+      .object({
+        expectedVersion: z.number().int().min(0).max(1000000),
+        state: stateSchema,
+      })
+      .strict()
+      .safeParse(req.body);
+    if (!body.success) return void res.status(400).json({ error: '동기화 자료를 확인해 주세요.' });
     const record = body.data.state;
     if (record.active || record.plan.length || record.undo)
-      return void res.status(400).json({error:'진행 중인 타이머나 기기 전용 사진은 서버에 보낼 수 없어요.'});
+      return void res
+        .status(400)
+        .json({ error: '진행 중인 타이머나 기기 전용 사진은 서버에 보낼 수 없어요.' });
     try {
       const result = await redisCommand([
-        'EVAL', syncScript, '1', syncKey,
-        String(body.data.expectedVersion), JSON.stringify(record),
+        'EVAL',
+        syncScript,
+        '1',
+        syncKey,
+        String(body.data.expectedVersion),
+        JSON.stringify(record),
       ]);
-      if (!Array.isArray(result) || result.length !== 2 ||
-          result.some(n => typeof n !== 'number' || !Number.isSafeInteger(n)))
+      if (
+        !Array.isArray(result) ||
+        result.length !== 2 ||
+        result.some((n) => typeof n !== 'number' || !Number.isSafeInteger(n))
+      )
         throw new Error('동기화 버전을 확인하지 못했어요.');
       if (result[0] === 0)
-        return void res.status(409).json({error:'다른 기기에서 이미 수정했어요. 확인 후 다시 동기화해 주세요.',version:result[1]});
+        return void res
+          .status(409)
+          .json({
+            error: '다른 기기에서 이미 수정했어요. 확인 후 다시 동기화해 주세요.',
+            version: result[1],
+          });
       if (result[0] !== 1) throw new Error('동기화 기록 오류');
-      res.json({version:result[1]});
+      res.json({ version: result[1] });
     } catch {
-      res.status(503).json({error:'비공개 동기화를 저장하지 못했어요. 이 기기의 기록은 유지돼요.'});
+      reportFailure('snapshot-write', 503, res.locals.requestId);
+      res.set('Retry-After', '2');
+      res
+        .status(503)
+        .json({
+          error: '비공개 동기화를 저장하지 못했어요. 이 기기의 기록은 유지돼요.',
+          code: 'SYNC_STORE_UNAVAILABLE',
+          requestId: res.locals.requestId,
+        });
     }
   });
 
