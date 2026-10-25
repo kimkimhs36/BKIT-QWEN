@@ -210,15 +210,17 @@ describe('owner-only multi-device study snapshots', () => {
       const args = JSON.parse(String(options?.body)) as unknown[];
       if (args[0] === 'GET')
         return new Response(JSON.stringify({ result: current }), { status: 200 });
+      if (args[0] === 'EXISTS')
+        return new Response(JSON.stringify({ result: 0 }), { status: 200 });
       if (args[0] === 'EVAL') {
-        const expected = Number(args[4]);
+        const expected = Number(args[5]);
         const previous: { version: number; data: unknown } | null = current
           ? JSON.parse(current)
           : null;
         const version = previous?.version ?? 0;
         if (expected !== version)
           return new Response(JSON.stringify({ result: [0, version] }), { status: 200 });
-        current = JSON.stringify({ version: version + 1, data: JSON.parse(String(args[5])) });
+        current = JSON.stringify({ version: version + 1, data: JSON.parse(String(args[6])) });
         return new Response(JSON.stringify({ result: [1, version + 1] }), { status: 200 });
       }
       throw new Error('Unexpected remote command');
@@ -320,6 +322,57 @@ describe('owner-only multi-device study snapshots', () => {
         }),
       });
       expect(bad.status).toBe(400);
+    });
+  });
+});
+
+describe('clean owner-scoped cloud namespace rollout', () => {
+  it('advertises v2 fresh state, atomically deletes only legacy owner snapshot on successful write', async () => {
+    const records = new Map<string, string>();
+    const legacyKey = 'bkit:private-study:v1:' + (await import('node:crypto'))
+      .createHash('sha256').update(env.BKIT_OWNER_EMAIL.toLowerCase()).digest('hex');
+    const newKey = legacyKey.replace(':v1:', ':v2:');
+    const sessionKey = 'bkit:sync-session:v1:synthetic';
+    records.set(legacyKey, '{"version":10,"data":{"tasks":{}}}');
+    records.set(sessionKey, '2030-01-01');
+    const fetcher = (async (_url: unknown, opts?: RequestInit) => {
+      const args = JSON.parse(String(opts?.body)) as string[];
+      let result: unknown = null;
+      if (args[0] === 'GET') result = records.get(args[1]) ?? null;
+      else if (args[0] === 'EXISTS') result = Number(records.has(args[1]));
+      else if (args[0] === 'EVAL') {
+        expect(args.slice(2, 5)).toEqual(['2', newKey, legacyKey]);
+        const version = records.has(newKey) ? JSON.parse(records.get(newKey)!).version : 0;
+        if (Number(args[5]) !== version) result = [0, version];
+        else {
+          records.set(newKey, JSON.stringify({ version: version + 1, data: JSON.parse(args[6]) }));
+          records.delete(legacyKey);
+          result = [1, version + 1];
+        }
+      } else throw Error('Unexpected mock Redis command');
+      return new Response(JSON.stringify({ result }));
+    }) as typeof fetch;
+    await withServer(createPrivateApi(env, { fetcher, verify: async () => true }), async root => {
+      const fresh = await (await fetch(root + '/api/sync', { headers })).json();
+      expect(fresh).toEqual({ version: 0, state: null, resetNamespace: 2 });
+      expect(records.has(legacyKey)).toBe(true);
+      const write = await fetch(root + '/api/sync', {
+        method: 'PUT', headers,
+        body: JSON.stringify({ expectedVersion: 0, state: newState() }),
+      });
+      expect(write.status).toBe(200);
+      expect(records.has(legacyKey)).toBe(false);
+      expect(records.has(newKey)).toBe(true);
+      expect(records.has(sessionKey)).toBe(true);
+      const after = await (await fetch(root + '/api/sync', { headers })).json();
+      expect(after.version).toBe(1);
+      expect(after.state.tasks).toEqual([]);
+      expect(after.resetNamespace).toBeUndefined();
+      const stale = await fetch(root + '/api/sync', {
+        method: 'PUT', headers,
+        body: JSON.stringify({ expectedVersion: 0, state: newState() }),
+      });
+      expect(stale.status).toBe(409);
     });
   });
 });

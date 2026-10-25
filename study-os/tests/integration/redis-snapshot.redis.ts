@@ -20,7 +20,7 @@ const script = readFileSync(new URL('../../server/privateApi.ts', import.meta.ur
   /const syncScript = `([\s\S]*?)`;/,
 )![1];
 const save = (version: number, data: unknown) =>
-  command('EVAL', script, '1', 'synthetic-owner', String(version), JSON.stringify(data));
+  command('EVAL', script, '2', 'synthetic-owner', 'synthetic-owner-legacy', String(version), JSON.stringify(data));
 beforeAll(async () => {
   server = spawn(
     join(bin, 'redis-server'),
@@ -43,6 +43,18 @@ afterAll(async () => {
   }
   rmSync(dir, { recursive: true, force: true });
 });
+it('clears only legacy owner snapshot after a successful new-namespace write', () => {
+  command('DEL', 'synthetic-owner', 'synthetic-owner-legacy');
+  command('SET', 'synthetic-owner-legacy', '{"version":3,"data":{"tasks":{}}}');
+  command('SET', 'unrelated-session', 'private-session-placeholder');
+  expect(save(1, newState())).toEqual([0, 0]);
+  expect(command('EXISTS', 'synthetic-owner-legacy')).toBe(1);
+  expect(save(0, newState())).toEqual([1, 1]);
+  expect(command('EXISTS', 'synthetic-owner-legacy')).toBe(0);
+  expect(command('GET', 'unrelated-session')).toBe('private-session-placeholder');
+  command('DEL', 'synthetic-owner');
+});
+
 it('preserves an empty learning state through the actual production Lua EVAL', () => {
   const state = newState();
   state.plan = [];
