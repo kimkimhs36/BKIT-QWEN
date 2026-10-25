@@ -1,0 +1,46 @@
+[
+  {
+    "package": "@xyflow/react@12.12.0",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "package": "mathlive@0.111.1",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "package": "katex@0.19.1",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "package": "three@0.186.1",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "package": "@react-three/fiber@9.8.2",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "package": "@react-three/drei@10.7.9",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "package": "motion@14.4.0",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "package": "perfect-freehand@1.2.3",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "package": "@excalidraw/excalidraw@0.18.1",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "package": "dexie@4.4.7",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "package": "@cortex-js/compute-engine@0.168.0",
+    "error": "HTTP Error 403: Forbidden"
+  }
+]

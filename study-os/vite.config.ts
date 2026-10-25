@@ -22,7 +22,17 @@ export default defineConfig(({ mode }) => ({
       async closeBundle() {
         // GitHub Pages has no SPA rewrites: real directories make JUGGERNAUT
         // deep links return 200 on first load as well as on reload.
-        for (const route of ['', 'diagnosis', 'train', 'review', 'roadmap', 'progress', 'guide']) {
+        for (const route of [
+          '',
+          'arrival',
+          'map',
+          'diagnosis',
+          'train',
+          'review',
+          'roadmap',
+          'progress',
+          'guide',
+        ]) {
           const directory = 'dist/juggernaut' + (route ? '/' + route : '');
           await mkdir(directory, { recursive: true });
           await copyFile('dist/index.html', directory + '/index.html');
