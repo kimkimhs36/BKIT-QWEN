@@ -1,0 +1,161 @@
+name: Verify and release BKIT session recovery
+on:
+  push:
+    branches: [fix/bkit-session-recovery-20261025]
+permissions:
+  contents: read
+concurrency:
+  group: bkit-session-recovery-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  API_SHA: 9a0bfb94143a4703ca25788f6027a9ec3dbad0ec
+  APP_BASE: /
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: source
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ env.API_SHA }}
+          path: api
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: source/study-os/package-lock.json
+      - run: npm ci && npm run typecheck && npm test && npm run build && node scripts/check-local-vision.mjs
+        working-directory: source/study-os
+      - run: npm ci && npm run typecheck && npm test
+        working-directory: api/study-os
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: session-recovery-dist
+          path: source/study-os/dist/
+  verify:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [webkit-iphone, webkit-ipad]
+    env:
+      BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
+      BKIT_RECOVERY_API_ROOT: ${{ github.workspace }}/api/study-os
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: source
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ env.API_SHA }}
+          path: api
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: source/study-os/package-lock.json
+      - run: npm ci
+        working-directory: source/study-os
+      - run: npm ci
+        working-directory: api/study-os
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: session-recovery-dist
+          path: source/study-os/dist/
+      - run: npx playwright install --with-deps webkit
+        working-directory: source/study-os
+      - run: npm run test:e2e -- tests/e2e/session-recovery.spec.ts --project=${{ matrix.project }} --workers=1
+        working-directory: source/study-os
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: session-recovery-${{ matrix.project }}
+          path: source/study-os/test-results/
+  publish:
+    needs: [build, verify]
+    if: github.repository == 'kimkimhs36/BKIT-QWEN' && github.ref == 'refs/heads/fix/bkit-session-recovery-20261025'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pages: write
+    concurrency:
+      group: bkit-safe-production-teambkit-only
+      cancel-in-progress: false
+    steps:
+      - name: Require the tested compatible API before publishing any frontend
+        run: |
+          set -euo pipefail
+          # API rollout is performed only after all build/integration jobs are green.
+          for i in $(seq 1 60); do
+            if curl -fsSL --max-time 12 "https://bkit-api.vercel.app/api/health?recovery=$API_SHA" > /tmp/bkit-api-health.json &&
+              jq -e --arg sha "$API_SHA" '.service=="bkit-api" and .sourceCommit==$sha and .syncProtocolVersion==2' /tmp/bkit-api-health.json; then exit 0; fi
+            sleep 8
+          done
+          echo 'Compatible tested API not confirmed; frontend publication refused'; exit 1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: session-recovery-dist
+          path: /tmp/bkit-verified-dist/
+      - name: Publish only verified BKIT artifacts with a recoverable checkpoint
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = 'kimkimhs36/BKIT-QWEN'
+          gh api "repos/$GITHUB_REPOSITORY/pages" > /tmp/bkit-pages-config.json
+          jq -e '.cname=="teambkit.com" and .source.branch=="main" and .source.path=="/"' /tmp/bkit-pages-config.json
+          grep -Fxq 'teambkit.com' CNAME
+          test -f .nojekyll
+          test ! -d study-os/src
+          baseline=$(git rev-parse HEAD)
+          test "$(git ls-remote origin refs/heads/fix/bkit-session-recovery-20261025 | awk '{print $1}')" = "$SOURCE_SHA"
+          sha256sum exam-lab/index.html mock-rescue/index.html > /tmp/bkit-routes.sha256
+          node - <<'JS'
+          const fs=require('fs'),r=JSON.parse(fs.readFileSync('release.json')),b=JSON.parse(fs.readFileSync('/tmp/bkit-verified-dist/build-info.json'));
+          if(!r.product.startsWith('BKIT STUDY OS')||b.sourceCommit!==process.env.SOURCE_SHA)throw Error('Wrong product/source');
+          if(JSON.parse(fs.readFileSync('/tmp/bkit-verified-dist/manifest.webmanifest')).name!=='BKIT STUDY OS')throw Error('Wrong manifest');
+          fs.writeFileSync('/tmp/bkit-prior-release.json',JSON.stringify(r));
+          JS
+          git push origin "$baseline:refs/heads/checkpoint/bkit-recovery-$SOURCE_SHA"
+          cp -a /tmp/bkit-verified-dist/. ./
+          BASELINE="$baseline" node - <<'JS'
+          const fs=require('fs'),prior=JSON.parse(fs.readFileSync('/tmp/bkit-prior-release.json'));
+          fs.writeFileSync('release.json',JSON.stringify({product:'BKIT STUDY OS · Session Recovery',sourceCommit:process.env.SOURCE_SHA,sourceBranch:'fix/bkit-session-recovery-20261025',previousSource:prior.sourceCommit,rollbackCommit:process.env.BASELINE,publishedAt:new Date().toISOString(),apiSource:process.env.API_SHA,apiProtocol:2,validation:'App/API unit suites, production build, 34 paired real-API WebKit recovery scenarios; Google authorization and Redis transport synthetic, no physical-device claim',ci:`https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,notes:'No study storage reset; old hashed assets and independent routes retained.'},null,2)+'\n');
+          JS
+          sha256sum -c /tmp/bkit-routes.sha256
+          grep -Fxq 'teambkit.com' CNAME
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --all
+          test -z "$(git diff --cached --name-only --diff-filter=D)"
+          git commit -m "deploy: BKIT session recovery $SOURCE_SHA"
+          test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$baseline"
+          git push origin HEAD:main
+          git rev-parse HEAD > /tmp/bkit-pages-sha
+      - name: Confirm exact Pages and public release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds" || true
+          for i in $(seq 1 60); do
+            gh api "repos/$GITHUB_REPOSITORY/pages/builds/latest" > /tmp/bkit-built.json
+            if jq -e --arg sha "$(cat /tmp/bkit-pages-sha)" '.status=="built" and .commit==$sha' /tmp/bkit-built.json; then break; fi
+            sleep 8
+          done
+          jq -e --arg sha "$(cat /tmp/bkit-pages-sha)" '.status=="built" and .commit==$sha' /tmp/bkit-built.json
+          for i in $(seq 1 30); do
+            if curl -fsSL "https://teambkit.com/release.json?recovery=$SOURCE_SHA" | jq -e --arg sha "$SOURCE_SHA" '.sourceCommit==$sha'; then exit 0; fi
+            sleep 8
+          done
+          exit 1
