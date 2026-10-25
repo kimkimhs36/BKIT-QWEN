@@ -1,0 +1,19 @@
+{
+  "ci": {
+    "conclusion": "success",
+    "headSha": "3377941faa5fc8e0621e84e443b1a545b7e22521",
+    "status": "completed",
+    "url": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40206979049"
+  },
+  "runtimeCommit": "101d9f6f82e686c59cd8dd6baa3783653a1be757",
+  "preview": "https://bkit-study-os-36-preview-afct08o7s-teambkit.vercel.app/juggernaut/",
+  "unitPassed": 298,
+  "ciBrowserPassed": 24,
+  "ciExistingRegressionPassed": 8,
+  "localChromiumPassed": 24,
+  "localWebKitPassed": 12,
+  "previewChromiumPassed": 12,
+  "liveCloudVerified": false,
+  "physicalSafariVerified": false,
+  "productionChanged": false
+}
