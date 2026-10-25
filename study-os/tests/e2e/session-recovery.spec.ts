@@ -83,10 +83,8 @@ const test = base.extend<{ cloud: Harness }>({
                 args[3],
                 JSON.stringify({ version: version + 1, data: JSON.parse(args[6]) }),
               );
+              // Simulate the atomic owner-scoped legacy cleanup.
               if (args[4] !== args[3]) h.records.delete(args[4]);
-              /* v1 cleanup and v2 write are atomic in the real Redis Lua EVAL. */
-              h.records.set(args[3], h.records.get(args[3])!
-              );
               h.writes++;
               result = [1, version + 1];
             }
