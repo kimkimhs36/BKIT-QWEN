@@ -81,6 +81,9 @@ test('free practice never persists answers or becomes a saved resume session', a
   await page.getByRole('radio', { name: '2', exact: true }).check();
   await page.getByRole('button', { name: '첫 답변 제출' }).click();
   await expect(page.getByText('자유 연습 · 저장하지 않음')).toBeVisible();
+  await page.goBack();
+  await page.getByRole('button', { name: '이전 학습 이어서 하기' }).click();
+  await expect(page.getByText('자유 연습 · 저장하지 않음')).toBeVisible();
   await page.getByRole('button', { name: '연습 화면 나가기' }).click();
   expect(await page.evaluate((key) => localStorage.getItem(key), KEY)).toBeNull();
   await page.reload();

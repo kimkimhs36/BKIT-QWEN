@@ -154,7 +154,9 @@ export function JuggernautOS({
   }
   function resume(s: Session) {
     checkpoint();
-    setPractice(false);
+    // Browser Back can leave a free session in memory. Resuming it must never
+    // promote its answers into a persisted learning session.
+    setPractice(!store.document.sessions.some((saved) => saved.id === s.id));
     setSession({ ...s, tickAt: Date.now() });
     history.pushState(null, '', root + '/train');
     window.dispatchEvent(new PopStateEvent('popstate'));
