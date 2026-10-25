@@ -72,16 +72,19 @@ const test = base.extend<{ cloud: Harness }>({
             result = h.records.get(args[1]) ?? null;
           }
           if (args[0] === 'DEL') result = Number(h.records.delete(args[1]));
+          if (args[0] === 'EXISTS') result = Number(h.records.has(args[1]));
           if (args[0] === 'EVAL') {
             if (h.rejectWrites) throw Error('Synthetic durable write failure');
             const previous = JSON.parse(h.records.get(args[3]) || 'null');
             const version = previous?.version ?? 0;
-            if (version !== Number(args[4])) result = [0, version];
+            if (version !== Number(args[5])) result = [0, version];
             else {
               h.records.set(
                 args[3],
-                JSON.stringify({ version: version + 1, data: JSON.parse(args[5]) }),
+                JSON.stringify({ version: version + 1, data: JSON.parse(args[6]) }),
               );
+              // Simulate the atomic owner-scoped legacy cleanup.
+              if (args[4] !== args[3]) h.records.delete(args[4]);
               h.writes++;
               result = [1, version + 1];
             }
@@ -110,11 +113,11 @@ const test = base.extend<{ cloud: Harness }>({
     const address = server.address();
     h.root = 'http://127.0.0.1:' + (typeof address === 'object' && address ? address.port : 0);
     h.remote = () => {
-      const row = [...h.records].find(([k]) => k.startsWith('bkit:private-study:v1:'));
+      const row = [...h.records].find(([k]) => k.startsWith('bkit:private-study:v2:'));
       return row ? JSON.parse(row[1]) : null;
     };
     h.changeRemote = (goal) => {
-      const row = [...h.records].find(([k]) => k.startsWith('bkit:private-study:v1:'))!;
+      const row = [...h.records].find(([k]) => k.startsWith('bkit:private-study:v2:'))!;
       const record = JSON.parse(row[1]);
       record.version++;
       record.data.settings.goal = goal;
@@ -242,6 +245,32 @@ async function editGoal(p: Page, goal: string) {
   await p.getByRole('button', { name: '설정 저장', exact: true }).click();
 }
 const state = (p: Page) => p.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
+
+test('remembered v1 checkpoint reopens into clean v2 cloud, deletes only the old owner snapshot', async ({
+  page, cloud,
+}) => {
+  await login(page, cloud);
+  const previousSessions = cloud.sessions;
+  const before = await state(page);
+  const newKey = [...cloud.records.keys()].find(k => k.startsWith('bkit:private-study:v2:'))!;
+  expect(newKey).toBeTruthy();
+  const oldKey = newKey.replace(':v2:', ':v1:');
+  cloud.records.set(oldKey, JSON.stringify({
+    version: 12,
+    data: { ...cloud.seed, tasks: {} },
+  }));
+  cloud.records.delete(newKey);
+  await page.reload();
+  await openPanel(page);
+  await expect(panel(page)).toContainText('연결됨');
+  expect(cloud.records.has(oldKey)).toBe(false);
+  expect(cloud.records.has(newKey)).toBe(true);
+  expect(cloud.remote()?.data.tasks).toEqual([]);
+  expect(cloud.sessions).toBe(previousSessions);
+  expect((await state(page)).settings.goal).toBe(before.settings.goal);
+  expect(await credentialPresent(page)).toBe(true);
+  expect(await page.evaluate(() => (window as any).__googlePrompts)).toBe(0);
+});
 
 test('login → refresh and close page → ten-second relaunch keep the real issued session without Google popup', async ({
   page,

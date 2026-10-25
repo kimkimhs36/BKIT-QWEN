@@ -76,6 +76,9 @@ export function mergePrivateStudyState(local: State, incoming: State): State {
 const cloudSchema = z.object({
   version: z.number().int().nonnegative(),
   state: stateSchema.nullable(),
+  // Set by API only when an owner-scoped old snapshot exists but the new
+  // cloud namespace is empty. Never inferred from a generic 503 response.
+  resetNamespace: z.literal(2).optional(),
 });
 const versionSchema = z.object({ version: z.number().int().positive() });
 export type Connection =
@@ -310,6 +313,21 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
         epoch,
         '첫 개인 클라우드가 준비됐어요. 이제 공부를 시작해 보세요.',
       );
+      return;
+    }
+    // One-time clean-cloud migration: a saved v1 login checkpoint must not
+    // prevent initial upload into the separate v2 storage namespace.
+    // Only trust the server's explicit marker, not an arbitrary empty response.
+    if (
+      remote.resetNamespace === 2 &&
+      remote.version === 0 &&
+      remote.state === null &&
+      (mode === 'sync' || mode === 'initial')
+    ) {
+      if (signature(local.current) !== before)
+        throw new SyncFailure('conflict', '초기화 확인 중 공부 기록이 바뀌었어요. 다시 확인해 주세요.');
+      const version = await writeCloud(0, latest, epoch);
+      await markSuccess(version, latest, epoch, '새 개인 클라우드에 안전하게 연결했어요.');
       return;
     }
     const base = checkpoint.current;
