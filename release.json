@@ -1,12 +1,12 @@
 {
   "product": "BKIT STUDY OS · Daily Driver",
-  "sourceCommit": "fae5374070b5c835a20f155dba68ee0c640a7349",
+  "sourceCommit": "cb4b426c28ed29d9a6d149a30f904ae6e7a98161",
   "sourceBranch": "feat/bkit-daily-driver-20261025",
-  "previousSource": "5d6c263b6b6134b8241fa9568ecd3bf35a91d693",
-  "rollbackCommit": "faa22c7d6d89c0bf1b67a38dae97381850fe6135",
-  "publishedAt": "2026-10-25T08:56:49.073Z",
-  "validation": "TypeScript, 271 unit/integration tests, exact-build desktop and three WebKit device matrices",
-  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40178076297",
+  "previousSource": "fae5374070b5c835a20f155dba68ee0c640a7349",
+  "rollbackCommit": "7e202aa49393edb6be50c4d4ef2ada8fd7477e96",
+  "publishedAt": "2026-10-25T09:05:16.453Z",
+  "validation": "Production build and TypeScript; remembered Google login WebKit iPhone. Full repeated UI matrix stopped at user request; prior unit/integration: 271 app + 99 API.",
+  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40179005446",
   "apiSource": "f1439874063df4f17fa60d667fa5efe9ea2ba9f8",
   "notes": "Static artifacts only; existing hashed assets, independent routes and browser study storage preserved."
 }
