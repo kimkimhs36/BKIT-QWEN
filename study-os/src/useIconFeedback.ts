@@ -6,7 +6,11 @@ export function useIconFeedback(disabled: boolean) {
     const media = matchMedia('(prefers-reduced-motion: reduce)');
     const animations = new Set<Animation>();
     const press = (event: Event) => {
-      if (disabled || media.matches || document.hidden) return;
+      // Safari can delay updates to a retained MediaQueryList after a setting change.
+      if (disabled || matchMedia('(prefers-reduced-motion: reduce)').matches || document.hidden) {
+        reset();
+        return;
+      }
       if (event instanceof KeyboardEvent && !['Enter', ' '].includes(event.key)) return;
       const button =
         event.target instanceof Element
