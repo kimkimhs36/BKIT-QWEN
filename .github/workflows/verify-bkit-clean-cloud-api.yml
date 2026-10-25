@@ -1,0 +1,30 @@
+name: Verify BKIT clean-cloud v2 API
+on:
+  push:
+    branches: [fix/bkit-cloud-clean-v2-20261025]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+        working-directory: study-os
+      - name: Unit regression and auth checks
+        run: npm test
+        working-directory: study-os
+      - name: Install isolated Redis
+        run: sudo apt-get update -qq && sudo apt-get install -y redis-server redis-tools
+      - name: Real Redis Lua storage tests
+        run: npm run test:redis
+        working-directory: study-os
+      - name: Typecheck
+        run: npm run typecheck
+        working-directory: study-os
