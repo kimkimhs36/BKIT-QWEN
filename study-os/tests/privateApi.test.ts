@@ -439,3 +439,71 @@ it('distinguishes unavailable session storage from expired authentication withou
     expect(calls.filter((x) => x[0] === 'SET')).toHaveLength(1);
   });
 });
+
+describe('private snapshot recovery safety', () => {
+  it('diagnoses legacy empty-object arrays without leaking private records or modifying Redis', async () => {
+    const original = JSON.stringify({
+      version: 4,
+      data: { ...newState(), tasks: {}, schedules: {}, sessions: {} },
+    });
+    const commands: string[] = [];
+    const fetcher = (async (_url: unknown, options?: RequestInit) => {
+      const args = JSON.parse(String(options?.body)) as string[];
+      commands.push(args[0]);
+      if (args[0] !== 'GET') throw new Error('Read-only diagnosis must not write');
+      return new Response(JSON.stringify({ result: original }));
+    }) as typeof fetch;
+    await withServer(createPrivateApi(env, { fetcher, verify: async () => true }), async (root) => {
+      const missing = await fetch(root + '/api/sync/recovery-status');
+      expect(missing.status).toBe(401);
+      const preview = await fetch(root + '/api/sync/recovery-status', { headers });
+      expect(preview.status).toBe(200);
+      const info = await preview.json();
+      expect(info).toMatchObject({
+        status: 'recoverable',
+        version: 4,
+        repairedPaths: expect.arrayContaining(['tasks', 'schedules', 'sessions']),
+      });
+      expect(JSON.stringify(info)).not.toContain('owner@example.com');
+      expect(JSON.stringify(info)).not.toContain('original');
+      const previousRead = await fetch(root + '/api/sync', { headers });
+      expect(previousRead.status).toBe(503);
+      const put = await fetch(root + '/api/sync', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ expectedVersion: 4, state: newState() }),
+      });
+      expect(put.status).toBe(422);
+      expect(await put.json()).toMatchObject({ code: 'SYNC_RECOVERY_REQUIRED' });
+      expect(commands).toEqual(['GET', 'GET', 'GET']);
+    });
+  });
+
+  it('refuses unsafe nonempty objects and reports healthy records without exposing data', async () => {
+    let remote = JSON.stringify({ version: 7, data: { ...newState(), tasks: { unexpected: 'private' } } });
+    const fetcher = (async (_url: unknown, options?: RequestInit) => {
+      const args = JSON.parse(String(options?.body)) as string[];
+      if (args[0] !== 'GET') throw new Error('No mutation allowed in safety tests');
+      return new Response(JSON.stringify({ result: remote }));
+    }) as typeof fetch;
+    await withServer(createPrivateApi(env, { fetcher, verify: async () => true }), async (root) => {
+      const bad = await (await fetch(root + '/api/sync/recovery-status', { headers })).json();
+      expect(bad).toEqual({ status: 'manual-review' });
+      expect(JSON.stringify(bad)).not.toContain('private');
+      const denied = await fetch(root + '/api/sync', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ expectedVersion: 7, state: newState() }),
+      });
+      expect(denied.status).toBe(422);
+      remote = JSON.stringify({ version: 8, data: newState() });
+      const healthy = await (await fetch(root + '/api/sync/recovery-status', { headers })).json();
+      expect(healthy).toMatchObject({
+        status: 'healthy',
+        version: 8,
+        counts: { tasks: 0, schedules: 0, sessions: 0 },
+      });
+      expect(JSON.stringify(healthy)).not.toContain('가천');
+    });
+  });
+});

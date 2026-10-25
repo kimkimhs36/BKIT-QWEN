@@ -1,0 +1,33 @@
+name: Verify BKIT safe snapshot diagnostics
+on:
+  push:
+    branches: [fix/bkit-safe-snapshot-diagnostics-20261025]
+  pull_request:
+    branches: [deploy/bkit-api]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci
+        working-directory: study-os
+      - name: Install isolated Redis test server
+        run: sudo apt-get update -qq && sudo apt-get install -y redis-server redis-tools
+      - name: Unit tests
+        run: npm test
+        working-directory: study-os
+      - name: Actual Redis CAS and recovery regression tests
+        run: npm run test:redis
+        working-directory: study-os
+      - name: API and frontend typecheck
+        run: npm run typecheck
+        working-directory: study-os
