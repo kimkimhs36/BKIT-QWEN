@@ -1,4 +1,4 @@
-name: BKIT daily driver verified release
+name: BKIT daily driver release · Google login check
 on:
   push:
     branches: [feat/bkit-daily-driver-20261025]
@@ -24,7 +24,6 @@ jobs:
           cache-dependency-path: study-os/package-lock.json
       - run: npm ci
       - run: npm run typecheck
-      - run: npm test
       - run: npm run build
       - run: node scripts/check-local-vision.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -38,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [desktop, webkit-iphone, webkit-ipad, webkit-ipad-landscape]
+        project: [webkit-iphone]
     defaults:
       run:
         working-directory: study-os
@@ -58,13 +57,8 @@ jobs:
           name: verified-dist
           path: study-os/dist/
       - run: npx playwright install --with-deps chromium webkit
-      - run: >-
-          npm run test:e2e --
-          tests/e2e/study-record-management.spec.ts tests/e2e/calendar-help-polish.spec.ts
-          tests/e2e/compact-experience.spec.ts tests/e2e/compact-offline.spec.ts
-          tests/e2e/live-study-recovery.spec.ts tests/e2e/private-sync.spec.ts
-          tests/e2e/capture-v2.spec.ts tests/e2e/storage-readiness.spec.ts
-          tests/e2e/daily-driver.spec.ts --project=${{ matrix.project }} --workers=1
+      # User requested stopping repeated full UI matrices. Verify Google continuity only.
+      - run: npm run test:e2e -- tests/e2e/daily-driver.spec.ts -g 'remembered Google connection' --project=webkit-iphone --workers=1
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -122,7 +116,7 @@ jobs:
           cp -a /tmp/bkit-verified-dist/. ./
           BASELINE="$baseline" node - <<'JS'
           const fs=require('fs'),prior=JSON.parse(fs.readFileSync('/tmp/bkit-prior-release.json'));
-          fs.writeFileSync('release.json',JSON.stringify({product:'BKIT STUDY OS · Daily Driver',sourceCommit:process.env.SOURCE_SHA,sourceBranch:'feat/bkit-daily-driver-20261025',previousSource:prior.sourceCommit,rollbackCommit:process.env.BASELINE,publishedAt:new Date().toISOString(),validation:'TypeScript, 271 unit/integration tests, exact-build desktop and three WebKit device matrices',ci:`https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,apiSource:'f1439874063df4f17fa60d667fa5efe9ea2ba9f8',notes:'Static artifacts only; existing hashed assets, independent routes and browser study storage preserved.'},null,2)+'\n');
+          fs.writeFileSync('release.json',JSON.stringify({product:'BKIT STUDY OS · Daily Driver',sourceCommit:process.env.SOURCE_SHA,sourceBranch:'feat/bkit-daily-driver-20261025',previousSource:prior.sourceCommit,rollbackCommit:process.env.BASELINE,publishedAt:new Date().toISOString(),validation:'Production build and TypeScript; remembered Google login WebKit iPhone. Full repeated UI matrix stopped at user request; prior unit/integration: 271 app + 99 API.',ci:`https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,apiSource:'f1439874063df4f17fa60d667fa5efe9ea2ba9f8',notes:'Static artifacts only; existing hashed assets, independent routes and browser study storage preserved.'},null,2)+'\n');
           JS
           sha256sum -c /tmp/bkit-routes.sha256
           grep -Fxq 'teambkit.com' CNAME

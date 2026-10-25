@@ -203,3 +203,13 @@ html[data-material] .study-dialog .schedule-repeat-choice button[aria-pressed='t
 html[data-material] .study-dialog:not(.tools-dialog) .modal-head {
   top: 0 !important;
 }
+
+/* A saved motion shortcut stays reachable alongside help, theme and settings. */
+html[data-material] .app-shell.premium-os .quick-motion-toggle[aria-pressed='true'] {
+  background: var(--mat-accent);
+  color: var(--mat-on-accent);
+}
+.quick-motion-toggle[aria-pressed='true'] svg { fill: currentColor; }
+@media (max-width:360px) {
+  html[data-material] .app-shell.premium-os .topbar .mobile-brand small { display:none; }
+}

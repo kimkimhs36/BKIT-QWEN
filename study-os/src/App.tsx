@@ -134,6 +134,7 @@ import {
   Sparkles,
   Target,
   Timer,
+  Zap,
   Trash2,
   Upload,
   X,
@@ -1835,6 +1836,26 @@ export default function App() {
                 <HelpCircle size={20} />
               </button>
               {!online && <span className="offline-label">오프라인</span>}
+              <button
+                type="button"
+                className="icon-button quick-motion-toggle"
+                aria-label="동작 줄이기"
+                title={
+                  material.lowPower || material.motion !== 'auto'
+                    ? '동작 줄이기 켜짐 · 눌러서 끄기'
+                    : '동작 줄이기 꺼짐 · 눌러서 켜기'
+                }
+                aria-pressed={material.lowPower || material.motion !== 'auto'}
+                onClick={() =>
+                  changeMaterial({
+                    ...material,
+                    lowPower: false,
+                    motion: material.lowPower || material.motion !== 'auto' ? 'auto' : 'reduced',
+                  })
+                }
+              >
+                <Zap size={20} aria-hidden="true" />
+              </button>
               <button
                 type="button"
                 className="icon-button palette-button"
