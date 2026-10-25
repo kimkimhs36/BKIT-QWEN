@@ -1,0 +1,17 @@
+[WebServer] (node:16067) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+(node:16085) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/e2e/daily-driver.spec.ts:13:1 › maximum glass uses no mobile GPU context, idle settles, icon feedback respects reduced motion (2.3s)
+  ✓  2 [desktop] › tests/e2e/daily-driver.spec.ts:59:1 › year overview drills into leap February, selecting a date keeps date-only integrity (2.4s)
+  ✓  3 [desktop] › tests/e2e/daily-driver.spec.ts:74:1 › home starts the task it actually recommends (1.4s)
+  ✓  4 [desktop] › tests/e2e/daily-driver.spec.ts:110:1 › remembered Google connection restores without popup and logout preserves learning data (4.9s)
+  ✓  5 [desktop] › tests/e2e/study-record-management.spec.ts:21:1 › a test stopwatch may stop without creating a study record (1.2s)
+  ✓  6 [desktop] › tests/e2e/study-record-management.spec.ts:37:1 › a focus timer can leave the mandatory form without saving (1.1s)
+  ✓  7 [desktop] › tests/e2e/study-record-management.spec.ts:57:1 › saved sessions are searchable, editable, deletable and reversible (1.6s)
+  ✓  8 [desktop] › tests/e2e/study-record-management.spec.ts:95:1 › subject and period filters narrow real records without changing totals or deleting hidden sessions (1.0s)
+
+  8 passed (17.2s)

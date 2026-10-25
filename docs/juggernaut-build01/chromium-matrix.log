@@ -1,0 +1,39 @@
+[WebServer] (node:11639) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 24 tests using 2 workers
+
+(node:11656) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11657) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [iphone] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (5.7s)
+  ✓   2 [ipad] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (6.0s)
+  ✓   3 [iphone] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (3.5s)
+  ✓   4 [ipad] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (3.7s)
+  ✓   5 [iphone] › tests/e2e/juggernaut.spec.ts:91:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (8.7s)
+  ✓   6 [ipad] › tests/e2e/juggernaut.spec.ts:91:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (8.6s)
+  ✓   7 [iphone] › tests/e2e/juggernaut.spec.ts:122:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (3.2s)
+  ✓   8 [ipad] › tests/e2e/juggernaut.spec.ts:122:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (3.2s)
+  ✓   9 [iphone] › tests/e2e/juggernaut.spec.ts:149:1 › offline draft survives a reload and never claims server acknowledgment (2.8s)
+  ✓  10 [ipad] › tests/e2e/juggernaut.spec.ts:149:1 › offline draft survives a reload and never claims server acknowledgment (2.7s)
+  ✓  11 [iphone] › tests/e2e/juggernaut.spec.ts:169:1 › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (6.1s)
+(node:12815) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [ipad] › tests/e2e/juggernaut.spec.ts:169:1 › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (7.4s)
+(node:12970) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 [galaxy-css] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (5.6s)
+  ✓  14 [desktop] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (5.4s)
+  ✓  15 [galaxy-css] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (2.6s)
+  ✓  16 [desktop] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (2.9s)
+  ✓  17 [galaxy-css] › tests/e2e/juggernaut.spec.ts:91:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (7.6s)
+  ✓  18 [desktop] › tests/e2e/juggernaut.spec.ts:91:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (8.1s)
+  ✓  19 [galaxy-css] › tests/e2e/juggernaut.spec.ts:122:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (3.9s)
+  ✓  20 [desktop] › tests/e2e/juggernaut.spec.ts:122:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (3.3s)
+  ✓  21 [galaxy-css] › tests/e2e/juggernaut.spec.ts:149:1 › offline draft survives a reload and never claims server acknowledgment (2.7s)
+  ✓  22 [desktop] › tests/e2e/juggernaut.spec.ts:149:1 › offline draft survives a reload and never claims server acknowledgment (3.0s)
+  ✓  23 [galaxy-css] › tests/e2e/juggernaut.spec.ts:169:1 › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (6.8s)
+  ✓  24 [desktop] › tests/e2e/juggernaut.spec.ts:169:1 › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (6.2s)
+
+  24 passed (1.1m)

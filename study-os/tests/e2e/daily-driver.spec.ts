@@ -2,6 +2,11 @@ import { test, expect } from './local-fixture';
 import { newState, taskSchema } from '../../src/model';
 import { mkdir } from 'node:fs/promises';
 test.use({ serviceWorkers: 'block' });
+// Study start correctly refuses the sleeping hours. Keep this regression suite
+// deterministic when CI runs after midnight in Asia/Seoul.
+test.beforeEach(async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-25T04:00:00Z') });
+});
 const nav = async (page: import('@playwright/test').Page, name: string) =>
   page.locator('nav:visible').getByRole('button', { name, exact: true }).first().click();
 

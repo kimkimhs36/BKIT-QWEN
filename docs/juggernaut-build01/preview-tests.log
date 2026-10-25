@@ -1,0 +1,21 @@
+
+Running 12 tests using 2 workers
+
+(node:20187) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [iphone] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (8.5s)
+  ✓   1 [desktop] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (9.4s)
+  ✓   3 [iphone] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (4.4s)
+  ✓   4 [desktop] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (4.6s)
+  ✓   5 [iphone] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (8.7s)
+  ✓   6 [desktop] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (8.2s)
+  ✓   7 [iphone] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (4.2s)
+  ✓   8 [desktop] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (5.1s)
+  ✓  10 [desktop] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (7.5s)
+  ✓   9 [iphone] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (9.0s)
+  ✓  11 [desktop] › tests/e2e/juggernaut.spec.ts:172:1 › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (9.1s)
+  ✓  12 [iphone] › tests/e2e/juggernaut.spec.ts:172:1 › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (10.6s)
+
+  12 passed (48.1s)

@@ -1,4 +1,9 @@
 import { useIconFeedback } from './useIconFeedback';
+import { isJuggernautPath, useJuggernautPath } from './juggernaut/routing';
+const JuggernautOS = lazy(() =>
+  import('./juggernaut/JuggernautOS').then((m) => ({ default: m.JuggernautOS })),
+);
+const JuggernautGuide = lazy(() => import('./Juggernaut').then((m) => ({ default: m.Juggernaut })));
 import type { HelpAction, HelpTopic } from './HelpCenter';
 import { MaterialSettings } from './themes/MaterialSettings';
 import { AnimatedClock } from './AnimatedClock';
@@ -274,6 +279,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 export default function App() {
+  useJuggernautPath();
   const modalTrigger = useRef<HTMLElement | null>(null);
   useViewport();
   const [initial] = useState(() => readState(localStorage));
@@ -475,6 +481,7 @@ export default function App() {
   }, [tab]);
   useEffect(() => {
     const shortcut = (e: KeyboardEvent) => {
+      if (isJuggernautPath()) return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         if (document.querySelector('dialog[open], [role="dialog"][data-state="open"]')) return;
         e.preventDefault();
@@ -1737,6 +1744,43 @@ export default function App() {
     </div>
   );
   const FocusContainer = s.active ? 'div' : 'details';
+  if (isJuggernautPath())
+    return (
+      <Suspense fallback={<p role="status">수능관을 준비하고 있어요…</p>}>
+        <JuggernautOS
+          request={privateSync.juggernautRequest}
+          connected={privateSync.hasCredential}
+          theme={theme}
+          onTheme={changeTheme}
+          onExit={() => {
+            history.pushState(null, '', import.meta.env.BASE_URL);
+            window.dispatchEvent(new PopStateEvent('popstate'));
+          }}
+          guide={
+            <Suspense fallback={<p>수능 안내 불러오는 중…</p>}>
+              <JuggernautGuide
+                onExit={() => {
+                  history.pushState(null, '', import.meta.env.BASE_URL + 'juggernaut');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+                onStart={() => {
+                  history.pushState(null, '', import.meta.env.BASE_URL + 'juggernaut/train');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+                tasks={s.tasks}
+                canStart={false}
+                protectedReason="기존 수능 안내 자료입니다. 실제 문제는 TRAINING ROOM에서 시작하세요."
+                state={s}
+                now={now}
+                onChange={commit}
+                onResumeResource={openResource}
+                onStartMock={startMockExam}
+              />
+            </Suspense>
+          }
+        />
+      </Suspense>
+    );
   return (
     <MotionConfig
       reducedMotion={material.motion !== 'auto' || material.lowPower ? 'always' : 'user'}
