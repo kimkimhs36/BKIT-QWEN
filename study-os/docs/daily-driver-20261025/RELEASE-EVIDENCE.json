@@ -1,0 +1,56 @@
+{
+  "sourceCommit": "cb4b426c28ed29d9a6d149a30f904ae6e7a98161",
+  "pagesCommit": "17bcf08d7bba0625372273c0391c6eea64a7d98d",
+  "pagesStatus": "built",
+  "release": {
+    "product": "BKIT STUDY OS · Daily Driver",
+    "sourceCommit": "cb4b426c28ed29d9a6d149a30f904ae6e7a98161",
+    "sourceBranch": "feat/bkit-daily-driver-20261025",
+    "previousSource": "fae5374070b5c835a20f155dba68ee0c640a7349",
+    "rollbackCommit": "7e202aa49393edb6be50c4d4ef2ada8fd7477e96",
+    "publishedAt": "2026-10-25T09:05:16.453Z",
+    "validation": "Production build and TypeScript; remembered Google login WebKit iPhone. Full repeated UI matrix stopped at user request; prior unit/integration: 271 app + 99 API.",
+    "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40179005446",
+    "apiSource": "f1439874063df4f17fa60d667fa5efe9ea2ba9f8",
+    "notes": "Static artifacts only; existing hashed assets, independent routes and browser study storage preserved."
+  },
+  "build": {
+    "sourceCommit": "cb4b426c28ed29d9a6d149a30f904ae6e7a98161",
+    "environment": "local-verified-build"
+  },
+  "manifest": {
+    "id": "./",
+    "name": "BKIT STUDY OS",
+    "short_name": "BKIT",
+    "lang": "ko",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#f7f7ef",
+    "theme_color": "#f7f7ef",
+    "icons": [
+      {
+        "src": "icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+      }
+    ]
+  },
+  "publicEntryAssets": [
+    "/assets/index-Dxa2lYs5.js",
+    "/assets/react-vendor-DENrKhsk.js",
+    "/assets/schema-vendor-DYuAzjeD.js",
+    "/assets/index-SocKxP6P.css"
+  ],
+  "assetRequests": "all HTTP 200",
+  "serviceWorker": "versioned and precache compiled",
+  "apiSource": "f1439874063df4f17fa60d667fa5efe9ea2ba9f8",
+  "loginCheck": "1 passed / 0 failed",
+  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40179005446"
+}

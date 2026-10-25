@@ -1,0 +1,9 @@
+{
+  "sourceCommit": "f1439874063df4f17fa60d667fa5efe9ea2ba9f8",
+  "rememberSyncEnabled": true,
+  "unauthenticatedSync": 401,
+  "unauthenticatedSessionIssue": 401,
+  "foreignOrigin": 403,
+  "logoutPreflight": 204,
+  "logoutAllowed": true
+}
