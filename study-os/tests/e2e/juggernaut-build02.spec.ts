@@ -1,6 +1,9 @@
 import { test, expect } from './local-fixture';
 import AxeBuilder from '@axe-core/playwright';
 import { KEY } from '../../src/juggernaut/engine';
+// These new scenarios traverse several complete spaces or audit four documents.
+// Keep the inherited BUILD 01 tests and their original timeout untouched.
+test.setTimeout(60000);
 const visit = async (page: import('@playwright/test').Page, path = '') => {
   await page.goto('juggernaut/' + path);
   await expect(page.locator('.jg-build02')).toBeVisible();
@@ -156,4 +159,29 @@ test('core spaces have no serious accessibility violations, readable theme and n
       animations: 'disabled',
     });
   }
+});
+
+test('numeric sign keypad preserves first answer and scores a fresh short-answer retry', async ({
+  page,
+}) => {
+  await visit(page);
+  await page.getByRole('button', { name: '지금 첫 문제 시작' }).click();
+  await page.getByRole('radio', { name: '1', exact: true }).check();
+  await page.getByRole('button', { name: '첫 답변 제출' }).click();
+  await page.getByRole('button', { name: '개념 복구 후 새 문제 재도전' }).click();
+  await page.getByText('숫자·부호 입력 도구', { exact: true }).click();
+  await page.locator('.jg-number-pad').getByRole('button', { name: '2', exact: true }).click();
+  await page.locator('.jg-number-pad').getByRole('button', { name: '−', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: 'x의 값', exact: true })).toHaveValue('-2');
+  await page
+    .getByRole('textbox', { name: '풀이 설명', exact: true })
+    .fill('양변에서 4를 빼고 대입하여 확인했다.');
+  await page.getByRole('button', { name: '첫 답변 제출' }).click();
+  await expect(page.getByText('정답입니다.', { exact: true })).toBeVisible();
+  const answers = await page.evaluate(
+    (key) =>
+      JSON.parse(localStorage.getItem(key)!).attempts.map((a: { answer: string }) => a.answer),
+    KEY,
+  );
+  expect(answers).toEqual(['1', '-2']);
 });

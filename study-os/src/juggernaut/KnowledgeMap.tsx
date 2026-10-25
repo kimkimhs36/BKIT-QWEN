@@ -67,14 +67,14 @@ export default function KnowledgeMap({
               id: 'balance-distribute',
               source: 'balance',
               target: 'distribute',
-              label: '괄호를 포함한 식으로 확장',
+              label: '전개 연습',
               type: 'smoothstep',
             },
             {
               id: 'distribute-negative',
               source: 'distribute',
               target: 'negative',
-              label: '계수와 검산 연습',
+              label: '검산 연습',
               type: 'smoothstep',
             },
           ]}

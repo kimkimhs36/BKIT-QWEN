@@ -362,7 +362,7 @@
   font-weight: 600;
   color: var(--jg-accent);
 }
-@media (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
   html[data-effects='auto'] .jg-build02:not([data-room='train']) .jg-portal-core {
     animation: jg-optical-breathe 9s ease-in-out infinite;
   }
@@ -1344,4 +1344,8 @@ html[data-motion='off'] .jg-build02 :is(.jg-card, .jg-next-action) {
     italic 28px/1 Georgia,
     serif;
   padding-right: 3px;
+}
+
+.jg-build02:has(.jg-appearance[open]) .jg-portal-core {
+  animation: none;
 }
