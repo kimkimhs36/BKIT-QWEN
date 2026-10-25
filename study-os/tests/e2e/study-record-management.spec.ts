@@ -24,6 +24,8 @@ test('a test stopwatch may stop without creating a study record', async ({ page 
   await page.getByRole('button', { name: '지금 시작', exact: true }).click();
   expect((await state(page)).quickTimer).not.toBeNull();
   await page.getByRole('button', { name: '기록 없이 종료', exact: true }).click();
+  // No-save deliberately returns home. Reopen focus before asserting a new timer can start.
+  await focus(page);
   await expect(page.getByRole('button', { name: '지금 시작', exact: true })).toBeVisible();
   const after = await state(page);
   expect(after.sessions).toEqual([]);
@@ -33,9 +35,16 @@ test('a test stopwatch may stop without creating a study record', async ({ page 
 });
 
 test('a focus timer can leave the mandatory form without saving', async ({ page }) => {
-  await visit(page);
+  // A user may arrive at the focus screen through a linked task or by upgrading
+  // their quick stopwatch to a problem workspace. Seed exactly that active state.
+  const saved = newState();
+  saved.active = {
+    id: 'focus-demo', taskId: null, subject: '자율 학습', action: '학습 테스트',
+    target: 5, started: new Date(now - 30000).toISOString(), segmentStart: null,
+    elapsed: 30, pauses: [],
+  };
+  await visit(page, saved);
   await focus(page);
-  await page.getByRole('button', { name: '집중 시작', exact: true }).click();
   expect((await state(page)).active).not.toBeNull();
   await page.getByRole('button', { name: '학습량 기록 · 종료', exact: true }).click();
   await expect(page.getByRole('button', { name: '저장하지 않고 종료', exact: true })).toBeVisible();
