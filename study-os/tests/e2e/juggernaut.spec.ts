@@ -202,12 +202,23 @@ test('existing session + real API adapter: failed/lost ACK, reconnect, idempoten
   const server = api.listen(0, '127.0.0.1');
   await new Promise<void>((r) => server.once('listening', r));
   let expire = false;
+  // WebKit enforces CORS on fulfilled cross-origin requests. Preserve a real
+  // preflight/response contract in the synthetic transport as well.
+  const cors = {
+    'Access-Control-Allow-Origin': new URL(
+      test.info().project.use.baseURL || 'http://127.0.0.1:4173',
+    ).origin,
+    'Access-Control-Allow-Headers': 'Authorization,Content-Type',
+    'Access-Control-Allow-Methods': 'GET,PUT,OPTIONS',
+  };
   try {
     await context.route('**/api/sync', (r) =>
-      r.fulfill({ json: { version: 1, state: newState() } }),
+      r.fulfill({ headers: cors, json: { version: 1, state: newState() } }),
     );
     await context.route('**/api/juggernaut', async (route) => {
-      if (expire) return route.fulfill({ status: 401, json: { error: 'expired' } });
+      if (route.request().method() === 'OPTIONS')
+        return route.fulfill({ status: 204, headers: cors });
+      if (expire) return route.fulfill({ status: 401, headers: cors, json: { error: 'expired' } });
       const request = route.request();
       const res = await fetch(
         `http://127.0.0.1:${(server.address() as AddressInfo).port}/api/juggernaut`,
@@ -226,6 +237,7 @@ test('existing session + real API adapter: failed/lost ACK, reconnect, idempoten
         return route.abort('failed');
       }
       await route.fulfill({
+        headers: cors,
         status: res.status,
         body: await res.text(),
         contentType: 'application/json',

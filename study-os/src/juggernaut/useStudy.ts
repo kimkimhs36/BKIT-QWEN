@@ -38,6 +38,11 @@ export function useStudy(request: Transport, connected: boolean) {
       setDocument(persisted);
       unsaved.current = false;
       setStatus('기기에 저장됨');
+      setDetail(
+        available.current
+          ? '서버 저장 확인 대기 · 기기 원본 유지'
+          : '본인 계정 연결 전 · 기기 원본 유지',
+      );
       setError('');
       return true;
     } catch {
@@ -74,6 +79,7 @@ export function useStudy(request: Transport, connected: boolean) {
               : `클라우드 읽기 실패 (${response.status})`,
           );
         const remote = remoteSchema.parse(await response.json());
+        if (!valid()) return;
         const merged = remote.document
           ? mergeDocuments(current.current, remote.document)
           : current.current;
@@ -92,6 +98,7 @@ export function useStudy(request: Transport, connected: boolean) {
               : `클라우드 쓰기 실패 (${write.status})`,
           );
         const ack = z.object({ version: z.number().int().positive() }).parse(await write.json());
+        if (!valid()) return;
         if (JSON.stringify(current.current) === sent) {
           setStatus('서버에 저장됨');
           setDetail(`서버 확인 버전 ${ack.version} · ${new Date().toLocaleTimeString('ko-KR')}`);
