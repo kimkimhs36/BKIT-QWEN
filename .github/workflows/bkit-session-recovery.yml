@@ -125,6 +125,10 @@ jobs:
           if(JSON.parse(fs.readFileSync('/tmp/bkit-verified-dist/manifest.webmanifest')).name!=='BKIT STUDY OS')throw Error('Wrong manifest');
           fs.writeFileSync('/tmp/bkit-prior-release.json',JSON.stringify(r));
           JS
+          prior_source=$(jq -r '.sourceCommit' /tmp/bkit-prior-release.json)
+          git fetch origin "$SOURCE_SHA" "$prior_source" --depth=128
+          # Refuse to replace valid newer source that is not included in this tested release.
+          git merge-base --is-ancestor "$prior_source" "$SOURCE_SHA"
           git push origin "$baseline:refs/heads/checkpoint/bkit-recovery-$SOURCE_SHA"
           cp -a /tmp/bkit-verified-dist/. ./
           BASELINE="$baseline" node - <<'JS'
