@@ -89,7 +89,18 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
   }, []);
 
   useEffect(() => {
-    if (!active) return;
+    // Touch devices use the same material palette without a live GPU surface.
+    // This is a safety budget, also with maximum visual preferences selected.
+    if (
+      !active ||
+      matchMedia('(pointer: coarse)').matches ||
+      prefs.lowPower ||
+      prefs.motion !== 'auto' ||
+      matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      studying ||
+      protectedStudy
+    )
+      return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const motion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -119,6 +130,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
     let time = 0;
     let last = 0;
     let lastDraw = 0;
+    let activeUntil = 0;
     let nextWave = 0;
     let energy = 1;
     let resolutionScale = 1;
@@ -196,6 +208,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
         p.lowPower ||
         p.motion !== 'auto' ||
         p.intensity === 0 ||
+        current.current.studying ||
         protect ||
         document.documentElement.dataset.liquidProtected === 'true'
       );
@@ -209,7 +222,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
     const size = () => {
       const rect = canvas.getBoundingClientRect();
       // Cap pixel count, not just DPR: large iPads must not pay for a 2x framebuffer.
-      const budget = coarse ? 650_000 : 950_000;
+      const budget = coarse ? 180_000 : 360_000;
       const scale =
         Math.min(
           devicePixelRatio || 1,
@@ -237,7 +250,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
       const { prefs: p, studying: quiet } = current.current;
       const frozen = still();
       const alive = !frozen && (handTarget > 0 || time - lastTrail < 7);
-      const interval = frozen ? Infinity : alive ? 1000 / 30 : quiet ? 1000 / 8 : 1000 / 12;
+      const interval = frozen ? Infinity : alive ? 1000 / 24 : 1000 / 12;
       if (!lastDraw || now - lastDraw >= interval - 1) {
         const dt = Math.min(0.08, Math.max(0, (now - (last || now)) / 1000));
         if (!frozen) time += dt;
@@ -266,9 +279,10 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
           size();
         }
       }
-      if (!frozen) frame = requestAnimationFrame(tick);
+      if (!frozen && !quiet && now < activeUntil) frame = requestAnimationFrame(tick);
     };
     const wake = () => {
+      activeUntil = performance.now() + 1200;
       if (!frame && !document.hidden && !lost && !disposed) frame = requestAnimationFrame(tick);
     };
     const clear = () => {
@@ -336,7 +350,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
     };
     const reset = () => {
       clear();
-      wake();
+      policy();
     };
     const visibility = () => {
       cancelAnimationFrame(frame);
@@ -358,8 +372,11 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
         delete canvas.dataset.ready;
         return;
       }
-      lastDraw = 0;
-      wake();
+      // Draw the resting material once. Only a real interaction starts a burst.
+      cancelAnimationFrame(frame);
+      frame = 0;
+      clear();
+      draw();
     };
     const resize = () => {
       clearTimeout(resizeTimer);
@@ -403,6 +420,8 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
       cancelAnimationFrame(frame);
       clearTimeout(resizeTimer);
       disposeGpu();
+      gpu.getExtension('WEBGL_lose_context')?.loseContext();
+      canvas.width = canvas.height = 1;
       delete canvas.dataset.ready;
       delete canvas.dataset.still;
       canvas.removeEventListener('webglcontextlost', contextLost);
@@ -419,7 +438,7 @@ export function SurrealLiquid({ prefs, studying, protectedStudy }: WorldProps) {
       window.removeEventListener('bkit:camera-load', policy);
       motion.removeEventListener('change', policy);
     };
-  }, [active, contextRevision]);
+  }, [active, contextRevision, prefs.lowPower, prefs.motion, studying, protectedStudy]);
 
   useEffect(() => {
     document.documentElement.dataset.liquidStudying = String(studying || protectedStudy);

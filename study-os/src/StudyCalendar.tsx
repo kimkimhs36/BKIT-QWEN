@@ -53,7 +53,7 @@ export function StudyCalendar({
   onRemoveBlock,
   onPlan,
 }: Props) {
-  const [view, setView] = useState<'day' | 'week' | 'month'>('month');
+  const [view, setView] = useState<'day' | 'week' | 'month' | 'year'>('month');
   const [filter, setFilter] = useState<CalendarKind | 'all'>('all');
   const [adding, setAdding] = useState(false);
   const [weeklyOpen, setWeeklyOpen] = useState(false);
@@ -76,13 +76,22 @@ export function StudyCalendar({
   const selected = byDay.get(day) ?? [];
   const conflicts = fixedConflicts(state, day);
   function move(n: number) {
-    onDay(view === 'month' ? shiftMonth(day, n) : addDays(day, n * (view === 'week' ? 7 : 1)));
+    onDay(
+      view === 'year'
+        ? shiftMonth(day, n * 12)
+        : view === 'month'
+          ? shiftMonth(day, n)
+          : addDays(day, n * (view === 'week' ? 7 : 1)),
+    );
   }
   function select(d: string) {
     onDay(d);
     if (matchMedia('(max-width:759px)').matches)
       requestAnimationFrame(() =>
-        detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+        detailRef.current?.scrollIntoView({
+          behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+          block: 'start',
+        }),
       );
   }
   function add(kind: Task['kind'] | 'schedule') {
@@ -96,8 +105,13 @@ export function StudyCalendar({
         <div className="planner-month">
           <h2 aria-live="polite">
             {Number(day.slice(0, 4))}
-            <span>년</span> {Number(day.slice(5, 7))}
-            <span>월</span>
+            <span>년</span>{' '}
+            {view !== 'year' && (
+              <>
+                {Number(day.slice(5, 7))}
+                <span>월</span>
+              </>
+            )}
           </h2>
           <div>
             <button className="planner-icon" aria-label="이전 기간" onClick={() => move(-1)}>
@@ -109,14 +123,14 @@ export function StudyCalendar({
           </div>
         </div>
         <div className="planner-views" role="group" aria-label="달력 보기">
-          {(['day', 'week', 'month'] as const).map((v) => (
+          {(['day', 'week', 'month', 'year'] as const).map((v) => (
             <button
               key={v}
-              aria-label={{ day: '일간', week: '주간', month: '월간' }[v]}
+              aria-label={{ day: '일간', week: '주간', month: '월간', year: '연간' }[v]}
               aria-pressed={view === v}
               onClick={() => setView(v)}
             >
-              {{ day: '일', week: '주', month: '월' }[v]}
+              {{ day: '일', week: '주', month: '월', year: '연' }[v]}
               <span className="planner-sr">간</span>
             </button>
           ))}
@@ -171,7 +185,36 @@ export function StudyCalendar({
         </button>
       )}
       <div className={'planner-layout planner-view-' + view}>
-        {view !== 'day' && (
+        {view === 'year' && (
+          <section className="planner-year" aria-label="연간 달력" key={day.slice(0, 4)}>
+            {Array.from({ length: 12 }, (_, i) => {
+              const month = `${day.slice(0, 4)}-${String(i + 1).padStart(2, '0')}`;
+              const due = state.tasks.filter(
+                (t) => t.status !== 'done' && (t.deadline?.date || t.due || '').startsWith(month),
+              ).length;
+              return (
+                <button
+                  type="button"
+                  key={month}
+                  aria-label={`${month} 월간 보기`}
+                  aria-current={today.startsWith(month) ? 'date' : undefined}
+                  onClick={() => {
+                    onDay(month + '-01');
+                    setView('month');
+                  }}
+                  data-icon-feedback
+                >
+                  <strong data-touch-icon>
+                    {i + 1}
+                    <small>월</small>
+                  </strong>
+                  <span>{due ? `남은 마감 ${due}개` : '월간 보기'}</span>
+                </button>
+              );
+            })}
+          </section>
+        )}
+        {view !== 'day' && view !== 'year' && (
           <section
             className="planner-board"
             ref={boardRef}
@@ -210,6 +253,7 @@ export function StudyCalendar({
                     className={
                       'planner-date-cell' + (d.slice(0, 7) !== day.slice(0, 7) ? ' outside' : '')
                     }
+                    data-icon-feedback
                     data-day={d}
                     key={d}
                     aria-label={`${d} · 일정 ${entries.length}개`}
@@ -217,7 +261,9 @@ export function StudyCalendar({
                     aria-current={d === today ? 'date' : undefined}
                     onClick={() => select(d)}
                   >
-                    <span className="planner-number">{Number(d.slice(-2))}</span>
+                    <span className="planner-number" data-touch-icon>
+                      {Number(d.slice(-2))}
+                    </span>
                     <span className="planner-markers">
                       {[...new Set(entries.map((e) => e.kind))].slice(0, 3).map((k) => (
                         <i key={k} data-kind={k} />
@@ -243,7 +289,12 @@ export function StudyCalendar({
                 <button
                   className="planner-return"
                   onClick={() =>
-                    boardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    boardRef.current?.scrollIntoView({
+                      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+                        ? 'instant'
+                        : 'smooth',
+                      block: 'start',
+                    })
                   }
                 >
                   <ArrowLeft size={13} /> 달력

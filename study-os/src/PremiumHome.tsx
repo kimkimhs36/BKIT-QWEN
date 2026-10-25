@@ -2,6 +2,7 @@ import { ArrowRight, ArrowUpRight, BookOpen, ChevronRight, Clock3, Play, Plus } 
 import type { State, Task } from './model';
 import type { Fixed } from './engine';
 import { entriesForDay } from './calendar';
+import { recommendationReason } from './now';
 import { clock, dayKey, addDays } from './time';
 import { formatTaskDeadline } from './capture';
 import { needsSubmission } from './tasks';
@@ -66,11 +67,18 @@ export function PremiumHome({
                 ? `${pending[0].subject} · ${pending[0].title}`
                 : '타이머를 켜고, 가볍게 시작해요.'}
           </p>
+          {!busy && pending[0] && (
+            <small className="study-recommendation-reason">
+              {recommendationReason(pending[0], now)}
+            </small>
+          )}
         </div>
         <div className="study-start-actions">
           <button
             className="study-start-primary"
-            onClick={() => (busy ? onNavigate('study') : onQuick())}
+            onClick={() =>
+              busy ? onNavigate('study') : pending[0] ? onStart(pending[0].id) : onQuick()
+            }
           >
             <Play size={18} fill="currentColor" aria-hidden="true" />
             {busy ? '공부 이어가기' : '지금 공부 시작'}
@@ -156,10 +164,11 @@ export function PremiumHome({
       <section className="study-calendar-summary" aria-label="오늘과 내일 일정 요약">
         <button
           className="study-calendar-link"
+          data-icon-feedback
           onClick={() => onNavigate('school')}
           aria-label={`오늘 일정 ${todayEntries.filter((e) => e.schedule).length} · 오늘 마감 ${deadlineCount(todayEntries)} · 내일 마감 ${deadlineCount(tomorrowEntries)} 달력 열기`}
         >
-          <span className="study-calendar-stamp" aria-hidden="true">
+          <span className="study-calendar-stamp" data-touch-icon aria-hidden="true">
             <small>{Number(dayKey(now).slice(5, 7))}월</small>
             <strong>{Number(dayKey(now).slice(-2))}</strong>
           </span>

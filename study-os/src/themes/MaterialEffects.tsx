@@ -250,6 +250,7 @@ export function MaterialEffects({
       target(a * Math.cos(angle) + b * Math.sin(angle), b * Math.cos(angle) - a * Math.sin(angle));
     };
     const pointer = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return;
       if (!sensor || performance.now() - lastSignal > 1500)
         target((e.clientX / innerWidth) * 2 - 1, (e.clientY / innerHeight) * 2 - 1);
     };
@@ -392,7 +393,7 @@ export function MaterialEffects({
         !el ||
         el.matches(':disabled') ||
         el.closest(
-          '.topbar, .learning-workspace, .digital-paper, .problem-workspace, .pdf-reader, .race-dialog',
+          '[data-icon-feedback], .topbar, .learning-workspace, .digital-paper, .problem-workspace, .pdf-reader, .race-dialog',
         )
       )
         return;

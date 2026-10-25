@@ -74,3 +74,9 @@
   .record-manager-search, .record-manager-tools > select { flex: 1 0 100%; }
   .record-manager-heading h2 { font-size: 17px; }
 }
+.record-manager-filters { margin:10px 0 16px;font-size:13px; }
+.record-manager-filters summary { cursor:pointer;min-height:44px;display:flex;align-items:center; }
+.record-manager-filter-fields { display:flex;gap:10px;flex-wrap:wrap;align-items:end; }
+.record-manager-filter-fields label { display:grid;gap:5px;flex:1 1 130px;min-width:0; }
+.record-manager-filter-fields :is(input,select,button) { width:100%;max-width:100%;min-width:0;min-height:44px;border:1px solid var(--mat-line);border-radius:10px;background:var(--mat-paper);color:inherit;padding:8px;font:inherit; }
+.record-manager-filter-fields button { width:auto; }

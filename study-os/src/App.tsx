@@ -1,10 +1,17 @@
+import { useIconFeedback } from './useIconFeedback';
 import type { HelpAction, HelpTopic } from './HelpCenter';
 import { MaterialSettings } from './themes/MaterialSettings';
 import { AnimatedClock } from './AnimatedClock';
 import { MaterialEffects } from './themes/MaterialEffects';
 import { RecordOverview } from './RecordOverview';
 import { StudyRecordManager } from './StudyRecordManager';
-import { discardUnsavedTimer, editStudySession, deleteStudySessions, restoreStudySessions, type SessionEdits } from './studyRecordOps';
+import {
+  discardUnsavedTimer,
+  editStudySession,
+  deleteStudySessions,
+  restoreStudySessions,
+  type SessionEdits,
+} from './studyRecordOps';
 import { PremiumHome } from './PremiumHome';
 import { Modal } from './Modal';
 import { MotionConfig } from 'motion/react';
@@ -126,6 +133,7 @@ import {
   Palette,
   Sparkles,
   Target,
+  Timer,
   Trash2,
   Upload,
   X,
@@ -274,6 +282,7 @@ export default function App() {
   const garageController = useGarage(s, readBlocked, false);
   const [theme, setTheme] = useState(() => restoreTheme(window.localStorage));
   const [material, setMaterial] = useState(() => restoreMaterial(window.localStorage, theme));
+  useIconFeedback(material.motion !== 'auto');
   useLayoutEffect(() => {
     const root = document.documentElement;
     root.dataset.material = material.id;
@@ -874,6 +883,8 @@ export default function App() {
   const canStudy = !current;
   const seconds = s.active ? elapsed(s.active, now) : 0;
   const quickElapsed = s.quickTimer ? quickSeconds(s.quickTimer, now) : 0;
+  const miniTimerSeconds = s.active ? seconds : quickElapsed;
+  const miniTimerRunning = !!(s.active?.segmentStart || s.quickTimer?.segmentStart);
   const quickRecent = [...s.sessions].reverse().find((entry) => entry.quick);
   const [historyEditingId, setHistoryEditingId] = useState<string | null>(null);
   const [deletedStudyRecords, setDeletedStudyRecords] = useState<Session[] | null>(null);
@@ -1955,14 +1966,22 @@ export default function App() {
                 </button>
               </div>
             )}
-            {tab !== 'today' && tab !== 'study' && !!s.quickTimer && (
+            {tab !== 'today' && tab !== 'study' && !!(s.quickTimer || s.active) && (
               <button
                 type="button"
                 className="quick-timer-top-chip"
+                data-icon-feedback
+                aria-label={`공부 타이머 열기 · ${miniTimerRunning ? '공부 중' : '일시정지'} · ${quickClock(miniTimerSeconds)}`}
                 onClick={() => setTab('study')}
               >
-                <Clock size={15} /> {s.quickTimer.segmentStart ? '공부 중' : '일시정지'} ·{' '}
-                {quickClock(quickElapsed)} · 타이머 열기
+                <span className="study-timer-icon" data-touch-icon aria-hidden="true">
+                  <Timer size={22} />
+                </span>
+                <span className="study-timer-chip-copy">
+                  <small>{miniTimerRunning ? '공부 중' : '일시정지'}</small>
+                  <strong>{quickClock(miniTimerSeconds)}</strong>
+                </span>
+                <ChevronRight size={15} aria-hidden="true" />
               </button>
             )}
             {tab === 'sites' && (
@@ -2602,7 +2621,10 @@ export default function App() {
                         </p>
                       )}
                     </section>
-                    <p className="muted">학습 기록 검색·수정·삭제는 위의 학습 기록 관리에서 할 수 있어요.</p>\n                  </div>
+                    <p className="muted">
+                      학습 기록 검색·수정·삭제는 위의 학습 기록 관리에서 할 수 있어요.
+                    </p>
+                  </div>
                 </details>
               </>
             )}
