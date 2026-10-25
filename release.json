@@ -1,11 +1,12 @@
 {
-  "product": "BKIT STUDY OS · Optional Records + Timer Exit",
-  "sourceCommit": "5d6c263b6b6134b8241fa9568ecd3bf35a91d693",
-  "sourceBranch": "fix/bkit-skip-save-record-management-20261025",
-  "previousSource": "12e8a83bc5bf69ad7d45a49216f023d4fcef221f",
-  "rollbackCommit": "5c01c2a9f23a36ef0df5d816d8bd74bda50fa183",
-  "publishedAt": "2026-10-25T07:00:07.181Z",
-  "validation": "269+ Vitest and TypeScript production build; GitHub Actions desktop/iPhone/iPad/iPad landscape WebKit full verified matrix",
-  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40171067414",
-  "notes": "Only BKIT deployed. TOHESAR untouched. No site storage wiped. Previous hashed assets and routes retained."
+  "product": "BKIT STUDY OS · Daily Driver",
+  "sourceCommit": "fae5374070b5c835a20f155dba68ee0c640a7349",
+  "sourceBranch": "feat/bkit-daily-driver-20261025",
+  "previousSource": "5d6c263b6b6134b8241fa9568ecd3bf35a91d693",
+  "rollbackCommit": "faa22c7d6d89c0bf1b67a38dae97381850fe6135",
+  "publishedAt": "2026-10-25T08:56:49.073Z",
+  "validation": "TypeScript, 271 unit/integration tests, exact-build desktop and three WebKit device matrices",
+  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40178076297",
+  "apiSource": "f1439874063df4f17fa60d667fa5efe9ea2ba9f8",
+  "notes": "Static artifacts only; existing hashed assets, independent routes and browser study storage preserved."
 }
