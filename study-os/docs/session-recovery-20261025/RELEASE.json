@@ -1,0 +1,172 @@
+{
+  "verifiedAt": "2026-10-25T10:03:24.207685+00:00",
+  "sourceCommit": "1407f937bbf534c88c12031265c976f8c3d5f08d",
+  "apiSource": "9a0bfb94143a4703ca25788f6027a9ec3dbad0ec",
+  "pagesCommit": "f3ad016ed51c626c6c4761f5864cd49e93b7abf2",
+  "release": {
+    "product": "BKIT STUDY OS · Session Recovery",
+    "sourceCommit": "1407f937bbf534c88c12031265c976f8c3d5f08d",
+    "sourceBranch": "fix/bkit-session-recovery-20261025",
+    "previousSource": "cb4b426c28ed29d9a6d149a30f904ae6e7a98161",
+    "rollbackCommit": "17bcf08d7bba0625372273c0391c6eea64a7d98d",
+    "publishedAt": "2026-10-25T10:00:40.778Z",
+    "apiSource": "9a0bfb94143a4703ca25788f6027a9ec3dbad0ec",
+    "apiProtocol": 2,
+    "validation": "App/API unit suites, production build, 34 paired real-API WebKit recovery scenarios; Google authorization and Redis transport synthetic, no physical-device claim",
+    "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40182347231",
+    "notes": "No study storage reset; old hashed assets and independent routes retained."
+  },
+  "httpChecks": [
+    {
+      "path": "/release.json",
+      "http": 200,
+      "bytes": 769,
+      "sha256": "009e2b4f425cd695f8d0a98720b4d86cad25bb5feac7825595c2350e7d8c1355"
+    },
+    {
+      "path": "/build-info.json",
+      "http": 200,
+      "bytes": 106,
+      "sha256": "1c74d2e1b119c69866d78a3aabc945ceaa4ba43f6ba14727d17acd6b9cd38dc6"
+    },
+    {
+      "path": "/",
+      "http": 200,
+      "bytes": 2518,
+      "sha256": "23d5921f4479d98f6d25a51ac73bbfafef1605a42aeee9689cad80929596d5bd"
+    },
+    {
+      "path": "/assets/index-DCzi0n62.js",
+      "http": 200,
+      "bytes": 522666,
+      "sha256": "1fad089ece8fa5becde1807d1109c2f69c99a9dcbe5e25a15a5d71d39c8585af"
+    },
+    {
+      "path": "/assets/index-SocKxP6P.css",
+      "http": 200,
+      "bytes": 422471,
+      "sha256": "1761951dae2200374eae7e9d5574161262c059a39c0f6ce0a4fdda92b1db9b74"
+    },
+    {
+      "path": "/assets/react-vendor-DENrKhsk.js",
+      "http": 200,
+      "bytes": 223639,
+      "sha256": "dd9228d2be4c9de35f311eb10c9fcb090d035042a6a64c80a5ca02ee7fdfb028"
+    },
+    {
+      "path": "/assets/schema-vendor-DYuAzjeD.js",
+      "http": 200,
+      "bytes": 54207,
+      "sha256": "39c943cd9f1cc1045ac58ce7dc150b31de745ae378e00ed8365fcb94cf036e68"
+    },
+    {
+      "path": "/manifest.webmanifest",
+      "http": 200,
+      "bytes": 398,
+      "sha256": "7fcd1232aa4d747bd7e2ff8340cb893a244d16ebb6f3fee69ab527138aa47fc6"
+    },
+    {
+      "path": "/icon-192.png",
+      "http": 200,
+      "bytes": 5763,
+      "sha256": "bd293355fa8a72449e40df319dd9ad0259409cc4bc901e752395b72366f4cf21"
+    },
+    {
+      "path": "/icon-512.png",
+      "http": 200,
+      "bytes": 20040,
+      "sha256": "ca8963fdf15606a2303e5e47b818edde2c2583d7778568d5ab59b61dff6baf47"
+    },
+    {
+      "path": "/sw.js",
+      "http": 200,
+      "bytes": 3946,
+      "sha256": "e701b3d599c4104c6dff50b037f9e17b117a4d013d1407507a91a74869d1da8e"
+    },
+    {
+      "path": "/assets/index-Dxa2lYs5.js",
+      "http": 200,
+      "bytes": 516140,
+      "sha256": "2040579d0d146010a2c978dd8f4f6fe6af9d26ec8eeae682dd119c374d12d647"
+    },
+    {
+      "path": "/exam-lab/",
+      "http": 200,
+      "bytes": 16096,
+      "sha256": "705a69864f41805721d2f059dd685156cd04e0969c890b516dd792c50507c3d0"
+    },
+    {
+      "path": "/mock-rescue/",
+      "http": 200,
+      "bytes": 52427,
+      "sha256": "af60bcb36605b5e53fc8c8a2f5a99bfe7180fa6e99e25e9f2bfa3a7d963b5be9"
+    }
+  ],
+  "oldEntryRetained": "/assets/index-Dxa2lYs5.js",
+  "serviceWorkerCompiled": true,
+  "manifest": {
+    "name": "BKIT STUDY OS",
+    "start_url": "./",
+    "scope": "./"
+  },
+  "validation": {
+    "frontendUnit": {
+      "passed": 282,
+      "failed": 0
+    },
+    "apiUnit": {
+      "passed": 100,
+      "failed": 0
+    },
+    "pairedWebKit": {
+      "iphone": 17,
+      "ipad": 17,
+      "failed": 0
+    },
+    "typescript": "passed for both source trees",
+    "productionBuild": "passed",
+    "ci": {
+      "url": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40182347231",
+      "conclusion": "success",
+      "jobs": [
+        "build",
+        "verify (webkit-ipad)",
+        "verify (webkit-iphone)",
+        "publish"
+      ]
+    },
+    "authorization": "synthetic Google authorization; actual API code and in-memory Redis transport",
+    "physicalDeviceAndGenuineGoogle": "unverified"
+  },
+  "apiDeployment": {
+    "project": "bkit-api",
+    "projectId": "prj_EtUvAwl05FsaHmiUvAoFTAdUheF6",
+    "deploymentId": "dpl_EGmmw4DgPvzcKZbUQPqY8Ps89Raz",
+    "state": "READY",
+    "url": "https://bkit-api.vercel.app",
+    "sourceCommit": "9a0bfb94143a4703ca25788f6027a9ec3dbad0ec",
+    "syncProtocolVersion": 2,
+    "publicProbes": {
+      "health": 200,
+      "config": 200,
+      "corsPreflight": 204,
+      "allowedOrigin": "https://teambkit.com",
+      "exposedHeaders": [
+        "X-Bkit-Request-Id",
+        "Retry-After"
+      ],
+      "randomNonexistentRememberedCredential": 401,
+      "probeMeaning": "A synthetic random missing credential traversed the session store and was rejected correctly; no real account or study snapshot was accessed."
+    }
+  },
+  "checkpoints": {
+    "pages": "checkpoint/bkit-recovery-1407f937bbf534c88c12031265c976f8c3d5f08d",
+    "api": "checkpoint/bkit-api-before-session-recovery-20261025"
+  },
+  "remainingLimits": [
+    "Original incident HTTP status and underlying Redis availability cannot be reconstructed from the prior handled-error logs.",
+    "Genuine Google consent and physical iPhone/iPad installed-PWA termination are unverified; WebKit browser/process/storage lifecycle was simulated.",
+    "A credential already deleted by the former 401 handling requires explicit Google reconnection once; valid retained credentials restore without a popup.",
+    "Device-only photos, PDFs and answer drafts are preserved locally; this patch does not expand their cloud transfer scope."
+  ]
+}

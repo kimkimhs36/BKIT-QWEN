@@ -35,3 +35,18 @@ API recovery protocol 2 adds optional portable classification fields, diagnostic
 Unit/API suites plus paired real Express API ↔ browser integration with an in-memory Redis transport fixture. Google authorization is synthetic; backend session issuance, auth validation, expiry errors, REST status handling, CAS and browser IndexedDB are exercised by actual API code. Both WebKit iPhone and iPad execute: refresh; page close and real 10-second wait; >1-hour clock simulation; full WebKit process/PWA-storage/offline relaunch simulation; offline/online recovery; session-store 503; bounded backoff; 401; 403/429; two real browser clients; cloud write failure; local apply failure; lost acknowledgements; first session-issuance failure; original photo/PDF bytes and answer draft retention; current schema round-trip without sync loops.
 
 Installed iOS PWA termination and genuine Google consent on physical devices are not available in this environment and are not claimed as tested. A full WebKit process restart with persistent profile and service-worker offline shell is a simulation, not a physical iPhone result. Actual production Redis contents and user records are not read by the test fixture. Final counts and deployed SHAs are recorded in RELEASE.json after gates finish.
+
+## Final verified release
+
+All release gates passed: frontend unit 282/282; API unit 100/100; paired real-API WebKit iPhone 17/17 and iPad 17/17. Both TypeScript checks and production build passed. No final test failures. [CI run 40182347231](https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40182347231) completed successfully before publication.
+
+- Frontend source: `1407f937bbf534c88c12031265c976f8c3d5f08d` (implementation `dc881ed`, validation `6f260ce`, publication ancestry guard `1407f93`).
+- Pages artifacts: `f3ad016ed51c626c6c4761f5864cd49e93b7abf2`, built; domain https://teambkit.com; branch main, path /. Public release and build-info report the exact frontend SHA.
+- API: `9a0bfb94143a4703ca25788f6027a9ec3dbad0ec`, deployment `dpl_EGmmw4DgPvzcKZbUQPqY8Ps89Raz`, READY; public health confirms the exact SHA and protocol 2.
+- API was published first, then the already-tested frontend artifact. API retains prior credential/TTL/storage compatibility.
+- Public HTML, four referenced entry/vendor/CSS assets, manifest, icons, compiled service worker, previous entry asset and two independent routes returned HTTP 200. File hashes and details are in [RELEASE.json](./RELEASE.json).
+- Production CORS preflight returned 204 for teambkit.com. A random nonexistent synthetic remembered credential returned 401 after the new middleware's session-store lookup. This verifies availability/error distinction at probe time, **not real Google sign-in**. No real user token or cloud snapshot was used.
+
+Changed frontend files: `src/PrivateSync.tsx`, `src/privateSyncProtocol.ts`, `src/rememberLogin.ts`, `src/App.tsx`. Changed API files: `server/privateApi.ts`, `server/rememberSession.ts`, `src/model.ts`. Recovery tests and the guarded release workflow are separate reviewable commits.
+
+Remaining: original incident's exact HTTP status is unknown; genuine Google sign-in and physical installed-iOS-PWA termination need observation on the user's device. A credential already deleted by the old bug cannot be recovered from nothing and needs one explicit reconnection. Existing retained valid sessions restore automatically. No reinstall, study-store reset or new photo/PDF/answer transmission was introduced.
