@@ -1,57 +1,11 @@
 {
-  "product": "BKIT STUDY OS · Calendar + Help + Device Polish",
-  "sourceCommit": "12e8a83bc5bf69ad7d45a49216f023d4fcef221f",
-  "sourceBranch": "feat/bkit-calendar-help-polish-20261025",
-  "publishedAt": "2026-10-24T17:03:08.120485+00:00",
-  "validation": "Typecheck, 265 unit tests (42 files), root production build and local-only vision gate passed. Local calendar/help/plan/clock scenarios and responsive page checks exercised desktop and WebKit iPhone/iPad. Full maintained regression matrix (168 cases across four profiles) still running at owner-requested immediate deployment; see CI URL for final result. Physical iOS hardware unverified.",
-  "previousSource": "bb79f409bd536bd9196a2f4e61532af728620c72",
-  "rollbackCommit": "c22f710f8d0b83abdf61c7445a8e90870d68cb14",
-  "previousProductionCommit": "c22f710f8d0b83abdf61c7445a8e90870d68cb14",
-  "previousRelease": "/releases/20261025-before-calendar-help.json",
-  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40114252245",
-  "verificationCommit": "58b52c57f972e60f9e1a033bca42c15224777a8c",
-  "ciStatusAtDeploy": "in_progress",
-  "immediateDeploymentRequestedByOwner": true,
-  "deployment": {
-    "provider": "GitHub Pages",
-    "branch": "main",
-    "path": "/",
-    "url": "https://teambkit.com"
-  },
-  "entryAssets": [
-    {
-      "path": "/assets/index-CBzU0_v9.js",
-      "sha256": "3ef41f544ae075f55b48a5f515f9c7dfa0ef1589389b4fbe038eb8ab7a466865"
-    },
-    {
-      "path": "/assets/react-vendor-DENrKhsk.js",
-      "sha256": "dd9228d2be4c9de35f311eb10c9fcb090d035042a6a64c80a5ca02ee7fdfb028"
-    },
-    {
-      "path": "/assets/schema-vendor-DYuAzjeD.js",
-      "sha256": "39c943cd9f1cc1045ac58ce7dc150b31de745ae378e00ed8365fcb94cf036e68"
-    },
-    {
-      "path": "/assets/index-BOUWHiMZ.css",
-      "sha256": "669332ab334b6706423569360f5ede95f502817a004d8dc5e362322563cafb4e"
-    }
-  ],
-  "notes": "Preserved the current Material World/Awake source lineage, study schemas/keys, home study flow, nine themes, older hashed assets, independent routes and waiting-worker lifecycle. Calendar is primary navigation. No TOHESAR changes, no historical PR merge, no user-data migration.",
-  "physicalIphoneIpadHardware": "unverified",
-  "aiVerification": {
-    "scope": "Carried forward from previous release; AI unchanged and no paid calls made for this release",
-    "previous": {
-      "health": "200; configured briefing only",
-      "config": "200",
-      "productionOrigin": "allowed; POST preflight verified",
-      "foreignPreviewOrigin": "403",
-      "unauthenticatedOwner": "401",
-      "model": "deepseek-flash; official documentation confirmed",
-      "dailyKRW": 1000,
-      "callLimit": "existing server cap at most 60; unchanged",
-      "ownerGoogleLogin": "unverified",
-      "paidDeepSeekResponse": "unverified; zero paid calls authorized or made",
-      "planCoachAssistant": "server unsupported; local rules retained"
-    }
-  }
+  "product": "BKIT STUDY OS · Optional Records + Timer Exit",
+  "sourceCommit": "5d6c263b6b6134b8241fa9568ecd3bf35a91d693",
+  "sourceBranch": "fix/bkit-skip-save-record-management-20261025",
+  "previousSource": "12e8a83bc5bf69ad7d45a49216f023d4fcef221f",
+  "rollbackCommit": "5c01c2a9f23a36ef0df5d816d8bd74bda50fa183",
+  "publishedAt": "2026-10-25T07:00:07.181Z",
+  "validation": "269+ Vitest and TypeScript production build; GitHub Actions desktop/iPhone/iPad/iPad landscape WebKit full verified matrix",
+  "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40171067414",
+  "notes": "Only BKIT deployed. TOHESAR untouched. No site storage wiped. Previous hashed assets and routes retained."
 }
