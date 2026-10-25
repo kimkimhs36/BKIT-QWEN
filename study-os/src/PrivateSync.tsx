@@ -1,5 +1,5 @@
 import { savedLogin, rememberLogin, forgetLogin } from './rememberLogin';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Cloud,
   CheckCircle2,
@@ -67,9 +67,11 @@ const cloudSchema = z.object({
 const versionSchema = z.object({ version: z.number().int().positive() });
 type Connection = 'disconnected' | 'connecting' | 'connected' | 'conflict' | 'error';
 const tokenHeaders = (token: string) => ({ Authorization: 'Bearer ' + token });
-function signature(s: State) {
-  return JSON.stringify(portableStudyState(s));
+export function privateStudySignature(s: State) {
+  // Canonical schema order/defaults: Sheets/JSON/server parsing must not create false conflicts.
+  return JSON.stringify(stateSchema.parse(portableStudyState(s)));
 }
+const signature = privateStudySignature;
 function hasStudyRecords(s: State) {
   return Boolean(
     s.tasks.length ||
@@ -326,7 +328,7 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
       setBusy(false);
     }
   }
-  const contentSignature = signature(localState);
+  const contentSignature = useMemo(() => signature(localState), [localState]);
   useEffect(() => {
     if (status !== 'connected') return;
     const t = window.setTimeout(() => void sync(), 1800);
@@ -471,6 +473,16 @@ export function PrivateSyncPanel({ sync }: { sync: PrivateStudyBridge }) {
               이 기기 연결 해제
             </button>
           </>
+        )}
+        {(sync.status === 'conflict' || sync.status === 'error') && (
+          <button
+            type="button"
+            className="secondary"
+            disabled={sync.busy}
+            onClick={() => void sync.disconnect()}
+          >
+            이 기기 연결 해제
+          </button>
         )}
         {sync.status === 'conflict' && (
           <>
