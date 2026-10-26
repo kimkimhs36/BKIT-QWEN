@@ -1,0 +1,133 @@
+{
+  "capturedAt": "2026-10-26T02:35:09.419Z",
+  "observations": [
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "desktop",
+      "route": "",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "desktop",
+      "route": "map",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "desktop",
+      "route": "progress",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "desktop",
+      "route": "roadmap",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "iphone",
+      "route": "",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "iphone",
+      "route": "map",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "iphone",
+      "route": "progress",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "iphone",
+      "route": "roadmap",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "ipad",
+      "route": "",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "ipad",
+      "route": "map",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "ipad",
+      "route": "progress",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "ipad",
+      "route": "roadmap",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "galaxy",
+      "route": "",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "galaxy",
+      "route": "map",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "galaxy",
+      "route": "progress",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "http://127.0.0.1:4173/",
+      "stage": "before",
+      "device": "galaxy",
+      "route": "roadmap",
+      "overflow": false,
+      "errors": []
+    }
+  ]
+}

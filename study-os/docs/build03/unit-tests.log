@@ -1,0 +1,62 @@
+
+> bkit-study-os@3.7.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /workspace/juggernaut/study-os
+
+ ✓ tests/paper.test.ts (14 tests) 465ms
+ ✓ tests/completeBackup.test.ts (16 tests) 118ms
+ ✓ tests/quickTimer.test.ts (11 tests) 160ms
+ ✓ tests/server.test.ts (6 tests) 114ms
+ ✓ tests/juggernautApi.test.ts (7 tests) 122ms
+ ✓ tests/engine.test.ts (24 tests) 73ms
+ ✓ tests/awake-intelligence.test.ts (25 tests) 28ms
+ ✓ tests/juggernaut.test.ts (11 tests) 30ms
+ ✓ tests/learningIntelligence.test.ts (10 tests) 26ms
+ ✓ tests/storageReadiness.test.ts (6 tests) 28ms
+ ✓ tests/liquidMath.test.ts (3 tests) 42ms
+ ✓ tests/juggernaut-build03.test.ts (14 tests) 29ms
+ ✓ tests/privateSync.test.ts (3 tests) 14ms
+ ✓ tests/drive-garage.test.ts (6 tests) 14ms
+ ✓ tests/improvements.test.ts (10 tests) 14ms
+ ✓ tests/atelier.test.ts (6 tests) 17ms
+ ✓ tests/examsSleepIntegration.test.ts (5 tests) 15ms
+ ✓ tests/awake-session.test.ts (10 tests) 18ms
+ ✓ tests/cloudSheet.test.ts (4 tests) 14ms
+ ✓ tests/assistant.test.ts (4 tests) 7ms
+ ✓ tests/learningEngine.test.ts (7 tests) 18ms
+ ✓ tests/storage.test.ts (13 tests) 21ms
+ ✓ tests/completion-engine.test.ts (14 tests) 32ms
+ ✓ tests/aiCapabilities.test.ts (1 test) 17ms
+ ✓ tests/focus-restore.test.ts (1 test) 3ms
+ ✓ tests/studyInsights.test.ts (5 tests) 7ms
+ ✓ tests/juggernaut-performance.test.ts (3 tests) 6ms
+ ✓ tests/quickResource.test.ts (4 tests) 12ms
+ ✓ tests/sleep.test.ts (7 tests) 14ms
+ ✓ tests/serviceWorker.test.ts (3 tests) 6ms
+ ✓ tests/studyRecordOps.test.ts (4 tests) 10ms
+ ✓ tests/capture-v2.test.ts (4 tests) 15ms
+ ✓ tests/privateSyncProtocol.test.ts (8 tests) 12ms
+ ✓ tests/local-vision.test.ts (2 tests) 7ms
+ ✓ tests/drive-race.test.ts (4 tests) 7ms
+ ✓ tests/rememberLogin.test.ts (4 tests) 12ms
+ ✓ tests/calendar.test.ts (3 tests) 9ms
+ ✓ tests/review.test.ts (4 tests) 10ms
+ ✓ tests/briefingContract.test.ts (3 tests) 8ms
+ ✓ tests/apiReadiness.test.ts (5 tests) 8ms
+ ✓ tests/focusQuiet.test.ts (1 test) 3ms
+ ✓ tests/juggernaut-progress.test.ts (1 test) 10ms
+ ✓ tests/scheduleOccurrence.test.ts (1 test) 8ms
+ ✓ tests/problemWorkspace.test.ts (3 tests) 9ms
+ ✓ tests/theme.test.ts (4 tests) 4ms
+ ✓ tests/question-pace.test.ts (2 tests) 8ms
+ ✓ tests/taskProgress.test.ts (2 tests) 8ms
+ ✓ tests/assessmentWatch.test.ts (4 tests) 6ms
+ ✓ tests/now.test.ts (5 tests) 4ms
+
+ Test Files  49 passed (49)
+      Tests  317 passed (317)
+   Start at  03:04:22
+   Duration  13.95s (transform 842ms, setup 0ms, collect 3.16s, tests 1.64s, environment 9ms, prepare 2.95s)
+

@@ -1,0 +1,133 @@
+{
+  "capturedAt": "2026-10-26T03:01:05.830Z",
+  "observations": [
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "desktop",
+      "route": "",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "desktop",
+      "route": "map",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "desktop",
+      "route": "progress",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "desktop",
+      "route": "roadmap",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "iphone",
+      "route": "",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "iphone",
+      "route": "map",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "iphone",
+      "route": "progress",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "iphone",
+      "route": "roadmap",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "ipad",
+      "route": "",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "ipad",
+      "route": "map",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "ipad",
+      "route": "progress",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "ipad",
+      "route": "roadmap",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "galaxy",
+      "route": "",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "galaxy",
+      "route": "map",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "galaxy",
+      "route": "progress",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app/",
+      "stage": "after",
+      "device": "galaxy",
+      "route": "roadmap",
+      "overflow": false,
+      "errors": []
+    }
+  ]
+}

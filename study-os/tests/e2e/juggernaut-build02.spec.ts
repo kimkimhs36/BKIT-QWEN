@@ -17,7 +17,9 @@ test('knowledge selection → persisted attempt → evidence studio → next stu
 }, info) => {
   await visit(page);
   await page.getByRole('button', { name: '개념의 연결을 따라가기' }).click();
-  await expect(page.locator('.react-flow__node')).toHaveCount(3);
+  await expect(page.locator('.react-flow__node')).toHaveCount(5);
+  for (const id of ['balance', 'distribute', 'negative'])
+    await expect(page.locator(`.react-flow__node[data-id="${id}"]`)).toHaveCount(1);
   await page
     .locator('.jg-map-list')
     .getByRole('button', { name: /음수 계수/ })
@@ -144,7 +146,7 @@ test('core spaces have no serious accessibility violations, readable theme and n
   for (const path of ['', 'map', 'progress', 'roadmap']) {
     await visit(page, path);
     await expect(page.locator('.jg-main h1')).toBeVisible();
-    if (path === 'map') await expect(page.locator('.react-flow__node')).toHaveCount(3);
+    if (path === 'map') await expect(page.locator('.react-flow__node')).toHaveCount(5);
     await fit(page);
     const result = await new AxeBuilder({ page })
       .include('.jg-build02')

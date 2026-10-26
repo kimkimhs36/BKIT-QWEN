@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import {
-  documentSchema,
+  legacyDocumentSchema,
+  partitionDocument,
   mergeDocuments,
   readDocument,
   saveDocument,
@@ -9,7 +10,7 @@ import {
 } from './engine';
 const remoteSchema = z.object({
   version: z.number().int().nonnegative(),
-  document: documentSchema.nullable(),
+  document: legacyDocumentSchema.nullable(),
 });
 export type Transport = (init?: RequestInit) => Promise<Response>;
 export function useStudy(request: Transport, connected: boolean) {
@@ -17,7 +18,7 @@ export function useStudy(request: Transport, connected: boolean) {
   const [document, setDocument] = useState(initial.document),
     [error, setError] = useState(initial.error);
   const [status, setStatus] = useState('기기에 저장됨'),
-    [detail, setDetail] = useState('수능관 기록은 이 기기에 보관됩니다.');
+    [detail, setDetail] = useState('기기 보관 · 새 문자식 기록은 클라우드 연결 대상이 아닙니다.');
   const current = useRef(document),
     transport = useRef(request),
     available = useRef(connected),
@@ -84,10 +85,11 @@ export function useStudy(request: Transport, connected: boolean) {
           ? mergeDocuments(current.current, remote.document)
           : current.current;
         if (!save(merged)) throw Error('받은 기록의 기기 저장을 확인하지 못했어요.');
-        const sent = JSON.stringify(merged);
+        const legacy = partitionDocument(merged).legacy;
+        const sent = JSON.stringify(legacy);
         const write = await transport.current({
           method: 'PUT',
-          body: JSON.stringify({ expectedVersion: remote.version, document: merged }),
+          body: JSON.stringify({ expectedVersion: remote.version, document: legacy }),
         });
         if (!valid()) return;
         if (write.status === 409) continue;
@@ -99,9 +101,14 @@ export function useStudy(request: Transport, connected: boolean) {
           );
         const ack = z.object({ version: z.number().int().positive() }).parse(await write.json());
         if (!valid()) return;
-        if (JSON.stringify(current.current) === sent) {
-          setStatus('서버에 저장됨');
-          setDetail(`서버 확인 버전 ${ack.version} · ${new Date().toLocaleTimeString('ko-KR')}`);
+        if (JSON.stringify(partitionDocument(current.current).legacy) === sent) {
+          setStatus(
+            partitionDocument(current.current).extension.attempts.length ||
+              partitionDocument(current.current).extension.sessions.length
+              ? '기존 기록 서버 저장 · 새 기록 기기 보관'
+              : '서버에 저장됨',
+          );
+          setDetail(`기존 문항 서버 확인 버전 ${ack.version} · 새 문자식 기록은 기기에만 보관`);
         } else {
           setStatus('기기에 저장됨');
           setDetail('새 변경사항을 다음 동기화에 보냅니다.');
@@ -125,7 +132,7 @@ export function useStudy(request: Transport, connected: boolean) {
   useEffect(() => {
     alive.current = true;
     const reload = (e: StorageEvent) => {
-      if (e.key?.startsWith('bkit.juggernaut.v1.')) {
+      if (e.key?.startsWith('bkit.juggernaut.')) {
         const read = readDocument(localStorage);
         if (read.error) {
           blocked.current = true;

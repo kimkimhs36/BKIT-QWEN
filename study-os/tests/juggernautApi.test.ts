@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { AddressInfo } from 'node:net';
 import { createJuggernautApi, juggernautWriteScript } from '../server/juggernautApi';
-import { emptyDocument } from '../src/juggernaut/engine';
+import { emptyDocument, startSession, submit } from '../src/juggernaut/engine';
 const env = {
   BKIT_OWNER_EMAIL: 'owner@example.test',
   BKIT_GOOGLE_CLIENT_ID: 'test.apps.googleusercontent.com',
@@ -64,6 +64,26 @@ describe('additive owner-scoped Juggernaut API', () => {
         ).status,
       ).toBe(400);
     }));
+  it('refuses extension rows in the unchanged legacy cloud namespace', async () =>
+    fixture(async (url, map) => {
+      const d = emptyDocument();
+      const s = {
+        ...startSession(d, 'training', Date.now(), 'm28-substitution'),
+        answer: '11',
+        reasoning: '대입했다',
+      };
+      const result = submit(d, s);
+      expect(
+        (
+          await fetch(url + '/api/juggernaut', {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({ expectedVersion: 0, document: result.document }),
+          })
+        ).status,
+      ).toBe(400);
+      expect(map.size).toBe(0);
+    }));
   it('accepts the existing remembered owner session without issuing another credential', async () =>
     fixture(async (url, map, commands) => {
       const token = 'bkit_sync_' + 'a'.repeat(64);
@@ -94,6 +114,44 @@ describe('additive owner-scoped Juggernaut API', () => {
       expect([...map.keys()].every((k) => k.startsWith('bkit:juggernaut:v1:'))).toBe(true);
       expect(commands.filter((c) => c[0] === 'EVAL').every((c) => c[2] === '1')).toBe(true);
       expect(juggernautWriteScript).not.toContain("'DEL'");
+    }));
+  it('keeps cloud tombstones even when an older client sends a newer nondeleted edit or omits the record', async () =>
+    fixture(async (url) => {
+      const d = emptyDocument(),
+        now = Date.now() - 10000;
+      const result = submit(
+        d,
+        {
+          ...startSession(d, 'training', now, 'balance'),
+          answer: '2',
+          reasoning: '양변에서 3을 빼었다',
+        },
+        now + 1000,
+      );
+      const deleted = {
+        ...result.document,
+        attempts: result.document.attempts.map((a) => ({
+          ...a,
+          deleted: true,
+          updatedAt: now + 2000,
+        })),
+      };
+      const put = (expectedVersion: number, document: typeof d) =>
+        fetch(url + '/api/juggernaut', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ expectedVersion, document }),
+        });
+      expect((await put(0, deleted)).status).toBe(200);
+      const stale = {
+        ...result.document,
+        attempts: result.document.attempts.map((a) => ({ ...a, updatedAt: now + 9000 })),
+      };
+      expect((await put(1, stale)).status).toBe(200);
+      expect((await put(2, emptyDocument())).status).toBe(200);
+      const saved = await (await fetch(url + '/api/juggernaut', { headers })).json();
+      expect(saved.document.attempts).toHaveLength(1);
+      expect(saved.document.attempts[0].deleted).toBe(true);
     }));
   it('rejects malformed cloud originals and preserves their bytes', async () =>
     fixture(async (url, map) => {

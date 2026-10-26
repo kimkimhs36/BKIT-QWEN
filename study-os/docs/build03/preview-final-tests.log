@@ -1,0 +1,23 @@
+
+Running 12 tests using 1 worker
+
+(node:34954) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [iphone] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export (20.4s)
+  ✓   2 [iphone] › tests/e2e/juggernaut-build03.spec.ts:106:1 › rational entry keeps Korean explanation separate; tablet paper grows and survives viewport rotation (4.6s)
+  ✓   3 [iphone] › tests/e2e/juggernaut-build03.spec.ts:137:1 › extension corruption/quota is visible; original bytes and a recoverable current export survive (7.6s)
+  ✓   4 [iphone] › tests/e2e/juggernaut-build03.spec.ts:162:1 › The Road offers bounded exam-week work and honest subject availability; new map is accessible in reduced motion (6.1s)
+(node:35519) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 [desktop] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export (16.4s)
+  ✓   6 [desktop] › tests/e2e/juggernaut-build03.spec.ts:106:1 › rational entry keeps Korean explanation separate; tablet paper grows and survives viewport rotation (3.5s)
+  ✓   7 [desktop] › tests/e2e/juggernaut-build03.spec.ts:137:1 › extension corruption/quota is visible; original bytes and a recoverable current export survive (5.9s)
+  ✓   8 [desktop] › tests/e2e/juggernaut-build03.spec.ts:162:1 › The Road offers bounded exam-week work and honest subject availability; new map is accessible in reduced motion (8.2s)
+(node:36056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [ipad-landscape] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export (20.9s)
+  ✓  10 [ipad-landscape] › tests/e2e/juggernaut-build03.spec.ts:106:1 › rational entry keeps Korean explanation separate; tablet paper grows and survives viewport rotation (3.5s)
+  ✓  11 [ipad-landscape] › tests/e2e/juggernaut-build03.spec.ts:137:1 › extension corruption/quota is visible; original bytes and a recoverable current export survive (5.8s)
+  ✓  12 [ipad-landscape] › tests/e2e/juggernaut-build03.spec.ts:162:1 › The Road offers bounded exam-week work and honest subject availability; new map is accessible in reduced motion (7.8s)
+
+  12 passed (2.0m)

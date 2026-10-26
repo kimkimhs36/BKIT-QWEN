@@ -1,0 +1,196 @@
+[WebServer] (node:23102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 85 tests using 1 worker
+
+(node:23130) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (6.8s)
+  ✓   2 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:51:1 › arrival can skip, replay and start; reduced motion leaves scene static (2.3s)
+  ✓   3 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:65:1 › nine real materials, low power, keyboard dismissal, preferences persist (5.2s)
+  ✓   4 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:113:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (3.6s)
+  ✓   5 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:143:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (14.9s)
+  ✓   6 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:166:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (2.7s)
+  ✓   7 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:193:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (1.4s)
+  ✘   8 [galaxy-css] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export (6.0s)
+(node:23739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [galaxy-css] › tests/e2e/juggernaut-build03.spec.ts:78:1 › rational entry keeps Korean explanation separate; tablet paper grows and survives viewport rotation (2.3s)
+  ✓  10 [galaxy-css] › tests/e2e/juggernaut-build03.spec.ts:109:1 › extension corruption/quota is visible; original bytes and a recoverable current export survive (3.0s)
+  ✓  11 [galaxy-css] › tests/e2e/juggernaut-build03.spec.ts:134:1 › The Road offers bounded exam-week work and honest subject availability; new map is accessible in reduced motion (3.6s)
+  ✓  12 [galaxy-css] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (7.4s)
+  ✓  13 [galaxy-css] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (2.8s)
+  ✓  14 [galaxy-css] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (12.0s)
+  ✓  15 [galaxy-css] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (4.0s)
+  ✓  16 [galaxy-css] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (3.5s)
+  ✓  17 [galaxy-css] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (7.6s)
+(node:24538) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 [desktop] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (6.2s)
+  ✓  19 [desktop] › tests/e2e/juggernaut-build02.spec.ts:51:1 › arrival can skip, replay and start; reduced motion leaves scene static (3.2s)
+  ✓  20 [desktop] › tests/e2e/juggernaut-build02.spec.ts:65:1 › nine real materials, low power, keyboard dismissal, preferences persist (9.2s)
+  ✓  21 [desktop] › tests/e2e/juggernaut-build02.spec.ts:113:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (4.4s)
+  ✓  22 [desktop] › tests/e2e/juggernaut-build02.spec.ts:143:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (10.2s)
+  ✓  23 [desktop] › tests/e2e/juggernaut-build02.spec.ts:166:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (2.6s)
+  ✓  24 [desktop] › tests/e2e/juggernaut-build02.spec.ts:193:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (1.4s)
+  ✘  25 [desktop] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export (6.1s)
+(node:26141) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  26 [desktop] › tests/e2e/juggernaut-build03.spec.ts:78:1 › rational entry keeps Korean explanation separate; tablet paper grows and survives viewport rotation (2.3s)
+  ✓  27 [desktop] › tests/e2e/juggernaut-build03.spec.ts:109:1 › extension corruption/quota is visible; original bytes and a recoverable current export survive (3.4s)
+  ✓  28 [desktop] › tests/e2e/juggernaut-build03.spec.ts:134:1 › The Road offers bounded exam-week work and honest subject availability; new map is accessible in reduced motion (3.4s)
+  ✓  29 [desktop] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (5.6s)
+  ✓  30 [desktop] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (3.1s)
+  ✓  31 [desktop] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (6.8s)
+  ✓  32 [desktop] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (3.0s)
+  ✓  33 [desktop] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (2.9s)
+  ✓  34 [desktop] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (6.9s)
+(node:26946) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  35 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (13.3s)
+  ✓  36 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:51:1 › arrival can skip, replay and start; reduced motion leaves scene static (3.9s)
+  ✓  37 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:65:1 › nine real materials, low power, keyboard dismissal, preferences persist (11.6s)
+  ✓  38 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:113:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (8.4s)
+  ✓  39 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:143:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (28.8s)
+  ✓  40 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:166:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (4.6s)
+  ✓  41 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:193:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (3.1s)
+  ✓  42 [ipad-landscape] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export (15.3s)
+  ✓  43 [ipad-landscape] › tests/e2e/juggernaut-build03.spec.ts:78:1 › rational entry keeps Korean explanation separate; tablet paper grows and survives viewport rotation (3.9s)
+  ✓  44 [ipad-landscape] › tests/e2e/juggernaut-build03.spec.ts:109:1 › extension corruption/quota is visible; original bytes and a recoverable current export survive (4.8s)
+  ✓  45 [ipad-landscape] › tests/e2e/juggernaut-build03.spec.ts:134:1 › The Road offers bounded exam-week work and honest subject availability; new map is accessible in reduced motion (5.2s)
+  ✓  46 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (10.8s)
+  ✓  47 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (8.1s)
+  ✓  48 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (12.6s)
+  ✓  49 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (4.2s)
+  ✓  50 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (4.5s)
+  ✓  51 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (8.3s)
+(node:29217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓  52 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (19.3s)
+  ✓  53 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:51:1 › arrival can skip, replay and start; reduced motion leaves scene static (9.0s)
+  ✓  54 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:65:1 › nine real materials, low power, keyboard dismissal, preferences persist (53.0s)
+  ✓  55 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:113:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (13.0s)
+  ✓  56 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:143:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (28.1s)
+  ✓  57 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:166:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (17.0s)
+  ✓  58 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:193:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (4.0s)
+  ✓  59 [webkit-ipad] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export (51.4s)
+  ✓  60 [webkit-ipad] › tests/e2e/juggernaut-build03.spec.ts:78:1 › rational entry keeps Korean explanation separate; tablet paper grows and survives viewport rotation (5.3s)
+  ✓  61 [webkit-ipad] › tests/e2e/juggernaut-build03.spec.ts:109:1 › extension corruption/quota is visible; original bytes and a recoverable current export survive (10.0s)
+  ✓  62 [webkit-ipad] › tests/e2e/juggernaut-build03.spec.ts:134:1 › The Road offers bounded exam-week work and honest subject availability; new map is accessible in reduced motion (9.2s)
+  ✓  63 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (23.3s)
+  ✓  64 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (13.0s)
+  ✘  65 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (31.3s)
+(node:32911) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓  66 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (17.5s)
+  ✓  67 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (13.8s)
+  ✓  68 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (16.2s)
+(node:33725) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓  69 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (25.0s)
+  ✓  70 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:51:1 › arrival can skip, replay and start; reduced motion leaves scene static (7.4s)
+  ✓  71 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:65:1 › nine real materials, low power, keyboard dismissal, preferences persist (39.6s)
+  ✓  72 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:113:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (14.3s)
+  ✓  73 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:143:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (23.4s)
+  ✓  74 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:166:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (24.0s)
+  ✓  75 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:193:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (4.6s)
+  ✓  76 [webkit-iphone] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export (41.3s)
+  ✓  77 [webkit-iphone] › tests/e2e/juggernaut-build03.spec.ts:78:1 › rational entry keeps Korean explanation separate; tablet paper grows and survives viewport rotation (7.0s)
+  ✓  78 [webkit-iphone] › tests/e2e/juggernaut-build03.spec.ts:109:1 › extension corruption/quota is visible; original bytes and a recoverable current export survive (9.4s)
+  ✓  79 [webkit-iphone] › tests/e2e/juggernaut-build03.spec.ts:134:1 › The Road offers bounded exam-week work and honest subject availability; new map is accessible in reduced motion (6.8s)
+  ✓  80 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (27.2s)
+  ✓  81 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (11.0s)
+  ✓  82 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (13.7s)
+  ✓  83 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (8.5s)
+  ✓  84 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (7.0s)
+  ✓  85 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (9.7s)
+
+
+  1) [galaxy-css] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "999"
+    Received: "6"
+
+      67 |   const d = await storedDoc(page);
+      68 |   expect(d.attempts).toHaveLength(4);
+    > 69 |   expect(d.attempts[0].answer).toBe('999');
+         |                                ^
+      70 |   const legacy = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), KEY);
+      71 |   expect(legacy.attempts).toHaveLength(0);
+      72 |   expect(legacy.sessions).toHaveLength(0);
+        at /workspace/juggernaut/study-os/tests/e2e/juggernaut-build03.spec.ts:69:32
+
+    Error Context: test-results-build03/juggernaut-build03-new-lea-7ac23-d-delayed-review-and-export-galaxy-css/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-build03/juggernaut-build03-new-lea-7ac23-d-delayed-review-and-export-galaxy-css/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-build03/juggernaut-build03-new-lea-7ac23-d-delayed-review-and-export-galaxy-css/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "999"
+    Received: "6"
+
+      67 |   await expect(page.locator('.jg-studio-stats')).toContainText('1회 유효 검증');
+      68 |   const d = await storedDoc(page);
+    > 69 |   expect(d.attempts).toHaveLength(4);
+         |                                ^
+      70 |   expect(d.attempts.find((a: any) => a.id === firstAttempt.id)).toMatchObject({
+      71 |     answer: '999',
+      72 |     hints: 1,
+        at /workspace/juggernaut/study-os/tests/e2e/juggernaut-build03.spec.ts:69:32
+
+    Error Context: test-results-build03/juggernaut-build03-new-lea-7ac23-d-delayed-review-and-export-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-build03/juggernaut-build03-new-lea-7ac23-d-delayed-review-and-export-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-build03/juggernaut-build03-new-lea-7ac23-d-delayed-review-and-export-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [webkit-ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.reload: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for navigation until "load"
+
+
+      112 |   for (const path of ['review', 'roadmap', 'progress']) {
+      113 |     await visit(page, path);
+    > 114 |     await page.reload();
+          |                ^
+      115 |     await expect(page.locator('.jg-main h1')).toBeVisible();
+      116 |     await fit(page);
+      117 |   }
+        at /workspace/juggernaut/study-os/tests/e2e/juggernaut.spec.ts:114:16
+
+    Error Context: test-results-build03/juggernaut-direct-routes-b-e50f7--and-legacy-BKIT-navigation-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-build03/juggernaut-direct-routes-b-e50f7--and-legacy-BKIT-navigation-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-build03/juggernaut-direct-routes-b-e50f7--and-legacy-BKIT-navigation-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [galaxy-css] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export 
+    [desktop] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export 
+    [webkit-ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation 
+  82 passed (15.9m)

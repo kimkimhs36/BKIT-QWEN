@@ -6,7 +6,8 @@ export default function Scratchpad() {
   const view = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(400),
     [tool, setTool] = useState<InkTool>('ballpoint'),
-    [penOnly, setPenOnly] = useState(true);
+    [penOnly, setPenOnly] = useState(true),
+    [expanded, setExpanded] = useState(false);
   const [layer, setLayer] = useState<AnnotationLayer>({
     id: 'scratch',
     pageId: 'scratch',
@@ -19,6 +20,7 @@ export default function Scratchpad() {
     return () => observer.disconnect();
   }, []);
   const scale = width / 600;
+  const paperHeight = expanded ? 760 : 440;
   return (
     <section className="jg-scratch">
       <div className="jg-section-heading">
@@ -38,18 +40,28 @@ export default function Scratchpad() {
         >
           되돌리기
         </button>
-        <button onClick={() => setLayer((l) => ({ ...l, strokes: [] }))}>비우기</button>
+        <button
+          onClick={() => {
+            if (!layer.strokes.length || window.confirm('저장되지 않은 임시 필기를 모두 지울까요?'))
+              setLayer((l) => ({ ...l, strokes: [] }));
+          }}
+        >
+          비우기
+        </button>
+        <button aria-pressed={expanded} onClick={() => setExpanded((v) => !v)}>
+          {expanded ? '기본 종이' : '넓은 종이'}
+        </button>
         <label>
           <input type="checkbox" checked={penOnly} onChange={(e) => setPenOnly(e.target.checked)} />
-          펜만
+          펜만 · 손터치 무시
         </label>
       </div>
-      <div ref={view} className="jg-scratch-viewport" style={{ height: 440 * scale }}>
+      <div ref={view} className="jg-scratch-viewport" style={{ height: paperHeight * scale }}>
         <div
           className="jg-scratch-sheet"
           style={{
             width: 600,
-            height: 440,
+            height: paperHeight,
             transform: `scale(${scale})`,
             transformOrigin: 'top left',
           }}
@@ -59,7 +71,7 @@ export default function Scratchpad() {
               id: 'scratch',
               index: 0,
               width: 600,
-              height: 440,
+              height: paperHeight,
               rotation: 0,
               bookmarked: false,
             }}

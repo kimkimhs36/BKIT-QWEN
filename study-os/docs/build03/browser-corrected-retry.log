@@ -1,0 +1,17 @@
+[WebServer] (node:37785) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:37802) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [galaxy-css] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export (10.2s)
+(node:37955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/e2e/juggernaut-build03.spec.ts:40:1 › new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export (7.6s)
+(node:38105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓  3 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (14.7s)
+
+  3 passed (35.8s)
