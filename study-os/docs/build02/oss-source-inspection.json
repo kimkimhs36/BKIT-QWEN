@@ -1,0 +1,57 @@
+[
+  {
+    "candidate": "r3f",
+    "bytes": 2406,
+    "sha256": "a4267a97cb6cf4d253884da42a8b974443f6231fb4f27e14f98839e772bd0995"
+  },
+  {
+    "candidate": "mathlive",
+    "bytes": 95620,
+    "sha256": "b27452816662dc1a7d2d53008a21dd01b58a29e0ad278f4d49d37cb7ba2ee2f2"
+  },
+  {
+    "candidate": "katex",
+    "bytes": 7192,
+    "sha256": "6c33f01edc0e85988810f46d974374a312f66c11f8f8c090aaea4e6ce0e332d2"
+  },
+  {
+    "candidate": "three",
+    "bytes": 113149,
+    "sha256": "0b2c1b056ec86f5f3564969ce918dad8475dd0e17dabf5bf07468267794a7694"
+  },
+  {
+    "candidate": "drei",
+    "bytes": 918,
+    "sha256": "846602925fb4424ca4254f9313991b721252b986519758ab4cbc236e70d1925b"
+  },
+  {
+    "candidate": "xyflow",
+    "bytes": 11133,
+    "sha256": "d866f64f483e23e54366b014dc884349080e1d74956003af1b8a5053bc387581"
+  },
+  {
+    "candidate": "freehand",
+    "bytes": 1274,
+    "sha256": "28dab9663abe3ed9ee7f86f3d0e221e9dc53d6240fcee78331659c0146f52744"
+  },
+  {
+    "candidate": "dexie",
+    "bytes": 22291,
+    "sha256": "f5a0a9785737be63d81bd8b746b2007f11b861a78e13bbfccc369719205310aa"
+  },
+  {
+    "candidate": "excalidraw",
+    "bytes": 16529,
+    "sha256": "8a3218f932b2aa396b0bc3616bf43ade4eabfac8a3ee231788fa7673daf69132"
+  },
+  {
+    "candidate": "motion",
+    "bytes": 1896,
+    "sha256": "7a7c7def59333b8d01ff81edb65d84ff0aa714edddf3e9fa6f6d3bd151fd40ae"
+  },
+  {
+    "candidate": "compute",
+    "bytes": 79482,
+    "sha256": "7797662b1765ce29372dbccb42157204a3827a5d822880233602402e2d89a404"
+  }
+]

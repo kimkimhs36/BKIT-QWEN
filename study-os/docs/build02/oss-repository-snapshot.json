@@ -1,0 +1,156 @@
+[
+  {
+    "repo": "xyflow/xyflow",
+    "pushed_at": "2026-10-22T13:08:24Z",
+    "archived": false,
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "release": "@xyflow/svelte@1.7.0",
+    "release_date": "2026-09-24T12:40:02Z"
+  },
+  {
+    "repo": "arnog/mathlive",
+    "pushed_at": "2026-10-23T05:41:10Z",
+    "archived": false,
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "release": "v0.100.0",
+    "release_date": "2024-06-12T21:52:08Z"
+  },
+  {
+    "repo": "KaTeX/KaTeX",
+    "pushed_at": "2026-10-24T18:09:22Z",
+    "archived": false,
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "release": "v0.19.1",
+    "release_date": "2026-10-23T20:38:31Z"
+  },
+  {
+    "repo": "mrdoob/three.js",
+    "pushed_at": "2026-10-25T22:44:37Z",
+    "archived": false,
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "release": "r186",
+    "release_date": "2026-09-24T14:35:44Z"
+  },
+  {
+    "repo": "pmndrs/react-three-fiber",
+    "pushed_at": "2026-10-21T15:24:39Z",
+    "archived": false,
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "release": "v9.8.2",
+    "release_date": "2026-10-15T15:35:16Z"
+  },
+  {
+    "repo": "pmndrs/drei",
+    "pushed_at": "2026-10-21T09:19:21Z",
+    "archived": false,
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "release": "v10.7.9",
+    "release_date": "2026-09-25T15:32:38Z"
+  },
+  {
+    "repo": "motiondivision/motion",
+    "pushed_at": "2026-10-23T15:06:32Z",
+    "archived": false,
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "release": null,
+    "release_date": null
+  },
+  {
+    "repo": "steveruizok/perfect-freehand",
+    "pushed_at": "2026-04-13T04:44:47Z",
+    "archived": false,
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "release": "v1.2.3",
+    "release_date": "2026-02-01T00:45:16Z"
+  },
+  {
+    "repo": "excalidraw/excalidraw",
+    "pushed_at": "2026-10-25T22:38:34Z",
+    "archived": false,
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "release": "v0.18.1",
+    "release_date": "2026-04-21T08:43:20Z"
+  },
+  {
+    "repo": "dexie/Dexie.js",
+    "pushed_at": "2026-10-23T09:59:32Z",
+    "archived": false,
+    "license": {
+      "key": "apache-2.0",
+      "name": "Apache License 2.0",
+      "spdx_id": "Apache-2.0",
+      "url": "https://api.github.com/licenses/apache-2.0",
+      "node_id": "MDc6TGljZW5zZTI="
+    },
+    "release": "v4.4.7",
+    "release_date": "2026-10-19T11:22:04Z"
+  },
+  {
+    "repo": "cortex-js/compute-engine",
+    "pushed_at": "2026-10-25T23:25:14Z",
+    "archived": false,
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "release": null,
+    "release_date": null
+  }
+]

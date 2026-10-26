@@ -1,0 +1,199 @@
+
+Running 52 tests using 2 workers
+
+(node:17277) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17278) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [iphone] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (11.5s)
+  ✓   3 [iphone] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (4.4s)
+  ✓   2 [iphone] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (16.9s)
+  ✓   5 [iphone] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (6.6s)
+  ✓   4 [iphone] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (11.1s)
+  ✓   7 [iphone] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (8.4s)
+  ✓   6 [iphone] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (16.3s)
+  ✓   9 [iphone] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (6.0s)
+  ✓  10 [iphone] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (5.3s)
+  ✓  11 [iphone] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (9.4s)
+(node:18326) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [iphone] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (31.6s)
+  ✓  13 [iphone] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (5.7s)
+  ✓  14 [iphone] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (3.1s)
+(node:18640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [ipad] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (14.1s)
+  ✓  16 [ipad] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (5.8s)
+  ✓  15 [ipad] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (16.9s)
+  ✓  17 [ipad] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (13.1s)
+  ✓  18 [ipad] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (8.8s)
+  ✓  19 [ipad] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (10.2s)
+  ✓  20 [ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (17.5s)
+  ✓  22 [ipad] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (6.5s)
+  ✘  21 [ipad] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (23.1s)
+(node:19490) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  23 [ipad] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (6.2s)
+  ✓  24 [ipad] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (6.8s)
+  ✓  25 [ipad] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (10.5s)
+  ✓  26 [ipad] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (3.3s)
+(node:19798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19807) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  27 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (15.5s)
+  ✓  28 [galaxy-css] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (17.9s)
+  ✓  29 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (4.9s)
+  ✓  30 [galaxy-css] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (7.6s)
+  ✓  31 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (13.1s)
+  ✓  33 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (7.8s)
+  ✓  32 [galaxy-css] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (16.5s)
+  ✓  35 [galaxy-css] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (6.8s)
+  ✓  36 [galaxy-css] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (5.6s)
+  ✓  37 [galaxy-css] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (9.5s)
+(node:21034) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  34 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (36.6s)
+  ✓  38 [desktop] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (11.6s)
+  ✓  40 [desktop] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (5.8s)
+  ✓  39 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (6.7s)
+  ✓  42 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (3.9s)
+(node:21546) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  41 [desktop] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (16.1s)
+  ✓  44 [desktop] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (7.9s)
+  ✓  43 [desktop] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (17.3s)
+  ✓  46 [desktop] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (9.9s)
+  ✓  47 [desktop] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (14.1s)
+  ✓  45 [desktop] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (26.0s)
+  ✓  48 [desktop] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (7.7s)
+  ✓  49 [desktop] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (9.7s)
+  ✓  50 [desktop] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (7.6s)
+  ✓  51 [desktop] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (4.1s)
+  ✓  52 [desktop] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (8.4s)
+
+
+  1) [ipad] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 93
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f6dcd2",
+    +               "contrastRatio": 3.92,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#7c6a64",
+    +               "fontSize": "6.8pt (9px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.92 (foreground color: #7c6a64, background color: #f6dcd2, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"jg-os jg-build02\" data-theme=\"light\" data-room=\"progress\">",
+    +                 "target": Array [
+    +                   ".jg-os",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.92 (foreground color: #7c6a64, background color: #f6dcd2, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<footer class=\"jg-footer\">BKIT JUGGERNAUT · BUILD 02 <span>2028학년도 / 수학 선수개념 파일럿</span></footer>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "footer",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f6dcd2",
+    +               "contrastRatio": 3.92,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#7c6a64",
+    +               "fontSize": "6.8pt (9px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.92 (foreground color: #7c6a64, background color: #f6dcd2, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"jg-os jg-build02\" data-theme=\"light\" data-room=\"progress\">",
+    +                 "target": Array [
+    +                   ".jg-os",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.92 (foreground color: #7c6a64, background color: #f6dcd2, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span>2028학년도 / 수학 선수개념 파일럿</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "footer > span",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      153 |     expect(
+      154 |       result.violations.filter((v) => v.impact === 'critical' || v.impact === 'serious'),
+    > 155 |     ).toEqual([]);
+          |       ^
+      156 |     await page.screenshot({
+      157 |       path: info.outputPath((path || 'command') + '.png'),
+      158 |       fullPage: true,
+        at /workspace/BKIT-QWEN/study-os/tests/e2e/juggernaut-build02.spec.ts:155:7
+
+    Error Context: test-results-build02-verified/juggernaut-build02-core-sp-fd884--and-no-horizontal-overflow-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-build02-verified/juggernaut-build02-core-sp-fd884--and-no-horizontal-overflow-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-build02-verified/juggernaut-build02-core-sp-fd884--and-no-horizontal-overflow-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [ipad] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow 
+  51 passed (5.1m)
