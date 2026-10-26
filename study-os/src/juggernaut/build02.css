@@ -1380,3 +1380,11 @@ html[data-motion='off'] .jg-build02 :is(.jg-card, .jg-next-action) {
   flex-shrink: 0;
   white-space: nowrap;
 }
+/* Global BKIT main entrance styles must not fade or move the independent learning room.
+   Only the optional decorative portal and explicit Arrival scene animate here. */
+.jg-build02 .jg-main {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none;
+}
