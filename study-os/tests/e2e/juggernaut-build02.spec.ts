@@ -185,3 +185,16 @@ test('numeric sign keypad preserves first answer and scores a fresh short-answer
   );
   expect(answers).toEqual(['1', '-2']);
 });
+
+test.describe('optional map download failure', () => {
+  test.use({ serviceWorkers: 'block' });
+  test('graph chunk failure keeps the real three-concept learning path usable', async ({
+    page,
+  }) => {
+    await page.route('**/assets/KnowledgeMap-*.js', (route) => route.abort('failed'));
+    await visit(page, 'map');
+    await expect(page.locator('.jg-module-unavailable')).toBeVisible();
+    await page.getByRole('button', { name: '등식의 성질과 이항 학습 시작', exact: true }).click();
+    await expect(page.getByRole('button', { name: '첫 답변 제출' })).toBeVisible();
+  });
+});

@@ -3,6 +3,7 @@ import { MotionConfig } from 'motion/react';
 import { MaterialEffects } from '../themes/MaterialEffects';
 import { MaterialSettings } from '../themes/MaterialSettings';
 import { materials, type MaterialPreferences } from '../themes/material';
+import { LearningModuleBoundary } from './LearningModuleBoundary';
 import { MathAnswer } from './MathAnswer';
 import { CommandCenter } from './CommandCenter';
 import { PerformanceStudio } from './PerformanceStudio';
@@ -407,10 +408,11 @@ export function JuggernautOS({
               />
             )}
             {page === 'map' && (
-              <Suspense
+              <LearningModuleBoundary
                 fallback={
-                  <section className="jg-card">
-                    <h1>개념 지도를 불러오는 중…</h1>
+                  <section className="jg-card jg-module-unavailable">
+                    <h1 tabIndex={-1}>지도를 불러오지 못했어요.</h1>
+                    <p>연결을 다시 확인해 주세요. 개념 목록에서 학습은 계속할 수 있어요.</p>
                     {concepts.map((c) => (
                       <button key={c.id} onClick={() => begin('training', false, c.id)}>
                         {c.name} 학습 시작
@@ -419,11 +421,24 @@ export function JuggernautOS({
                   </section>
                 }
               >
-                <KnowledgeMap
-                  document={store.document}
-                  onBegin={(c) => begin('training', false, c)}
-                />
-              </Suspense>
+                <Suspense
+                  fallback={
+                    <section className="jg-card">
+                      <h1>개념 지도를 불러오는 중…</h1>
+                      {concepts.map((c) => (
+                        <button key={c.id} onClick={() => begin('training', false, c.id)}>
+                          {c.name} 학습 시작
+                        </button>
+                      ))}
+                    </section>
+                  }
+                >
+                  <KnowledgeMap
+                    document={store.document}
+                    onBegin={(c) => begin('training', false, c)}
+                  />
+                </Suspense>
+              </LearningModuleBoundary>
             )}
             {page === 'arrival' && (
               <Suspense
@@ -716,7 +731,17 @@ export function JuggernautOS({
                     </section>
                     <aside className="jg-training-aside">
                       <Suspense fallback={<p>임시 필기 종이를 준비하고 있어요…</p>}>
-                        <Scratchpad key={q.id} />
+                        <LearningModuleBoundary
+                          key={q.id}
+                          fallback={
+                            <p>
+                              임시 필기를 불러오지 못했어요. 풀이 설명 입력과 문제 제출은 계속할 수
+                              있어요.
+                            </p>
+                          }
+                        >
+                          <Scratchpad />
+                        </LearningModuleBoundary>
                       </Suspense>
                       <section className="jg-card jg-concept">
                         <p className="jg-eyebrow">

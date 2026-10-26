@@ -58,6 +58,14 @@ export function CommandCenter({
   const paused = session && session.phase !== 'complete';
   return (
     <>
+      {!attempts.length && !session && (
+        <div className="jg-arrival-invitation">
+          <span>처음이라면, 이 여정의 시작부터.</span>
+          <button onClick={() => navigate('arrival')}>
+            THE ARRIVAL · 오프닝 보기 <Play size={12} />
+          </button>
+        </div>
+      )}
       <div className="jg-command-mast">
         <p className="jg-eyebrow">OPERATION 2028 / COMMAND CENTER</p>
         <span>개인의 가능성은, 아직 기밀이다.</span>

@@ -1349,3 +1349,22 @@ html[data-motion='off'] .jg-build02 :is(.jg-card, .jg-next-action) {
 .jg-build02:has(.jg-appearance[open]) .jg-portal-core {
   animation: none;
 }
+
+.jg-build02 .jg-arrival-invitation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--jg-line);
+  gap: 8px;
+  margin-top: 10px;
+  padding: 3px 0 10px;
+  font-size: 10px;
+  color: var(--jg-muted);
+}
+.jg-build02 .jg-arrival-invitation button {
+  font-size: 9px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 6px 0;
+}
