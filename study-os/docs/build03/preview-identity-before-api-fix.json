@@ -1,0 +1,16 @@
+{
+  "origin": "https://bkit-study-os-36-preview-a690xvwjl-teambkit.vercel.app",
+  "commit": "d6758bd59a472499be0682b313b058cbd9a84b61",
+  "target": "preview",
+  "deploymentId": "dpl_6p84KGwggGu3Wu7YMkuinCSTaCXQ",
+  "/build-info.json": {
+    "status": 200,
+    "body": {
+      "sourceCommit": "d6758bd59a472499be0682b313b058cbd9a84b61",
+      "environment": "preview"
+    }
+  },
+  "/api/juggernaut/health": {
+    "error": "HTTP Error 500: Internal Server Error"
+  }
+}

@@ -3,7 +3,11 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { verifyBkitOwner } from './auth.js';
 import { rememberSessions, isStudySession } from './rememberSession.js';
-import { legacyDocumentSchema as documentSchema, evidence } from '../src/juggernaut/engine.js';
+import {
+  legacyDocumentSchema as documentSchema,
+  evidence,
+  mergeDocuments,
+} from '../src/juggernaut/engine.js';
 import { concepts } from '../src/juggernaut/content.js';
 
 // One additive key, no reads/writes/deletes of existing study snapshots.
@@ -138,14 +142,19 @@ export function createJuggernautApi(
       return void res.status(400).json({ error: 'Invalid timestamps' });
     try {
       const raw = await command(['GET', key]);
-      if (raw !== null) envelope.parse(JSON.parse(String(raw))); // Fail closed on corrupt/unknown data.
+      // Server also preserves deletion/omitted records from older clients; CAS
+      // still protects the read/merge/write window. Corrupt originals fail closed.
+      const stored = raw !== null ? envelope.parse(JSON.parse(String(raw))) : null;
+      const merged = stored
+        ? mergeDocuments(stored.document, body.data.document)
+        : body.data.document;
       const result = await command([
         'EVAL',
         juggernautWriteScript,
         '1',
         key,
         String(body.data.expectedVersion),
-        JSON.stringify(body.data.document),
+        JSON.stringify(merged),
       ]);
       if (!Array.isArray(result) || result.length !== 2 || !result.every(Number.isSafeInteger))
         throw Error();
@@ -154,7 +163,7 @@ export function createJuggernautApi(
       // Correctness/readiness are recomputed from answers, never client-provided grades.
       res.json({
         version: result[1],
-        evidence: concepts.map((c) => evidence(body.data.document, c.id)),
+        evidence: concepts.map((c) => evidence(merged, c.id)),
       });
     } catch {
       res.status(503).json({ error: '수능관 저장 확인 실패' });

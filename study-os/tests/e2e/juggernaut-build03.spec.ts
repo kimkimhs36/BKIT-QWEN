@@ -39,6 +39,7 @@ async function begin(page: Page) {
 }
 test('new learner: actual new prerequisite, wrong/hint/repair, independent retry, pause/reload, delayed review and export', async ({
   page,
+  context,
 }, info) => {
   test.setTimeout(60000);
   await page.clock.install({ time });
@@ -50,7 +51,13 @@ test('new learner: actual new prerequisite, wrong/hint/repair, independent retry
   await page.getByRole('button', { name: '개념 복구 후 새 문제 재도전' }).click();
   await page.getByRole('textbox', { name: '식의 값', exact: true }).fill('-2');
   await page.getByRole('button', { name: '중단하고 나중에 이어하기' }).click();
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+  });
+  await context.setOffline(true);
   await page.reload();
+  await expect(page.locator('.jg-status')).not.toContainText('서버에 저장됨');
+  await context.setOffline(false);
   await page.getByRole('button', { name: '이전 학습 이어서 하기' }).click();
   await expect(page.getByRole('textbox', { name: '식의 값', exact: true })).toHaveValue('-2');
   await answer(page);

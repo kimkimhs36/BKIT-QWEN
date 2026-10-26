@@ -115,6 +115,44 @@ describe('additive owner-scoped Juggernaut API', () => {
       expect(commands.filter((c) => c[0] === 'EVAL').every((c) => c[2] === '1')).toBe(true);
       expect(juggernautWriteScript).not.toContain("'DEL'");
     }));
+  it('keeps cloud tombstones even when an older client sends a newer nondeleted edit or omits the record', async () =>
+    fixture(async (url) => {
+      const d = emptyDocument(),
+        now = Date.now() - 10000;
+      const result = submit(
+        d,
+        {
+          ...startSession(d, 'training', now, 'balance'),
+          answer: '2',
+          reasoning: '양변에서 3을 빼었다',
+        },
+        now + 1000,
+      );
+      const deleted = {
+        ...result.document,
+        attempts: result.document.attempts.map((a) => ({
+          ...a,
+          deleted: true,
+          updatedAt: now + 2000,
+        })),
+      };
+      const put = (expectedVersion: number, document: typeof d) =>
+        fetch(url + '/api/juggernaut', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ expectedVersion, document }),
+        });
+      expect((await put(0, deleted)).status).toBe(200);
+      const stale = {
+        ...result.document,
+        attempts: result.document.attempts.map((a) => ({ ...a, updatedAt: now + 9000 })),
+      };
+      expect((await put(1, stale)).status).toBe(200);
+      expect((await put(2, emptyDocument())).status).toBe(200);
+      const saved = await (await fetch(url + '/api/juggernaut', { headers })).json();
+      expect(saved.document.attempts).toHaveLength(1);
+      expect(saved.document.attempts[0].deleted).toBe(true);
+    }));
   it('rejects malformed cloud originals and preserves their bytes', async () =>
     fixture(async (url, map) => {
       const { createHash } = await import('node:crypto');

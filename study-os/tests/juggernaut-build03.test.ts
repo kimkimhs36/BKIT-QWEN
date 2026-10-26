@@ -64,6 +64,7 @@ describe('BUILD 03 authored maths and meaningful evidence', () => {
       expect(score(q.id, q.answer)).toBe(true);
       expect(q.hints).toHaveLength(2);
       expect(q.explanation.length).toBeGreaterThan(20);
+      expect(q.prerequisiteSkills!.length).toBeGreaterThan(0);
       expect(q.errorFocus).toBeTruthy();
       expect(q.retest).toBeTruthy();
     });

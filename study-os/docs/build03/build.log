@@ -2,3 +2,76 @@
 > bkit-study-os@3.7.0 build
 > tsc -b && vite build
 
+vite v6.4.4 building for production...
+transforming...
+✓ 2619 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                          2.52 kB │ gzip:   1.07 kB
+dist/assets/dm-sans-latin-600-normal-Aqo67rzb.woff2     14.14 kB
+dist/assets/dm-sans-latin-400-normal-CW0RaeGs.woff2     14.20 kB
+dist/assets/dm-sans-latin-500-normal-B9HHJjqV.woff2     14.30 kB
+dist/assets/dm-sans-latin-700-normal-DvUfVpUG.woff2     14.35 kB
+dist/assets/dm-sans-latin-600-normal-BmdmIIQ2.woff      18.32 kB
+dist/assets/dm-sans-latin-400-normal-BwCSEQnW.woff      18.36 kB
+dist/assets/dm-sans-latin-700-normal-CUSSCpQX.woff      18.50 kB
+dist/assets/dm-sans-latin-500-normal-Dr3UlScf.woff      18.52 kB
+dist/assets/pdf.worker.min-yatZIOMy.mjs              1,375.84 kB
+dist/assets/AwakeAssist-032_9aRg.css                     1.48 kB │ gzip:   0.62 kB
+dist/assets/DigitalPaperRoom-DxjXuaYr.css                2.71 kB │ gzip:   0.99 kB
+dist/assets/GlobalSearch-hufsr9G2.css                    3.00 kB │ gzip:   1.04 kB
+dist/assets/StudyDirectory-BT6Rfb9D.css                  4.43 kB │ gzip:   1.23 kB
+dist/assets/AIZone-CcDDBXyb.css                          9.72 kB │ gzip:   2.41 kB
+dist/assets/KnowledgeMap-BnuhLJ6X.css                   15.87 kB │ gzip:   2.67 kB
+dist/assets/WakeBomb-CHJ3hOkn.css                       22.75 kB │ gzip:   5.90 kB
+dist/assets/JuggernautOS-CmqD33QH.css                   39.09 kB │ gzip:   8.09 kB
+dist/assets/Juggernaut-BU8infJ5.css                     56.22 kB │ gzip:  13.39 kB
+dist/assets/index-SocKxP6P.css                         422.47 kB │ gzip:  81.93 kB
+dist/assets/pdf.worker.min-ocdtAcA3.js                   0.07 kB │ gzip:   0.09 kB
+dist/assets/engine-Dwkj_GhU.js                           0.40 kB │ gzip:   0.30 kB
+dist/assets/library-big-BgzPIvLB.js                      0.49 kB │ gzip:   0.37 kB
+dist/assets/useDriveMotion-1gGX9VQ4.js                   0.52 kB │ gzip:   0.27 kB
+dist/assets/star-BYpvYCWp.js                             1.01 kB │ gzip:   0.50 kB
+dist/assets/photoVault-7u-SMmFn.js                       1.06 kB │ gzip:   0.63 kB
+dist/assets/Scratchpad-J9rbDk9X.js                       2.22 kB │ gzip:   1.23 kB
+dist/assets/paperInk-DhmvDR3j.js                         2.53 kB │ gzip:   1.18 kB
+dist/assets/Arrival-C17hdyHV.js                          2.59 kB │ gzip:   1.54 kB
+dist/assets/ResourcePaper-D-ivCQyO.js                    2.83 kB │ gzip:   1.39 kB
+dist/assets/ProblemReviewQueue-BwU5jsrk.js               2.91 kB │ gzip:   1.39 kB
+dist/assets/ResourceReviews-L4gAapoK.js                  3.14 kB │ gzip:   1.58 kB
+dist/assets/MoreHub-DukGjQoI.js                          3.26 kB │ gzip:   1.49 kB
+dist/assets/GlobalSearch-DUvtZfHC.js                     3.77 kB │ gzip:   1.72 kB
+dist/assets/paperPdf-CTcQy8nX.js                         3.99 kB │ gzip:   1.95 kB
+dist/assets/StudyDirectory-BMURDbLi.js                   4.27 kB │ gzip:   1.94 kB
+dist/assets/WakeBomb-DFIl-GA8.js                         4.55 kB │ gzip:   2.32 kB
+dist/assets/LearningEvidence-9Q3TvfQq.js                 5.42 kB │ gzip:   2.16 kB
+dist/assets/ExamPanel-DKhJYTY6.js                        5.99 kB │ gzip:   2.52 kB
+dist/assets/InkCanvas-NC1vFPX6.js                        6.54 kB │ gzip:   2.63 kB
+dist/assets/HelpCenter-C4ZzglOh.js                       7.96 kB │ gzip:   3.65 kB
+dist/assets/studySites-DlZ8Gwdk.js                       9.29 kB │ gzip:   4.00 kB
+dist/assets/StudyCalendar-DTms7Qke.js                   11.14 kB │ gzip:   4.03 kB
+dist/assets/ResourceLibrary-BLt3Jlss.js                 11.97 kB │ gzip:   4.32 kB
+dist/assets/DigitalLibrary-C1MD0gEX.js                  12.07 kB │ gzip:   4.69 kB
+dist/assets/AIZone-CLczgPHt.js                          12.64 kB │ gzip:   4.72 kB
+dist/assets/DigitalPaperRoom-C-oTcLI-.js                15.13 kB │ gzip:   6.11 kB
+dist/assets/index-C6xHUsg2.js                           15.83 kB │ gzip:   6.83 kB
+dist/assets/SleepGuard-BcRlS6D6.js                      16.74 kB │ gzip:   6.46 kB
+dist/assets/aiZoneData-DBwAxoLJ.js                      17.51 kB │ gzip:   6.39 kB
+dist/assets/AwakeAssist-uZn7Rfj-.js                     18.61 kB │ gzip:   7.36 kB
+dist/assets/MultiProblemWorkspace-E6MInrBN.js           19.29 kB │ gzip:   7.16 kB
+dist/assets/CompleteBackupPanel-Ap0CeSgB.js             28.49 kB │ gzip:  10.11 kB
+dist/assets/Juggernaut-CSPqNoTM.js                      41.71 kB │ gzip:  14.41 kB
+dist/assets/schema-vendor-DYuAzjeD.js                   54.21 kB │ gzip:  12.35 kB
+dist/assets/JuggernautOS-B76ftpQd.js                    61.09 kB │ gzip:  20.70 kB
+dist/assets/awake-engine-BSMsFJjF.js                   138.84 kB │ gzip:  41.73 kB
+dist/assets/KnowledgeMap-LWGl9JTn.js                   188.76 kB │ gzip:  62.06 kB
+dist/assets/react-vendor-DCgGpHx7.js                   223.65 kB │ gzip:  69.41 kB
+dist/assets/pdf-CcZYcL52.js                            365.12 kB │ gzip: 107.61 kB
+dist/assets/index-DyvfuZ3Y.js                          437.04 kB │ gzip: 180.61 kB
+dist/assets/index-CqPM3XvG.js                          525.72 kB │ gzip: 170.65 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 7.22s

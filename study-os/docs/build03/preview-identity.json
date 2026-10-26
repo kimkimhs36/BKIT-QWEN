@@ -1,0 +1,29 @@
+{
+  "origin": "https://bkit-study-os-36-preview-1bvlt2llv-teambkit.vercel.app",
+  "commit": "248d5b2b5fa70491f5aea07048b2b6795a8ad73b",
+  "target": "preview",
+  "deploymentId": "dpl_ukaYm4AFJk5iu4d7dZ6TA5Z3rD5g",
+  "/build-info.json": {
+    "status": 200,
+    "body": {
+      "sourceCommit": "248d5b2b5fa70491f5aea07048b2b6795a8ad73b",
+      "environment": "preview"
+    }
+  },
+  "/api/juggernaut/health": {
+    "status": 200,
+    "body": {
+      "service": "bkit-juggernaut",
+      "sourceCommit": "248d5b2b5fa70491f5aea07048b2b6795a8ad73b",
+      "configured": false,
+      "storage": "isolated-v1",
+      "auth": "existing-owner-session"
+    }
+  },
+  "/api/juggernaut": {
+    "status": 503,
+    "body": {
+      "error": "\uc218\ub2a5\uad00 \ud074\ub77c\uc6b0\ub4dc \uc5f0\uacb0 \uc900\ube44 \uc911"
+    }
+  }
+}

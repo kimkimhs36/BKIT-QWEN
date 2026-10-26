@@ -20,6 +20,7 @@ export type LearningConcept =
 export type LearningQuestion = Omit<Question, 'concept' | 'a' | 'b' | 'c'> & {
   concept: LearningConcept;
   answerLabel?: string;
+  prerequisiteSkills?: string[];
   prerequisite?: LearningConcept;
   errorFocus?: string;
   retest?: string;
@@ -47,6 +48,14 @@ const item = (
   hints,
   explanation,
   answerLabel: concept === 'm28-like-terms' ? 'x의 계수' : '식의 값',
+  prerequisiteSkills:
+    concept === 'm28-substitution'
+      ? [
+          '정수의 덧셈·곱셈',
+          ...(id.endsWith('-3') ? ['제곱의 뜻'] : []),
+          ...(id.endsWith('-4') ? ['분수의 곱셈·뺄셈'] : []),
+        ]
+      : ['항·계수·상수항 구별', '정수의 덧셈·뺄셈'],
   prerequisite: id === 'm28-like-terms-3' || id === 'm28-like-terms-4' ? 'distribute' : undefined,
   verification: { coefficients, x },
   errorFocus,
