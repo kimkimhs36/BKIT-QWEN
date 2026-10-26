@@ -79,6 +79,29 @@ test('new learner: actual new prerequisite, wrong/hint/repair, independent retry
   await page.getByRole('button', { name: '기록 내보내기', exact: true }).click();
   await (await download).saveAs(info.outputPath('build03-backup.json'));
   await page.screenshot({ path: info.outputPath('build03-real-evidence.png'), fullPage: true });
+  // Import is a real file-input flow, not a direct storage write. Deletion must
+  // survive reimporting this older backup, and duplicate restores are idempotent.
+  await page.getByText('백업 가져오기 / 원본 복구', { exact: true }).click();
+  const backup = {
+    name: 'build03-backup.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(d)),
+  };
+  await page.getByLabel('수능관 백업 파일').setInputFiles(backup);
+  await expect(page.locator('.jg-log')).toHaveCount(4);
+  page.once('dialog', (dialog) => dialog.accept());
+  await page
+    .locator('.jg-log')
+    .filter({ hasText: '첫 답변 999' })
+    .getByRole('button', { name: '삭제', exact: true })
+    .click();
+  await expect(page.locator('.jg-log')).toHaveCount(3);
+  await page.getByLabel('수능관 백업 파일').setInputFiles([]);
+  await page.getByLabel('수능관 백업 파일').setInputFiles(backup);
+  await expect(page.locator('.jg-log')).toHaveCount(3);
+  expect((await storedDoc(page)).attempts.find((a: any) => a.id === firstAttempt.id).deleted).toBe(
+    true,
+  );
 });
 test('rational entry keeps Korean explanation separate; tablet paper grows and survives viewport rotation', async ({
   page,

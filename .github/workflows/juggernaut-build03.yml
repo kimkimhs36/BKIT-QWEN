@@ -21,6 +21,8 @@ jobs:
           cache-dependency-path: study-os/package-lock.json
       - run: npm ci
       - run: npm run typecheck && npm test
+      - name: Execute emitted Node ESM API without Vite or tsx
+        run: node scripts/check-juggernaut-runtime.mjs
   browser:
     runs-on: ubuntu-24.04
     timeout-minutes: 45

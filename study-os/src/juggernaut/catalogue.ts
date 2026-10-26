@@ -1,4 +1,4 @@
-import { concepts, questions, type Question } from './legacyContent';
+import { concepts, questions, type Question } from './legacyContent.js';
 
 export const catalogueVersion = 'math-prerequisites.2028.build03.v1';
 export const addedConcepts = [
