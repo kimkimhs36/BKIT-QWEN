@@ -102,7 +102,12 @@ export function useStudy(request: Transport, connected: boolean) {
         const ack = z.object({ version: z.number().int().positive() }).parse(await write.json());
         if (!valid()) return;
         if (JSON.stringify(partitionDocument(current.current).legacy) === sent) {
-          setStatus('서버에 저장됨');
+          setStatus(
+            partitionDocument(current.current).extension.attempts.length ||
+              partitionDocument(current.current).extension.sessions.length
+              ? '기존 기록 서버 저장 · 새 기록 기기 보관'
+              : '서버에 저장됨',
+          );
           setDetail(`기존 문항 서버 확인 버전 ${ack.version} · 새 문자식 기록은 기기에만 보관`);
         } else {
           setStatus('기기에 저장됨');

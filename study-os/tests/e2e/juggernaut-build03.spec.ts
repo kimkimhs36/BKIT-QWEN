@@ -45,7 +45,8 @@ test('new learner: actual new prerequisite, wrong/hint/repair, independent retry
   await begin(page);
   await page.getByRole('button', { name: '힌트 0/2' }).click();
   await answer(page, '999');
-  expect((await storedDoc(page)).attempts[0]).toMatchObject({ answer: '999', hints: 1 });
+  const firstAttempt = (await storedDoc(page)).attempts[0];
+  expect(firstAttempt).toMatchObject({ answer: '999', hints: 1 });
   await page.getByRole('button', { name: '개념 복구 후 새 문제 재도전' }).click();
   await page.getByRole('textbox', { name: '식의 값', exact: true }).fill('-2');
   await page.getByRole('button', { name: '중단하고 나중에 이어하기' }).click();
@@ -66,7 +67,11 @@ test('new learner: actual new prerequisite, wrong/hint/repair, independent retry
   await expect(page.locator('.jg-studio-stats')).toContainText('1회 유효 검증');
   const d = await storedDoc(page);
   expect(d.attempts).toHaveLength(4);
-  expect(d.attempts[0].answer).toBe('999');
+  expect(d.attempts.find((a: any) => a.id === firstAttempt.id)).toMatchObject({
+    answer: '999',
+    hints: 1,
+  });
+  expect(d.attempts.filter((a: any) => a.questionId === firstAttempt.questionId)).toHaveLength(2);
   const legacy = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), KEY);
   expect(legacy.attempts).toHaveLength(0);
   expect(legacy.sessions).toHaveLength(0);

@@ -305,7 +305,12 @@ export function mergeDocuments(a: StudyDocument, b: StudyDocument): StudyDocumen
     ...a,
     attempts: merge(a.attempts, b.attempts),
     sessions: merge(a.sessions, b.sessions),
-    budget: a.budget.updatedAt > b.budget.updatedAt ? a.budget : b.budget,
+    budget:
+      a.budget.updatedAt === b.budget.updatedAt
+        ? { value: Math.min(a.budget.value, b.budget.value), updatedAt: a.budget.updatedAt }
+        : a.budget.updatedAt > b.budget.updatedAt
+          ? a.budget
+          : b.budget,
   });
 }
 export function putSession(d: StudyDocument, s: Session): StudyDocument {

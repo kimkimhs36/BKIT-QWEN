@@ -118,6 +118,12 @@ describe('BUILD 03 authored maths and meaningful evidence', () => {
   });
 });
 describe('separate extension storage and rollback safety', () => {
+  it('resolves simultaneous review-budget edits deterministically without doubling work', () => {
+    const a = { ...emptyDocument(), budget: { value: 1, updatedAt: time } };
+    const b = { ...emptyDocument(), budget: { value: 5, updatedAt: time } };
+    expect(mergeDocuments(a, b)).toEqual(mergeDocuments(b, a));
+    expect(mergeDocuments(a, b).budget.value).toBe(1);
+  });
   it('reads legacy bytes unchanged and never places new IDs in the old key/API', () => {
     const storage = fixture();
     const legacy = solve('balance-0', '2').document;

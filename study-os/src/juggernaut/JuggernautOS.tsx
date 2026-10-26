@@ -1060,7 +1060,7 @@ export function JuggernautOS({
                         const file = e.target.files?.[0];
                         if (!file) return;
                         try {
-                          if (file.size > 2e6) throw Error();
+                          if (file.size > 32 * 1024 * 1024) throw Error();
                           const restored = documentSchema.parse(JSON.parse(await file.text()));
                           if (store.blocked) {
                             setNotice(
