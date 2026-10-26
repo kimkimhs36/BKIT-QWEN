@@ -1,0 +1,782 @@
+[WebServer] (node:2705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 65 tests using 1 worker
+
+(node:2722) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (6.3s)
+  ✓   2 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (2.8s)
+  ✓   3 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (4.4s)
+  ✓   4 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (3.6s)
+  ✓   5 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (13.6s)
+  ✓   6 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (2.3s)
+  ✓   7 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (1.3s)
+  ✓   8 [galaxy-css] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (6.9s)
+  ✓   9 [galaxy-css] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (2.7s)
+  ✓  10 [galaxy-css] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (7.7s)
+  ✓  11 [galaxy-css] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (2.6s)
+  ✓  12 [galaxy-css] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (2.6s)
+  ✓  13 [galaxy-css] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (6.7s)
+(node:3707) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 [desktop] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (4.4s)
+  ✓  15 [desktop] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (2.2s)
+  ✓  16 [desktop] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (5.6s)
+  ✓  17 [desktop] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (4.0s)
+  ✓  18 [desktop] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (10.0s)
+  ✓  19 [desktop] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (2.3s)
+  ✓  20 [desktop] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (1.3s)
+  ✓  21 [desktop] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (5.2s)
+  ✓  22 [desktop] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (2.8s)
+  ✓  23 [desktop] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (6.4s)
+  ✓  24 [desktop] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (3.6s)
+  ✓  25 [desktop] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (4.2s)
+  ✓  26 [desktop] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (7.8s)
+(node:4706) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  27 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (6.9s)
+  ✓  28 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (2.2s)
+  ✓  29 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (4.9s)
+  ✓  30 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (4.8s)
+  ✓  31 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (13.7s)
+  ✓  32 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (2.1s)
+  ✓  33 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (1.4s)
+  ✓  34 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (9.7s)
+  ✓  35 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (4.1s)
+  ✓  36 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (14.1s)
+  ✓  37 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (4.7s)
+  ✓  38 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (5.5s)
+  ✓  39 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (7.5s)
+(node:7221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  40 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (3ms)
+(node:7478) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  41 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (2ms)
+(node:7675) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  42 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (2ms)
+(node:7878) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  43 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (2ms)
+(node:8075) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  44 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (2ms)
+(node:8272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  45 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (2ms)
+(node:8469) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  46 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (3ms)
+(node:8666) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  47 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (2ms)
+(node:8863) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  48 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (2ms)
+(node:9060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  49 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (3ms)
+(node:9263) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  50 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (3ms)
+(node:9460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  51 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (3ms)
+(node:9657) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  52 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (2ms)
+(node:9854) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  53 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (2ms)
+(node:10051) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  54 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (2ms)
+(node:10248) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  55 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (2ms)
+(node:10445) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  56 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (2ms)
+(node:10642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  57 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (2ms)
+(node:10839) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  58 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (2ms)
+(node:11036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  59 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (2ms)
+(node:11233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  60 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (2ms)
+(node:11430) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  61 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (2ms)
+(node:11627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  62 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (2ms)
+(node:11824) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  63 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (2ms)
+(node:12021) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  64 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (2ms)
+(node:12218) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  65 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (2ms)
+
+
+  1) [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-knowled-33b38-vidence-studio-→-next-study-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-knowled-33b38-vidence-studio-→-next-study-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-knowled-33b38-vidence-studio-→-next-study-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-arrival-25b46--motion-leaves-scene-static-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-arrival-25b46--motion-leaves-scene-static-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-arrival-25b46--motion-leaves-scene-static-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-nine-re-f45b5-smissal-preferences-persist-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-nine-re-f45b5-smissal-preferences-persist-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-nine-re-f45b5-smissal-preferences-persist-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-existin-9174d--narrow-rotated-layouts-fit-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-existin-9174d--narrow-rotated-layouts-fit-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-existin-9174d--narrow-rotated-layouts-fit-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-core-sp-fd884--and-no-horizontal-overflow-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-core-sp-fd884--and-no-horizontal-overflow-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-core-sp-fd884--and-no-horizontal-overflow-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-numeric-af18e--a-fresh-short-answer-retry-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-numeric-af18e--a-fresh-short-answer-retry-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-numeric-af18e--a-fresh-short-answer-retry-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-optiona-4d286-oncept-learning-path-usable-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-optiona-4d286-oncept-learning-path-usable-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-optiona-4d286-oncept-learning-path-usable-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [webkit-ipad] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-real-wrong-answ-46bc5-resume-and-duplicate-safety-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-real-wrong-answ-46bc5-resume-and-duplicate-safety-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-real-wrong-answ-46bc5-resume-and-duplicate-safety-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [webkit-ipad] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-free-practice-n-d95c6-omes-a-saved-resume-session-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-free-practice-n-d95c6-omes-a-saved-resume-session-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-free-practice-n-d95c6-omes-a-saved-resume-session-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [webkit-ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-direct-routes-b-e50f7--and-legacy-BKIT-navigation-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-direct-routes-b-e50f7--and-legacy-BKIT-navigation-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-direct-routes-b-e50f7--and-legacy-BKIT-navigation-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [webkit-ipad] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-device-quota-fa-06d42--originals-remain-unchanged-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-device-quota-fa-06d42--originals-remain-unchanged-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-device-quota-fa-06d42--originals-remain-unchanged-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [webkit-ipad] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-offline-draft-s-2d5f6-laims-server-acknowledgment-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-offline-draft-s-2d5f6-laims-server-acknowledgment-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-offline-draft-s-2d5f6-laims-server-acknowledgment-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [webkit-ipad] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-synthetic-cloud-0991b-nect-idempotency-and-expiry-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-synthetic-cloud-0991b-nect-idempotency-and-expiry-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-synthetic-cloud-0991b-nect-idempotency-and-expiry-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-knowled-33b38-vidence-studio-→-next-study-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-knowled-33b38-vidence-studio-→-next-study-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-knowled-33b38-vidence-studio-→-next-study-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-arrival-25b46--motion-leaves-scene-static-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-arrival-25b46--motion-leaves-scene-static-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-arrival-25b46--motion-leaves-scene-static-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-nine-re-f45b5-smissal-preferences-persist-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-nine-re-f45b5-smissal-preferences-persist-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-nine-re-f45b5-smissal-preferences-persist-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-existin-9174d--narrow-rotated-layouts-fit-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-existin-9174d--narrow-rotated-layouts-fit-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-existin-9174d--narrow-rotated-layouts-fit-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-core-sp-fd884--and-no-horizontal-overflow-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-core-sp-fd884--and-no-horizontal-overflow-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-core-sp-fd884--and-no-horizontal-overflow-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-numeric-af18e--a-fresh-short-answer-retry-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-numeric-af18e--a-fresh-short-answer-retry-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-numeric-af18e--a-fresh-short-answer-retry-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-build02-optiona-4d286-oncept-learning-path-usable-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-build02-optiona-4d286-oncept-learning-path-usable-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-build02-optiona-4d286-oncept-learning-path-usable-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) [webkit-iphone] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-real-wrong-answ-46bc5-resume-and-duplicate-safety-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-real-wrong-answ-46bc5-resume-and-duplicate-safety-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-real-wrong-answ-46bc5-resume-and-duplicate-safety-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) [webkit-iphone] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-free-practice-n-d95c6-omes-a-saved-resume-session-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-free-practice-n-d95c6-omes-a-saved-resume-session-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-free-practice-n-d95c6-omes-a-saved-resume-session-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) [webkit-iphone] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-direct-routes-b-e50f7--and-legacy-BKIT-navigation-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-direct-routes-b-e50f7--and-legacy-BKIT-navigation-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-direct-routes-b-e50f7--and-legacy-BKIT-navigation-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) [webkit-iphone] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-device-quota-fa-06d42--originals-remain-unchanged-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-device-quota-fa-06d42--originals-remain-unchanged-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-device-quota-fa-06d42--originals-remain-unchanged-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) [webkit-iphone] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-offline-draft-s-2d5f6-laims-server-acknowledgment-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-offline-draft-s-2d5f6-laims-server-acknowledgment-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-offline-draft-s-2d5f6-laims-server-acknowledgment-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) [webkit-iphone] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry 
+
+    Error: browserType.launch: 
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libhyphen.so.0                                   ║
+    ║     libGLESv2.so.2                                   ║
+    ╚══════════════════════════════════════════════════════╝
+
+    Error Context: test-results/juggernaut-synthetic-cloud-0991b-nect-idempotency-and-expiry-webkit-iphone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-synthetic-cloud-0991b-nect-idempotency-and-expiry-webkit-iphone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-synthetic-cloud-0991b-nect-idempotency-and-expiry-webkit-iphone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26 failed
+    [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study 
+    [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static 
+    [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist 
+    [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit 
+    [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow 
+    [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry 
+    [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable 
+    [webkit-ipad] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety 
+    [webkit-ipad] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session 
+    [webkit-ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation 
+    [webkit-ipad] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged 
+    [webkit-ipad] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment 
+    [webkit-ipad] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry 
+    [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study 
+    [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static 
+    [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist 
+    [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit 
+    [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow 
+    [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry 
+    [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable 
+    [webkit-iphone] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety 
+    [webkit-iphone] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session 
+    [webkit-iphone] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation 
+    [webkit-iphone] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged 
+    [webkit-iphone] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment 
+    [webkit-iphone] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry 
+  39 passed (3.8m)

@@ -1,0 +1,24 @@
+# BUILD 03 content and evidence boundaries
+
+Catalogue: `math-prerequisites.2028.build03.v1`. Existing 24 generated equation items / IDs and three original concepts are byte-for-byte preserved in `legacyContent.ts`; `content.ts` remains their public compatibility entrypoint. BUILD 03 adds **12 authored items, two concepts**: substitution and like terms. New IDs use `m28-` to avoid collisions. Existing three-concept diagnosis stays three-concept; new concepts are available from Map / Road / recommendations after existing concepts, not retrospectively added to old diagnosis sessions.
+
+## Evidence read
+
+- BUILD 01/02 engine, blueprint and OPEN-SOURCE-REVIEW/CAPTURE-REVIEW/QA/AUDIT were read.
+- Connected Google Drive searches `2028`, `PROJECT`, `JUGGERNAUT` under the matching repository owner's account did **not** locate the private 39-page report or the separately ongoing product research. Neither was read. No finding is attributed to them.
+- Read OpenStax `osbooks-algebra-1` source at `332f78647098a60532a9833b8003dca5da7ff227`: [1.1 lesson overview m00050](https://github.com/openstax/osbooks-algebra-1/blob/332f78647098a60532a9833b8003dca5da7ff227/modules/m00050/index.cnxml) (letters representing quantities), [1.7.1 m00168](https://github.com/openstax/osbooks-algebra-1/blob/332f78647098a60532a9833b8003dca5da7ff227/modules/m00168/index.cnxml) (substitution checks), [1.7.2 m00169](https://github.com/openstax/osbooks-algebra-1/blob/332f78647098a60532a9833b8003dca5da7ff227/modules/m00169/index.cnxml) (distributive/equality moves and combining like terms). These support mathematical operations, **not** official Korean curriculum alignment or an official prerequisite graph. No source questions or answers were copied. A questionable explanatory sentence about division by zero in m00168 was not used; direct arithmetic is the answer-key authority here.
+- OpenStax Elementary Algebra website fetches failed/404. No claim to have read those pages; they were replaced with the accessible source above.
+
+## Validation and graph semantics
+
+New items target: meaning of multiplication by a variable, signed substitution, parentheses, negative squares, fraction arithmetic, situation/unit interpretation, coefficient sums, constants vs terms, implicit −1, distribution then collecting terms, minus before parentheses, unlike powers. Each has two staged hints, explanation, error focus and a different-item then delayed recheck strategy. There are level-1 and level-2 items in both concepts. Unit tests independently calculate all 12 keys and check identities at positive/negative/zero/fraction sample values. This is **mathematical/content-code verification, not qualified teacher review or empirical learning validation**.
+
+Two solid relations denote necessary *functions for named task steps*: substitution → negative-coefficient answer checking; distribution → the two parenthesized like-term application items. The latter is explicitly not a requirement for every like-term question. The original balance → distribute → negative links remain dashed practice suggestions. No invented dependency is inferred from lesson order. Metadata exposes subject, year, curriculum qualification, scope, source/basis, availability, actual evidence and next recommendation. No official Korean standard code is invented. The 2027-11-18 date remains inherited design basis, not newly officially verified.
+
+## Other subjects and candidates
+
+English vocabulary delayed recall / syntax segmentation / short reading evidence; Korean paragraph core / structure / option evidence; history ordering / causality / source judgement; social studies/science graph and application tasks are explicitly different engine contracts. They remain **unavailable, no diagnosis or mastery** until reviewed content and response/evidence validators exist. Higher algebra, inequalities, coordinates/functions and calculus prerequisites remain deferred; introducing all at once would exceed verified content coverage.
+
+## Open source decision delta
+
+Reuse BUILD 02's source/license/React-19 review. React Flow and Motion retained. Existing InkCanvas retained; paper size control and clear confirmation added, no new pen dependency. Temporary ink remains outside persistence and backups. New content needs short numeric/fraction answers and one square glyph; native input plus bounded rational parser is sufficient. MathLive custom keyboard, KaTeX fonts and Compute Engine symbolic equivalence do not supply a needed capability in this slice and are **not installed**. No symbolic/domain equivalence is accepted. No Three/R3F experiment or dependency: geometry and quiet study surfaces are retained. No demonstrated IndexedDB/localStorage management bottleneck justifying Dexie; storage scaling limits remain explicit (5000 attempts / 500 sessions). No package/license/lockfile change or whole external repository copy.

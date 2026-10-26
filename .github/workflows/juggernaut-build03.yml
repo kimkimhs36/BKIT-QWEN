@@ -1,0 +1,61 @@
+name: JUGGERNAUT BUILD 03 verification (no production deploy)
+on:
+  push:
+    branches: [feat/juggernaut-build03-20261026]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck && npm test
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, webkit-iphone, webkit-ipad, galaxy-css, ipad-landscape]
+    env:
+      APP_BASE: /
+      VITE_JUGGERNAUT_API_URL: ''
+      BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - name: Install supported browser and OS dependencies
+        timeout-minutes: 25
+        run: npx playwright install --with-deps chromium webkit
+      - name: BUILD 01 + 02 + 03 complete learning regressions
+        run: npx playwright test tests/e2e/juggernaut.spec.ts tests/e2e/juggernaut-build02.spec.ts tests/e2e/juggernaut-build03.spec.ts --project=${{ matrix.project }}
+      - name: Existing BKIT regression
+        if: matrix.project == 'desktop'
+        run: npx playwright test tests/e2e/daily-driver.spec.ts tests/e2e/study-record-management.spec.ts --project=desktop --output=test-results-regression
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: juggernaut-build03-${{ matrix.project }}
+          path: |
+            study-os/test-results/
+            study-os/test-results-regression/

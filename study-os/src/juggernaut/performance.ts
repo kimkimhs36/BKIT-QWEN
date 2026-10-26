@@ -1,3 +1,4 @@
+import { learningConcepts } from './catalogue';
 import { questionById, errorLabels } from './content';
 import { activeAttempts, DAY, independent, type StudyDocument } from './engine';
 /** Delayed rate counts only a due, different-item review; denominator never includes an early rehearsal. */
@@ -35,6 +36,21 @@ export function performance(document: StudyDocument, now = Date.now()) {
     days.set(day, d);
   });
   return {
+    changes: learningConcepts
+      .map((c) => {
+        const history = rows.filter((a) => questionById(a.questionId).concept === c.id);
+        const first = history[0],
+          last = history.at(-1);
+        return {
+          concept: c,
+          count: history.length,
+          recovered: !!first && !independent(first) && !!last && independent(last),
+          hintsReduced: history.length >= 2 && first.hints > last!.hints && independent(last!),
+          firstAt: first?.at,
+          lastAt: last?.at,
+        };
+      })
+      .filter((c) => c.count > 0),
     total: rows.length,
     independent: rows.filter(independent).length,
     eligible,

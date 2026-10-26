@@ -1,0 +1,54 @@
+[WebServer] (node:19497) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 1 worker
+
+(node:19515) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓   1 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (17.5s)
+  ✓   2 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (7.7s)
+  ✓   3 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (14.8s)
+  ✓   4 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (5.4s)
+  ✓   5 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (4.7s)
+  ✘   6 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (15.2s)
+(node:20347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✘   7 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (26.8s)
+(node:20950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓   8 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (10.6s)
+  ✓   9 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (19.6s)
+  ✓  10 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (25.3s)
+  ✓  11 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (13.7s)
+  ✓  12 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (9.2s)
+
+
+  1) [webkit-ipad] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry 
+
+    Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/juggernaut/study-os/test-results/.playwright-artifacts-0/traces/848a0bc23e21b80bf7ce-010e637320b0c8e45eb4-recording10.trace'
+
+    Error Context: test-results/juggernaut-synthetic-cloud-0991b-nect-idempotency-and-expiry-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/juggernaut-synthetic-cloud-0991b-nect-idempotency-and-expiry-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/juggernaut-synthetic-cloud-0991b-nect-idempotency-and-expiry-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [webkit-iphone] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety 
+
+    Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/juggernaut/study-os/test-results/.playwright-artifacts-1/traces/848a0bc23e21b80bf7ce-df872736da2727f46ac6.trace'
+
+    Error: ENOENT: no such file or directory, open '/workspace/juggernaut/study-os/test-results/.playwright-artifacts-1/38ab062e8250cbd69709d78fc2d13fae.zip'
+
+    Error Context: test-results/juggernaut-real-wrong-answ-46bc5-resume-and-duplicate-safety-webkit-iphone/error-context.md
+
+  2 failed
+    [webkit-ipad] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry 
+    [webkit-iphone] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety 
+  10 passed (2.9m)

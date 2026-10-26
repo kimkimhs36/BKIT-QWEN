@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { AddressInfo } from 'node:net';
 import { createJuggernautApi, juggernautWriteScript } from '../server/juggernautApi';
-import { emptyDocument } from '../src/juggernaut/engine';
+import { emptyDocument, startSession, submit } from '../src/juggernaut/engine';
 const env = {
   BKIT_OWNER_EMAIL: 'owner@example.test',
   BKIT_GOOGLE_CLIENT_ID: 'test.apps.googleusercontent.com',
@@ -63,6 +63,26 @@ describe('additive owner-scoped Juggernaut API', () => {
           })
         ).status,
       ).toBe(400);
+    }));
+  it('refuses extension rows in the unchanged legacy cloud namespace', async () =>
+    fixture(async (url, map) => {
+      const d = emptyDocument();
+      const s = {
+        ...startSession(d, 'training', Date.now(), 'm28-substitution'),
+        answer: '11',
+        reasoning: '대입했다',
+      };
+      const result = submit(d, s);
+      expect(
+        (
+          await fetch(url + '/api/juggernaut', {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({ expectedVersion: 0, document: result.document }),
+          })
+        ).status,
+      ).toBe(400);
+      expect(map.size).toBe(0);
     }));
   it('accepts the existing remembered owner session without issuing another credential', async () =>
     fixture(async (url, map, commands) => {

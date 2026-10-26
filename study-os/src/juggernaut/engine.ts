@@ -1,7 +1,13 @@
 import { z } from 'zod';
-import { concepts, questionById, questions, score, type Concept } from './content.js';
+import { concepts as legacyConcepts, questionById, score, type Concept } from './content.js';
+import {
+  learningConcepts as concepts,
+  learningQuestions as questions,
+  isExtendedId,
+} from './catalogue.js';
 export const DAY = 86400000;
 export const KEY = 'bkit.juggernaut.v1.device';
+export const EXT_KEY = 'bkit.juggernaut.build03.math.v1.device';
 const stamp = z.number().finite().nonnegative();
 const id = z.string().min(1).max(100);
 export const attemptSchema = z
@@ -168,7 +174,7 @@ export function startSession(
   const target =
     concept ||
     (kind === 'diagnosis'
-      ? concepts.find((c) => !evidence(d, c.id, now).count)?.id || 'balance'
+      ? legacyConcepts.find((c) => !evidence(d, c.id, now).count)?.id || 'balance'
       : recommendation(d, now).concept);
   return {
     id: crypto.randomUUID(),
@@ -227,8 +233,42 @@ export function advance(d: StudyDocument, s: Session, now = Date.now()): Session
       .filter((a) => a.sessionId === s.id && !a.deleted)
       .map((a) => questionById(a.questionId).concept),
   );
-  const target = s.kind === 'diagnosis' ? concepts.find((c) => !tested.has(c.id))?.id : q.concept;
-  const done = s.kind === 'ignition' || (s.kind === 'diagnosis' ? !target : !!a && independent(a));
+  const target =
+    s.kind === 'diagnosis' ? legacyConcepts.find((c) => !tested.has(c.id))?.id : q.concept;
+  // BUILD 03 repair loop: one fresh independent transfer, then revisit the first
+  // difficulty. Its exposed explanation is still assistance, never new independent evidence.
+  if (
+    isExtendedId(q.id) &&
+    s.kind === 'training' &&
+    s.visited.length === 1 &&
+    a &&
+    independent(a)
+  ) {
+    return {
+      ...s,
+      questionId: s.visited[0],
+      answer: '',
+      reasoning: '',
+      hints: 1,
+      guessed: false,
+      elapsedMs: 0,
+      tickAt: now,
+      phase: 'question',
+      submittedId: null,
+      visited,
+      updatedAt: now,
+    };
+  }
+  const repairedReturn =
+    isExtendedId(q.id) &&
+    s.visited.length >= 2 &&
+    s.visited[0] === q.id &&
+    !!a &&
+    score(q.id, a.answer);
+  const done =
+    repairedReturn ||
+    s.kind === 'ignition' ||
+    (s.kind === 'diagnosis' ? !target : !!a && independent(a));
   if (done) return { ...s, phase: 'complete', updatedAt: now };
   return {
     ...s,
@@ -252,8 +292,10 @@ export function mergeDocuments(a: StudyDocument, b: StudyDocument): StudyDocumen
       const old = map.get(v.id);
       if (
         !old ||
-        v.updatedAt > old.updatedAt ||
-        (v.updatedAt === old.updatedAt && JSON.stringify(v) > JSON.stringify(old))
+        ('deleted' in v && v.deleted === true && !('deleted' in old && old.deleted === true)) ||
+        (!('deleted' in old && old.deleted === true && 'deleted' in v && v.deleted !== true) &&
+          (v.updatedAt > old.updatedAt ||
+            (v.updatedAt === old.updatedAt && JSON.stringify(v) > JSON.stringify(old))))
       )
         map.set(v.id, v);
     }
@@ -269,10 +311,38 @@ export function mergeDocuments(a: StudyDocument, b: StudyDocument): StudyDocumen
 export function putSession(d: StudyDocument, s: Session): StudyDocument {
   return { ...d, sessions: [...d.sessions.filter((v) => v.id !== s.id), s] };
 }
+/** Strict legacy contract for unchanged BUILD 01/02 key and cloud endpoint. */
+export const legacyDocumentSchema = documentSchema.refine(
+  (d) =>
+    d.attempts.every((a) => !isExtendedId(a.questionId)) &&
+    d.sessions.every(
+      (s) => !isExtendedId(s.questionId) && s.visited.every((id) => !isExtendedId(id)),
+    ),
+  'Extended content must use its separate namespace',
+);
+export function partitionDocument(d: StudyDocument) {
+  const part = (extended: boolean): StudyDocument => ({
+    ...d,
+    attempts: d.attempts.filter((a) => isExtendedId(a.questionId) === extended),
+    sessions: d.sessions.filter((s) => isExtendedId(s.questionId) === extended),
+  });
+  return {
+    legacy: legacyDocumentSchema.parse(part(false)),
+    extension: documentSchema.parse(part(true)),
+  };
+}
 export function readDocument(storage: Pick<Storage, 'getItem'>) {
   try {
-    const raw = storage.getItem(KEY);
-    return { document: raw ? documentSchema.parse(JSON.parse(raw)) : emptyDocument(), error: '' };
+    const raw = storage.getItem(KEY),
+      extra = storage.getItem(EXT_KEY);
+    const legacy = raw ? legacyDocumentSchema.parse(JSON.parse(raw)) : emptyDocument();
+    const extension = extra ? documentSchema.parse(JSON.parse(extra)) : emptyDocument();
+    if (
+      extension.attempts.some((a) => !isExtendedId(a.questionId)) ||
+      extension.sessions.some((s) => !isExtendedId(s.questionId))
+    )
+      throw Error('Invalid partition');
+    return { document: { ...mergeDocuments(legacy, extension), budget: legacy.budget }, error: '' };
   } catch {
     return {
       document: emptyDocument(),
@@ -282,11 +352,19 @@ export function readDocument(storage: Pick<Storage, 'getItem'>) {
   }
 }
 export function saveDocument(storage: Pick<Storage, 'getItem' | 'setItem'>, d: StudyDocument) {
-  const raw = storage.getItem(KEY);
-  const merged = raw
-    ? mergeDocuments(documentSchema.parse(JSON.parse(raw)), d)
-    : documentSchema.parse(d);
-  if (raw) storage.setItem(KEY + '.backup', raw);
-  storage.setItem(KEY, JSON.stringify(merged));
+  const read = readDocument(storage);
+  if (read.error) throw Error(read.error);
+  const merged = mergeDocuments(read.document, documentSchema.parse(d));
+  const { legacy, extension } = partitionDocument(merged);
+  const write = (key: string, value: StudyDocument, optional = false) => {
+    const raw = storage.getItem(key),
+      serialized = JSON.stringify(value);
+    if (optional && !raw && !value.attempts.length && !value.sessions.length) return;
+    if (optional && raw === serialized) return;
+    if (raw) storage.setItem(key + '.backup', raw);
+    storage.setItem(key, serialized);
+  };
+  write(EXT_KEY, extension, true);
+  write(KEY, legacy);
   return merged;
 }

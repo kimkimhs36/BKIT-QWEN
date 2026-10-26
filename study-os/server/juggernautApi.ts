@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { verifyBkitOwner } from './auth.js';
 import { rememberSessions, isStudySession } from './rememberSession.js';
-import { documentSchema, evidence } from '../src/juggernaut/engine.js';
+import { legacyDocumentSchema as documentSchema, evidence } from '../src/juggernaut/engine.js';
 import { concepts } from '../src/juggernaut/content.js';
 
 // One additive key, no reads/writes/deletes of existing study snapshots.

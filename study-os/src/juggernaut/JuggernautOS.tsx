@@ -1,3 +1,4 @@
+import { learningConcepts as concepts } from './catalogue';
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { MotionConfig } from 'motion/react';
 import { MaterialEffects } from '../themes/MaterialEffects';
@@ -24,7 +25,6 @@ import {
   X,
 } from 'lucide-react';
 import {
-  concepts,
   curriculum,
   errorLabels,
   questionById,
@@ -34,6 +34,8 @@ import {
 } from './content';
 import {
   KEY,
+  EXT_KEY,
+  partitionDocument,
   activeAttempts,
   advance,
   documentSchema,
@@ -52,6 +54,8 @@ import {
 import { useStudy, type Transport } from './useStudy';
 import './juggernaut-os.css';
 import './build02.css';
+import './build03.css';
+import { DailyRoad } from './DailyRoad';
 
 import { root, useJuggernautPath } from './routing';
 function download(data: string, name: string) {
@@ -235,7 +239,7 @@ export function JuggernautOS({
     <MotionConfig
       reducedMotion={material.motion !== 'auto' || material.lowPower ? 'always' : 'user'}
     >
-      <div className="jg-os jg-build02" data-theme={theme} data-room={page}>
+      <div className="jg-os jg-build02 jg-build03" data-theme={theme} data-room={page}>
         <MaterialEffects prefs={material} studying={page === 'train'} />
         <div className="jg-world-light" aria-hidden="true" />
         <dialog
@@ -357,7 +361,7 @@ export function JuggernautOS({
               <ArrowLeft size={16} /> BKIT으로 돌아가기
             </button>
             <div className="jg-sidebar-note">
-              <span className="jg-dot" /> BUILD 02
+              <span className="jg-dot" /> BUILD 03
               <br />한 번에 한 문제.
               <br />
               어제의 답에서 오늘을 시작합니다.
@@ -387,7 +391,13 @@ export function JuggernautOS({
                 </button>
                 <button
                   onClick={() =>
-                    download(localStorage.getItem(KEY) || 'null', 'juggernaut-raw.json')
+                    download(
+                      JSON.stringify({
+                        legacy: localStorage.getItem(KEY),
+                        extension: localStorage.getItem(EXT_KEY),
+                      }),
+                      'juggernaut-raw.json',
+                    )
                   }
                 >
                   원본 내보내기
@@ -575,6 +585,14 @@ export function JuggernautOS({
                         {concepts.find((c) => c.id === q.concept)!.name} / 선수개념
                       </p>
                       <h2 className="jg-stem">{q.stem}</h2>
+                      {q.id.startsWith('m28-') &&
+                        session.visited.length >= 2 &&
+                        session.visited[0] === q.id && (
+                          <p className="jg-hint">
+                            처음 막힌 문제로 돌아왔어요. 이미 본 해설을 반영해 도움 사용 1회로
+                            기록하며, 독립 해결로 세지 않습니다.
+                          </p>
+                        )}
                       {session.phase === 'question' ? (
                         <form
                           onSubmit={(e) => {
@@ -603,6 +621,8 @@ export function JuggernautOS({
                             </fieldset>
                           ) : (
                             <MathAnswer
+                              label={q.answerLabel || 'x의 값'}
+                              fractions={!!q.answerLabel}
                               value={session.answer}
                               onChange={(answer) => edit({ answer })}
                             />
@@ -630,13 +650,20 @@ export function JuggernautOS({
                           </label>
                           {session.hints > 0 && (
                             <div className="jg-hint" role="status">
-                              {q.hints.slice(0, session.hints).map((h, i) => (
+                              {q.hints.slice(session.hints - 1, session.hints).map((h) => (
                                 <p key={h}>
-                                  힌트 {i + 1}. {h}
+                                  힌트 {session.hints}. {h}
                                 </p>
                               ))}
                             </div>
                           )}
+                          <details className="jg-stuck">
+                            <summary>어디에서 막혔나요?</summary>
+                            <p>
+                              조건 읽기 → 구하는 값 확인 → 계산 순서 → 부호 점검 중 멈춘 곳을 풀이
+                              설명에 적어보세요. 아래 힌트는 한 단계씩 열립니다.
+                            </p>
+                          </details>
                           <div className="jg-problem-actions">
                             <button
                               type="button"
@@ -671,10 +698,12 @@ export function JuggernautOS({
                               ? '힌트 없는 정답을 관찰했어요. 지연 검증 전에는 완전 숙달로 보지 않습니다.'
                               : '독립 해결 근거가 부족해요. 개념을 확인하고 새 문제로 재도전하세요.'}
                           </p>
+                          {q.errorFocus && <p>살펴볼 지점: {q.errorFocus}</p>}
                           <div className="jg-explanation">
                             <b>정답 {q.answer}</b>
                             <p>{q.explanation}</p>
                           </div>
+                          {q.retest && <p>{q.retest}</p>}
                           <label className="jg-field">
                             오류 원인 <small>규칙 기반 제안 · 낮은 확신도 · 직접 수정 가능</small>
                             <select
@@ -755,9 +784,9 @@ export function JuggernautOS({
                         {session.phase === 'question' ? (
                           <>
                             <p>
-                              양변에 같은 연산을 적용했나요?
+                              문제에서 구하는 값과 조건을 확인했나요?
                               <br />
-                              마지막에 원래 식에 대입해 보세요.
+                              계산 순서와 부호를 다시 살펴보세요.
                             </p>
                             <p>구체적인 개념·예제는 힌트 또는 제출 후 확인할 수 있어요.</p>
                           </>
@@ -770,9 +799,9 @@ export function JuggernautOS({
                           </>
                         )}
                         <small>
-                          BKIT 자체 제작 수치 변형 문항
+                          BKIT 자체 제작 선수학습 문항
                           <br />
-                          정답·선택지 대입 검증 · v1
+                          정답·수치 검증 · 교사 검수 대기
                           <br />
                           공식 기출문항이 아닙니다.
                         </small>
@@ -881,6 +910,7 @@ export function JuggernautOS({
                     </select>
                   </label>
                 </section>
+                <DailyRoad document={store.document} begin={begin} now={now} />
                 <ol className="jg-roadmap">
                   {[
                     '진단',
@@ -897,9 +927,9 @@ export function JuggernautOS({
                         <h2>{name}</h2>
                         <p>
                           {i === 0
-                            ? '세 개 선수개념의 관찰 근거를 확인합니다.'
+                            ? '기존 3개 방정식 진단과 새 문자식 학습의 관찰 근거를 확인합니다.'
                             : i === 1
-                              ? '일차방정식의 약한 개념을 새 문제로 확인합니다.'
+                              ? '문자 대입·동류항과 방정식의 약한 개념을 새 문제로 확인합니다.'
                               : '후속 개발 · 이 단계의 검증 문항은 아직 제공하지 않습니다.'}
                         </p>
                       </div>
@@ -992,6 +1022,20 @@ export function JuggernautOS({
                         </button>
                       </div>
                     ))}
+                  <button
+                    onClick={() =>
+                      download(
+                        JSON.stringify(partitionDocument(store.document).legacy, null, 2),
+                        'bkit-juggernaut-build02-backup.json',
+                      )
+                    }
+                  >
+                    BUILD 02 호환 백업
+                  </button>
+                  <p>
+                    새 문자식 기록은 이 기기에만 보관됩니다. 전체 ‘기록 내보내기’에 포함되며 BUILD
+                    03에서 복원할 수 있어요.
+                  </p>
                   <h3>보관된 학습 세션</h3>
                   {store.document.sessions
                     .filter((s) => s.phase !== 'complete')
@@ -1035,8 +1079,12 @@ export function JuggernautOS({
                       onClick={() => {
                         try {
                           const raw = localStorage.getItem(KEY + '.backup');
-                          if (!raw) throw Error();
-                          const parsed = documentSchema.parse(JSON.parse(raw));
+                          const extra = localStorage.getItem(EXT_KEY + '.backup');
+                          if (!raw && !extra) throw Error();
+                          const parsed = mergeDocuments(
+                            raw ? documentSchema.parse(JSON.parse(raw)) : emptyDocument(),
+                            extra ? documentSchema.parse(JSON.parse(extra)) : emptyDocument(),
+                          );
                           if (store.save(mergeDocuments(store.document, parsed)))
                             setNotice('직전 기기 백업을 합쳤어요.');
                         } catch {
@@ -1058,7 +1106,7 @@ export function JuggernautOS({
               </section>
             )}
             <footer className="jg-footer">
-              BKIT JUGGERNAUT · BUILD 02 <span>2028학년도 / 수학 선수개념 파일럿</span>
+              BKIT JUGGERNAUT · BUILD 03 <span>2028학년도 / 수학 선수개념 파일럿</span>
             </footer>
           </main>
         </div>

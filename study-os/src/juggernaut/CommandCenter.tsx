@@ -1,7 +1,8 @@
+import { learningConcepts as concepts } from './catalogue';
 import { ArrowRight, ChevronRight, Play } from 'lucide-react';
 import { MaterialObject } from '../themes/MaterialObject';
 import type { MaterialId } from '../themes/material';
-import { concepts, curriculum, type Concept } from './content';
+import { curriculum, type Concept } from './content';
 import {
   activeAttempts,
   dueReviews,
@@ -108,7 +109,7 @@ export function CommandCenter({
                   : '지금 첫 문제 시작'}
               <ArrowRight size={18} />
             </button>
-            <small>수학 · 일차방정식 선수개념 · 한 번에 한 문제</small>
+            <small>수학 · 문자식과 일차방정식 선수개념 · 한 번에 한 문제</small>
           </div>
         </div>
         <Portal material={material} />
@@ -122,7 +123,9 @@ export function CommandCenter({
         <div>
           <span>현재 작전</span>
           <b>01 — 출발점 발견</b>
-          <small>{observed}/3개 기초 개념 관찰 · 수능 등급과 무관</small>
+          <small>
+            {observed}/{concepts.length}개 기초 개념 관찰 · 수능 등급과 무관
+          </small>
         </div>
         <button onClick={() => navigate('map')}>
           개념의 연결을 따라가기 <ArrowRight size={17} />
@@ -141,7 +144,7 @@ export function CommandCenter({
             <span>01</span>
             <div>
               <b>5분 시동 모드</b>
-              <small>작은 문제 하나로 시작</small>
+              <small>오늘의 최소 학습 · 한 문제면 충분해요</small>
             </div>
             <ArrowRight size={18} />
           </button>
@@ -219,12 +222,16 @@ export function CommandCenter({
           {curriculum.subjects.map((s) => (
             <div key={s.name}>
               <b>{s.name}</b>
-              <span>{s.name === '수학' ? `${observed}/3 선수개념 관찰` : '콘텐츠 검수 대기'}</span>
+              <span>
+                {s.name === '수학'
+                  ? `${observed}/${concepts.length} 선수개념 관찰`
+                  : '콘텐츠 검수 대기'}
+              </span>
             </div>
           ))}
         </div>
         <small>
-          수학 24개 자체 제작 문항의 수치 검증 완료 · 교사 검수 및 공식 수능 범위 전체 진단은 미완료
+          수학 36개 자체 제작 문항의 수치 검증 완료 · 교사 검수 및 공식 수능 범위 전체 진단은 미완료
         </small>
       </section>
     </>

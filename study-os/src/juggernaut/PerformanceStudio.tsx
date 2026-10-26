@@ -41,6 +41,26 @@ export function PerformanceStudio({
           </p>
         </div>
       </section>
+      <section className="jg-card jg-evidence-changes">
+        <h2>처음과 지금의 차이</h2>
+        <p>
+          서로 다른 시점의 실제 답변 관찰입니다. 수능 점수·성적 상승이나 장기 숙달을 뜻하지
+          않습니다.
+        </p>
+        {p.changes.length ? (
+          p.changes.map((c) => (
+            <div key={c.concept.id} className="jg-row">
+              <b>{c.concept.name}</b>
+              <span>
+                {c.recovered ? '첫 독립 실패 → 최근 독립 정답' : '독립 해결 변화 확인 중'}
+                {c.hintsReduced ? ' · 힌트 사용 감소 관찰' : ''} · {c.count}개 답변
+              </span>
+            </div>
+          ))
+        ) : (
+          <p>비교할 학습 기록이 아직 없습니다.</p>
+        )}
+      </section>
       <div className="jg-studio-ledger">
         <section>
           <div className="jg-section-heading">

@@ -1,0 +1,81 @@
+/* BUILD 02's canonical material and cinematic geometry remain authoritative. */
+.jg-build03 .jg-relation-basis {
+  border-inline-start: 2px solid var(--mat-edge);
+  padding: 10px 14px;
+  line-height: 1.7;
+}
+.jg-build03 .jg-map-detail {
+  align-items: start;
+}
+.jg-build03 .jg-map-detail > div {
+  min-width: 0;
+}
+.jg-build03 .jg-map-detail small {
+  overflow-wrap: anywhere;
+}
+.jg-build03 .jg-map-canvas {
+  height: 450px;
+}
+.jg-build03 .jg-daily-road {
+  margin: 24px 0;
+}
+.jg-build03 .jg-capacity-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+}
+.jg-build03 .jg-daily-road li {
+  padding: 6px 0;
+}
+.jg-build03 .jg-evidence-changes {
+  margin: 24px 0;
+}
+.jg-build03 .jg-stuck {
+  margin: 16px 0;
+}
+.jg-build03 .jg-stuck summary {
+  min-height: 44px;
+  padding: 12px 0;
+  cursor: pointer;
+}
+.jg-build03 .jg-problem:focus-within {
+  border-color: var(--mat-edge);
+}
+.jg-build03[data-room='train'] .jg-stem {
+  font-variant-numeric: lining-nums;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+.jg-build03[data-room='train'] .jg-number-pad button {
+  min-height: 48px;
+  touch-action: manipulation;
+}
+.jg-build03 .jg-daily-road button {
+  min-height: 48px;
+  text-align: start;
+}
+@media (max-width: 700px) {
+  .jg-build03 .jg-map-canvas {
+    display: none;
+  }
+  .jg-build03 .jg-map-detail {
+    display: flex;
+    flex-direction: column;
+  }
+  .jg-build03 .jg-map-list {
+    border-top: 1px solid var(--mat-edge);
+  }
+  .jg-build03 .jg-evidence-changes .jg-row {
+    flex-direction: column;
+    align-items: start;
+    gap: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jg-build03 *,
+  .jg-build03 *::before,
+  .jg-build03 *::after {
+    scroll-behavior: auto;
+  }
+}

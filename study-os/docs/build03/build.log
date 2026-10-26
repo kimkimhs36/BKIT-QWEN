@@ -1,0 +1,4 @@
+
+> bkit-study-os@3.7.0 build
+> tsc -b && vite build
+
