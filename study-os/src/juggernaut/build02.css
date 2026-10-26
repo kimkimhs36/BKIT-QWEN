@@ -1368,3 +1368,15 @@ html[data-motion='off'] .jg-build02 :is(.jg-card, .jg-next-action) {
   box-shadow: none;
   padding: 6px 0;
 }
+/* The existing picker also serves wide BKIT dialogs; this compact room uses one column. */
+.jg-build02 .jg-appearance .theme-picker {
+  display: block;
+  padding: 0;
+}
+.jg-build02 .jg-appearance .theme-picker-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.jg-build02 .jg-appearance .theme-picker-controls > label > span {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
