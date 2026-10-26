@@ -1,0 +1,37 @@
+
+Running 26 tests using 1 worker
+
+(node:27261) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓   1 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (9.6s)
+  ✓   2 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (4.4s)
+  ✓   3 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (23.5s)
+  ✓   4 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (6.2s)
+  ✓   5 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (13.8s)
+  ✓   6 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (6.8s)
+  ✓   7 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (1.8s)
+  ✓   8 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (13.0s)
+  ✓   9 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (7.6s)
+  ✓  10 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (13.6s)
+  ✓  11 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (5.7s)
+  ✓  12 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (5.0s)
+  ✓  13 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (8.3s)
+(node:28533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓  14 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (10.5s)
+  ✓  15 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (6.2s)
+  ✓  16 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (29.3s)
+  ✓  17 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (7.9s)
+  ✓  18 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (13.2s)
+  ✓  19 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (12.4s)
+  ✓  20 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (2.6s)
+  ✓  21 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (17.9s)
+  ✓  22 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (9.5s)
+  ✓  23 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (18.4s)
+  ✓  24 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (17.2s)
+  ✓  25 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (12.0s)
+  ✓  26 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (13.6s)
+
+  26 passed (4.9m)

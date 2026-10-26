@@ -1,0 +1,142 @@
+
+Running 26 tests using 1 worker
+
+(node:17155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓   1 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (27.6s)
+  ✓   2 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (16.0s)
+  ✘   3 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (1.0m)
+(node:19098) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓   4 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (20.8s)
+  ✓   5 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (32.4s)
+  ✓   6 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (26.8s)
+  ✓   7 [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (7.8s)
+  ✘   8 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (31.4s)
+(node:21339) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓   9 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (28.5s)
+  ✘  10 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (31.4s)
+(node:22395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓  11 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (8.3s)
+  ✓  12 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (4.1s)
+  ✓  13 [webkit-ipad] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (7.6s)
+(node:22733) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+  ✓  14 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (10.7s)
+  ✓  15 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (6.0s)
+  ✓  16 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (27.0s)
+  ✓  17 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (8.8s)
+  ✓  18 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (15.7s)
+  ✓  19 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (11.3s)
+  ✓  20 [webkit-iphone] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (2.1s)
+  ✓  21 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (17.3s)
+  ✓  22 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (10.9s)
+  ✓  23 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (14.7s)
+  ✓  24 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (15.0s)
+  ✓  25 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (11.7s)
+  ✓  26 [webkit-iphone] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (17.7s)
+
+
+  1) [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Living Droplets', exact: true })
+        - locator resolved to <button class="theme-choice" aria-pressed="false" data-swatch="droplets" aria-label="Living Droplets">…</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      90 |   const surfaces = new Set<string>();
+      91 |   for (let i = 0; i < ids.length; i++) {
+    > 92 |     await page.getByRole('button', { name: names[i], exact: true }).click();
+         |                                                                     ^
+      93 |     await expect(page.locator('html')).toHaveAttribute('data-material', ids[i]);
+      94 |     surfaces.add(
+      95 |       await page
+        at /workspace/BKIT-QWEN/study-os/tests/e2e/juggernaut-build02.spec.ts:92:69
+
+    Error Context: test-results-build02-webkit-final/juggernaut-build02-nine-re-f45b5-smissal-preferences-persist-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-build02-webkit-final/juggernaut-build02-nine-re-f45b5-smissal-preferences-persist-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-build02-webkit-final/juggernaut-build02-nine-re-f45b5-smissal-preferences-persist-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [webkit-ipad] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'COMMAND CENTER로', exact: true })
+        - locator resolved to <button class="jg-primary">COMMAND CENTER로</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      62 |   await fit(page);
+      63 |   await page.getByRole('button', { name: '결과 확인 / 다음 단계' }).click();
+    > 64 |   await page.getByRole('button', { name: 'COMMAND CENTER로', exact: true }).click();
+         |                                                                            ^
+      65 |   await page.clock.setFixedTime(time + DAY + 60000);
+      66 |   await page.reload();
+      67 |   await expect(page.getByText('기억을 다시 꺼낼 시간.')).toBeVisible();
+        at /workspace/BKIT-QWEN/study-os/tests/e2e/juggernaut.spec.ts:64:76
+
+    Error Context: test-results-build02-webkit-final/juggernaut-real-wrong-answ-46bc5-resume-and-duplicate-safety-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-build02-webkit-final/juggernaut-real-wrong-answ-46bc5-resume-and-duplicate-safety-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-build02-webkit-final/juggernaut-real-wrong-answ-46bc5-resume-and-duplicate-safety-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [webkit-ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:4173/juggernaut/progress", waiting until "load"
+
+
+       7 | const time = Date.parse('2026-10-25T04:00:00Z');
+       8 | async function visit(page: Page, path = '') {
+    >  9 |   await page.goto('juggernaut' + (path ? '/' + path : '/'));
+         |              ^
+      10 |   await expect(page.locator('.jg-os')).toBeVisible();
+      11 | }
+      12 | async function current(page: Page) {
+        at visit (/workspace/BKIT-QWEN/study-os/tests/e2e/juggernaut.spec.ts:9:14)
+        at /workspace/BKIT-QWEN/study-os/tests/e2e/juggernaut.spec.ts:113:11
+
+    Error Context: test-results-build02-webkit-final/juggernaut-direct-routes-b-e50f7--and-legacy-BKIT-navigation-webkit-ipad/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-build02-webkit-final/juggernaut-direct-routes-b-e50f7--and-legacy-BKIT-navigation-webkit-ipad/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-build02-webkit-final/juggernaut-direct-routes-b-e50f7--and-legacy-BKIT-navigation-webkit-ipad/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [webkit-ipad] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist 
+    [webkit-ipad] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety 
+    [webkit-ipad] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation 
+  23 passed (8.2m)

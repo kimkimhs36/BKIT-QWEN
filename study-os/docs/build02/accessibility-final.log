@@ -1,0 +1,17 @@
+
+Running 4 tests using 2 workers
+
+(node:24309) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [ipad] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (18.6s)
+  ✓  2 [iphone] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (18.4s)
+(node:24760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24789) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [desktop] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (21.3s)
+  ✓  3 [galaxy-css] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (30.2s)
+
+  4 passed (51.8s)

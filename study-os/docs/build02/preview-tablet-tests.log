@@ -1,0 +1,20 @@
+
+Running 13 tests using 1 worker
+
+(node:29585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:15:1 › knowledge selection → persisted attempt → evidence studio → next study (11.3s)
+  ✓   2 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:49:1 › arrival can skip, replay and start; reduced motion leaves scene static (4.0s)
+  ✓   3 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:63:1 › nine real materials, low power, keyboard dismissal, preferences persist (8.0s)
+  ✓   4 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:111:1 › existing ink engine draws in temporary paper; narrow/rotated layouts fit (6.8s)
+  ✓   5 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:141:1 › core spaces have no serious accessibility violations, readable theme and no horizontal overflow (22.2s)
+  ✓   6 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:164:1 › numeric sign keypad preserves first answer and scores a fresh short-answer retry (3.3s)
+  ✓   7 [ipad-landscape] › tests/e2e/juggernaut-build02.spec.ts:191:3 › optional map download failure › graph chunk failure keeps the real three-concept learning path usable (1.9s)
+  ✓   8 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:34:1 › real wrong answer → recovery → independent transfer → tomorrow review; resume and duplicate safety (7.9s)
+  ✓   9 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:76:1 › free practice never persists answers or becomes a saved resume session (3.3s)
+  ✓  10 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:94:1 › direct routes, browser back, menu toggle, light/dark, keyboard, and legacy BKIT navigation (8.3s)
+  ✓  11 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:125:1 › device quota failure preserves the visible answer and offers export; corrupt originals remain unchanged (3.6s)
+  ✓  12 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:152:1 › offline draft survives a reload and never claims server acknowledgment (3.9s)
+  ✓  13 [ipad-landscape] › tests/e2e/juggernaut.spec.ts:176:3 › synthetic cloud transport › existing session + real API adapter: failed/lost ACK, reconnect, idempotency and expiry (6.8s)
+
+  13 passed (1.6m)

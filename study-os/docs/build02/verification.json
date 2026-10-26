@@ -1,0 +1,29 @@
+{
+  "codeCommit": "a373a02f5b62291b231fccab4f73e2ef3688ad1b",
+  "basePR": 37,
+  "baseCommit": "5799cc64f65ba5f73b12b9dbe899f66bc0853648",
+  "draftPR": "https://github.com/kimkimhs36/BKIT-QWEN/pull/38",
+  "preview": {
+    "url": "https://bkit-study-os-36-preview-6qhnsvt1t-teambkit.vercel.app/juggernaut/",
+    "deployment": "dpl_8bt1WxQgJgPTMdqS8doS62WmyRuC",
+    "state": "READY",
+    "environment": "preview",
+    "liveCloudConfigured": false
+  },
+  "tests": {
+    "unitFiles": 48,
+    "unitPassed": 301,
+    "bkitRegressionPassed": 8,
+    "previewPCAndIphonePassed": 26,
+    "localAutomatedWebKitPassed": 26,
+    "finalAccessibilityScenariosPassed": 4,
+    "physicalDeviceTests": false,
+    "previewIpadLandscapePassed": 13,
+    "previewTotalPassed": 39
+  },
+  "ci": {
+    "run": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40247849941",
+    "statusAtReporting": "browser installation pending; build and unit tests passed"
+  },
+  "productionModified": false
+}

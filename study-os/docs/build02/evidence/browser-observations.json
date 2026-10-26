@@ -1,0 +1,30 @@
+{
+  "base": "https://bkit-study-os-36-preview-6qhnsvt1t-teambkit.vercel.app/",
+  "recordedAt": "2026-10-26T00:10:54.701Z",
+  "results": [
+    {
+      "device": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "actionToFormMs": 193,
+      "notes": "Automation click-to-visible form elapsed; includes Playwright overhead, not INP or a physical-device benchmark",
+      "webGLRequests": 0,
+      "horizontalOverflow": false,
+      "storedAttempts": 1
+    },
+    {
+      "device": "iphone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actionToFormMs": 73,
+      "notes": "Automation click-to-visible form elapsed; includes Playwright overhead, not INP or a physical-device benchmark",
+      "webGLRequests": 0,
+      "horizontalOverflow": false,
+      "storedAttempts": 1
+    }
+  ]
+}
