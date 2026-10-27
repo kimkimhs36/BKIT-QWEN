@@ -2113,6 +2113,7 @@ export default function App() {
                     if (resourceId) openResource(resourceId);
                     else start(5, taskId ?? '__free__');
                   }}
+                  onExam={() => setTab('exam-lab')}
                 />
               </Suspense>
             )}
