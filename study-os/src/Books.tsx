@@ -47,10 +47,12 @@ export function Books({
   state,
   onChange,
   onStudy,
+  onExam,
 }: {
   state: State;
   onChange: (fn: (s: State) => State) => boolean;
   onStudy: (resourceId?: string, taskId?: string) => void;
+  onExam: () => void;
 }) {
   const { data, error, save, update, blocked } = useBooks();
   const [selected, setSelected] = useState<string | null>(() => {
@@ -471,6 +473,11 @@ export function Books({
                   완료 표시는 직접 기록하는 진도입니다. 문제 정답률과 별도로 보관됩니다. 공부 시간과
                   답안은 기존 학습 화면에서 저장하세요.
                 </p>
+                {/수학|미적분|대수/.test(book.subject) && (
+                  <button className="books-foundation-link" type="button" onClick={onExam}>
+                    BKIT 수능관 · 수학 선수개념 36문항으로 기초 다지기
+                  </button>
+                )}
                 <div className="books-progress">
                   <span>
                     단원 완료 {book.chapters.filter((c) => c.status === 'done').length} /{' '}

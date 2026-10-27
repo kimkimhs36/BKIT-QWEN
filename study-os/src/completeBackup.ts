@@ -1,5 +1,7 @@
 import { INBOX_KEY, inboxSchema } from './schoolInbox';
 import { BOOKS_KEY, booksSchema, mergeBooks } from './books';
+import { KEY as EXAM_KEY, EXT_KEY as EXAM_EXT_KEY, readDocument as readExamDocument,
+  mergeDocuments as mergeExamDocuments, partitionDocument as partitionExamDocument } from './juggernaut/engine';
 import { GARAGE_KEY } from './drive/garage';
 import {
   paperManifestSchema,
@@ -19,6 +21,8 @@ import { closeSegment } from './session';
 import { LocalZipWriter, readLocalZip, sha256 } from './localZip';
 import { photoIds, readVaultPhoto, addVaultPhoto, type Vault } from './photoVault';
 export const BACKUP_KEYS = [
+  EXAM_KEY,
+  EXAM_EXT_KEY,
   BOOKS_KEY,
   INBOX_KEY,
   GARAGE_KEY,
@@ -73,6 +77,10 @@ function validateKeys(keys: StoredKeys) {
   for (const [key, value] of Object.entries(keys)) {
     if (!BACKUP_KEYS.includes(key) || (value !== null && typeof value !== 'string'))
       throw new Error('지원하지 않는 저장 항목입니다.');
+  }
+  if (keys[EXAM_KEY] || keys[EXAM_EXT_KEY]) {
+    const verified = readExamDocument({ getItem: (key: string) => keys[key] ?? null });
+    if (verified.error) throw new Error(verified.error);
   }
   if (keys[BOOKS_KEY]) booksSchema.parse(JSON.parse(keys[BOOKS_KEY]!));
   if (keys[KEY]) stateSchema.parse(JSON.parse(keys[KEY]!));
@@ -190,6 +198,8 @@ export function backupMatchesCurrent(archive: InspectedBackup) {
     study:
       archive.keys[KEY] === archive.baseline[KEY] &&
       (archive.keys[BOOKS_KEY] ?? null) === (archive.baseline[BOOKS_KEY] ?? null) &&
+      (archive.keys[EXAM_KEY] ?? null) === (archive.baseline[EXAM_KEY] ?? null) &&
+      (archive.keys[EXAM_EXT_KEY] ?? null) === (archive.baseline[EXAM_EXT_KEY] ?? null) &&
       (archive.keys[INBOX_KEY] ?? null) === (archive.baseline[INBOX_KEY] ?? null),
     sleep: archive.keys[SLEEP_KEY] === archive.baseline[SLEEP_KEY],
     paper: JSON.stringify(archive.paper.documents) === JSON.stringify(archive.paper.baseline),
@@ -378,7 +388,22 @@ export async function restoreCompleteBackup(
     incoming['bkit.landscape.v1'] =
       map.get('study:' + incoming['bkit.landscape.v1']) ?? incoming['bkit.landscape.v1'];
   let next: StoredKeys = { ...backup.baseline };
+  // The historical three-concept document and the newer two-concept extension
+  // are one logical study history with two physical namespaces.
+  // Merge both together before writing either; never mix snapshots blindly.
+  if (mode === 'merge' && (incoming[EXAM_KEY] || incoming[EXAM_EXT_KEY])) {
+    const localExam = readExamDocument({ getItem: (k: string) => next[k] ?? null });
+    const importedExam = readExamDocument({ getItem: (k: string) => incoming[k] ?? null });
+    if (localExam.error || importedExam.error)
+      throw new Error(localExam.error || importedExam.error);
+    const mergedExam = partitionExamDocument(
+      mergeExamDocuments(localExam.document, importedExam.document),
+    );
+    next[EXAM_KEY] = JSON.stringify(mergedExam.legacy);
+    next[EXAM_EXT_KEY] = JSON.stringify(mergedExam.extension);
+  }
   for (const key of BACKUP_KEYS) {
+    if (mode === 'merge' && (key === EXAM_KEY || key === EXAM_EXT_KEY)) continue;
     if (incoming[key] === null || incoming[key] === undefined) continue;
     if (key === KEY) {
       let state = stateSchema.parse(JSON.parse(incoming[key]!));
