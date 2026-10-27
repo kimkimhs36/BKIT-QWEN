@@ -15,6 +15,8 @@ const TOOLS = [
   { id: 'materials', label: '공부 자료', detail: 'PDF · 사진 · 문제집', icon: FileStack },
   { id: 'school', label: '시간표', detail: '학교 · 학원 · 일정', icon: CalendarDays },
   { id: 'exams', label: '시험 관리', detail: '범위와 준비 항목', icon: BookOpen },
+  { id: 'books', label: 'BKIT BOOKS', detail: '나만의 책장 · 학습지 · 필기', icon: BookOpen },
+  { id: 'exam-lab', label: '수능관 · 기초 회복실', detail: '수학 한 문제 · 복습 · 실제 풀이 기록', icon: Sparkles },
   { id: 'ai-zone', label: 'AI ZONE', detail: '나에게 맞는 AI 도구', icon: Sparkles },
   { id: 'sites', label: '공부 사이트', detail: '강의 · 기출 · 즐겨찾기', icon: LibraryBig },
   { id: 'sleep', label: '수면 루틴', detail: 'Sleep Guard', icon: Moon },
