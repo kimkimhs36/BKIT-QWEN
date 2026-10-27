@@ -116,6 +116,7 @@ export function PremiumHome({
         <button onClick={onAssessment}>수행평가 등록</button>
         <button onClick={() => onNavigate('school')}>학교 시간표</button>
         <button onClick={() => onNavigate('materials')}>학습지·공부 자료</button>
+        <button onClick={() => onNavigate('books')}>BOOKS · 내 책장</button>
       </div>
       <section className="study-school-glance" aria-label="오늘 학교 시간표 빠른 확인">
         <div className="study-school-glance-heading">
