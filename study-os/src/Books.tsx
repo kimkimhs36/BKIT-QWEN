@@ -715,6 +715,30 @@ export function Books({
               <BookOpen size={36} />
               <h3>{query ? '검색된 책이 없어요' : '나의 공부를 담을 첫 번째 책'}</h3>
               <p>제목과 과목만으로 등록하세요. 목차와 자료는 천천히 채워도 괜찮아요.</p>
+              {!query && shelf === 'active' && !blocked && (
+                <div className="books-quick-start" aria-label="처음 시작하기 쉬운 과목별 책장">
+                  <span>빠른 시작 · 선택하면 제목과 과목을 채워줘요</span>
+                  <div>
+                    {[
+                      { subject: '미적분Ⅰ', title: '미적분Ⅰ 학습지' },
+                      { subject: '영어Ⅱ', title: '영어Ⅱ 단어·구문' },
+                      { subject: '문학', title: '문학 작품 노트' },
+                      { subject: '물질과 에너지', title: '물질과 에너지 학습지' },
+                      { subject: '역학과 에너지', title: '역학과 에너지 학습지' },
+                      { subject: '사회와 문화', title: '사회와 문화 탐구 노트' },
+                    ].map(({ subject, title }) => (
+                      <button
+                        key={subject}
+                        type="button"
+                        onClick={() => setEditor(newBook(title, subject))}
+                      >
+                        <Plus size={13} aria-hidden="true"/> {subject}
+                      </button>
+                    ))}
+                  </div>
+                  <small>여기서는 아직 저장되지 않아요. 내용을 확인하고 '책 저장'을 누르면 내 책장에 추가돼요.</small>
+                </div>
+              )}
             </div>
           )}
         </>
