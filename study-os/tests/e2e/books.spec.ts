@@ -50,8 +50,15 @@ test('book persists, chapter PDF opens, ink room returns, original survives tras
       buffer: Buffer.from(await pdf.save()),
     });
   await expect(page.getByRole('button', { name: '자료 열기 · 필기', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '자료 열기 · 필기', exact: true }).click();
+  // The book's PRIMARY action must open the actual PDF, never a blank generated problem.
+  await page.getByRole('button', { name: '학습지 열기 · 필기', exact: true }).click();
   await expect(page.getByRole('button', { name: '종이 닫기', exact: true })).toBeVisible();
+  // Reading an original page without grading it cannot produce a fake solved problem.
+  const beforeStudy = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('bkit.study-os.v1')!).learning);
+  expect(beforeStudy.attempts).toEqual([]);
+  // The only authored problem is the preloaded sample, not a phantom imported PDF question.
+  expect(beforeStudy.problems).toHaveLength(1);
   // Existing room owns cursor persistence and closing/flush semantics.
   await page.getByRole('button', { name: '종이 닫기', exact: true }).click();
   await expect(page.getByRole('heading', { name: '함수의 극한', exact: true })).toBeVisible();
@@ -91,13 +98,16 @@ test('existing problem engine records once and returns to book without marking c
   await w.getByRole('button', { name: '오답 · 다시 연습', exact: true }).click();
   await w.getByRole('button', { name: '저장하고 학습 종료', exact: true }).click();
   await page.getByRole('button', { name: '학습 기록 저장 · 종료', exact: true }).click();
-  // The study receipt can return to a different tab; use the reliable BOOKS route.
-  await page.getByRole('navigation', { name: '주 메뉴' }).getByRole('button', { name: '도구', exact: true }).click();
-  await page.getByRole('navigation', { name: '추가 도구' }).getByRole('button', { name: 'BKIT BOOKS', exact: true }).click();
+  // The user should not need to remember a multi-menu route after studying.
+  const returnPanel = page.getByRole('region', { name: 'BOOKS 학습 이어가기' });
+  await expect(returnPanel).toBeVisible();
+  await returnPanel.getByRole('button', { name: 'BOOKS로 돌아가기' }).click();
+  await expect(returnPanel).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '나의 미적분Ⅰ', exact: true })).toBeVisible();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
   expect(saved.sessions).toHaveLength(1);
   expect(saved.learning.attempts).toHaveLength(1);
+  expect(await page.evaluate(() => sessionStorage.getItem('bkit.books.study-origin.v1'))).toBeNull();
 });
 test('all nine material themes preserve book data and fit the viewport', async ({ page }, info) => {
   await prepare(page);
