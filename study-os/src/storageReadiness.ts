@@ -1,3 +1,4 @@
+import { INBOX_KEY, inboxSchema } from './schoolInbox';
 import { sha256 } from './localZip';
 import { listPaperDocuments, readPaperFile } from './paperStorage';
 import { photoIds, readVaultPhoto, type Vault } from './photoVault';
@@ -36,7 +37,9 @@ export async function auditStudyStorage(
     if (storage.getItem(probeKey) !== probeKey)
       error('브라우저의 임시 저장값을 다시 읽지 못했습니다.');
   } catch {
-    error('브라우저의 로컬 저장 쓰기가 실패했습니다. 저장 공간과 개인 정보 보호 설정을 확인하세요.');
+    error(
+      '브라우저의 로컬 저장 쓰기가 실패했습니다. 저장 공간과 개인 정보 보호 설정을 확인하세요.',
+    );
   } finally {
     try {
       storage.removeItem(probeKey);
@@ -64,13 +67,24 @@ export async function auditStudyStorage(
   }
   const requiredStudy = new Set<string>();
   const requiredSleep = new Set<string>();
-  for (const task of study.state.tasks) for (const id of task.attachmentIds ?? []) requiredStudy.add(id);
+  const inboxResourceIds = new Set<string>();
+  try {
+    const raw = storage.getItem(INBOX_KEY);
+    if (raw)
+      for (const notice of inboxSchema.parse(JSON.parse(raw)).notices) {
+        for (const id of notice.materials.photoIds) requiredStudy.add(id);
+        for (const paper of notice.materials.papers) inboxResourceIds.add(paper.resource.id);
+      }
+  } catch {
+    error('학교 공지 받은함을 읽거나 검증하지 못했어요. 기존 원본을 보관하세요.');
+  }
+  for (const task of study.state.tasks)
+    for (const id of task.attachmentIds ?? []) requiredStudy.add(id);
   for (const resource of study.state.learning?.resources ?? [])
     for (const id of resource.linkedMediaIds) requiredStudy.add(id);
   for (const problem of study.state.learning?.problems ?? [])
     if (problem.mediaId) requiredStudy.add(problem.mediaId);
-  for (const record of sleep.state.records)
-    for (const id of record.photoIds) requiredSleep.add(id);
+  for (const record of sleep.state.records) for (const id of record.photoIds) requiredSleep.add(id);
   try {
     const landscape = storage.getItem('bkit.landscape.v1');
     if (landscape) requiredStudy.add(landscape);
@@ -78,8 +92,7 @@ export async function auditStudyStorage(
     if (draftRaw) {
       const draft = JSON.parse(draftRaw) as { attachmentIds?: unknown };
       if (Array.isArray(draft.attachmentIds))
-        for (const id of draft.attachmentIds)
-          if (typeof id === 'string') requiredStudy.add(id);
+        for (const id of draft.attachmentIds) if (typeof id === 'string') requiredStudy.add(id);
     }
   } catch {
     warning('초안 또는 개인 배경의 사진 참조를 확인하지 못했습니다.');
@@ -91,11 +104,20 @@ export async function auditStudyStorage(
     let checked = 0;
     let errors = 0;
     for (const id of ids) {
-      onProgress((vault === 'study' ? '학습' : '수면') + ' 사진 확인 중 ' + (checked + errors + 1) + '/' + ids.size);
+      onProgress(
+        (vault === 'study' ? '학습' : '수면') +
+          ' 사진 확인 중 ' +
+          (checked + errors + 1) +
+          '/' +
+          ids.size,
+      );
       try {
         const photo = await readVaultPhoto(vault, id);
-        if (!photo || photo.size !== photo.bytes.byteLength ||
-            photo.digest !== await sha256(new Blob([photo.bytes]))) {
+        if (
+          !photo ||
+          photo.size !== photo.bytes.byteLength ||
+          photo.digest !== (await sha256(new Blob([photo.bytes])))
+        ) {
           errors++;
         } else {
           checked++;
@@ -105,7 +127,12 @@ export async function auditStudyStorage(
       }
     }
     if (errors)
-      error((vault === 'study' ? '학습' : '수면') + ' 사진 원본 ' + errors + '개의 크기/체크섬이 손상되었거나 읽기 실패했습니다. ZIP 백업의 원본과 비교하세요.');
+      error(
+        (vault === 'study' ? '학습' : '수면') +
+          ' 사진 원본 ' +
+          errors +
+          '개의 크기/체크섬이 손상되었거나 읽기 실패했습니다. ZIP 백업의 원본과 비교하세요.',
+      );
     return checked;
   }
   const verifiedStudyPhotos = await verifyVault('study', studyPhotoSet);
@@ -113,8 +140,10 @@ export async function auditStudyStorage(
 
   const missingStudy = [...requiredStudy].filter((id) => !studyPhotoSet.has(id));
   const missingSleep = [...requiredSleep].filter((id) => !sleepPhotoSet.has(id));
-  if (missingStudy.length) error('연결된 학습 사진 원본 ' + missingStudy.length + '개를 찾을 수 없습니다.');
-  if (missingSleep.length) error('연결된 수면 사진 원본 ' + missingSleep.length + '개를 찾을 수 없습니다.');
+  if (missingStudy.length)
+    error('연결된 학습 사진 원본 ' + missingStudy.length + '개를 찾을 수 없습니다.');
+  if (missingSleep.length)
+    error('연결된 수면 사진 원본 ' + missingSleep.length + '개를 찾을 수 없습니다.');
 
   let documents: Awaited<ReturnType<typeof listPaperDocuments>> = [];
   try {
@@ -122,7 +151,13 @@ export async function auditStudyStorage(
   } catch {
     error('PDF·필기 보관함 또는 문서 스키마를 읽지 못했습니다.');
   }
-  const resourceIds = new Set((study.state.learning?.resources ?? []).map((r) => r.id));
+  const resourceIds = new Set([
+    ...(study.state.learning?.resources ?? []).map((r) => r.id),
+    ...inboxResourceIds,
+  ]);
+  for (const id of inboxResourceIds)
+    if (!documents.some((d) => d.resourceId === id))
+      error('학교 공지에 연결된 PDF 원본을 찾지 못했어요. ZIP 백업에서 확인하세요.');
   const originalById = new Map<string, { digest: string; size: number }>();
   const verifiedOriginals = new Set<string>();
   for (const document of documents) {
@@ -138,8 +173,10 @@ export async function auditStudyStorage(
     onProgress('원본 PDF·사진 검사 중 · ' + originalById.size + '/' + documents.length);
     try {
       const bytes = await readPaperFile(document.fileId);
-      if (bytes.byteLength !== document.size ||
-          (await sha256(new Blob([bytes]))) !== document.digest)
+      if (
+        bytes.byteLength !== document.size ||
+        (await sha256(new Blob([bytes]))) !== document.digest
+      )
         error(document.name + ': 원본 크기 또는 SHA-256 검사가 실패했습니다.');
       else verifiedOriginals.add(document.fileId);
     } catch {
@@ -148,7 +185,9 @@ export async function auditStudyStorage(
   }
 
   if (!findings.length)
-    warning('현재 기기 안의 검사에서는 문제를 찾지 못했습니다. 외부 ZIP 백업·실기기 저장 보장은 별도입니다.');
+    warning(
+      '현재 기기 안의 검사에서는 문제를 찾지 못했습니다. 외부 ZIP 백업·실기기 저장 보장은 별도입니다.',
+    );
 
   return {
     checkedAt: new Date().toISOString(),
@@ -157,7 +196,8 @@ export async function auditStudyStorage(
     paperDocuments: documents.length,
     paperPages: documents.reduce((total, d) => total + d.pages.length, 0),
     strokes: documents.reduce(
-      (total, d) => total + d.layers.reduce((n, l) => n + l.strokes.length, 0), 0,
+      (total, d) => total + d.layers.reduce((n, l) => n + l.strokes.length, 0),
+      0,
     ),
     studyPhotos: studyPhotoSet.size,
     sleepPhotos: sleepPhotoSet.size,

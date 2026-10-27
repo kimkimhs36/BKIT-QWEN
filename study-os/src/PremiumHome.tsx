@@ -1,8 +1,8 @@
 import { ArrowRight, ArrowUpRight, BookOpen, ChevronRight, Clock3, Play, Plus } from 'lucide-react';
 import type { State, Task } from './model';
-import type { Fixed } from './engine';
+import { fixedForDay, type Fixed } from './engine';
 import { entriesForDay } from './calendar';
-import { recommendationReason } from './now';
+import { firstLearningAction, recommendationReason } from './now';
 import { clock, dayKey, addDays } from './time';
 import { formatTaskDeadline } from './capture';
 import { needsAttention, needsSubmission, unsubmittedAssessment } from './tasks';
@@ -21,6 +21,11 @@ type Props = {
   onQuick: (minutes?: number) => void;
   onNavigate: (route: string) => void;
   onAdd: () => void;
+  onRecover: () => void;
+  unavailable: string;
+  inboxPending: number | null;
+  onInbox: () => void;
+  onAssessment: () => void;
   onEdit: (task: Task) => void;
   onAssessments: () => void;
   onSubmissions: () => void;
@@ -41,6 +46,11 @@ export function PremiumHome({
   onQuick,
   onNavigate,
   onAdd,
+  onRecover,
+  unavailable,
+  inboxPending,
+  onInbox,
+  onAssessment,
   onEdit,
   onAssessments,
   onSubmissions,
@@ -72,8 +82,66 @@ export function PremiumHome({
       state.tasks.some((task) => task.id === block.taskId && task.status !== 'done'),
     )
     .sort((a, b) => a.start.localeCompare(b.start));
+  let freeMs = bedtime ? Math.max(0, bedtime.start - now) : 0;
+  if (bedtime) {
+    let cursor = now;
+    for (const block of fixedForDay(state, dayKey(now))
+      .filter((b) => b.kind !== 'sleep')
+      .sort((a, b) => a.start - b.start)) {
+      const start = Math.max(cursor, block.start),
+        end = Math.min(bedtime.start, block.end);
+      if (end > start) {
+        freeMs -= end - start;
+        cursor = end;
+      }
+    }
+  }
+  const availableMinutes = Math.max(0, Math.floor(freeMs / 60000));
   return (
     <div className="study-home">
+      <div className="daily-activation" aria-label="첫 60초에 할 수 있는 일">
+        <button onClick={onInbox}>학교 공지 보관</button>
+        <button onClick={onAssessment}>수행평가 등록</button>
+        <button onClick={() => onNavigate('school')}>학교 시간표</button>
+      </div>
+      {inboxPending !== 0 && (
+        <button className="study-submission has-pending" onClick={onInbox}>
+          {inboxPending === null
+            ? '공지 보관함 저장 상태 확인 필요'
+            : `아직 과제로 확인하지 않은 공지 ${inboxPending}개`}
+        </button>
+      )}
+      {appointment && (
+        <section className="daily-priority" aria-label="지금 챙길 일정">
+          <strong>
+            {now < appointment.start
+              ? `${clock(appointment.start)} 준비 시작`
+              : now < appointment.depart
+                ? '이제 준비할 시간이에요'
+                : now < appointment.classStart
+                  ? '출발 목표를 확인하세요'
+                  : '지금 진행 중인 일정'}{' '}
+            · {appointment.title}
+          </strong>
+          <p>
+            준비 {clock(appointment.start)} · 출발 목표 {clock(appointment.depart)} · 수업{' '}
+            {clock(appointment.classStart)}–{clock(appointment.end)}
+          </p>
+          {appointment.materials && <p>{appointment.materials}</p>}
+          <small>앱 종료 후 알림은 지원하지 않아요.</small>
+          <details>
+            <summary>준비·이동 시간 계산 안내</summary>
+            <p>
+              입력한 준비·이동·여유 시간 기준이에요. 미입력 시간은 0분으로 계산돼요. 실제 도착은
+              보장하지 않아요. 늦었더라도 안전하게 이동하세요.
+            </p>
+          </details>
+          <button className="study-text-link" onClick={() => onNavigate('school')}>
+            일정·준비 시간 확인
+          </button>
+        </section>
+      )}
+
       <section className="study-start" aria-label="바로 공부 시작">
         <div className="study-start-copy">
           <h2>{busy ? '공부 이어하기' : '공부 시작'}</h2>
@@ -86,12 +154,13 @@ export function PremiumHome({
           </p>
           {!busy && pending[0] && (
             <small className="study-recommendation-reason">
-              {recommendationReason(pending[0], now)}
+              {firstLearningAction(pending[0])} · {recommendationReason(pending[0], now)}
             </small>
           )}
         </div>
         <div className="study-start-actions">
           <button
+            disabled={!busy && !!unavailable}
             className="study-start-primary"
             onClick={() =>
               busy ? onNavigate('study') : pending[0] ? onStart(pending[0].id) : onQuick()
@@ -102,11 +171,20 @@ export function PremiumHome({
             <ArrowRight size={18} aria-hidden="true" />
           </button>
           {!busy && (
-            <button className="study-start-five" onClick={() => onQuick(5)}>
+            <button
+              disabled={!!unavailable}
+              className="study-start-five"
+              onClick={() => onQuick(5)}
+            >
               5분만 시작하기
             </button>
           )}
         </div>
+        {!busy && unavailable && (
+          <p role="status">
+            {unavailable} 과제는 그대로예요. <button onClick={onRecover}>남은 계획 재조정</button>
+          </p>
+        )}
       </section>
       <section className="study-agenda" aria-label="오늘 해야 할 일">
         {pending.length > 0 && (
@@ -128,7 +206,7 @@ export function PremiumHome({
                     <small>
                       {task.subject}
                       <span>
-                        {task.due || task.deadline ? formatTaskDeadline(task) : '마감일 없음'}
+                        {task.due || task.deadline ? formatTaskDeadline(task) : '마감 미확인'}
                       </span>
                     </small>
                     <strong>{task.title}</strong>
@@ -150,7 +228,7 @@ export function PremiumHome({
           </>
         ) : (
           <div className="study-empty-agenda">
-            <p>오늘 할 일을 추가해 보세요.</p>
+            <p>등록한 할 일이 없어요. 학교 공지에 빠뜨린 과제가 있는지 확인해요.</p>
             <button className="study-icon" onClick={onAdd} aria-label="오늘 과제 추가">
               <Plus size={20} />
             </button>
@@ -174,18 +252,19 @@ export function PremiumHome({
           <Clock3 size={20} />
           <div>
             <span className="study-kicker">취침 목표 {clock(bedtime.start)}</span>
-            <h3>남은 공부 계획 {remainingPlan.length}개</h3>
+            <p>식사·등록 일정·준비·이동을 제외한 여유 최대 {availableMinutes}분</p>
+            <h3>
+              {bedtime.start <= now
+                ? '지금은 취침 목표 이후예요'
+                : `취침까지 ${Math.max(0, Math.floor((bedtime.start - now) / 60000))}분 · 남은 계획 ${remainingPlan.length}개`}
+            </h3>
             <p>
               {remainingPlan.length
-                ? '달력에서 남은 계획을 확인하세요.'
-                : '배치된 공부 계획이 없어요.'}
+                ? '달력에서 남은 계획을 재조정해요. 수면 시간을 줄여 모두 끝낼 필요는 없어요.'
+                : '배치된 공부 계획이 없어요. 수면 목표를 지키며 내일로 조정해도 괜찮아요.'}
             </p>
           </div>
-          <button
-            className="study-icon"
-            onClick={() => onNavigate('school')}
-            aria-label="남은 계획 보기"
-          >
+          <button className="study-icon" onClick={onRecover} aria-label="남은 계획 재조정">
             <ArrowUpRight size={20} />
           </button>
         </section>
@@ -227,28 +306,6 @@ export function PremiumHome({
             달력 열기 <ChevronRight size={16} />
           </span>
         </button>
-        {appointment && (
-          <section className="study-next" aria-label="다음 일정">
-            <Clock3 size={20} />
-            <div>
-              <span className="study-kicker">
-                {appointment === current ? '지금 일정' : '다음 일정'}
-              </span>
-              <h3>{appointment.title}</h3>
-              <p>
-                {clock(appointment.start)}–{clock(appointment.end)}
-                {dayKey(appointment.start) !== dayKey(now) && ` · ${dayKey(appointment.start)}`}
-              </p>
-            </div>
-            <button
-              className="study-icon"
-              onClick={() => onNavigate('school')}
-              aria-label="시간표 보기"
-            >
-              <ArrowUpRight size={20} />
-            </button>
-          </section>
-        )}
       </section>
       {(resource || recent) && (
         <section className="study-recent" aria-label="최근 공부 이어하기">

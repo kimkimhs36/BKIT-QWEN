@@ -64,11 +64,19 @@ export default defineConfig({
     },
     {
       name: 'ipad-landscape',
-      use: { ...devices['iPad Pro 11 landscape'], defaultBrowserType: 'chromium', launchOptions: chromiumLaunchOptions },
+      use: {
+        ...devices['iPad Pro 11 landscape'],
+        defaultBrowserType: 'chromium',
+        launchOptions: chromiumLaunchOptions,
+      },
     },
     {
       name: 'webkit-ipad-landscape',
-      use: { ...devices['iPad Pro 11 landscape'], browserName: 'webkit', defaultBrowserType: 'webkit' },
+      use: {
+        ...devices['iPad Pro 11 landscape'],
+        browserName: 'webkit',
+        defaultBrowserType: 'webkit',
+      },
     },
     {
       name: 'webkit-ipad',
@@ -77,6 +85,21 @@ export default defineConfig({
     {
       name: 'webkit-iphone',
       use: { ...devices['iPhone 13'], browserName: 'webkit', defaultBrowserType: 'webkit' },
+    },
+    {
+      // Samsung-phone-sized Android Chromium emulation, not a physical device
+      // or Samsung Internet certification. Keep this separate from galaxy-css tablet.
+      name: 'galaxy-phone',
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 360, height: 780 },
+        deviceScaleFactor: 3,
+        isMobile: true,
+        hasTouch: true,
+        userAgent:
+          'Mozilla/5.0 (Linux; Android 14; SM-S921B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36',
+        launchOptions: chromiumLaunchOptions,
+      },
     },
   ],
   webServer: {
