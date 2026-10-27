@@ -1,3 +1,4 @@
+import { BooksResume } from './BooksResume';
 import { useIconFeedback } from './useIconFeedback';
 import type { HelpAction, HelpTopic } from './HelpCenter';
 import { MaterialSettings } from './themes/MaterialSettings';
@@ -189,6 +190,7 @@ const StudyCalendar = lazy(() =>
   import('./StudyCalendar').then((m) => ({ default: m.StudyCalendar })),
 );
 const HelpCenter = lazy(() => import('./HelpCenter').then((m) => ({ default: m.HelpCenter })));
+const Books = lazy(() => import('./Books').then(m => ({ default: m.Books })));
 const ResourceLibrary = lazy(() =>
   import('./ResourceLibrary').then((m) => ({ default: m.ResourceLibrary })),
 );
@@ -1907,6 +1909,7 @@ export default function App() {
                         school: '달력 · 시간표',
                         tasks: '과제',
                         materials: '공부 자료',
+                        books: 'BKIT BOOKS',
                         study: '집중',
                         progress: '공부 기록',
                         garage: 'TOHEŞAR GARAGE',
@@ -2024,6 +2027,10 @@ export default function App() {
                 />
               </Suspense>
             )}
+            {tab === 'today' && <BooksResume onOpen={() => setTab('books')} />}
+            {(tab === 'books' || tab === 'materials') && <div className="books-entry"><button aria-pressed={tab === 'books'} onClick={() => setTab('books')}>BOOKS · 내 책장</button><button aria-pressed={tab === 'materials'} onClick={() => setTab('materials')}>모든 공부 자료</button></div>}
+            {tab === 'study' && <BooksResume onOpen={() => setTab('books')} />}
+            {tab === 'books' && <Suspense fallback={<p role="status">서재를 여는 중…</p>}><Books state={s} onChange={commit} onStudy={(resourceId, taskId) => { if (resourceId) openResource(resourceId); else start(5, taskId ?? '__free__'); }} /></Suspense>}
             {tab === 'today' && (
               <PremiumHome
                 state={s}

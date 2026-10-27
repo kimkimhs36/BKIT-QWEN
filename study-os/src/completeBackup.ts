@@ -1,3 +1,4 @@
+import { BOOKS_KEY, booksSchema, mergeBooks } from './books';
 import { GARAGE_KEY } from './drive/garage';
 import {
   paperManifestSchema,
@@ -17,6 +18,7 @@ import { closeSegment } from './session';
 import { LocalZipWriter, readLocalZip, sha256 } from './localZip';
 import { photoIds, readVaultPhoto, addVaultPhoto, type Vault } from './photoVault';
 export const BACKUP_KEYS = [
+  BOOKS_KEY,
   GARAGE_KEY,
   'bkit.study-os.theme.v1',
   'bkit.material.v1',
@@ -70,6 +72,7 @@ function validateKeys(keys: StoredKeys) {
     if (!BACKUP_KEYS.includes(key) || (value !== null && typeof value !== 'string'))
       throw new Error('지원하지 않는 저장 항목입니다.');
   }
+  if (keys[BOOKS_KEY]) booksSchema.parse(JSON.parse(keys[BOOKS_KEY]!));
   if (keys[KEY]) stateSchema.parse(JSON.parse(keys[KEY]!));
   if (keys[SLEEP_KEY]) sleepSchema.parse(JSON.parse(keys[SLEEP_KEY]!));
 }
@@ -112,9 +115,7 @@ export async function exportCompleteBackup(
     const state = stateSchema.parse(JSON.parse(keys[KEY]!));
     const at = Date.now();
     const paused = pauseQuick(state, at);
-    const restored = state.active
-      ? { ...paused, active: closeSegment(state.active, at) }
-      : paused;
+    const restored = state.active ? { ...paused, active: closeSegment(state.active, at) } : paused;
     // Export a paused snapshot: an imported quick stopwatch must never accrue
     // hours on a different device while the archive sits unused.
     if (restored !== state) keys[KEY] = JSON.stringify(restored);
@@ -183,7 +184,9 @@ export type InspectedBackup = {
 /** Conservative comparison: a verified ZIP is not necessarily a backup of the newest local edits. */
 export function backupMatchesCurrent(archive: InspectedBackup) {
   return {
-    study: archive.keys[KEY] === archive.baseline[KEY],
+    study:
+      archive.keys[KEY] === archive.baseline[KEY] &&
+      archive.keys[BOOKS_KEY] === archive.baseline[BOOKS_KEY],
     sleep: archive.keys[SLEEP_KEY] === archive.baseline[SLEEP_KEY],
     paper: JSON.stringify(archive.paper.documents) === JSON.stringify(archive.paper.baseline),
   };
@@ -281,12 +284,23 @@ export function mergeStudy(local: State, incoming: State): State {
     b = learning(incoming);
   return stateSchema.parse({
     ...local,
-    juggernaut: local.juggernaut && incoming.juggernaut ? {
-      ...local.juggernaut,
-      examDate:local.juggernaut.examDate??incoming.juggernaut.examDate,
-      subjects:union(local.juggernaut.subjects??[],incoming.juggernaut.subjects??[],x=>x.subject),
-      preparation:union(local.juggernaut.preparation??[],incoming.juggernaut.preparation??[],x=>x.id),
-    } : local.juggernaut??incoming.juggernaut,
+    juggernaut:
+      local.juggernaut && incoming.juggernaut
+        ? {
+            ...local.juggernaut,
+            examDate: local.juggernaut.examDate ?? incoming.juggernaut.examDate,
+            subjects: union(
+              local.juggernaut.subjects ?? [],
+              incoming.juggernaut.subjects ?? [],
+              (x) => x.subject,
+            ),
+            preparation: union(
+              local.juggernaut.preparation ?? [],
+              incoming.juggernaut.preparation ?? [],
+              (x) => x.id,
+            ),
+          }
+        : (local.juggernaut ?? incoming.juggernaut),
     tasks: union(local.tasks, incoming.tasks, (x) => x.id),
     schedules: union(local.schedules, incoming.schedules, (x) => x.id),
     sessions: union(local.sessions, incoming.sessions, (x) => x.id),
@@ -341,7 +355,10 @@ export async function restoreCompleteBackup(
       '현재 학습 JSON이 손상되어 병합할 수 없습니다. 원본을 내보낸 뒤 교체를 선택하세요.',
     );
   const local = readLocal ?? newState();
-  if (local.active || local.quickTimer) throw new Error('진행 중이거나 일시정지한 타이머를 먼저 종료하세요. 시간 기록은 그대로 유지됩니다.');
+  if (local.active || local.quickTimer)
+    throw new Error(
+      '진행 중이거나 일시정지한 타이머를 먼저 종료하세요. 시간 기록은 그대로 유지됩니다.',
+    );
   const map = new Map<string, string>();
   // Resolve every conflicting photo to a new ID, preserving both original byte sequences.
   for (const meta of backup.manifest.photos) {
@@ -368,6 +385,13 @@ export async function restoreCompleteBackup(
         active: state.active ? { ...state.active, segmentStart: null } : null,
       };
       next[key] = JSON.stringify(stateSchema.parse(state));
+    } else if (key === BOOKS_KEY && mode === 'merge' && next[key]) {
+      next[key] = JSON.stringify(
+        mergeBooks(
+          booksSchema.parse(JSON.parse(next[key]!)),
+          booksSchema.parse(JSON.parse(incoming[key]!)),
+        ),
+      );
     } else if (key === SLEEP_KEY && mode === 'merge' && next[key]) {
       const old = sleepSchema.parse(JSON.parse(next[key]!)),
         value = sleepSchema.parse(JSON.parse(incoming[key]!));
