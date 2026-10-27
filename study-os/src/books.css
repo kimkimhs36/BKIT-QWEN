@@ -398,3 +398,12 @@ html[data-material='jelly'] .books-tile:active .books-cover {
     transform: none !important;
   }
 }
+
+/* Consistent editorial link: new learning value without a second navigation bar. */
+.books-foundation-link {
+  width:100%;text-align:left;min-height:46px;padding:12px 15px;
+  background:var(--mat-soft);color:var(--mat-ink);
+  border:1px solid var(--mat-line);border-radius:var(--mat-radius);
+  margin:4px 0 18px;font-weight:700;font-size:12px;line-height:1.6;
+}
+.books-foundation-link:focus-visible {outline:2px solid var(--mat-accent);outline-offset:3px;}
