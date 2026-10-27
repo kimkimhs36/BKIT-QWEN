@@ -31,7 +31,8 @@ export function ExamLab() {
   const [session, setSession] = useState<Session | null>(
     () => initial.document.sessions
       .filter(s => s.phase !== 'complete')
-      .sort((a, b) => b.updatedAt - a.updatedAt)[0] || null,
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .map(s => ({ ...s, tickAt: Date.now() }))[0] || null,
   );
   const [free, setFree] = useState(false);
   const [freeDoc, setFreeDoc] = useState(emptyDocument);
@@ -43,6 +44,9 @@ export function ExamLab() {
   const attempts = activeAttempts(doc);
   const recommendationToday = useMemo(() => recommendation(doc), [doc]);
   const reviews = useMemo(() => dueReviews(doc), [doc]);
+  const pausedSession = doc.sessions
+    .filter(s => s.phase !== 'complete')
+    .sort((a,b) => b.updatedAt - a.updatedAt)[0];
   const q = session ? questionById(session.questionId) : null;
   const feedback = session?.submittedId
     ? viewDoc.attempts.find(a => a.id === session.submittedId) : null;
@@ -165,6 +169,7 @@ export function ExamLab() {
       try {
         saveDocument(localStorage, putSession(readDocument(localStorage).document, checkpoint));
         sessionRef.current = checkpoint;
+        if (document.visibilityState === 'visible') setSession(checkpoint);
       } catch {
         // The visible save actions report failures; never overwrite corrupt stored bytes.
       }
@@ -205,7 +210,20 @@ export function ExamLab() {
             <h3>{learningConcepts.find(c => c.id === recommendationToday.concept)?.name}</h3>
             <p>{recommendationToday.reason}</p>
             <div className="exam-lab-actions">
-              <button className="primary" disabled={blocked} onClick={() => begin(recommendationToday.kind, recommendationToday.concept)}>
+              {pausedSession && (
+                <button type="button" className="primary" disabled={blocked}
+                  onClick={() => {
+                    const resumed = { ...pausedSession, tickAt: Date.now(), updatedAt: Date.now() };
+                    if (persist(putSession(doc, resumed), resumed)) {
+                      setFree(false);
+                      setFinished(false);
+                      setNotice('이 기기에 남겨둔 풀이를 이어가요.');
+                    }
+                  }}>
+                  이어서 문제 풀기 <ArrowRight size={16}/>
+                </button>
+              )}
+              <button className={pausedSession ? '' : 'primary'} disabled={blocked} onClick={() => begin(recommendationToday.kind, recommendationToday.concept)}>
                 <Play size={17}/> 실제 문제 시작 <ArrowRight size={16}/>
               </button>
               <button onClick={() => begin('ignition', undefined, true)}>저장 없이 가볍게 연습</button>
