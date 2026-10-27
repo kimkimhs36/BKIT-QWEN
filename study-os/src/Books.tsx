@@ -1,5 +1,5 @@
 import { useEffect, useState, lazy, Suspense, type FormEvent } from 'react';
-import { BookOpen, Plus, ArrowLeft, ArrowUp, ArrowDown, Play, Search } from 'lucide-react';
+import { BookOpen, Plus, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Play, Search } from 'lucide-react';
 import { uid, type State } from './model';
 import {
   BOOKS_KEY,
