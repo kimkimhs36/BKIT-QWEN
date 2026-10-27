@@ -222,7 +222,8 @@ export function Books({
           linkedTaskId: null,
           linkedMediaIds: [],
         },
-        [''],
+        // A PDF page is NOT an authored question. Never create an empty fake problem.
+        [],
       );
       const resource = planned.learning!.resources.at(-1)!;
       const imported = await importPaper(file, resource.id);
