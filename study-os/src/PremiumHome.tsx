@@ -111,6 +111,7 @@ export function PremiumHome({
         <button onClick={onInbox}>학교 공지 보관</button>
         <button onClick={onAssessment}>수행평가 등록</button>
         <button onClick={() => onNavigate('school')}>학교 시간표</button>
+        <button onClick={() => onNavigate('materials')}>학습지·공부 자료</button>
       </div>
       <section className="study-school-glance" aria-label="오늘 학교 시간표 빠른 확인">
         <div className="study-school-glance-heading">
@@ -310,6 +311,9 @@ export function PremiumHome({
                 ? '달력에서 남은 계획을 재조정해요. 수면 시간을 줄여 모두 끝낼 필요는 없어요.'
                 : '배치된 공부 계획이 없어요. 수면 목표를 지키며 내일로 조정해도 괜찮아요.'}
             </p>
+            <button type="button" className="study-text-link" onClick={() => onNavigate('sleep')}>
+              취침·기상 목표 확인 <ChevronRight size={16} aria-hidden="true" />
+            </button>
           </div>
           <button className="study-icon" onClick={onRecover} aria-label="남은 계획 재조정">
             <ArrowUpRight size={20} />
