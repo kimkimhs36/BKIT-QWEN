@@ -122,3 +122,29 @@ html[data-material='glass'] .exam-lab-hero {backdrop-filter:blur(20px);-webkit-b
 @media(prefers-reduced-motion:reduce) {
  .exam-lab *, .exam-lab *:before, .exam-lab *:after {animation:none!important;transition:none!important;}
 }
+
+
+.exam-lab-breadcrumb {
+  display:flex;align-items:center;gap:10px;
+  margin:4px 0 13px;font-size:12px;min-height:44px;
+}
+.exam-lab-breadcrumb button {
+  font:inherit;color:inherit;border:0;background:transparent;
+  min-height:44px;padding:7px 0;text-decoration:underline;text-underline-offset:3px;
+}
+.exam-lab-breadcrumb strong {font-weight:700;opacity:.78;}
+.exam-lab-breadcrumb span {opacity:.36;}
+.exam-lab-resume {
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  gap:14px;padding:clamp(16px,3vw,24px);
+  margin:10px 0 16px;border-radius:17px;
+  border:1px solid var(--exam-line);background:var(--exam-surface);
+}
+.exam-lab-resume>div {display:grid;gap:6px;flex:1 1 205px;}
+.exam-lab-resume small {font-size:10px;letter-spacing:.11em;opacity:.65;}
+.exam-lab-resume strong {font-size:17px;letter-spacing:-.03em;}
+.exam-lab-resume p {margin:0;font-size:12px;line-height:1.6;opacity:.72;}
+.exam-lab-resume button {display:inline-flex;align-items:center;gap:7px;padding:11px 15px;}
+.exam-lab-finish {display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:20px 0;padding:15px;border:1px solid var(--exam-line);border-radius:15px;}
+.exam-lab-finish>button {display:inline-flex;gap:8px;align-items:center;border:0;background:transparent;color:inherit;font-weight:730;min-height:44px;}
+@media(max-width:500px){ .exam-lab-resume>button {width:100%;justify-content:center;} }
