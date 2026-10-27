@@ -29,7 +29,7 @@ jobs:
       - name: Verify TypeScript
         run: npm run typecheck
       - name: Verify date, school subject and lifecycle regressions
-        run: npm run test -- tests/dailyTriage.test.ts tests/noticePaste.test.ts tests/books.test.ts tests/juggernaut-build03.test.ts
+        run: npm run test -- tests/dailyTriage.test.ts tests/noticePaste.test.ts tests/books.test.ts tests/juggernaut-build03.test.ts tests/examBackup.test.ts
       - name: Run complete unit suite
         run: npm test
       - name: Verify production frontend build
