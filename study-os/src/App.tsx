@@ -2101,7 +2101,7 @@ export default function App() {
             {tab === 'study' && <BooksResume onOpen={() => setTab('books')} />}
             {tab === 'exam-lab' && (
               <Suspense fallback={<p role="status">수능관 기초 학습을 여는 중…</p>}>
-                <ExamLab />
+                <ExamLab onOpenBooks={() => setTab('books')} />
               </Suspense>
             )}
             {tab === 'books' && (
