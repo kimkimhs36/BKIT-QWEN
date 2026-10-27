@@ -26,6 +26,7 @@ type Props = {
   inboxPending: number | null;
   onInbox: () => void;
   onAssessment: () => void;
+  onAssistant: () => void;
   onEdit: (task: Task) => void;
   onAssessments: () => void;
   onSubmissions: () => void;
@@ -51,6 +52,7 @@ export function PremiumHome({
   inboxPending,
   onInbox,
   onAssessment,
+  onAssistant,
   onEdit,
   onAssessments,
   onSubmissions,
@@ -157,6 +159,9 @@ export function PremiumHome({
               {firstLearningAction(pending[0])} · {recommendationReason(pending[0], now)}
             </small>
           )}
+          <button type="button" className="study-text-link" onClick={onAssistant}>
+            BKIT AI 비서에게 물어보기 <ArrowRight size={15} aria-hidden="true" />
+          </button>
         </div>
         <div className="study-start-actions">
           <button
