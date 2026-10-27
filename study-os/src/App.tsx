@@ -2205,7 +2205,7 @@ export default function App() {
                   }}
                 ><X size={16} aria-hidden="true"/></button>
               </section>
-            )
+            )}
             {savedTaskId && s.tasks.find((t) => t.id === savedTaskId) && (
               <section
                 className="daily-panel saved-task-actions"
