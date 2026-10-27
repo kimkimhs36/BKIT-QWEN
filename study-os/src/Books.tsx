@@ -1,5 +1,5 @@
 import { useEffect, useState, lazy, Suspense, type FormEvent } from 'react';
-import { BookOpen, Plus, ArrowLeft, ArrowUp, ArrowDown, Play, Search } from 'lucide-react';
+import { BookOpen, Plus, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Play, Search } from 'lucide-react';
 import { uid, type State } from './model';
 import {
   BOOKS_KEY,
@@ -11,6 +11,8 @@ import {
   type BookChapter,
 } from './books';
 import { useBooks } from './useBooks';
+import { foundationSnapshot } from './booksExamBridge';
+import { readDocument as readExamDocument } from './juggernaut/engine';
 import { Modal } from './Modal';
 import { learning, addResource, resourceProgress } from './learningEngine';
 import { listPaperDocuments, savePaperDocument } from './paperStorage';
@@ -55,6 +57,9 @@ export function Books({
   onExam: () => void;
 }) {
   const { data, error, save, update, blocked } = useBooks();
+  // A device-only, read-only snapshot. The separate training engine never
+  // writes a chapter status or mislabels a textbook as mastered.
+  const [examRecord] = useState(() => readExamDocument(localStorage));
   const [selected, setSelected] = useState<string | null>(() => {
     try {
       return sessionStorage.getItem('bkit.books.selected');
@@ -77,6 +82,7 @@ export function Books({
   const book = data.books.find((b) => b.id === selected),
     chapterId = book?.bookmark.chapterId ?? null;
   const chapter = book?.chapters.find((c) => c.id === chapterId);
+  const foundation = book ? foundationSnapshot(examRecord.document, book.subject) : null;
   useEffect(() => {
     void refresh();
   }, []);
@@ -473,10 +479,28 @@ export function Books({
                   완료 표시는 직접 기록하는 진도입니다. 문제 정답률과 별도로 보관됩니다. 공부 시간과
                   답안은 기존 학습 화면에서 저장하세요.
                 </p>
-                {/수학|미적분|대수/.test(book.subject) && (
-                  <button className="books-foundation-link" type="button" onClick={onExam}>
-                    BKIT 수능관 · 수학 선수개념 36문항으로 기초 다지기
-                  </button>
+                {foundation && (
+                  <div className="books-foundation-progress" aria-label="수능관 선수학습 기록">
+                    <div className="books-foundation-progress-heading">
+                      <span>BKIT / FOUNDATION</span>
+                      <strong>수학 기초, 오늘의 기록</strong>
+                    </div>
+                    {examRecord.error ? (
+                      <p role="alert">수능관 학습 기록을 읽지 못했어요. 원본을 보호하고 있어요. 수능관에서 원본 내보내기를 확인해 주세요.</p>
+                    ) : (
+                      <>
+                        <div className="books-foundation-numbers">
+                          <div><strong>{foundation.attempted}</strong><small>풀이 시도</small></div>
+                          <div><strong>{foundation.independent}</strong><small>힌트 없는 풀이</small></div>
+                          <div><strong>{foundation.pendingConcepts}</strong><small>복습할 개념</small></div>
+                        </div>
+                        <p>{foundation.claim}</p>
+                      </>
+                    )}
+                    <button className="books-foundation-link" type="button" onClick={onExam}>
+                      BKIT 수능관 · 36문항 기초 훈련 바로가기 <ArrowRight size={15} aria-hidden="true"/>
+                    </button>
+                  </div>
                 )}
                 <div className="books-progress">
                   <span>
@@ -691,6 +715,30 @@ export function Books({
               <BookOpen size={36} />
               <h3>{query ? '검색된 책이 없어요' : '나의 공부를 담을 첫 번째 책'}</h3>
               <p>제목과 과목만으로 등록하세요. 목차와 자료는 천천히 채워도 괜찮아요.</p>
+              {!query && shelf === 'active' && !blocked && (
+                <div className="books-quick-start" aria-label="처음 시작하기 쉬운 과목별 책장">
+                  <span>빠른 시작 · 선택하면 제목과 과목을 채워줘요</span>
+                  <div>
+                    {[
+                      { subject: '미적분Ⅰ', title: '미적분Ⅰ 학습지' },
+                      { subject: '영어Ⅱ', title: '영어Ⅱ 단어·구문' },
+                      { subject: '문학', title: '문학 작품 노트' },
+                      { subject: '물질과 에너지', title: '물질과 에너지 학습지' },
+                      { subject: '역학과 에너지', title: '역학과 에너지 학습지' },
+                      { subject: '사회와 문화', title: '사회와 문화 탐구 노트' },
+                    ].map(({ subject, title }) => (
+                      <button
+                        key={subject}
+                        type="button"
+                        onClick={() => setEditor(newBook(title, subject))}
+                      >
+                        <Plus size={13} aria-hidden="true"/> {subject}
+                      </button>
+                    ))}
+                  </div>
+                  <small>여기서는 아직 저장되지 않아요. 내용을 확인하고 '책 저장'을 누르면 내 책장에 추가돼요.</small>
+                </div>
+              )}
             </div>
           )}
         </>

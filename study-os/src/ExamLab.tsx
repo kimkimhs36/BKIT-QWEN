@@ -23,7 +23,7 @@ function safeExport() {
 /** This view reuses the JUGGERNAUT BUILD 03 scoring/storage engine rather than
  * publishing an unfinished full-screen design or adding a second question bank.
  */
-export function ExamLab() {
+export function ExamLab({ onOpenBooks }: { onOpenBooks: () => void }) {
   const [initial] = useState(() => readDocument(localStorage));
   const [doc, setDoc] = useState<StudyDocument>(initial.document);
   const [error, setError] = useState(initial.error);
@@ -184,6 +184,11 @@ export function ExamLab() {
 
   return (
     <section className="exam-lab panel" aria-label="BKIT 수능관">
+      <nav className="exam-lab-breadcrumb" aria-label="BOOKS와 수능관">
+        <button type="button" onClick={onOpenBooks}>BOOKS · 책장으로 돌아가기</button>
+        <span aria-hidden="true">/</span>
+        <strong aria-current="page">수능관</strong>
+      </nav>
       <header className="exam-lab-hero">
         <span className="exam-lab-eyebrow"><Sparkles size={15}/> BKIT / THE LONG ROUTE</span>
         <h2>거대한 목표는,<br/><em>오늘의 한 문제에서.</em></h2>
@@ -346,7 +351,12 @@ export function ExamLab() {
           </>}
         </section>
       )}
-      {finished && <p role="status">학습 한 번을 마쳤어요. 이어서 다른 개념이나 BOOKS 학습지로 연습해 보세요.</p>}
+      {finished && (
+        <section className="exam-lab-finish" role="status">
+          <span>오늘의 한 걸음을 완료했어.</span>
+          <button type="button" onClick={onOpenBooks}>BOOKS 학습지로 이어가기 <ArrowRight size={15}/></button>
+        </section>
+      )}
       <footer className="exam-lab-footer">
         <BookOpenCheck size={16}/>
         <p>공부 기록은 이 기기에 보관돼요. 상단 원본 내보내기 또는 BKIT 설정의 전체 ZIP 백업을 이용해 주세요. 실제 출제범위·시험일은 최신 공식 공고를 확인해야 해요.</p>

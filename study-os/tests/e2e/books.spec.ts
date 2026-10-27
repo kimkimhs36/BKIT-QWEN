@@ -91,7 +91,9 @@ test('existing problem engine records once and returns to book without marking c
   await w.getByRole('button', { name: '오답 · 다시 연습', exact: true }).click();
   await w.getByRole('button', { name: '저장하고 학습 종료', exact: true }).click();
   await page.getByRole('button', { name: '학습 기록 저장 · 종료', exact: true }).click();
-  await page.getByRole('button', { name: /최근 공부한 책/ }).click();
+  // The study receipt can return to a different tab; use the reliable BOOKS route.
+  await page.getByRole('navigation', { name: '주 메뉴' }).getByRole('button', { name: '도구', exact: true }).click();
+  await page.getByRole('navigation', { name: '추가 도구' }).getByRole('button', { name: 'BKIT BOOKS', exact: true }).click();
   await expect(page.getByRole('heading', { name: '나의 미적분Ⅰ', exact: true })).toBeVisible();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
   expect(saved.sessions).toHaveLength(1);
@@ -124,4 +126,42 @@ test('all nine material themes preserve book data and fit the viewport', async (
   await page.reload();
   await page.getByRole('button', { name: /최근 공부한 책/ }).click();
   await expect(page.getByRole('heading', { name: '나의 미적분Ⅰ', exact: true })).toBeVisible();
+});
+
+test('maths book → BKIT exam lab → real attempt → book evidence without auto-completing chapters', async ({ page }) => {
+  await prepare(page);
+  await add(page);
+  await page.getByRole('button', { name: '대단원 추가', exact: true }).click();
+  await page.getByLabel('단원명', { exact: true }).fill('함수의 극한');
+  await page.getByRole('button', { name: '단원 저장', exact: true }).click();
+  await page.getByRole('button', { name: /BKIT 수능관 · 36문항/ }).click();
+  const room = page.getByRole('region', { name: 'BKIT 수능관' });
+  await expect(room).toBeVisible();
+  await room.getByRole('button', { name: /실제 문제 시작/ }).click();
+  await room.getByRole('textbox', { name: '숫자 답안' }).fill('99999');
+  await room.getByRole('button', { name: /답 확인하기/ }).click();
+  await room.getByRole('button', { name: 'BOOKS · 책장으로 돌아가기' }).click();
+  await expect(page.getByRole('heading', { name: '나의 미적분Ⅰ', exact: true })).toBeVisible();
+  const bridge = page.locator('.books-foundation-progress');
+  await expect(bridge).toContainText('풀이 시도');
+  await expect(bridge).toContainText('수학 기초, 오늘의 기록');
+  await expect(page.getByRole('combobox', { name: '공부 상태' })).toHaveValue('todo');
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.books.v1')!));
+  expect(saved.books[0].chapters[0].status).toBe('todo');
+});
+
+
+test('new user quick-start subject never saves until user confirms book details', async ({ page }) => {
+  await prepare(page);
+  const books = page.getByRole('region', { name: 'BKIT BOOKS' });
+  await books.getByRole('button', { name: '미적분Ⅰ', exact: true }).click();
+  await expect(page.getByLabel('책 제목', { exact: true })).toHaveValue('미적분Ⅰ 학습지');
+  await expect(page.getByLabel('과목', { exact: true })).toHaveValue('미적분Ⅰ');
+  const before = await page.evaluate(() => localStorage.getItem('bkit.books.v1'));
+  expect(before).toBeNull();
+  await page.getByRole('button', { name: '책 저장', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '미적분Ⅰ 학습지', exact: true })).toBeVisible();
+  const after = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.books.v1')!));
+  expect(after.books).toHaveLength(1);
+  expect(after.books[0].subject).toBe('미적분Ⅰ');
 });
