@@ -1,0 +1,112 @@
+.daily-panel {
+  margin: 16px 0;
+  padding: clamp(16px, 3vw, 26px);
+  border: 1px solid var(--mat-border, #8885);
+  border-radius: 20px;
+  background: var(--mat-surface, #ffffff08);
+  color: inherit;
+}
+.daily-panel h2,
+.daily-panel h3 {
+  margin: 0 0 10px;
+}
+.daily-panel p {
+  line-height: 1.65;
+}
+.daily-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0;
+}
+.daily-panel label.checkbox {
+  flex-direction: row;
+  align-items: center;
+}
+.daily-panel input:not([type='checkbox']),
+.daily-panel textarea,
+.daily-panel select {
+  width: 100%;
+  max-width: 100%;
+  padding: 12px;
+  border: 1px solid #8886;
+  border-radius: 10px;
+  background: var(--mat-surface, #ffffff0a);
+  color: inherit;
+  font: inherit;
+}
+.daily-panel textarea {
+  resize: vertical;
+}
+.daily-panel button,
+.daily-activation button,
+.saved-task-actions button {
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+.daily-activation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 0;
+}
+.inbox-list {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 12px 0;
+}
+.inbox-list button {
+  min-width: 160px;
+  max-width: 240px;
+  text-align: left;
+  border: 1px solid #8885;
+}
+.inbox-list span,
+.inbox-list strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.inbox-list button[aria-pressed='true'] {
+  border-color: currentColor;
+}
+.daily-confirm,
+.daily-linked {
+  padding: 18px 0;
+  border-top: 1px solid #8885;
+  margin-top: 16px;
+}
+.daily-linked button {
+  margin: 6px;
+}
+.timetable-classes {
+  padding-left: 24px;
+}
+.timetable-classes li {
+  padding: 10px 0;
+}
+.timetable-classes small {
+  display: block;
+}
+.daily-priority {
+  padding: 16px 0;
+  border-bottom: 1px solid #8885;
+}
+.daily-priority strong {
+  display: block;
+}
+.daily-panel pre {
+  overflow-x: auto;
+}
+.daily-activation > button {
+  border: 1px solid #8884;
+  background: var(--mat-surface, #ffffff10);
+}
+.daily-priority > details {
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+.daily-priority > p {
+  margin: 8px 0;
+}

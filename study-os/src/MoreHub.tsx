@@ -10,6 +10,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 const TOOLS = [
+  { id: 'subjects', label: '과목 공간', detail: '과제 · 자료 · 공부 기록', icon: BookOpen },
+  { id: 'inbox', label: '학교 공지', detail: '받은 공지 · 원본 · 과제 확인', icon: ScanText },
   { id: 'materials', label: '공부 자료', detail: 'PDF · 사진 · 문제집', icon: FileStack },
   { id: 'school', label: '시간표', detail: '학교 · 학원 · 일정', icon: CalendarDays },
   { id: 'exams', label: '시험 관리', detail: '범위와 준비 항목', icon: BookOpen },

@@ -16,6 +16,15 @@ export async function readPhotoText(
   if (starting)
     throw new Error('이전 글자 읽기 도구를 정리하고 있어요. 잠시 뒤 다시 시도해 주세요.');
   const root = new URL(import.meta.env.BASE_URL + OCR_ASSET_DIR + '/', location.origin).href;
+  // A failed worker script fetch can leave createWorker's handshake unresolved.
+  // Check availability with a cancellable request before creating that worker.
+  try {
+    const response = await fetch(root + 'worker.min.js', { signal });
+    if (!response.ok) throw new Error('unavailable');
+  } catch {
+    signal.throwIfAborted();
+    throw new Error('글자 읽기 도구를 불러오지 못했어요. 원본은 보관되어 있어요. 직접 입력하거나 다시 시도해 주세요.');
+  }
   // Use our own origin for every asset. No CDN, image URL or provider API.
   let failInitialization: (error: Error) => void = () => {};
   const initializationError = new Promise<never>((_, reject) => {

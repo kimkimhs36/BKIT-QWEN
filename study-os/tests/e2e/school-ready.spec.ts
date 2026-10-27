@@ -21,11 +21,9 @@ async function nav(page: Page, name: string) {
     .click();
 }
 async function task(page: Page) {
-  await page
-    .getByRole('region', { name: '수행평가 및 제출 준비' })
-    .getByRole('button', { name: '수행 등록' })
-    .click();
-  const dialog = page.getByRole('dialog', { name: '새 과제' });
+  await nav(page, '과제');
+  await page.getByRole('button', { name: '수행평가', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '수행평가 등록' });
   await dialog.locator('[name="subject"]').fill('영어');
   await dialog.locator('[name="title"]').fill('학교 발표 준비');
   return dialog;
@@ -35,6 +33,7 @@ test('photo notice → failed save → retry → paused stopwatch attachment →
 }) => {
   await seed(page);
   const dialog = await task(page);
+  await dialog.locator('.study-task-materials > summary').click();
   await expect(dialog.getByLabel('카메라로 과제 촬영')).toHaveAttribute('capture', 'environment');
   await dialog.getByLabel('갤러리 사진 첨부').setInputFiles('tests/fixtures/printed-homework.png');
   await expect(dialog.locator('.atelier-photos img')).toBeVisible();
@@ -60,10 +59,12 @@ test('photo notice → failed save → retry → paused stopwatch attachment →
   expect(originalTask).toMatchObject({ due: null, submitted: false, kind: '수행평가' });
   expect(originalTask.attachmentIds).toHaveLength(1);
   await page.reload();
-  await expect(page.getByRole('region', { name: '수행평가 및 제출 준비' })).toContainText(
-    '마감 미확인',
-  );
-  await page.getByRole('button', { name: '스톱워치 바로 시작', exact: true }).click();
+  await nav(page, '과제');
+  await page.locator('.task-content').filter({ hasText: '학교 발표 준비' }).click();
+  await expect(page.locator('[name=dueDate]')).toHaveValue('');
+  await page.getByRole('button', { name: '닫기', exact: true }).click();
+  await nav(page, '집중');
+  await page.getByRole('button', { name: '지금 시작', exact: true }).click();
   const id = (await state(page)).quickTimer.id;
   await page.clock.fastForward(65000);
   await page
@@ -72,6 +73,8 @@ test('photo notice → failed save → retry → paused stopwatch attachment →
     .click();
   const paused = (await state(page)).quickTimer;
   await page.reload();
+  await nav(page, '집중');
+  await page.locator('.quick-timer-task-link > summary').click();
   await page.getByLabel('진행 중인 스톱워치 과제 연결').selectOption(originalTask.id);
   expect((await state(page)).active).toMatchObject({
     id,
@@ -91,9 +94,8 @@ test('photo notice → failed save → retry → paused stopwatch attachment →
   await page.getByRole('button', { name: '학교 발표 준비 학습 완료로 변경', exact: true }).click();
   expect((await state(page)).tasks[0].submitted).toBe(false);
   await nav(page, '오늘');
-  await expect(page.getByRole('region', { name: '수행평가 및 제출 준비' })).toContainText(
-    '학습 완료 · 제출 기록 확인 필요',
-  );
+  await page.getByRole('button', { name: /아직 제출하지 않은 수행평가 1개/ }).click();
+  await expect(page.getByRole('region', { name: '과제 목록' })).toContainText('학교 발표 준비');
   await nav(page, '과제');
   await page.getByRole('button', { name: '제출 확인', exact: true }).click();
   await page.getByRole('button', { name: '학교 발표 준비 제출 완료 기록', exact: true }).click();
@@ -111,6 +113,7 @@ test('PDF original is linked to the saved assessment and survives reopening', as
   const pdf = await PDFDocument.create();
   pdf.addPage([600, 800]);
   const bytes = Buffer.from(await pdf.save());
+  await dialog.locator('.study-task-materials > summary').click();
   await dialog
     .getByLabel('과제 PDF 첨부', { exact: true })
     .setInputFiles({ name: 'school-notice.pdf', mimeType: 'application/pdf', buffer: bytes });
@@ -120,7 +123,9 @@ test('PDF original is linked to the saved assessment and survives reopening', as
   const saved = await state(page),
     resource = saved.learning.resources[0];
   expect(resource).toMatchObject({ linkedTaskId: saved.tasks[0].id, subject: '영어' });
-  await nav(page, '집중');
+  await nav(page, '도구');
+  await page.getByRole('button', { name: '공부 자료', exact: true }).click();
+  await page.getByText('PDF · 사진 학습지 열기와 필기', { exact: true }).click();
   await expect(
     page.locator('.paper-document-list strong').filter({ hasText: 'school-notice.pdf' }),
   ).toBeVisible();
@@ -128,7 +133,9 @@ test('PDF original is linked to the saved assessment and survives reopening', as
   await expect(page.getByTestId('ink-canvas')).toBeVisible();
   await expect(page.getByTestId('ink-save-status')).toHaveText('저장됨');
   await page.reload();
-  await nav(page, '집중');
+  await nav(page, '도구');
+  await page.getByRole('button', { name: '공부 자료', exact: true }).click();
+  await page.getByText('PDF · 사진 학습지 열기와 필기', { exact: true }).click();
   await expect(page.getByRole('button', { name: '종이 열기', exact: true })).toBeVisible();
 });
 
@@ -141,7 +148,9 @@ test('API configuration failure leaves manual assessment intake usable', async (
       body: 'unavailable',
     }),
   );
-  await page.getByRole('button', { name: '오늘 할 일 정리' }).click();
+  await nav(page, '도구');
+  await page.getByRole('button', { name: '공지 정리', exact: true }).click();
+  await page.getByRole('button', { name: '이전', exact: true }).click();
   await page.getByText('AI로 할 일 정리 · 선택', { exact: true }).click();
   await expect(
     page.getByText('AI 서버에 연결하지 못했어요. 직접 정리는 계속 사용할 수 있어요.'),
@@ -165,7 +174,9 @@ for (const failure of ['offline', 'invalid-config', 'timeout'] as const) {
             })
           : new Promise<void>(() => {}),
     );
-    await page.getByRole('button', { name: '오늘 할 일 정리' }).click();
+    await nav(page, '도구');
+    await page.getByRole('button', { name: '공지 정리', exact: true }).click();
+    await page.getByRole('button', { name: '이전', exact: true }).click();
     await page.getByLabel('오늘 해야 할 일', { exact: true }).fill('영어 발표 직접 등록');
     await page.getByText('AI로 할 일 정리 · 선택', { exact: true }).click();
     if (failure === 'timeout') {

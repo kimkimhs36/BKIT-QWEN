@@ -1,3 +1,6 @@
+import { activation } from './activation';
+import { INBOX_KEY, inboxSchema, noticeStatus, attachNoticeResources } from './schoolInbox';
+import './daily-driver.css';
 import { useIconFeedback } from './useIconFeedback';
 import type { HelpAction, HelpTopic } from './HelpCenter';
 import { MaterialSettings } from './themes/MaterialSettings';
@@ -229,6 +232,16 @@ const StudyDirectory = lazy(() =>
   import('./StudyDirectory').then((m) => ({ default: m.StudyDirectory })),
 );
 const AIZone = lazy(() => import('./AIZone').then((m) => ({ default: m.AIZone })));
+const SubjectWorkspace = lazy(() =>
+  import('./SubjectWorkspace').then((m) => ({ default: m.SubjectWorkspace })),
+);
+const SchoolInbox = lazy(() => import('./SchoolInbox').then((m) => ({ default: m.SchoolInbox })));
+const SchoolTimetable = lazy(() =>
+  import('./SchoolTimetable').then((m) => ({ default: m.SchoolTimetable })),
+);
+const ActivationPanel = lazy(() =>
+  import('./ActivationPanel').then((m) => ({ default: m.ActivationPanel })),
+);
 const NAV = [
   { id: 'today', en: 'NOW', label: '오늘', icon: Home },
   { id: 'school', en: 'CALENDAR', label: '달력', icon: CalendarDays },
@@ -239,13 +252,24 @@ const NAV = [
   { id: 'exams', en: 'EXAMS', label: '시험 관리', icon: CalendarDays },
   { id: 'sites', en: 'STUDY LIBRARY', label: '공부 사이트', icon: BookOpen },
   { id: 'ai-zone', en: 'AI INDEX', label: 'BKIT AI ZONE', icon: Sparkles },
+  { id: 'subjects', en: '', label: '과목 공간', icon: BookOpen },
+  { id: 'inbox', en: '', label: '학교 공지', icon: BookOpen },
   { id: 'materials', en: '', label: '공부 자료', icon: BookOpen },
   { id: 'more', en: 'TOOLS', label: '도구', icon: Menu },
 ];
 const PRIMARY_NAV = ['today', 'school', 'study', 'tasks', 'progress', 'more'].map((id) =>
   NAV.find((n) => n.id === id)!,
 );
-const MORE_ROUTES = ['settings', 'sleep', 'exams', 'sites', 'ai-zone', 'materials'];
+const MORE_ROUTES = [
+  'subjects',
+  'inbox',
+  'settings',
+  'sleep',
+  'exams',
+  'sites',
+  'ai-zone',
+  'materials',
+];
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 function Empty({ title, children }: { title: string; children: ReactNode }) {
@@ -428,6 +452,23 @@ export default function App() {
       setTab('settings');
     }
   }
+  const [inboxPending, setInboxPending] = useState<number | null>(0);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(INBOX_KEY);
+      const data = raw ? inboxSchema.parse(JSON.parse(raw)) : null;
+      setInboxPending(
+        data
+          ? data.notices.filter((n) => !n.archived && noticeStatus(n, s.tasks) !== '과제 등록 완료')
+              .length
+          : 0,
+      );
+    } catch {
+      setInboxPending(null);
+    }
+  }, [tab, s.tasks]);
+  const [inboxNoticeId, setInboxNoticeId] = useState<string | undefined>();
+  const [savedTaskId, setSavedTaskId] = useState('');
   const [captureDay, setCaptureDay] = useState('');
   const [occurrenceDay, setOccurrenceDay] = useState('');
   const [planEditor, setPlanEditor] = useState<{
@@ -617,7 +658,7 @@ export default function App() {
     const t = setTimeout(() => setNotice(''), 6000);
     return () => clearTimeout(t);
   }, [notice]);
-  function commit(change: (v: State) => State, force = false) {
+  function commit(change: (v: State) => State, force = false, measure = true) {
     if (force) {
       const live = readState(localStorage).state;
       if (memory.current.active || memory.current.quickTimer || live.active || live.quickTimer) {
@@ -661,6 +702,12 @@ export default function App() {
         force ? undefined : storedRaw.current,
         force ? KEY + '.before-restore.' + Date.now() + '.' + uid() : undefined,
       );
+      if (!force && measure) {
+        if (next.tasks.length > previous.tasks.length) activation('taskSaved');
+        if (!previous.active && !previous.quickTimer && (next.active || next.quickTimer))
+          activation('studyStarted');
+        if (next.sessions.length > previous.sessions.length) activation('studySaved');
+      }
       memory.current = next;
       setS(next);
       setStorageError('');
@@ -677,6 +724,7 @@ export default function App() {
         setStorageError(e.message);
         return false;
       }
+      activation('storageFailure');
       setStorageError(
         '저장하지 못했습니다. 저장 공간과 입력값을 확인하세요. 화면의 기존 기록은 유지됩니다.',
       );
@@ -685,24 +733,28 @@ export default function App() {
     }
   }
   const privateSync = usePrivateStudySync(s, (incoming) =>
-    commit((v) => mergePrivateStudyState(v, incoming)),
+    commit((v) => mergePrivateStudyState(v, incoming), false, false),
   );
   const cloud = useStudyCloud(s, (incoming) =>
-    commit((v) => ({
-      ...v,
-      tasks: incoming.tasks.map((t) => ({
-        ...t,
-        attachmentIds: v.tasks.find((local) => local.id === t.id)?.attachmentIds,
-        submissionRequired:
-          t.submissionRequired ?? v.tasks.find((local) => local.id === t.id)?.submissionRequired,
-        capture: t.capture ?? v.tasks.find((local) => local.id === t.id)?.capture,
-      })),
-      schedules: incoming.schedules,
-      // Remote changes may remove/move tasks; never retain orphaned plan blocks.
-      plan: [],
-      undo: null,
-      settings: { ...v.settings, goal: incoming.goal },
-    })),
+    commit(
+      (v) => ({
+        ...v,
+        tasks: incoming.tasks.map((t) => ({
+          ...t,
+          attachmentIds: v.tasks.find((local) => local.id === t.id)?.attachmentIds,
+          submissionRequired:
+            t.submissionRequired ?? v.tasks.find((local) => local.id === t.id)?.submissionRequired,
+          capture: t.capture ?? v.tasks.find((local) => local.id === t.id)?.capture,
+        })),
+        schedules: incoming.schedules,
+        // Remote changes may remove/move tasks; never retain orphaned plan blocks.
+        plan: [],
+        undo: null,
+        settings: { ...v.settings, goal: incoming.goal },
+      }),
+      false,
+      false,
+    ),
   );
   function applyAssistantAction(action: AssistantAction): boolean {
     if (action.kind === 'add') {
@@ -743,6 +795,7 @@ export default function App() {
     setModal(kind);
   }
   function taskEditor(t: Task | null = null) {
+    if (t) activation('taskReopened');
     setCaptureDay('');
     setTaskDraftId(t?.id ?? uid());
     setTaskMaterials(emptyTaskMaterials(t));
@@ -1133,6 +1186,7 @@ export default function App() {
           : v.learning,
       }))
     ) {
+      if (resource) activation('resourceReused', resource.id);
       setTab('study');
       setNotice('시작했어요. 첫 한 문제에 집중하세요.');
     }
@@ -1491,6 +1545,7 @@ export default function App() {
           undo: null,
         }))
       ) {
+        setSavedTaskId(t.id);
         setModal(null);
         if (!editTask && t.kind === '수행평가' && tab !== 'school') {
           setFilter('pending');
@@ -2031,7 +2086,11 @@ export default function App() {
                 tasks={ordered}
                 next={next}
                 current={current}
-                bedtime={sleepFixed.find((item) => item.start > now)}
+                bedtime={
+                  fixed
+                    .filter((item) => item.kind === 'sleep' && item.end > now)
+                    .sort((a, b) => a.start - b.start)[0]
+                }
                 resource={resumeResource}
                 onStart={(id) => start(5, id)}
                 onQuick={(minutes) => {
@@ -2043,6 +2102,20 @@ export default function App() {
                   setTab(route);
                 }}
                 onAdd={() => taskEditor()}
+                onInbox={() => {
+                  setInboxNoticeId(undefined);
+                  setTab('inbox');
+                }}
+                onAssessment={addAssessmentNow}
+                onRecover={recovery}
+                inboxPending={inboxPending}
+                unavailable={
+                  current
+                    ? `${current.title} 시간을 먼저 지켜요.`
+                    : fixed.some((f) => f.start > now && f.start < now + 5 * MIN)
+                      ? '다음 일정까지 5분이 남지 않았어요.'
+                      : ''
+                }
                 onEdit={taskEditor}
                 onAssessments={() => {
                   setFilter('assessment-unsubmitted');
@@ -2061,6 +2134,71 @@ export default function App() {
                 }}
               />
             )}
+            {savedTaskId && s.tasks.find((t) => t.id === savedTaskId) && (
+              <section
+                className="daily-panel saved-task-actions"
+                aria-label="저장한 과제 다음 행동"
+              >
+                <strong>{s.tasks.find((t) => t.id === savedTaskId)!.title} · 저장됨</strong>
+                <div className="daily-activation">
+                  <button onClick={() => taskEditor(s.tasks.find((t) => t.id === savedTaskId)!)}>
+                    과제 확인
+                  </button>
+                  <button
+                    onClick={() => {
+                      const t = s.tasks.find((t) => t.id === savedTaskId)!;
+                      setDay(t.deadline?.date || (t.due ? dayKey(t.due) : today));
+                      setTab('school');
+                    }}
+                  >
+                    달력에서 보기
+                  </button>
+                  <button
+                    onClick={() => {
+                      start(5, savedTaskId);
+                      setSavedTaskId('');
+                    }}
+                  >
+                    이 과제 5분 시작
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSavedTaskId('');
+                      taskEditor();
+                    }}
+                  >
+                    다른 과제 추가
+                  </button>
+                  <button aria-label="저장 후 안내 닫기" onClick={() => setSavedTaskId('')}>
+                    닫기
+                  </button>
+                </div>
+                <small>마감 미확인 과제는 달력 날짜에 자동 배치되지 않아요.</small>
+              </section>
+            )}
+            {tab === 'subjects' && (
+              <Suspense fallback={<p role="status">과목 공간을 여는 중…</p>}>
+                <SubjectWorkspace state={s} onEdit={taskEditor} onResource={openResource} />
+              </Suspense>
+            )}
+            {tab === 'inbox' && (
+              <Suspense fallback={<p role="status">공지를 여는 중…</p>}>
+                <SchoolInbox
+                  noticeId={inboxNoticeId}
+                  state={s}
+                  onRegister={(notice, task) =>
+                    commit((v) => attachNoticeResources(v, notice, task))
+                  }
+                  onEdit={taskEditor}
+                  onStart={(id) => start(5, id)}
+                  onPaper={openResource}
+                  onCalendar={(task) => {
+                    setDay(task.deadline?.date || (task.due ? dayKey(task.due) : today));
+                    setTab('school');
+                  }}
+                />
+              </Suspense>
+            )}
             {tab === 'materials' && (
               <Suspense fallback={<p role="status">공부 자료를 여는 중…</p>}>
                 <ResourceLibrary state={s} onChange={commit} onOpen={openResource} />
@@ -2068,6 +2206,14 @@ export default function App() {
             )}
             {tab === 'school' && (
               <Suspense fallback={<p role="status">달력을 여는 중…</p>}>
+                <SchoolTimetable
+                  state={s}
+                  now={now}
+                  onSave={(items) =>
+                    commit((v) => ({ ...v, schedules: [...v.schedules, ...items] }))
+                  }
+                  onEdit={(item, date) => scheduleEditor(item, date, date)}
+                />
                 <StudyCalendar
                   state={s}
                   day={day}
@@ -2159,12 +2305,12 @@ export default function App() {
                     {filter === 'assessment-unsubmitted'
                       ? '미제출 수행평가가 없어요.'
                       : filter === 'submission'
-                      ? '제출을 확인할 과제가 없어요.'
-                      : filter === 'done'
-                        ? '완료한 과제가 없어요.'
-                        : filter === 'all'
-                          ? '과제를 추가해 보세요.'
-                          : '남은 과제가 없어요.'}
+                        ? '제출을 확인할 과제가 없어요.'
+                        : filter === 'done'
+                          ? '완료한 과제가 없어요.'
+                          : filter === 'all'
+                            ? '과제를 추가해 보세요.'
+                            : '남은 과제가 없어요.'}
                   </p>
                 )}
                 {s.tasks.flatMap((task) =>
@@ -2988,6 +3134,12 @@ export default function App() {
                     </section>
                   </details>
                   <div>
+                    <button className="secondary" onClick={() => showHelp('quick')}>
+                      60초 시작 안내 다시 보기
+                    </button>
+                    <Suspense fallback={<p>집계 설정을 여는 중…</p>}>
+                      <ActivationPanel />
+                    </Suspense>
                     <details className="compact-section" id="settings-sync">
                       <summary>
                         기기 간 연동 <ChevronRight size={16} />
@@ -3008,6 +3160,22 @@ export default function App() {
                         <div className="section-head">
                           <h2>PWA · 알림</h2>
                         </div>
+                        <p>
+                          현재 설치:{' '}
+                          {matchMedia('(display-mode: standalone)').matches
+                            ? '독립 실행 모드'
+                            : '브라우저 모드'}{' '}
+                          · 알림 권한:{' '}
+                          {typeof Notification === 'undefined'
+                            ? '이 환경에서 미지원'
+                            : Notification.permission}{' '}
+                          · 서버 Push 예약기: 없음
+                        </p>
+                        <p>
+                          웹앱은 iPhone 기본 알람이 아닙니다. 기상 알람은 기기 시계 앱에서 직접
+                          설정하세요.
+                        </p>
+                        <button onClick={exportCalendar}>내 일정 캘린더 파일 받기</button>
                         <p>iPhone Safari 공유 → ‘홈 화면에 추가’로 설치할 수 있습니다.</p>
                         <p className="muted">
                           오프라인 기능은 한 번 온라인으로 연 뒤 사용할 수 있습니다. 백그라운드 Web
@@ -3076,6 +3244,7 @@ export default function App() {
                 );
                 if (!commit((v) => ({ ...v, tasks: merged.tasks }))) return null;
                 setSelected(merged.ids[0] || '');
+                setSavedTaskId(merged.ids[0] || '');
                 setTab('today');
                 // A successful arrival returns to the mission desk even when briefing
                 // was opened from a button far down TODAY. Run after dialog focus restore.
@@ -3235,7 +3404,9 @@ export default function App() {
                   open('task');
                 }}
                 onSave={(task) => {
-                  if (commit((v) => ({ ...v, tasks: mergeMissions(v.tasks, [task]).tasks }))) {
+                  const merged = mergeMissions(memory.current.tasks, [task]);
+                  if (commit((v) => ({ ...v, tasks: merged.tasks }))) {
+                    setSavedTaskId(merged.ids[0]);
                     setModal(null);
                     setNotice('오늘에 담았습니다. 다음 행동이 준비됐습니다.');
                     return true;
@@ -3246,6 +3417,18 @@ export default function App() {
             )}
             {modal === 'task' && (
               <form onSubmit={saveTask}>
+                {editTask?.notes.match(/\[학교공지:([^\]]+)\]/) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInboxNoticeId(editTask.notes.match(/\[학교공지:([^\]]+)\]/)![1]);
+                      setModal(null);
+                      setTab('inbox');
+                    }}
+                  >
+                    연결된 학교 공지 원본 보기
+                  </button>
+                )}
                 <details className="study-task-materials">
                   <summary>
                     학교 공지 · 사진·PDF 첨부 (선택) <ChevronRight size={16} />

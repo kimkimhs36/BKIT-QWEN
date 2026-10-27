@@ -1,18 +1,5 @@
 import { test, expect, type Page } from './local-fixture';
 async function nav(page: Page, name: string) {
-  if (name === '기록') {
-    await page
-      .getByRole('navigation')
-      .getByRole('button', { name: '더보기', exact: true })
-      .filter({ visible: true })
-      .first()
-      .click();
-    await page
-      .getByRole('navigation', { name: '추가 도구', exact: true })
-      .getByRole('button', { name, exact: true })
-      .click();
-    return;
-  }
   await page
     .getByRole('navigation')
     .getByRole('button', { name, exact: true })
@@ -26,15 +13,15 @@ test('NOW to first answer, error, saved receipt and next-day independent retest 
   test.setTimeout(90000);
   await page.clock.install({ time: new Date('2026-10-19T06:00:00Z') });
   await page.goto('./');
-  await page.getByRole('button', { name: '더 보기', exact: true }).click();
-  await page.getByRole('button', { name: '빠른 한 줄 입력', exact: false }).click();
+  await page.getByRole('button', { name: '오늘 과제 추가', exact: true }).click();
   await page
     .getByLabel('할 일을 한 문장으로', { exact: true })
     .fill('내일까지 물리 오답 5개 다시 풀기');
   await expect(page.getByLabel('전체 분량', { exact: true })).toHaveValue('5');
   await page.getByRole('button', { name: '오늘에 담기', exact: true }).click();
-  await expect(page.locator('.instant-action')).toContainText('남은 5문제 중 하나');
-  await page.getByRole('button', { name: '5분만 시작', exact: true }).click();
+  await expect(page.locator('.study-start')).toContainText('물리 오답');
+  await page.getByRole('button', { name: '지금 공부 시작', exact: true }).click();
+  await page.getByRole('button', { name: '첫 문제 기록', exact: true }).click();
   await page
     .getByLabel('지금 풀 문제 또는 떠올릴 질문', { exact: true })
     .fill('속력이 두 배가 되면 운동 에너지는?');
@@ -48,6 +35,7 @@ test('NOW to first answer, error, saved receipt and next-day independent retest 
   await page.getByRole('button', { name: '학습량 기록 · 종료', exact: false }).click();
   await page.getByLabel('완료한 문제 수', { exact: true }).fill('1');
   await page.getByRole('button', { name: '학습 기록 저장 · 종료', exact: true }).click();
+  await page.locator('.compact-progress-detail > summary').click();
   await expect(page.getByRole('region', { name: '최근 학습 성과 요약' })).toContainText(
     '저장한 답변 1회',
   );
@@ -63,16 +51,15 @@ test('NOW to first answer, error, saved receipt and next-day independent retest 
   expect(saved.tasks[0].quantity.remaining).toBe(4);
   await page.clock.setSystemTime(new Date('2026-10-20T06:01:00Z'));
   await page.reload();
-  await expect(page.getByRole('region', { name: '오늘 문제 복습' })).toContainText(
-    '오늘 다시 풀 문제 1개',
-  );
-  await page.getByRole('button', { name: '답을 가리고 다시 풀기', exact: false }).click();
+  await nav(page, '기록');
+  await page.locator('.compact-progress-detail > summary').click();
   const queue = page.getByRole('region', { name: '문제별 지연 재시험' });
   await expect(queue).toContainText('오늘 1');
   await queue.getByLabel('다시 푼 내 답', { exact: true }).fill('네 배');
   await queue.getByRole('button', { name: '재시험 답 저장', exact: true }).click();
   await page.reload();
   await nav(page, '기록');
+  await page.locator('.compact-progress-detail > summary').click();
   await expect(queue).toContainText('저장한 내 답: 네 배');
   await queue.getByRole('button', { name: '정답을 직접 확인', exact: true }).click();
   saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
@@ -92,7 +79,8 @@ test('a failed answer save leaves both the typed answer and stored evidence inta
 }) => {
   await page.clock.install({ time: new Date('2026-10-19T06:00:00Z') });
   await page.goto('./');
-  await page.getByRole('button', { name: '5분만 시작', exact: true }).click();
+  await page.getByRole('button', { name: '지금 공부 시작', exact: true }).click();
+  await page.getByRole('button', { name: '첫 문제 기록', exact: true }).click();
   await page.getByLabel('지금 풀 문제 또는 떠올릴 질문', { exact: true }).fill('내 질문');
   await page.getByRole('button', { name: '문제 정하고 시작', exact: false }).click();
   const before = await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'));
