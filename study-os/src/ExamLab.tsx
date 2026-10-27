@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { ArrowRight, BookOpenCheck, ClipboardCheck, RotateCcw, Sparkles, Download, Play } from 'lucide-react';
-import { learningConcepts, learningQuestions } from './juggernaut/catalogue';
+import { learningConcepts, learningQuestions, conceptRelations } from './juggernaut/catalogue';
 import { questionById, score } from './juggernaut/content';
 import {
   KEY, EXT_KEY, readDocument, saveDocument, activeAttempts, evidence,
@@ -257,6 +257,35 @@ export function ExamLab() {
                 );
               })}
             </div>
+            <details className="exam-lab-path">
+              <summary>선수개념은 어떤 순서로 연결될까?</summary>
+              <p>문제를 풀기 전 배워야 하는 내용과, 연습하면 좋은 순서는 달라요.</p>
+              <ul>
+                {conceptRelations.map(edge => (
+                  <li key={edge.from + edge.to}>
+                    <strong>{learningConcepts.find(c => c.id === edge.from)?.name}</strong>
+                    <span>{edge.kind === 'prerequisite' ? '선수 개념' : '연습 순서'}</span>
+                    <strong>{learningConcepts.find(c => c.id === edge.to)?.name}</strong>
+                    <small>{edge.basis}</small>
+                  </li>
+                ))}
+              </ul>
+            </details>
+            <details className="exam-lab-history">
+              <summary>최근 실제 풀이 기록 {attempts.length}회 보기</summary>
+              {attempts.length ? (
+                <ol>
+                  {attempts.slice(-10).reverse().map(a => (
+                    <li key={a.id}>
+                      <strong>{learningConcepts.find(c => c.id === questionById(a.questionId).concept)?.name}</strong>
+                      <span>{score(a.questionId, a.answer) ? '정답' : '오답'} · {independent(a) ? '혼자 풂' : '도움 또는 풀이 미완성'}</span>
+                      <small>{new Date(a.at).toLocaleString('ko-KR')}</small>
+                    </li>
+                  ))}
+                </ol>
+              ) : <p>아직 풀이 기록이 없어요. 한 문제부터 시작해요.</p>}
+              <small>최근 입력을 보여주는 기록이지 수능 등급이나 실력 보장은 아니에요.</small>
+            </details>
           </section>
         </>
       ) : (
@@ -302,6 +331,12 @@ export function ExamLab() {
                   ? '정답이에요. 풀이 과정을 확인해요.' : '다시 배울 지점을 찾았어요.'}</strong>
                 <p>정답: {q.answer}</p>
                 <p>{q.explanation}</p>
+                {'errorFocus' in q && typeof q.errorFocus === 'string' && q.errorFocus && (
+                  <p className="exam-lab-focus">확인할 개념: {q.errorFocus}</p>
+                )}
+                {'retest' in q && typeof q.retest === 'string' && q.retest && (
+                  <p className="exam-lab-focus">다음 연습: {q.retest}</p>
+                )}
                 <small>{feedback && independent(feedback)
                   ? '힌트 없이 풀이와 답을 남겼어요. 다른 문제로 다시 확인해야 실력이 확인돼요.'
                   : '도움 또는 풀이 기록이 부족했어요. 다음 문제로 확인해요.'}</small>
