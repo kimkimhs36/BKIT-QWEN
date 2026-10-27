@@ -1,4 +1,5 @@
 import { INBOX_KEY, inboxSchema } from './schoolInbox';
+import { BOOKS_KEY, booksSchema, mergeBooks } from './books';
 import { GARAGE_KEY } from './drive/garage';
 import {
   paperManifestSchema,
@@ -18,6 +19,7 @@ import { closeSegment } from './session';
 import { LocalZipWriter, readLocalZip, sha256 } from './localZip';
 import { photoIds, readVaultPhoto, addVaultPhoto, type Vault } from './photoVault';
 export const BACKUP_KEYS = [
+  BOOKS_KEY,
   INBOX_KEY,
   GARAGE_KEY,
   'bkit.study-os.theme.v1',
@@ -72,6 +74,7 @@ function validateKeys(keys: StoredKeys) {
     if (!BACKUP_KEYS.includes(key) || (value !== null && typeof value !== 'string'))
       throw new Error('지원하지 않는 저장 항목입니다.');
   }
+  if (keys[BOOKS_KEY]) booksSchema.parse(JSON.parse(keys[BOOKS_KEY]!));
   if (keys[KEY]) stateSchema.parse(JSON.parse(keys[KEY]!));
   if (keys[INBOX_KEY]) inboxSchema.parse(JSON.parse(keys[INBOX_KEY]!));
   if (keys[SLEEP_KEY]) sleepSchema.parse(JSON.parse(keys[SLEEP_KEY]!));
@@ -186,6 +189,7 @@ export function backupMatchesCurrent(archive: InspectedBackup) {
   return {
     study:
       archive.keys[KEY] === archive.baseline[KEY] &&
+      (archive.keys[BOOKS_KEY] ?? null) === (archive.baseline[BOOKS_KEY] ?? null) &&
       (archive.keys[INBOX_KEY] ?? null) === (archive.baseline[INBOX_KEY] ?? null),
     sleep: archive.keys[SLEEP_KEY] === archive.baseline[SLEEP_KEY],
     paper: JSON.stringify(archive.paper.documents) === JSON.stringify(archive.paper.baseline),
@@ -385,6 +389,10 @@ export async function restoreCompleteBackup(
         active: state.active ? { ...state.active, segmentStart: null } : null,
       };
       next[key] = JSON.stringify(stateSchema.parse(state));
+    } else if (key === BOOKS_KEY && mode === 'merge' && next[key]) {
+      next[key] = JSON.stringify(mergeBooks(
+        booksSchema.parse(JSON.parse(next[key]!)), booksSchema.parse(JSON.parse(incoming[key]!)),
+      ));
     } else if (key === INBOX_KEY && mode === 'merge' && next[key]) {
       const old = inboxSchema.parse(JSON.parse(next[key]!)),
         value = inboxSchema.parse(JSON.parse(incoming[key]!));

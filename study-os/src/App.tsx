@@ -1,6 +1,7 @@
 import { activation } from './activation';
 import { INBOX_KEY, inboxSchema, noticeStatus, attachNoticeResources } from './schoolInbox';
 import './daily-driver.css';
+import { BooksResume } from './BooksResume';
 import { useIconFeedback } from './useIconFeedback';
 import type { HelpAction, HelpTopic } from './HelpCenter';
 import { MaterialSettings } from './themes/MaterialSettings';
@@ -192,6 +193,8 @@ const StudyCalendar = lazy(() =>
   import('./StudyCalendar').then((m) => ({ default: m.StudyCalendar })),
 );
 const HelpCenter = lazy(() => import('./HelpCenter').then((m) => ({ default: m.HelpCenter })));
+const Books = lazy(() => import('./Books').then((m) => ({ default: m.Books })));
+
 const ResourceLibrary = lazy(() =>
   import('./ResourceLibrary').then((m) => ({ default: m.ResourceLibrary })),
 );
@@ -255,6 +258,7 @@ const NAV = [
   { id: 'subjects', en: '', label: '과목 공간', icon: BookOpen },
   { id: 'inbox', en: '', label: '학교 공지', icon: BookOpen },
   { id: 'materials', en: '', label: '공부 자료', icon: BookOpen },
+  { id: 'books', en: 'LIVING LIBRARY', label: 'BKIT BOOKS', icon: BookOpen },
   { id: 'more', en: 'TOOLS', label: '도구', icon: Menu },
 ];
 const PRIMARY_NAV = ['today', 'school', 'study', 'tasks', 'progress', 'more'].map((id) =>
@@ -269,6 +273,7 @@ const MORE_ROUTES = [
   'sites',
   'ai-zone',
   'materials',
+  'books',
 ];
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -1962,6 +1967,7 @@ export default function App() {
                         school: '달력 · 시간표',
                         tasks: '과제',
                         materials: '공부 자료',
+                        books: 'BKIT BOOKS',
                         study: '집중',
                         progress: '공부 기록',
                         garage: 'TOHEŞAR GARAGE',
@@ -1989,6 +1995,7 @@ export default function App() {
                           more: '시간표, 학습 증거, 수면과 데이터 관리를 한곳에서.',
                           exams: '확인된 시험 범위와 실제 자료를 연결하세요.',
                           sites: '필요한 강의·기출·자료로 한 번에 이동해요.',
+                          books: '책 한 권에서 단원과 학습지, 오답까지 이어지는 개인 서재.',
                           'ai-zone': '이해와 정리를 도와줄 AI 도구를 찾아보세요.',
                           settings: '이 기기의 기록과 생활 리듬을 관리하세요.',
                         } as Record<string, string>
@@ -2079,6 +2086,27 @@ export default function App() {
                 />
               </Suspense>
             )}
+            {(tab === 'books' || tab === 'materials') && (
+              <div className="books-entry" role="navigation" aria-label="내 책장과 학습 자료">
+                <button aria-pressed={tab === 'books'} onClick={() => setTab('books')}>BOOKS · 내 책장</button>
+                <button aria-pressed={tab === 'materials'} onClick={() => setTab('materials')}>모든 공부 자료</button>
+              </div>
+            )}
+            {(tab === 'study' || tab === 'progress') && (
+              <BooksResume onOpen={() => setTab('books')} />
+            )}
+            {tab === 'books' && (
+              <Suspense fallback={<p role="status">서재를 여는 중…</p>}>
+                <Books
+                  state={s}
+                  onChange={commit}
+                  onStudy={(resourceId, taskId) => {
+                    if (resourceId) openResource(resourceId);
+                    else start(5, taskId ?? '__free__');
+                  }}
+                />
+              </Suspense>
+            )}
             {tab === 'today' && (
               <PremiumHome
                 state={s}
@@ -2135,6 +2163,7 @@ export default function App() {
                 }}
               />
             )}
+            {tab === 'today' && <BooksResume onOpen={() => setTab('books')} />}
             {savedTaskId && s.tasks.find((t) => t.id === savedTaskId) && (
               <section
                 className="daily-panel saved-task-actions"
