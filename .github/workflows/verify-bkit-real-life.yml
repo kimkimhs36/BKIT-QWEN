@@ -1,7 +1,7 @@
 name: Verify BKIT Real Life Command Center (no deployment)
 on:
   push:
-    branches: [feat/bkit-real-life-command-center-20261028, feat/bkit-real-life-build04-clipboard-tomorrow, feat/bkit-books-real-life-build05, feat/bkit-exam-lab-real-life-build06]
+    branches: [feat/bkit-real-life-command-center-20261028, feat/bkit-real-life-build04-clipboard-tomorrow, feat/bkit-books-real-life-build05, feat/bkit-exam-lab-real-life-build06, feat/bkit-books-exam-build07-20261028]
   workflow_dispatch:
 permissions:
   contents: read
@@ -29,7 +29,7 @@ jobs:
       - name: Verify TypeScript
         run: npm run typecheck
       - name: Verify date, school subject and lifecycle regressions
-        run: npm run test -- tests/dailyTriage.test.ts tests/noticePaste.test.ts tests/books.test.ts tests/juggernaut-build03.test.ts tests/examBackup.test.ts
+        run: npm run test -- tests/dailyTriage.test.ts tests/noticePaste.test.ts tests/books.test.ts tests/juggernaut-build03.test.ts tests/examBackup.test.ts tests/booksExamBridge.test.ts
       - name: Run complete unit suite
         run: npm test
       - name: Verify production frontend build
