@@ -125,3 +125,26 @@ test('all nine material themes preserve book data and fit the viewport', async (
   await page.getByRole('button', { name: /최근 공부한 책/ }).click();
   await expect(page.getByRole('heading', { name: '나의 미적분Ⅰ', exact: true })).toBeVisible();
 });
+
+
+test('maths book → BKIT exam lab → real attempt → book evidence without auto-completing chapters', async ({ page }) => {
+  await prepare(page);
+  await add(page);
+  await page.getByRole('button', { name: '대단원 추가', exact: true }).click();
+  await page.getByLabel('단원명', { exact: true }).fill('함수의 극한');
+  await page.getByRole('button', { name: '단원 저장', exact: true }).click();
+  await page.getByRole('button', { name: /BKIT 수능관 · 36문항/ }).click();
+  const room = page.getByRole('region', { name: 'BKIT 수능관' });
+  await expect(room).toBeVisible();
+  await room.getByRole('button', { name: /실제 문제 시작/ }).click();
+  await room.getByRole('textbox', { name: '숫자 답안' }).fill('99999');
+  await room.getByRole('button', { name: /답 확인하기/ }).click();
+  await room.getByRole('button', { name: 'BOOKS · 책장으로 돌아가기' }).click();
+  await expect(page.getByRole('heading', { name: '나의 미적분Ⅰ', exact: true })).toBeVisible();
+  const bridge = page.getByRole('group', { name: '수능관 선수학습 기록' });
+  await expect(bridge).toContainText('풀이 시도');
+  await expect(bridge).toContainText('BOOKS');
+  await expect(page.getByRole('combobox', { name: '공부 상태' })).toHaveValue('todo');
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.books.v1')!));
+  expect(saved.books[0].chapters[0].status).toBe('todo');
+});
