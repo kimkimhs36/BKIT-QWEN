@@ -146,14 +146,23 @@ export function mergeBooks(local: BooksData, incoming: BooksData): BooksData {
     ],
   });
 }
+/** Suggestions only: anyone can type an arbitrary elective or textbook subject. */
 export const BOOK_SUBJECTS = [
   '미적분Ⅰ',
+  '대수',
+  '문학',
   '영어Ⅱ',
   '국어',
+  '사회와 문화',
   '경제',
   '역학과 에너지',
   '물질과 에너지',
-  '미술 감상과 비평',
-  '로봇과 공학',
+  '정보',
   '소프트웨어 기초',
+  '로봇·소프트웨어 공학',
+  '미술 감상과 비평',
+  '스포츠 생활',
+  '한국사',
+  '화학',
+  '물리학',
 ];
