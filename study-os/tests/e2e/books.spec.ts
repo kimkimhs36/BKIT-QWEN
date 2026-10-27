@@ -141,7 +141,7 @@ test('maths book → BKIT exam lab → real attempt → book evidence without au
   await room.getByRole('button', { name: /답 확인하기/ }).click();
   await room.getByRole('button', { name: 'BOOKS · 책장으로 돌아가기' }).click();
   await expect(page.getByRole('heading', { name: '나의 미적분Ⅰ', exact: true })).toBeVisible();
-  const bridge = page.getByRole('group', { name: '수능관 선수학습 기록' });
+  const bridge = page.locator('.books-foundation-progress');
   await expect(bridge).toContainText('풀이 시도');
   await expect(bridge).toContainText('BOOKS');
   await expect(page.getByRole('combobox', { name: '공부 상태' })).toHaveValue('todo');
