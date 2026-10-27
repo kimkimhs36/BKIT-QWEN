@@ -91,7 +91,9 @@ test('existing problem engine records once and returns to book without marking c
   await w.getByRole('button', { name: '오답 · 다시 연습', exact: true }).click();
   await w.getByRole('button', { name: '저장하고 학습 종료', exact: true }).click();
   await page.getByRole('button', { name: '학습 기록 저장 · 종료', exact: true }).click();
-  await page.getByRole('button', { name: /최근 공부한 책/ }).click();
+  // The study receipt can return to a different tab; use the reliable BOOKS route.
+  await page.getByRole('navigation', { name: '주 메뉴' }).getByRole('button', { name: '도구', exact: true }).click();
+  await page.getByRole('navigation', { name: '추가 도구' }).getByRole('button', { name: 'BKIT BOOKS', exact: true }).click();
   await expect(page.getByRole('heading', { name: '나의 미적분Ⅰ', exact: true })).toBeVisible();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
   expect(saved.sessions).toHaveLength(1);
@@ -142,7 +144,7 @@ test('maths book → BKIT exam lab → real attempt → book evidence without au
   await expect(page.getByRole('heading', { name: '나의 미적분Ⅰ', exact: true })).toBeVisible();
   const bridge = page.locator('.books-foundation-progress');
   await expect(bridge).toContainText('풀이 시도');
-  await expect(bridge).toContainText('BOOKS');
+  await expect(bridge).toContainText('수학 기초, 오늘의 기록');
   await expect(page.getByRole('combobox', { name: '공부 상태' })).toHaveValue('todo');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.books.v1')!));
   expect(saved.books[0].chapters[0].status).toBe('todo');
