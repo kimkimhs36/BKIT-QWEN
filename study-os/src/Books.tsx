@@ -12,6 +12,7 @@ import {
 } from './books';
 import { useBooks } from './useBooks';
 import { foundationSnapshot } from './booksExamBridge';
+import { bookLaunch } from './bookLaunch';
 import { readDocument as readExamDocument } from './juggernaut/engine';
 import { Modal } from './Modal';
 import { learning, addResource, resourceProgress } from './learningEngine';
@@ -83,6 +84,9 @@ export function Books({
     chapterId = book?.bookmark.chapterId ?? null;
   const chapter = book?.chapters.find((c) => c.id === chapterId);
   const foundation = book ? foundationSnapshot(examRecord.document, book.subject) : null;
+  const launch = book
+    ? bookLaunch(book, chapterId, docs, learning(state), state.tasks)
+    : null;
   useEffect(() => {
     void refresh();
   }, []);
@@ -258,23 +262,22 @@ export function Books({
   }
   const materials = book?.materials.filter((m) => m.chapterId === chapterId) ?? [];
   function study() {
-    if (!book) return;
-    const scope = [...materials, ...book.materials.filter((m) => !m.chapterId)];
-    const resource = scope
-      .map((m) =>
-        m.kind === 'resource'
-          ? m.targetId
-          : m.kind === 'document'
-            ? docs.find((d) => d.id === m.targetId)?.resourceId
-            : null,
-      )
-      .find((id) => learning(state).resources.some((r) => r.id === id && !r.archived));
-    const task = scope.find(
-      (m) =>
-        m.kind === 'task' && state.tasks.some((t) => t.id === m.targetId && t.status !== 'done'),
-    )?.targetId;
-    if (update(book.id, (b) => ({ ...b, lastOpenedAt: new Date().toISOString() })))
-      onStudy(resource ?? undefined, task, book.id);
+    if (!book || !launch) return;
+    if (!update(book.id, (b) => ({
+      ...b,
+      lastOpenedAt: new Date().toISOString(),
+      bookmark: launch.kind === 'document'
+        ? { chapterId, materialId: launch.materialId }
+        : b.bookmark,
+    }))) return;
+    if (launch.kind === 'document') {
+      const document = docs.find((d) => d.id === launch.documentId);
+      if (document) setOpened(document);
+      return;
+    }
+    if (launch.kind === 'resource') onStudy(launch.resourceId, undefined, book.id);
+    else if (launch.kind === 'task') onStudy(undefined, launch.taskId, book.id);
+    else onStudy(undefined, undefined, book.id);
   }
   const visible = data.books
     .filter((b) =>
@@ -427,7 +430,14 @@ export function Books({
                 <div className="section-head">
                   <h3>{chapter?.title ?? '책 전체'}</h3>
                   <button className="primary" onClick={study}>
-                    <Play size={15} /> 5분 공부 시작
+                    <Play size={15} />
+                    {launch?.kind === 'document'
+                      ? '학습지 열기 · 필기'
+                      : launch?.kind === 'resource'
+                        ? '5분 문제 풀이'
+                        : launch?.kind === 'task'
+                          ? '과제로 5분 공부'
+                          : '5분 공부 시작'}
                   </button>
                 </div>
                 {chapter && (
@@ -568,7 +578,7 @@ export function Books({
                               자료 열기 · 필기
                             </button>
                           )}
-                          {r && (
+                          {r && m.kind === 'resource' && (
                             <button
                               onClick={() => {
                                 if (
