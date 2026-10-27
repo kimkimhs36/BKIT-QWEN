@@ -34,3 +34,9 @@ jobs:
         run: npm test
       - name: Verify production frontend build
         run: npm run build
+      - name: Install Chromium browser
+        run: npx playwright install --with-deps chromium
+      - name: iPhone clipboard to School Inbox e2e
+        env:
+          BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
+        run: npm run test:e2e -- tests/e2e/real-life-clipboard.spec.ts --project=iphone --workers=1
