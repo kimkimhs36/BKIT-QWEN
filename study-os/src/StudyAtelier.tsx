@@ -20,6 +20,7 @@ import {
   missionToTask,
   prepareMissions,
   readDraft,
+  sameMission,
   rememberVisit,
   type AtelierDraft,
   type Mission,
@@ -150,9 +151,11 @@ export function StudyAtelier({
   onClose,
   onSave,
   startAt,
+  existingTasks = [],
 }: {
   onClose: () => void;
   startAt?: 'capture';
+  existingTasks?: Task[];
   onSave: (tasks: Task[]) => { duplicates: number } | null;
 }) {
   const [initial] = useState(() => {
@@ -167,6 +170,7 @@ export function StudyAtelier({
   const [error, setError] = useState(initial.error);
   const [savedDraft, setSavedDraft] = useState(!initial.error);
   const [busy, setBusy] = useState(false);
+  const [duplicatesAccepted, setDuplicatesAccepted] = useState(false);
   const busyRef = useRef(false);
   const [locked, setLocked] = useState(false);
   const gallery = useRef<HTMLInputElement>(null),
@@ -204,6 +208,7 @@ export function StudyAtelier({
     // Film completion must not move focus away while the learner is typing.
   }, [draft.step]);
   function update(next: AtelierDraft) {
+    setDuplicatesAccepted(false);
     draftRef.current = next;
     setDraft(next);
     if (blocked.current) {
@@ -225,6 +230,7 @@ export function StudyAtelier({
     update({ ...draftRef.current, step: next });
   }
   function changeMission(id: string, values: Partial<Mission>) {
+    setDuplicatesAccepted(false);
     update({
       ...draftRef.current,
       missions: draftRef.current.missions.map((m) =>
@@ -302,6 +308,8 @@ export function StudyAtelier({
     try {
       const tasks = draftRef.current.missions.map(missionToTask);
       if (!tasks.length) throw new Error('과제 하나 이상을 준비해 주세요.');
+      const duplicates = tasks.filter((task) => existingTasks.some((existing) => sameMission(existing, task)));
+      if (duplicates.length && !duplicatesAccepted) throw new Error('같은 과제 가능성을 확인해 주세요.');
       const photos = await Promise.all(draftRef.current.attachmentIds.map(getPhoto));
       if (photos.some((p) => !p))
         throw new Error(
@@ -331,6 +339,12 @@ export function StudyAtelier({
       setBusy(false);
     }
   }
+  const duplicateTitles = draft.missions.flatMap((mission) => {
+    try {
+      const task = missionToTask({ ...mission, checked: true });
+      return existingTasks.some((existing) => sameMission(existing, task)) ? [mission.title] : [];
+    } catch { return []; }
+  });
   const steps = ['briefing', 'capture', 'prepare'] as const;
   return (
     <dialog
@@ -669,6 +683,18 @@ export function StudyAtelier({
                         />
                       </label>
                     </div>
+                    {(['supplies', 'actions', 'deliverables'] as const).map((field, i) => (
+                      <label key={field}>
+                        {['준비물', '해야 할 일', '제출물'][i]} · 선택
+                        <textarea rows={2} maxLength={900} value={m[field]}
+                          onChange={(e) => changeMission(m.id, { [field]: e.target.value })} />
+                      </label>
+                    ))}
+                    <label className="atelier-check">
+                      <input type="checkbox" checked={m.submissionRequired}
+                        onChange={(e) => changeMission(m.id, { submissionRequired: e.target.checked })} />
+                      제출 확인이 필요한 과제
+                    </label>
                     <div className="atelier-fields atelier-fields--three">
                       <label>
                         분량 단위
@@ -769,6 +795,11 @@ export function StudyAtelier({
                   <Plus size={17} /> 과제 하나 더
                 </button>
               </fieldset>
+              {duplicateTitles.length > 0 && <div className="atelier-note" role="alert">
+                <p>이미 등록된 같은 과제가 있을 수 있어요: {duplicateTitles.join(', ')}. 저장하면 기존 과제에 사진만 연결하고 입력한 내용은 덮어쓰지 않습니다.</p>
+                <label className="atelier-check"><input type="checkbox" checked={duplicatesAccepted}
+                  onChange={(e) => setDuplicatesAccepted(e.target.checked)} /> 기존 과제를 확인하고 연결할게요</label>
+              </div>}
             </form>
           )}
           {error && (
@@ -795,7 +826,7 @@ export function StudyAtelier({
                 busy ||
                 locked ||
                 (draft.step === 'prepare' &&
-                  (!draft.missions.length || draft.missions.some((m) => !m.checked)))
+                  (!draft.missions.length || draft.missions.some((m) => !m.checked) || (duplicateTitles.length > 0 && !duplicatesAccepted)))
               }
               onClick={
                 draft.step === 'briefing'

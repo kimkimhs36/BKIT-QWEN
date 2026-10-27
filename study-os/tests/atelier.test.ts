@@ -55,6 +55,12 @@ describe('human-confirmed preparation and replay-safe BKIT save', () => {
       provenance: 'user-confirmed',
     });
   });
+  it('keeps supplies, work and deliverables distinct and never marks submission complete', () => {
+    const saved = missionToTask({ ...createMission('영어 수행평가 발표'), checked: true,
+      supplies: '색연필', actions: '발표 연습', deliverables: '보고서', submissionRequired: true });
+    expect(saved.notes).toBe('준비물: 색연필\n해야 할 일: 발표 연습\n제출물: 보고서');
+    expect(saved).toMatchObject({ status: 'todo', submitted: false, submissionRequired: true });
+  });
   it('preserves same-day task identity and merges private references on replay', () => {
     const first = { ...task(), attachmentIds: ['photo-a'] };
     const second = { ...task(' 수학  학습지 20문제 '), attachmentIds: ['photo-b'] };

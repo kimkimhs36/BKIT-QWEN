@@ -5,7 +5,7 @@ import { entriesForDay } from './calendar';
 import { recommendationReason } from './now';
 import { clock, dayKey, addDays } from './time';
 import { formatTaskDeadline } from './capture';
-import { needsSubmission } from './tasks';
+import { needsAttention, needsSubmission, unsubmittedAssessment } from './tasks';
 import { quickClock, quickSeconds } from './quickTimer';
 import { studySeconds, elapsed } from './session';
 
@@ -15,12 +15,14 @@ type Props = {
   tasks: Task[];
   next?: Fixed;
   current?: Fixed;
+  bedtime?: Fixed;
   resource?: { id: string; title: string } | null;
   onStart: (id?: string) => void;
   onQuick: (minutes?: number) => void;
   onNavigate: (route: string) => void;
   onAdd: () => void;
   onEdit: (task: Task) => void;
+  onAssessments: () => void;
   onSubmissions: () => void;
   onResource: (id: string) => void;
   onHelp: () => void;
@@ -33,12 +35,14 @@ export function PremiumHome({
   tasks,
   next,
   current,
+  bedtime,
   resource,
   onStart,
   onQuick,
   onNavigate,
   onAdd,
   onEdit,
+  onAssessments,
   onSubmissions,
   onResource,
   onHelp,
@@ -46,7 +50,8 @@ export function PremiumHome({
   accountConnected,
 }: Props) {
   const pending = tasks.filter((t) => t.status !== 'done');
-  const awaiting = state.tasks.filter(needsSubmission);
+  const awaiting = state.tasks.filter(unsubmittedAssessment);
+  const readyToSubmit = state.tasks.filter(needsSubmission);
   const recent = state.sessions.at(-1);
   const active = state.active,
     quick = state.quickTimer,
@@ -58,7 +63,15 @@ export function PremiumHome({
   const todayEntries = entriesForDay(state, dayKey(now));
   const tomorrowEntries = entriesForDay(state, addDays(dayKey(now), 1));
   const deadlineCount = (entries: typeof todayEntries) =>
-    entries.filter((e) => e.task && e.task.status !== 'done').length;
+    entries.filter((e) => e.task && !e.blockId && needsAttention(e.task)).length;
+  const remainingPlan = state.plan
+    .filter(
+      (block) => +new Date(block.end) > now && (!bedtime || +new Date(block.start) < bedtime.start),
+    )
+    .filter((block) =>
+      state.tasks.some((task) => task.id === block.taskId && task.status !== 'done'),
+    )
+    .sort((a, b) => a.start.localeCompare(b.start));
   return (
     <div className="study-home">
       <section className="study-start" aria-label="바로 공부 시작">
@@ -144,12 +157,39 @@ export function PremiumHome({
           </div>
         )}
         {awaiting.length > 0 && (
+          <button className="study-submission has-pending" onClick={onAssessments}>
+            <span>아직 제출하지 않은 수행평가 {awaiting.length}개</span>
+            <ChevronRight size={17} />
+          </button>
+        )}
+        {readyToSubmit.length > 0 && (
           <button className="study-submission has-pending" onClick={onSubmissions}>
-            <span>제출 확인 {awaiting.length}개 남았어요</span>
+            <span>학습 완료 후 제출 확인 {readyToSubmit.length}개</span>
             <ChevronRight size={17} />
           </button>
         )}
       </section>
+      {bedtime && (
+        <section className="study-next" aria-label="취침까지 남은 계획">
+          <Clock3 size={20} />
+          <div>
+            <span className="study-kicker">취침 목표 {clock(bedtime.start)}</span>
+            <h3>남은 공부 계획 {remainingPlan.length}개</h3>
+            <p>
+              {remainingPlan.length
+                ? '달력에서 남은 계획을 확인하세요.'
+                : '배치된 공부 계획이 없어요.'}
+            </p>
+          </div>
+          <button
+            className="study-icon"
+            onClick={() => onNavigate('school')}
+            aria-label="남은 계획 보기"
+          >
+            <ArrowUpRight size={20} />
+          </button>
+        </section>
+      )}
       <button
         className="study-day-summary"
         onClick={() => onNavigate('progress')}

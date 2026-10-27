@@ -13,6 +13,7 @@ import {
 import { storePhoto } from './atelierMedia';
 import { PrivatePhotoCard } from './StudyAtelier';
 import { iso } from './time';
+import { matchesResourceSearch } from './resourceSearch';
 const DigitalLibrary = lazy(() =>
   import('./DigitalLibrary').then((m) => ({ default: m.DigitalLibrary })),
 );
@@ -122,19 +123,12 @@ export function ResourceLibrary({
     <section className="panel resource-library" aria-label="자료 라이브러리">
       <div className="section-head">
         <div>
-          
           <h2>자료 라이브러리</h2>
         </div>
         <button className="primary" onClick={() => edit()}>
           자료 추가
         </button>
       </div>
-      <details className="compact-section compact-paper-tools">
-        <summary>PDF · 필기 도구</summary>
-        <Suspense fallback={<p>필기 도구를 여는 중…</p>}>
-          <DigitalLibrary state={state} onChange={onChange} />
-        </Suspense>
-      </details>
       <label>
         자료 검색
         <input
@@ -144,6 +138,12 @@ export function ResourceLibrary({
           placeholder="제목·과목·문제·개념"
         />
       </label>
+      <details className="compact-section compact-paper-tools">
+        <summary>PDF · 사진 학습지 열기와 필기</summary>
+        <Suspense fallback={<p>필기 도구를 여는 중…</p>}>
+          <DigitalLibrary state={state} onChange={onChange} query={query} />
+        </Suspense>
+      </details>
       <label className="sleep-check">
         <input
           type="checkbox"
@@ -176,7 +176,7 @@ export function ResourceLibrary({
                   defaultValue={current?.subject ?? task?.subject ?? '수학'}
                 />
                 <datalist id="resource-subjects">
-                  {['수학', '영어', '물리', '화학', '경제'].map((x) => (
+                  {['수학', '영어', '국어', '과학', '사회', '물리', '화학', '경제'].map((x) => (
                     <option key={x} value={x} />
                   ))}
                 </datalist>
@@ -212,7 +212,8 @@ export function ResourceLibrary({
               </label>
             </div>
             {!current && (
-              <>
+              <details>
+                <summary>문제 여러 개 등록 (선택)</summary>
                 <label>
                   등록할 실제 문제 수
                   <input
@@ -236,7 +237,7 @@ export function ResourceLibrary({
                   직접 입력하면 줄 수만큼 등록합니다. 비우면 번호만 만들고 원본 자료를 보며 풉니다.
                   문제 내용은 자동 생성하지 않습니다.
                 </p>
-              </>
+              </details>
             )}
             <label>
               여러 페이지 사진 첨부
@@ -344,6 +345,9 @@ export function ResourceLibrary({
                 />
               </Suspense>
             )}
+            <p className="muted">
+              사진 원본은 이 기기에만 저장되며 Cloud v2로 동기화되지 않습니다.
+            </p>
             <p className="muted">
               OCR은 한글·영어 인쇄물을 대상으로 합니다. 수식·손글씨는 원문과 비교해 수정하세요.
             </p>
@@ -551,17 +555,15 @@ export function ResourceLibrary({
           .filter(
             (r) =>
               (showArchived || !r.archived) &&
-              (
+              matchesResourceSearch(
+                query,
+                r.subject,
                 r.title +
-                ' ' +
-                r.subject +
-                ' ' +
-                resourceProblems(d, r.id)
-                  .map((p) => p.body + ' ' + p.concept)
-                  .join(' ')
-              )
-                .toLowerCase()
-                .includes(query.toLowerCase()),
+                  ' ' +
+                  resourceProblems(d, r.id)
+                    .map((p) => p.body + ' ' + p.concept)
+                    .join(' '),
+              ),
           )
           .map((r) => {
             const progress = resourceProgress(d, r.id),

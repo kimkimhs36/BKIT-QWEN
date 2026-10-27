@@ -29,6 +29,16 @@ it('completed homework remains in attention until actual submission', () => {
   expect(needsAttention({ ...t, submitted: true })).toBe(false);
   expect(needsSubmission({ ...t, kind: '시험공부' })).toBe(false);
 });
+it('shows unfinished and finished assessments until submitted without changing learning status', () => {
+  const unfinished = task({ id: 'a', kind: '수행평가', status: 'todo' });
+  const finished = task({ id: 'b', kind: '수행평가', status: 'done' });
+  const submitted = task({ id: 'c', kind: '수행평가', submitted: true });
+  const noSubmission = task({ id: 'd', kind: '수행평가', submissionRequired: false });
+  expect(
+    filteredTasks([unfinished, finished, submitted, noSubmission], 'assessment-unsubmitted'),
+  ).toEqual([unfinished, finished]);
+  expect(needsSubmission(unfinished)).toBe(false);
+});
 it.each([1, 2, 3, 4, 5])('recovers a short task with %i minute remaining', (remaining) => {
   const s = { ...newState(), tasks: [task({ status: 'todo', remaining })] },
     now = at('2026-10-12', '15:00');
