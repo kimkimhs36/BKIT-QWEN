@@ -21,24 +21,28 @@ export function bookLaunch(
   learning: Pick<LearningData, 'resources'>,
   tasks: readonly Pick<Task, 'id' | 'status'>[],
 ): BookLaunch {
-  const scope: BookMaterialLink[] = [
-    ...book.materials.filter((link) => link.chapterId === chapterId),
-    ...book.materials.filter((link) => !link.chapterId && chapterId !== null),
+  const chapters: BookMaterialLink[][] = [
+    book.materials.filter((link) => link.chapterId === chapterId),
+    ...(chapterId === null ? [] : [book.materials.filter((link) => link.chapterId === null)]),
   ];
-  for (const link of scope) {
-    if (link.kind !== 'resource') continue;
-    if (learning.resources.some((r) => r.id === link.targetId && !r.archived))
-      return { kind: 'resource', resourceId: link.targetId };
-  }
-  for (const link of scope) {
-    if (link.kind !== 'document') continue;
-    if (documents.some((d) => d.id === link.targetId))
-      return { kind: 'document', documentId: link.targetId, materialId: link.id };
-  }
-  for (const link of scope) {
-    if (link.kind !== 'task') continue;
-    if (tasks.some((t) => t.id === link.targetId && t.status !== 'done'))
-      return { kind: 'task', taskId: link.targetId };
+  // Chapter-local originals outrank book-wide suggestions.
+  // Inside the same scope only, a separately authored question outranks a PDF.
+  for (const scope of chapters) {
+    for (const link of scope) {
+      if (link.kind !== 'resource') continue;
+      if (learning.resources.some((r) => r.id === link.targetId && !r.archived))
+        return { kind: 'resource', resourceId: link.targetId };
+    }
+    for (const link of scope) {
+      if (link.kind !== 'document') continue;
+      if (documents.some((d) => d.id === link.targetId))
+        return { kind: 'document', documentId: link.targetId, materialId: link.id };
+    }
+    for (const link of scope) {
+      if (link.kind !== 'task') continue;
+      if (tasks.some((t) => t.id === link.targetId && t.status !== 'done'))
+        return { kind: 'task', taskId: link.targetId };
+    }
   }
   return { kind: 'timer' };
 }
