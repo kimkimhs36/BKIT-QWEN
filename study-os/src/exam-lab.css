@@ -124,6 +124,31 @@ html[data-material='glass'] .exam-lab-hero {backdrop-filter:blur(20px);-webkit-b
 }
 
 
+/* Rich study evidence is available on demand; keeps the first screen calm. */
+.exam-lab-path,.exam-lab-history {
+  margin:14px 0 0;padding:16px;
+  border:1px solid var(--exam-line);border-radius:15px;background:var(--exam-surface);
+}
+.exam-lab-path summary,.exam-lab-history summary {
+  cursor:pointer;font-size:13px;font-weight:710;line-height:1.7;min-height:26px;
+}
+.exam-lab-path>p,.exam-lab-history>p {
+  margin:10px 0;color:var(--exam-ink);opacity:.75;font-size:12px;line-height:1.6;
+}
+.exam-lab-path ul,.exam-lab-history ol {list-style:none;padding:0;margin:14px 0 0;display:grid;gap:9px;}
+.exam-lab-path li,.exam-lab-history li {
+  display:flex;align-items:center;flex-wrap:wrap;gap:5px 10px;
+  padding:10px 12px;border:1px solid var(--exam-line);border-radius:11px;
+  background:var(--exam-soft);font-size:12px;
+}
+.exam-lab-path li span,.exam-lab-history li span {font-size:10px;opacity:.73;}
+.exam-lab-path li small {
+  display:block;flex-basis:100%;line-height:1.55;opacity:.72;
+}
+.exam-lab-history li small {margin-left:auto;opacity:.7;}
+.exam-lab-history>small {display:block;margin-top:13px;opacity:.7;font-size:11px;line-height:1.6;}
+.exam-lab-focus {border-top:1px solid var(--exam-line);padding-top:8px;font-size:13px;}
+
 .exam-lab-breadcrumb {
   display:flex;align-items:center;gap:10px;
   margin:4px 0 13px;font-size:12px;min-height:44px;

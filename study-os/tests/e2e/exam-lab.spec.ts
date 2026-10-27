@@ -65,14 +65,28 @@ test('iPhone: invalid existing study original blocks writes without deleting it'
 });
 
 
+test('iPhone: a half-written answer survives pause and tab reopening', async ({ page }) => {
+  await openExam(page);
+  const room = page.getByRole('region', { name: 'BKIT 수능관' });
+  await room.getByRole('button', { name: /실제 문제 시작/ }).click();
+  await room.getByRole('textbox', { name: '숫자 답안' }).fill('-3');
+  await room.getByRole('button', { name: '나중에 이어하기' }).click();
+  await expect(room.getByRole('button', { name: /이어서 문제 풀기/ })).toBeVisible();
+  const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), KEY);
+  expect(saved.sessions.at(-1)?.answer).toBe('-3');
+  await page.reload();
+  await page.getByRole('button', { name: '수능관 · 기초 훈련', exact: true }).click();
+  await expect(room.getByRole('textbox', { name: '숫자 답안' })).toHaveValue('-3');
+});
+
 test('iPhone: paused maths answer resumes in same page and does not count away time', async ({ page }) => {
   await openExam(page);
   const room = page.getByRole('region', { name: 'BKIT 수능관' });
   await room.getByRole('button', { name: /실제 문제 시작/ }).click();
   await room.getByRole('textbox', { name: '숫자 답안' }).fill('7');
   await room.getByRole('button', { name: '나중에 이어하기' }).click();
-  await expect(room.getByRole('button', { name: /이전 문제 이어서/ })).toBeVisible();
-  await room.getByRole('button', { name: /이전 문제 이어서/ }).click();
+  await expect(room.getByRole('button', { name: /이어서 문제 풀기/ })).toBeVisible();
+  await room.getByRole('button', { name: /이어서 문제 풀기/ }).click();
   await expect(room.getByRole('textbox', { name: '숫자 답안' })).toHaveValue('7');
   const count = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!).attempts.length, KEY);
   expect(count).toBe(0);

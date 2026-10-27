@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { ArrowRight, BookOpenCheck, ClipboardCheck, RotateCcw, Sparkles, Download, Play } from 'lucide-react';
-import { learningConcepts, learningQuestions } from './juggernaut/catalogue';
+import { learningConcepts, learningQuestions, conceptRelations } from './juggernaut/catalogue';
 import { questionById, score } from './juggernaut/content';
 import {
   KEY, EXT_KEY, readDocument, saveDocument, activeAttempts, evidence,
@@ -31,7 +31,8 @@ export function ExamLab({ onOpenBooks }: { onOpenBooks: () => void }) {
   const [session, setSession] = useState<Session | null>(
     () => initial.document.sessions
       .filter(s => s.phase !== 'complete')
-      .sort((a, b) => b.updatedAt - a.updatedAt)[0] || null,
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .map(s => ({ ...s, tickAt: Date.now() }))[0] || null,
   );
   const [free, setFree] = useState(false);
   const [freeDoc, setFreeDoc] = useState(emptyDocument);
@@ -41,10 +42,11 @@ export function ExamLab({ onOpenBooks }: { onOpenBooks: () => void }) {
   sessionRef.current = session;
   const viewDoc = free ? freeDoc : doc;
   const attempts = activeAttempts(doc);
-  const pendingSessions = doc.sessions.filter((saved) => saved.phase !== 'complete')
-    .sort((a,b) => b.updatedAt - a.updatedAt);
   const recommendationToday = useMemo(() => recommendation(doc), [doc]);
   const reviews = useMemo(() => dueReviews(doc), [doc]);
+  const pausedSession = doc.sessions
+    .filter(s => s.phase !== 'complete')
+    .sort((a,b) => b.updatedAt - a.updatedAt)[0];
   const q = session ? questionById(session.questionId) : null;
   const feedback = session?.submittedId
     ? viewDoc.attempts.find(a => a.id === session.submittedId) : null;
@@ -98,24 +100,6 @@ export function ExamLab({ onOpenBooks }: { onOpenBooks: () => void }) {
             (reason instanceof Error ? reason.message : '저장 공간을 확인해 주세요.'));
         }
       }
-    }
-  }
-
-  function resume(s: Session) {
-    setFree(false);
-    setFinished(false);
-    setNotice('기기에 보관했던 문제를 이어서 풀어요.');
-    // Do not count time spent outside this screen as studying.
-    const t = Date.now();
-    const resumed: Session = { ...s, tickAt: t, updatedAt: t };
-    try {
-      const saved = saveDocument(localStorage, putSession(doc, resumed));
-      setDoc(saved);
-      setSession(resumed);
-      setError('');
-    } catch (reason) {
-      setError('중단된 학습을 다시 저장하지 못했어요. 원본은 유지했어요. ' +
-        (reason instanceof Error ? reason.message : ''));
     }
   }
 
@@ -185,6 +169,7 @@ export function ExamLab({ onOpenBooks }: { onOpenBooks: () => void }) {
       try {
         saveDocument(localStorage, putSession(readDocument(localStorage).document, checkpoint));
         sessionRef.current = checkpoint;
+        if (document.visibilityState === 'visible') setSession(checkpoint);
       } catch {
         // The visible save actions report failures; never overwrite corrupt stored bytes.
       }
@@ -225,24 +210,31 @@ export function ExamLab({ onOpenBooks }: { onOpenBooks: () => void }) {
             <div><strong>{reviews.length}</strong><small>현재 복습할 개념</small></div>
             <div><strong>{learningQuestions.length}</strong><small>연습 가능한 문항</small></div>
           </div>
-          {pendingSessions.length > 0 && !blocked && (
-            <section className="exam-lab-resume" aria-label="보관한 학습 이어하기">
-              <div>
-                <small>CONTINUE / 저장된 문제</small>
-                <strong>멈춘 문제에서 다시 시작</strong>
-                <p>기존 답과 풀이 기록을 보관하고 있어요. 중단한 동안은 공부 시간에 포함하지 않아요.</p>
-              </div>
-              <button type="button" className="primary" onClick={() => resume(pendingSessions[0])}>
-                이전 문제 이어서 <ArrowRight size={15}/>
-              </button>
-            </section>
-          )}
           <section className="exam-lab-next">
             <span className="exam-lab-eyebrow">NEXT ACTION / 오늘의 한 걸음</span>
             <h3>{learningConcepts.find(c => c.id === recommendationToday.concept)?.name}</h3>
             <p>{recommendationToday.reason}</p>
             <div className="exam-lab-actions">
-              <button className="primary" disabled={blocked} onClick={() => begin(recommendationToday.kind, recommendationToday.concept)}>
+              {pausedSession && (
+                <button type="button" className="primary" disabled={blocked}
+                  onClick={() => {
+                    const resumed = { ...pausedSession, tickAt: Date.now(), updatedAt: Date.now() };
+                    try {
+                      const restored = saveDocument(localStorage, putSession(doc, resumed));
+                      setDoc(restored);
+                      setSession(resumed);
+                      setFree(false);
+                      setFinished(false);
+                      setError('');
+                      setNotice('이 기기에 남겨둔 풀이를 이어가요.');
+                    } catch {
+                      setError('이어서 공부할 기록을 저장하지 못했어요. 원본을 내보내고 저장 공간을 확인해 주세요.');
+                    }
+                  }}>
+                  이어서 문제 풀기 <ArrowRight size={16}/>
+                </button>
+              )}
+              <button className={pausedSession ? '' : 'primary'} disabled={blocked} onClick={() => begin(recommendationToday.kind, recommendationToday.concept)}>
                 <Play size={17}/> 실제 문제 시작 <ArrowRight size={16}/>
               </button>
               <button onClick={() => begin('ignition', undefined, true)}>저장 없이 가볍게 연습</button>
@@ -270,6 +262,35 @@ export function ExamLab({ onOpenBooks }: { onOpenBooks: () => void }) {
                 );
               })}
             </div>
+            <details className="exam-lab-path">
+              <summary>선수개념은 어떤 순서로 연결될까?</summary>
+              <p>문제를 풀기 전 배워야 하는 내용과, 연습하면 좋은 순서는 달라요.</p>
+              <ul>
+                {conceptRelations.map(edge => (
+                  <li key={edge.from + edge.to}>
+                    <strong>{learningConcepts.find(c => c.id === edge.from)?.name}</strong>
+                    <span>{edge.kind === 'prerequisite' ? '선수 개념' : '연습 순서'}</span>
+                    <strong>{learningConcepts.find(c => c.id === edge.to)?.name}</strong>
+                    <small>{edge.basis}</small>
+                  </li>
+                ))}
+              </ul>
+            </details>
+            <details className="exam-lab-history">
+              <summary>최근 실제 풀이 기록 {attempts.length}회 보기</summary>
+              {attempts.length ? (
+                <ol>
+                  {attempts.slice(-10).reverse().map(a => (
+                    <li key={a.id}>
+                      <strong>{learningConcepts.find(c => c.id === questionById(a.questionId).concept)?.name}</strong>
+                      <span>{score(a.questionId, a.answer) ? '정답' : '오답'} · {independent(a) ? '혼자 풂' : '도움 또는 풀이 미완성'}</span>
+                      <small>{new Date(a.at).toLocaleString('ko-KR')}</small>
+                    </li>
+                  ))}
+                </ol>
+              ) : <p>아직 풀이 기록이 없어요. 한 문제부터 시작해요.</p>}
+              <small>최근 입력을 보여주는 기록이지 수능 등급이나 실력 보장은 아니에요.</small>
+            </details>
           </section>
         </>
       ) : (
@@ -315,6 +336,12 @@ export function ExamLab({ onOpenBooks }: { onOpenBooks: () => void }) {
                   ? '정답이에요. 풀이 과정을 확인해요.' : '다시 배울 지점을 찾았어요.'}</strong>
                 <p>정답: {q.answer}</p>
                 <p>{q.explanation}</p>
+                {'errorFocus' in q && typeof q.errorFocus === 'string' && q.errorFocus && (
+                  <p className="exam-lab-focus">확인할 개념: {q.errorFocus}</p>
+                )}
+                {'retest' in q && typeof q.retest === 'string' && q.retest && (
+                  <p className="exam-lab-focus">다음 연습: {q.retest}</p>
+                )}
                 <small>{feedback && independent(feedback)
                   ? '힌트 없이 풀이와 답을 남겼어요. 다른 문제로 다시 확인해야 실력이 확인돼요.'
                   : '도움 또는 풀이 기록이 부족했어요. 다음 문제로 확인해요.'}</small>

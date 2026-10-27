@@ -244,3 +244,28 @@
   .inbox-fast-actions button { width: 100%; }
   .study-tomorrow-task { align-items: flex-start; }
 }
+
+
+/* Calm one-row everyday actions: preserves Compact home's visual hierarchy. */
+.study-home .daily-activation {
+  display:flex;flex-wrap:nowrap;gap:8px;align-items:center;
+  overflow-x:auto;overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;scrollbar-width:none;
+  margin:0 -2px;padding:12px 2px 15px;
+}
+.study-home .daily-activation::-webkit-scrollbar { display:none; }
+.study-home .daily-activation>button {
+  flex:0 0 auto;white-space:nowrap;scroll-snap-align:start;
+  border-radius:999px;padding:10px 16px;min-height:44px;
+  font-size:12px;font-weight:650;letter-spacing:-.01em;
+  border:1px solid var(--mat-line,rgba(127,127,127,.2));
+  background:var(--mat-card,transparent);color:var(--mat-ink,inherit);
+}
+.study-home .daily-activation>button:first-child {
+  background:var(--mat-soft,transparent);
+  border-color:color-mix(in srgb,var(--mat-accent,currentColor) 25%,transparent);
+}
+.study-home .daily-activation>button:focus-visible {
+  outline:2px solid var(--mat-accent,currentColor);
+  outline-offset:3px;
+}

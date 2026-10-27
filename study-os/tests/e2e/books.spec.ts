@@ -32,7 +32,7 @@ async function add(page: Page) {
 }
 test('book persists, chapter PDF opens, ink room returns, original survives trash and restore', async ({
   page,
-}, info) => {
+}) => {
   await prepare(page);
   await add(page);
   await page.getByRole('button', { name: '대단원 추가', exact: true }).click();
@@ -58,7 +58,7 @@ test('book persists, chapter PDF opens, ink room returns, original survives tras
   await page.reload();
   await page.getByRole('button', { name: /최근 공부한 책/ }).click();
   await expect(page.getByRole('combobox', { name: '공부 상태', exact: true })).toHaveValue('review');
-  await page.screenshot({ path: info.outputPath('books-chapter.png'), fullPage: true });
+  // Nine-material visual snapshots are verified in the dedicated theme test below.
   await page.getByRole('button', { name: '삭제', exact: true }).click();
   await page.getByRole('button', { name: '휴지통으로 이동', exact: true }).click();
   await page.getByRole('combobox', { name: '책장', exact: true }).selectOption('trash');
@@ -125,7 +125,6 @@ test('all nine material themes preserve book data and fit the viewport', async (
   await page.getByRole('button', { name: /최근 공부한 책/ }).click();
   await expect(page.getByRole('heading', { name: '나의 미적분Ⅰ', exact: true })).toBeVisible();
 });
-
 
 test('maths book → BKIT exam lab → real attempt → book evidence without auto-completing chapters', async ({ page }) => {
   await prepare(page);
