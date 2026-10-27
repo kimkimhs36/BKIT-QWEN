@@ -23,7 +23,7 @@ function safeExport() {
 /** This view reuses the JUGGERNAUT BUILD 03 scoring/storage engine rather than
  * publishing an unfinished full-screen design or adding a second question bank.
  */
-export function ExamLab() {
+export function ExamLab({ onOpenBooks }: { onOpenBooks: () => void }) {
   const [initial] = useState(() => readDocument(localStorage));
   const [doc, setDoc] = useState<StudyDocument>(initial.document);
   const [error, setError] = useState(initial.error);
@@ -41,6 +41,8 @@ export function ExamLab() {
   sessionRef.current = session;
   const viewDoc = free ? freeDoc : doc;
   const attempts = activeAttempts(doc);
+  const pendingSessions = doc.sessions.filter((saved) => saved.phase !== 'complete')
+    .sort((a,b) => b.updatedAt - a.updatedAt);
   const recommendationToday = useMemo(() => recommendation(doc), [doc]);
   const reviews = useMemo(() => dueReviews(doc), [doc]);
   const q = session ? questionById(session.questionId) : null;
@@ -96,6 +98,24 @@ export function ExamLab() {
             (reason instanceof Error ? reason.message : '저장 공간을 확인해 주세요.'));
         }
       }
+    }
+  }
+
+  function resume(s: Session) {
+    setFree(false);
+    setFinished(false);
+    setNotice('기기에 보관했던 문제를 이어서 풀어요.');
+    // Do not count time spent outside this screen as studying.
+    const t = Date.now();
+    const resumed: Session = { ...s, tickAt: t, updatedAt: t };
+    try {
+      const saved = saveDocument(localStorage, putSession(doc, resumed));
+      setDoc(saved);
+      setSession(resumed);
+      setError('');
+    } catch (reason) {
+      setError('중단된 학습을 다시 저장하지 못했어요. 원본은 유지했어요. ' +
+        (reason instanceof Error ? reason.message : ''));
     }
   }
 
@@ -179,6 +199,11 @@ export function ExamLab() {
 
   return (
     <section className="exam-lab panel" aria-label="BKIT 수능관">
+      <nav className="exam-lab-breadcrumb" aria-label="BOOKS와 수능관">
+        <button type="button" onClick={onOpenBooks}>BOOKS · 책장으로 돌아가기</button>
+        <span aria-hidden="true">/</span>
+        <strong aria-current="page">수능관</strong>
+      </nav>
       <header className="exam-lab-hero">
         <span className="exam-lab-eyebrow"><Sparkles size={15}/> BKIT / THE LONG ROUTE</span>
         <h2>거대한 목표는,<br/><em>오늘의 한 문제에서.</em></h2>
@@ -200,6 +225,18 @@ export function ExamLab() {
             <div><strong>{reviews.length}</strong><small>현재 복습할 개념</small></div>
             <div><strong>{learningQuestions.length}</strong><small>연습 가능한 문항</small></div>
           </div>
+          {pendingSessions.length > 0 && !blocked && (
+            <section className="exam-lab-resume" aria-label="보관한 학습 이어하기">
+              <div>
+                <small>CONTINUE / 저장된 문제</small>
+                <strong>멈춘 문제에서 다시 시작</strong>
+                <p>기존 답과 풀이 기록을 보관하고 있어요. 중단한 동안은 공부 시간에 포함하지 않아요.</p>
+              </div>
+              <button type="button" className="primary" onClick={() => resume(pendingSessions[0])}>
+                이전 문제 이어서 <ArrowRight size={15}/>
+              </button>
+            </section>
+          )}
           <section className="exam-lab-next">
             <span className="exam-lab-eyebrow">NEXT ACTION / 오늘의 한 걸음</span>
             <h3>{learningConcepts.find(c => c.id === recommendationToday.concept)?.name}</h3>
@@ -287,7 +324,12 @@ export function ExamLab() {
           </>}
         </section>
       )}
-      {finished && <p role="status">학습 한 번을 마쳤어요. 이어서 다른 개념이나 BOOKS 학습지로 연습해 보세요.</p>}
+      {finished && (
+        <section className="exam-lab-finish" role="status">
+          <span>오늘의 한 걸음을 완료했어.</span>
+          <button type="button" onClick={onOpenBooks}>BOOKS 학습지로 이어가기 <ArrowRight size={15}/></button>
+        </section>
+      )}
       <footer className="exam-lab-footer">
         <BookOpenCheck size={16}/>
         <p>공부 기록은 이 기기에 보관돼요. 상단 원본 내보내기 또는 BKIT 설정의 전체 ZIP 백업을 이용해 주세요. 실제 출제범위·시험일은 최신 공식 공고를 확인해야 해요.</p>
