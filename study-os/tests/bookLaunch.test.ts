@@ -42,6 +42,21 @@ describe('BKIT BOOKS authentic study launch', () => {
     expect(bookLaunch(book, null, [], {resources: []}, [{id:'homework',status:'done'}]))
       .toEqual({kind: 'timer'});
   });
+  it('never overrides selected chapter PDF with a book-wide question bank', () => {
+    const book = newBook('미적분Ⅰ', '미적분Ⅰ');
+    const state = addResource(newState(), {
+      title: '전체 총정리', subject: '미적분Ⅰ', sourceType: 'school-worksheet',
+      linkedTaskId: null, linkedMediaIds: [],
+    }, ['방정식의 해']);
+    const resourceId = state.learning!.resources.at(-1)!.id;
+    book.materials = [
+      {id: 'global-bank', kind: 'resource', targetId: resourceId, chapterId: null},
+      {id: 'chapter-paper', kind: 'document', targetId: 'local-paper', chapterId: 'chapter-2'},
+    ];
+    expect(bookLaunch(book, 'chapter-2', [{id:'local-paper'}], state.learning!, []))
+      .toEqual({kind:'document',documentId:'local-paper',materialId:'chapter-paper'});
+  });
+
   it('prioritizes the current chapter PDF before a book-wide document', () => {
     const book = newBook('물질과 에너지', '물질과 에너지');
     book.materials = [
