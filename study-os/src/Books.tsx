@@ -53,7 +53,7 @@ export function Books({
 }: {
   state: State;
   onChange: (fn: (s: State) => State) => boolean;
-  onStudy: (resourceId?: string, taskId?: string) => void;
+  onStudy: (resourceId?: string, taskId?: string, fromBookId?: string) => void;
   onExam: () => void;
 }) {
   const { data, error, save, update, blocked } = useBooks();
@@ -274,7 +274,7 @@ export function Books({
         m.kind === 'task' && state.tasks.some((t) => t.id === m.targetId && t.status !== 'done'),
     )?.targetId;
     if (update(book.id, (b) => ({ ...b, lastOpenedAt: new Date().toISOString() })))
-      onStudy(resource ?? undefined, task);
+      onStudy(resource ?? undefined, task, book.id);
   }
   const visible = data.books
     .filter((b) =>
@@ -577,14 +577,14 @@ export function Books({
                                     lastOpenedAt: new Date().toISOString(),
                                   }))
                                 )
-                                  onStudy(r.id);
+                                  onStudy(r.id, undefined, book.id);
                               }}
                             >
                               문제 풀이 · 오답 복습
                             </button>
                           )}
                           {task && (
-                            <button onClick={() => onStudy(undefined, task.id)}>과제로 공부</button>
+                            <button onClick={() => onStudy(undefined, task.id, book.id)}>과제로 공부</button>
                           )}
                           <button
                             onClick={() =>
