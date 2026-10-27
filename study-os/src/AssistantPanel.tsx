@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ArrowUpRight, CheckCircle2, Send, Sparkles, XCircle } from 'lucide-react';
 import type { State } from './model';
-import { assistantContext, localAssistant, type AssistantAction } from './assistantLogic';
+import { localAssistant, type AssistantAction } from './assistantLogic';
 import { askLiveAssistant, checkAssistantConfig } from './assistantAI';
 import { authorizeGoogleIdentity, prepareGoogleIdentity } from './cloudClient';
 import { WaterDrop } from './WaterDrop';
@@ -116,7 +116,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
         <div><span>YOUR STUDY COMPANION</span><h3>복잡한 하루에, 작은 여유.</h3><p>계획부터 복습까지, 함께 풀어가요.</p></div>
       </div>
       <p className="assistant-intro">과제·일정·계획·복습을 한곳에서 관리해. 기본은 무료 로컬 비서이며, AI는 연결한 뒤 질문을 보낼 때만 사용해요.</p>
-      <div className="assistant-connection" role="group" aria-label="BKIT AI 연결">
+      <div className="note-card assistant-connection" role="group" aria-label="BKIT AI 연결">
         <p role="status">{connection}</p>
         {available && (
           <>
