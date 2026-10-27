@@ -40,9 +40,9 @@ export function dailyTriage(tasks: readonly Task[], now: number): DailyTriage {
     b.priority - a.priority || a.id.localeCompare(b.id);
   for (const group of [result.overdue, result.today, result.soon, result.later, result.unknown])
     group.sort(order);
-  // A clear deadline outranks speculation; undated work is still visible and counted.
+  // Unknown due dates must remain visible before distant tasks, without inventing urgency.
   result.spotlight = [
-    ...result.overdue, ...result.today, ...result.soon, ...result.later, ...result.unknown,
+    ...result.overdue, ...result.today, ...result.soon, ...result.unknown, ...result.later,
   ];
   return result;
 }
