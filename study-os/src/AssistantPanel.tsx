@@ -26,6 +26,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
   const [ready, setReady] = useState(false);
   const [token, setToken] = useState('');
   const [live, setLive] = useState(false);
+  const [verified, setVerified] = useState(false);
   const [shareContext, setShareContext] = useState(false);
   const [connection, setConnection] = useState('AI 서버 상태 확인 중…');
 
@@ -54,6 +55,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
     if (existing) {
       setToken(existing);
       setLive(true);
+      setVerified(false);
       setConnection('AI 대화가 선택됐어요. 실제 응답 성공 여부는 첫 질문으로 확인해요.');
       return;
     }
@@ -66,9 +68,11 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
       const connected = await authorizeGoogleIdentity(clientId);
       setToken(connected);
       setLive(true);
+      setVerified(false);
       setConnection('Google 연결 완료. 질문을 보낼 때만 AI를 호출해요.');
     } catch (error) {
       setLive(false);
+      setVerified(false);
       setConnection(error instanceof Error ? error.message : 'Google 연결을 확인해 주세요.');
     }
   }
@@ -88,10 +92,12 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
         try {
           const answer = await askLiveAssistant(question, token || getAccessToken(), state, shareContext);
           setMessages(old => [...old, { role: 'assistant', text: answer, navigate: offline.navigate }]);
+          setVerified(true);
           setConnection('DeepSeek가 실제 응답했어요. 저장·수정은 별도 확인이 필요해요.');
         } catch (error) {
           const reason = error instanceof Error ? error.message : 'AI 서버 연결을 확인해 주세요.';
           setMessages(old => [...old, { role: 'assistant', text: offline.answer + '\nAI 응답 미완료: ' + reason + '\n위 답변은 로컬 안내예요.' }]);
+          setVerified(false);
           setConnection(reason);
         }
       }
@@ -126,7 +132,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
               내 과제·일정·학습 기록 요약도 AI와 공유 (선택)
             </label>
             {live ? (
-              <button type="button" className="secondary" disabled={busy} onClick={() => { setLive(false); setShareContext(false); setConnection('로컬 비서로 전환했어요.'); }}>
+              <button type="button" className="secondary" disabled={busy} onClick={() => { setLive(false); setVerified(false); setShareContext(false); setConnection('로컬 비서로 전환했어요.'); }}>
                 로컬 비서로 전환
               </button>
             ) : (
@@ -136,7 +142,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
             )}
           </>
         )}
-        <small>{live ? '현재 모드: DeepSeek 연결 선택 · 답변 성공 전까지 미검증' : '현재 모드: 무료 로컬 비서'}</small>
+        <small>{live ? (verified ? '현재 모드: DeepSeek 실제 답변 검증됨' : '현재 모드: AI 연결 선택 · 아직 실제 답변 미검증') : '현재 모드: 무료 로컬 비서'}</small>
       </div>
       <div className="assistant-messages" role="log" aria-label="비서 대화" aria-live="polite">
         {messages.map((message, i) => (
