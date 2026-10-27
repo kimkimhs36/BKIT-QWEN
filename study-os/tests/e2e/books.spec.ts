@@ -84,7 +84,9 @@ test('existing problem engine records once and returns to book without marking c
   const w = page.getByRole('region', { name: '다중 문제 학습실' });
   await expect(w).toBeVisible();
   await page.clock.fastForward(65000);
-  await w.getByLabel('최종 답', { exact: true }).fill('1');
+  // The learning template owns the accessible label (e.g. 풀이, 해석, 최종 답).
+  // Exercise the actual editable answer, not one subject-specific name.
+  await w.locator('.main-answer textarea').fill('1');
   await w.getByRole('button', { name: '내 답 저장 · 직접 확인하기', exact: true }).click();
   await w.getByRole('button', { name: '오답 · 다시 연습', exact: true }).click();
   await w.getByRole('button', { name: '저장하고 학습 종료', exact: true }).click();
