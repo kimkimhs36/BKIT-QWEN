@@ -1,13 +1,14 @@
 {
-  "product": "BKIT STUDY OS · Cloud v2",
-  "sourceCommit": "ca8959c13d45ef04766f5067150a6b5c6104164d",
-  "sourceBranch": "fix/bkit-clean-cloud-client-20261025",
-  "previousSource": "1407f937bbf534c88c12031265c976f8c3d5f08d",
-  "rollbackCommit": "f3ad016ed51c626c6c4761f5864cd49e93b7abf2",
-  "publishedAt": "2026-10-25T11:33:50.422Z",
+  "product": "BKIT STUDY OS · Daily Driver Build 02",
+  "sourceCommit": "50a89f0053e60d6af1b8ffdd818c299ed3711622",
+  "sourceBranch": "codex/daily-driver-02-source",
+  "previousSource": "ca8959c13d45ef04766f5067150a6b5c6104164d",
+  "rollbackCommit": "0d6ddb8c15c538dc81608e7e3fcad24d1ffe7252",
+  "publishedAt": "2026-10-27T13:48:31.678075+00:00",
   "apiSource": "6b392839a1819494aa9e588a484d918e44d2233b",
   "apiProtocol": 3,
-  "validation": "App/API unit suites, production build, WebKit clean-cloud rollover/recovery; synthetic OAuth and Redis transport, physical iPhone unverified",
+  "validation": "290 unit tests; Chromium portrait/landscape regression, WebKit calendar and notice gates, root-path acceptance and ZIP recovery. Extended matrix stopped at user request; hardware and 7-day adoption unverified.",
   "ci": "https://github.com/kimkimhs36/BKIT-QWEN/actions/runs/40188873750",
-  "notes": "Owner-approved cloud v2 reset; device-only study files preserved; legacy owner snapshot deleted only on first successful v2 PUT."
+  "notes": "User-authorized static frontend release. Cloud v2 and local storage keys preserved; no data reset. Old hashed assets and independent routes retained.",
+  "review": "https://github.com/kimkimhs36/BKIT-QWEN/pull/41"
 }
