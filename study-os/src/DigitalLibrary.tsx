@@ -8,11 +8,14 @@ import { listPaperDocuments, savePaperDocument, readPaperFile } from './paperSto
 import { importPaper } from './paperPdf';
 import { DigitalPaperRoom } from './DigitalPaperRoom';
 import { ExamLibrary } from './ExamLibrary';
+import { matchesResourceSearch } from './resourceSearch';
 export function DigitalLibrary({
   state,
   onChange,
+  query = '',
 }: {
   state: State;
+  query?: string;
   onChange: (fn: (s: State) => State) => boolean;
 }) {
   const [docs, setDocs] = useState<PaperDocument[]>([]),
@@ -21,7 +24,7 @@ export function DigitalLibrary({
     [busy, setBusy] = useState(false),
     [link, setLink] = useState(''),
     [subject, setSubject] = useState('수학'),
-    [count, setCount] = useState(20),
+    [count, setCount] = useState(1),
     [taskId, setTaskId] = useState('');
   async function refresh() {
     try {
@@ -81,7 +84,10 @@ export function DigitalLibrary({
   return (
     <div className="digital-library">
       <h3>디지털 종이 · PDF</h3>
-      <p>PDF·촬영 학습지를 넣고 필기한 뒤, 자료의 문제별 답변과 오답 복습으로 이어갑니다.</p>
+      <p>
+        PDF·촬영 학습지를 넣고 필기한 뒤 다시 열 수 있습니다. 원본과 필기는 이 기기에만 저장되며
+        Cloud v2로 동기화되지 않습니다.
+      </p>
       {!opened && (
         <details>
           <summary>미저장 필기 JSON 복구</summary>
@@ -211,41 +217,50 @@ export function DigitalLibrary({
             </p>
           </details>
           <div className="paper-document-list">
-            {docs.map((d) => (
-              <article key={d.id}>
-                <strong>{d.name}</strong>
-                <p>
-                  {d.pages.length}페이지 · 필기 {d.layers.reduce((n, l) => n + l.strokes.length, 0)}
-                  획 ·{' '}
-                  {learning(state).resources.find((r) => r.id === d.resourceId)?.title ||
-                    '미연결 원본 보존'}
-                </p>
-                <button onClick={() => setOpened(d)}>종이 열기</button>
-                <label>
-                  문서의 자료 연결
-                  <select
-                    aria-label={d.name + ' 자료 연결'}
-                    value={d.resourceId ?? ''}
-                    disabled={busy}
-                    onChange={(e) => {
-                      const resourceId = e.target.value || null;
-                      setBusy(true);
-                      void savePaperDocument({ ...d, resourceId })
-                        .then(refresh)
-                        .catch((e) => setError(e.message))
-                        .finally(() => setBusy(false));
-                    }}
-                  >
-                    <option value="">원본만 보관</option>
-                    {learning(state).resources.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.title}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </article>
-            ))}
+            {docs
+              .filter((d) => {
+                const resource = learning(state).resources.find((r) => r.id === d.resourceId);
+                return matchesResourceSearch(
+                  query,
+                  resource?.subject ?? '',
+                  `${d.name} ${resource?.title ?? ''}`,
+                );
+              })
+              .map((d) => (
+                <article key={d.id}>
+                  <strong>{d.name}</strong>
+                  <p>
+                    {d.pages.length}페이지 · 필기{' '}
+                    {d.layers.reduce((n, l) => n + l.strokes.length, 0)}획 ·{' '}
+                    {learning(state).resources.find((r) => r.id === d.resourceId)?.title ||
+                      '미연결 원본 보존'}
+                  </p>
+                  <button onClick={() => setOpened(d)}>종이 열기</button>
+                  <label>
+                    문서의 자료 연결
+                    <select
+                      aria-label={d.name + ' 자료 연결'}
+                      value={d.resourceId ?? ''}
+                      disabled={busy}
+                      onChange={(e) => {
+                        const resourceId = e.target.value || null;
+                        setBusy(true);
+                        void savePaperDocument({ ...d, resourceId })
+                          .then(refresh)
+                          .catch((e) => setError(e.message))
+                          .finally(() => setBusy(false));
+                      }}
+                    >
+                      <option value="">원본만 보관</option>
+                      {learning(state).resources.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.title}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </article>
+              ))}
           </div>
           <ExamLibrary
             documents={docs}

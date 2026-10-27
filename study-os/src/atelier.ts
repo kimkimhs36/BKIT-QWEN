@@ -15,6 +15,10 @@ export const missionSchema = z.object({
   minutes: z.string().max(3),
   attachmentIds: z.array(z.string().max(100)).max(12),
   checked: z.boolean(),
+  supplies: z.string().max(900).default(''),
+  actions: z.string().max(900).default(''),
+  deliverables: z.string().max(900).default(''),
+  submissionRequired: z.boolean().default(false),
 });
 export type Mission = z.infer<typeof missionSchema>;
 const draftSchema = z.object({
@@ -74,6 +78,7 @@ export function createMission(title = '', attachmentIds: string[] = []): Mission
     minutes: '25',
     attachmentIds,
     checked: false,
+    supplies: '', actions: '', deliverables: '', submissionRequired: parsed.submissionRequired,
   };
 }
 export function prepareMissions(draft: AtelierDraft): Mission[] {
@@ -119,8 +124,10 @@ export function missionToTask(mission: Mission): Task {
     priority: 2,
     status: 'todo',
     submitted: false,
+    submissionRequired: mission.submissionRequired,
     optional: false,
-    notes: '',
+    notes: [['준비물', mission.supplies], ['해야 할 일', mission.actions], ['제출물', mission.deliverables]]
+      .filter(([, value]) => value.trim()).map(([label, value]) => `${label}: ${value.trim()}`).join('\n'),
     link: '',
     attachmentIds: mission.attachmentIds,
   });

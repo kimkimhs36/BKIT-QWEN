@@ -48,6 +48,7 @@ export function QuickCapture({
             link: '',
           };
           if (onSave(task)) setSaved(true);
+          else setError('과제를 저장하지 못했어요. 저장 공간이나 저장 잠금을 확인한 뒤 다시 시도해 주세요.');
         } catch {
           setError('마감 날짜·시각·분량을 다시 확인해 주세요.');
         }

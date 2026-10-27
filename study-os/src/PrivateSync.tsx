@@ -293,7 +293,12 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
     }
     if (mode === 'this') {
       const version = await writeCloud(remote.version, latest, epoch);
-      await markSuccess(version, latest, epoch, '이 기기의 기록을 클라우드에 저장했어요.');
+      await markSuccess(
+        version,
+        latest,
+        epoch,
+        '과제와 공부 기록을 클라우드에 저장했어요. 사진·학습 자료와 풀이 기록은 이 기기에만 보관돼요.',
+      );
       return;
     }
     if (remoteDigest === localDigest) {
@@ -325,7 +330,10 @@ export function usePrivateStudySync(localState: State, applyIncoming: (state: St
       (mode === 'sync' || mode === 'initial')
     ) {
       if (signature(local.current) !== before)
-        throw new SyncFailure('conflict', '초기화 확인 중 공부 기록이 바뀌었어요. 다시 확인해 주세요.');
+        throw new SyncFailure(
+          'conflict',
+          '초기화 확인 중 공부 기록이 바뀌었어요. 다시 확인해 주세요.',
+        );
       const version = await writeCloud(0, latest, epoch);
       await markSuccess(version, latest, epoch, '새 개인 클라우드에 안전하게 연결했어요.');
       return;
@@ -840,6 +848,10 @@ export function PrivateSyncPanel({ sync }: { sync: PrivateStudyBridge }) {
       <p className="bkit-cloud-privacy">
         <CheckCircle2 size={16} />
         공부 기록은 우선 이 기기에 저장되며, 연결 중일 때 약 30초마다 클라우드를 확인합니다.
+      </p>
+      <p className="hint">
+        사진·학습지 원본과 자료의 문항·풀이 기록은 클라우드에 저장되지 않아요. 다른 기기로 옮기거나
+        보관하려면 전체 ZIP 백업을 사용하세요.
       </p>
     </section>
   );

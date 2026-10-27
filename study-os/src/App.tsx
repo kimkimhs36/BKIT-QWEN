@@ -2031,6 +2031,7 @@ export default function App() {
                 tasks={ordered}
                 next={next}
                 current={current}
+                bedtime={sleepFixed.find((item) => item.start > now)}
                 resource={resumeResource}
                 onStart={(id) => start(5, id)}
                 onQuick={(minutes) => {
@@ -2043,6 +2044,10 @@ export default function App() {
                 }}
                 onAdd={() => taskEditor()}
                 onEdit={taskEditor}
+                onAssessments={() => {
+                  setFilter('assessment-unsubmitted');
+                  setTab('tasks');
+                }}
                 onSubmissions={() => {
                   setFilter('submission');
                   setTab('tasks');
@@ -2131,6 +2136,7 @@ export default function App() {
                     {[
                       ['pending', '미완료'],
                       ['submission', '제출 확인'],
+                      ['assessment-unsubmitted', '미제출 수행평가'],
                       ['done', '학습 완료'],
                       ['all', '전체'],
                     ].map(([v, l]) => (
@@ -2150,7 +2156,9 @@ export default function App() {
                   </section>
                 ) : (
                   <p className="task-empty">
-                    {filter === 'submission'
+                    {filter === 'assessment-unsubmitted'
+                      ? '미제출 수행평가가 없어요.'
+                      : filter === 'submission'
                       ? '제출을 확인할 과제가 없어요.'
                       : filter === 'done'
                         ? '완료한 과제가 없어요.'
@@ -3052,6 +3060,7 @@ export default function App() {
         {atelierOpen &&
           createPortal(
             <StudyAtelier
+              existingTasks={s.tasks}
               startAt={atelierStep}
               onClose={() => setAtelierOpen(false)}
               onSave={(tasks) => {
