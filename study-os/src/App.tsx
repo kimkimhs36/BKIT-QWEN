@@ -2,6 +2,7 @@ import { activation } from './activation';
 import { INBOX_KEY, inboxSchema, noticeStatus, attachNoticeResources } from './schoolInbox';
 import './daily-driver.css';
 import { BooksResume } from './BooksResume';
+import { readBookStudyOrigin, storeBookStudyOrigin } from './bookStudyOrigin';
 import { useIconFeedback } from './useIconFeedback';
 import type { HelpAction, HelpTopic } from './HelpCenter';
 import { MaterialSettings } from './themes/MaterialSettings';
@@ -393,6 +394,12 @@ export default function App() {
       | 'block'
       | 'import'
     >(null);
+  const [studyBookOrigin, setStudyBookOrigin] = useState(() => readBookStudyOrigin(sessionStorage));
+  useEffect(() => {
+    if (tab !== 'books' || !studyBookOrigin) return;
+    setStudyBookOrigin('');
+    storeBookStudyOrigin(sessionStorage, null);
+  }, [tab, studyBookOrigin]);
   // A route trail, not browser history: back must never leave the study app.
   const routeTrail = useRef<string[]>([]);
   function setTab(route: string, remember = true) {
@@ -2111,7 +2118,11 @@ export default function App() {
                 <Books
                   state={s}
                   onChange={commit}
-                  onStudy={(resourceId, taskId) => {
+                  onStudy={(resourceId, taskId, fromBookId) => {
+                    if (fromBookId) {
+                      setStudyBookOrigin(fromBookId);
+                      storeBookStudyOrigin(sessionStorage, fromBookId);
+                    }
                     if (resourceId) openResource(resourceId);
                     else start(5, taskId ?? '__free__');
                   }}
@@ -2176,6 +2187,25 @@ export default function App() {
               />
             )}
             {tab === 'today' && <BooksResume onOpen={() => setTab('books')} />}
+            {studyBookOrigin && ['today', 'study', 'progress', 'subjects'].includes(tab) && (
+              <section className="books-study-return" aria-label="BOOKS 학습 이어가기">
+                <BookOpen size={19} aria-hidden="true" />
+                <span>
+                  <strong>책에서 시작한 공부</strong>
+                  <small>원래 책과 단원으로 한 번에 돌아갈 수 있어요.</small>
+                </span>
+                <button type="button" onClick={() => setTab('books')}>BOOKS로 돌아가기 <ArrowRight size={16} aria-hidden="true"/></button>
+                <button
+                  type="button"
+                  aria-label="BOOKS 복귀 안내 닫기"
+                  className="books-return-dismiss"
+                  onClick={() => {
+                    setStudyBookOrigin('');
+                    storeBookStudyOrigin(sessionStorage, null);
+                  }}
+                ><X size={16} aria-hidden="true"/></button>
+              </section>
+            )
             {savedTaskId && s.tasks.find((t) => t.id === savedTaskId) && (
               <section
                 className="daily-panel saved-task-actions"
