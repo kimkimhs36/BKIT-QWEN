@@ -148,3 +148,19 @@ test('maths book → BKIT exam lab → real attempt → book evidence without au
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.books.v1')!));
   expect(saved.books[0].chapters[0].status).toBe('todo');
 });
+
+
+test('new user quick-start subject never saves until user confirms book details', async ({ page }) => {
+  await prepare(page);
+  const books = page.getByRole('region', { name: 'BKIT BOOKS' });
+  await books.getByRole('button', { name: '미적분Ⅰ', exact: true }).click();
+  await expect(page.getByLabel('책 제목', { exact: true })).toHaveValue('미적분Ⅰ 학습지');
+  await expect(page.getByLabel('과목', { exact: true })).toHaveValue('미적분Ⅰ');
+  const before = await page.evaluate(() => localStorage.getItem('bkit.books.v1'));
+  expect(before).toBeNull();
+  await page.getByRole('button', { name: '책 저장', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '미적분Ⅰ 학습지', exact: true })).toBeVisible();
+  const after = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.books.v1')!));
+  expect(after.books).toHaveLength(1);
+  expect(after.books[0].subject).toBe('미적분Ⅰ');
+});
