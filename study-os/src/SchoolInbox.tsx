@@ -1,5 +1,6 @@
 import { activation } from './activation';
 import { NoticePdf } from './NoticePdf';
+import { prepareNoticePaste } from './noticePaste';
 import { useRef, useState } from 'react';
 import { TaskMaterials } from './TaskMaterials';
 import { PhotoText } from './PhotoText';
@@ -64,6 +65,8 @@ export function SchoolInbox({
   const notice = data.notices.find((n) => n.id === selected);
   const linked = notice ? noticeTasks(notice, state.tasks) : [];
   const [confirmed, setConfirmed] = useState(false);
+  const [pasteBusy, setPasteBusy] = useState(false);
+  const [pasteFeedback, setPasteFeedback] = useState('');
   function persist(next: SchoolInboxData) {
     dataRef.current = next;
     setData(next); // Keep typed content available for retry when storage fails.
@@ -97,6 +100,40 @@ export function SchoolInbox({
     if (persist({ ...data, notices: [next, ...data.notices] })) {
       setSelected(next.id);
       setConfirmed(false);
+      setPasteFeedback('');
+    }
+  }
+  async function pasteFromClipboard() {
+    if (pasteBusy || busy || initial.error) return;
+    setPasteBusy(true);
+    setPasteFeedback('');
+    try {
+      if (!navigator.clipboard?.readText)
+        throw new Error('이 브라우저에서 클립보드를 읽을 수 없어요. 새 공지를 연 뒤 입력칸에 직접 붙여넣어 주세요.');
+      // Initiated by an explicit click; no automatic clipboard access.
+      const copied = await navigator.clipboard.readText();
+      const result = prepareNoticePaste(copied, dataRef.current.notices);
+      if (result.kind === 'error') {
+        setPasteFeedback(result.message);
+      } else if (result.kind === 'duplicate') {
+        setSelected(result.noticeId);
+        setConfirmed(false);
+        setPasteFeedback('이미 보관한 같은 공지를 열었어요. 중복으로 추가하지 않았어요.');
+      } else {
+        const item = { ...newNotice(), text: result.text };
+        if (persist({
+          ...dataRef.current,
+          notices: [item, ...dataRef.current.notices],
+        })) {
+          setSelected(item.id);
+          setConfirmed(false);
+          setPasteFeedback('공지 원문을 이 기기에 보관했어요. 과제·마감일은 원본과 확인한 뒤 등록해 주세요.');
+        }
+      }
+    } catch {
+      setPasteFeedback('클립보드 접근이 차단됐어요. 새 공지 보관을 누르고 직접 붙여넣을 수 있어요.');
+    } finally {
+      setPasteBusy(false);
     }
   }
   return (
@@ -106,10 +143,16 @@ export function SchoolInbox({
           <h2>학교 공지 받은함</h2>
           <p>사진부터 보관하고, 확인한 과제만 등록해요.</p>
         </div>
-        <button className="primary" onClick={create} disabled={busy || !!initial.error}>
-          새 공지 보관
-        </button>
+        <div className="inbox-fast-actions">
+          <button type="button" className="primary" onClick={() => void pasteFromClipboard()} disabled={busy || pasteBusy || !!initial.error}>
+            {pasteBusy ? '클립보드 확인 중…' : '복사한 공지 바로 보관'}
+          </button>
+          <button type="button" onClick={create} disabled={busy || pasteBusy || !!initial.error}>
+            사진·PDF 공지 추가
+          </button>
+        </div>
       </div>
+      {pasteFeedback && <p role="status" className="inbox-paste-feedback">{pasteFeedback}</p>}
       <p className="hint">
         공지 글·사진·PDF 원본은 이 기기에만 보관돼요. 과제 정보는 Cloud v2 연결 시 동기화되지만
         원본은 전송되지 않아요. 다른 기기로 옮길 때 설정의 완전한 ZIP 백업을 이용하세요.
