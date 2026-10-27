@@ -2107,6 +2107,7 @@ export default function App() {
                   setTab('inbox');
                 }}
                 onAssessment={addAssessmentNow}
+                onExportCalendar={exportCalendar}
                 onRecover={recovery}
                 inboxPending={inboxPending}
                 unavailable={
