@@ -54,7 +54,11 @@ test('book persists, chapter PDF opens, ink room returns, original survives tras
   await page.getByRole('button', { name: '학습지 열기 · 필기', exact: true }).click();
   await expect(page.getByRole('button', { name: '종이 닫기', exact: true })).toBeVisible();
   // Reading an original page without grading it cannot produce a fake solved problem.
-  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!).learning.attempts)).toEqual([]);
+  const beforeStudy = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('bkit.study-os.v1')!).learning);
+  expect(beforeStudy.attempts).toEqual([]);
+  // The only authored problem is the preloaded sample, not a phantom imported PDF question.
+  expect(beforeStudy.problems).toHaveLength(1);
   // Existing room owns cursor persistence and closing/flush semantics.
   await page.getByRole('button', { name: '종이 닫기', exact: true }).click();
   await expect(page.getByRole('heading', { name: '함수의 극한', exact: true })).toBeVisible();
