@@ -452,3 +452,32 @@ html[data-material='jelly'] .books-tile:active .books-cover {
  .books-quick-start button {transition:none;}
  .books-quick-start button:hover {transform:none;}
 }
+
+
+/* Learning receipt ➝ original book, without disrupting the app's existing materials. */
+.books-study-return {
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  margin:14px 0;padding:13px 14px;
+  border:1px solid var(--mat-line,rgba(128,128,128,.25));
+  border-radius:16px;
+  background:var(--mat-card,transparent);
+  color:var(--mat-ink,inherit);
+}
+.books-study-return>svg {flex:0 0 auto;color:var(--mat-accent,currentColor);}
+.books-study-return>span {flex:1 1 170px;min-width:0;display:grid;gap:4px;}
+.books-study-return>span strong {font-size:13px;letter-spacing:-.02em;}
+.books-study-return>span small {font-size:11px;color:var(--mat-muted,inherit);line-height:1.5;}
+.books-study-return button {font:inherit;display:inline-flex;align-items:center;gap:6px;min-height:44px;}
+.books-study-return>button:not(.books-return-dismiss) {
+  border:1px solid var(--mat-line,rgba(128,128,128,.25));
+  border-radius:12px;padding:8px 12px;background:var(--mat-soft,transparent);
+  color:inherit;font-size:12px;font-weight:700;
+}
+.books-study-return .books-return-dismiss {
+  border:0;background:transparent;color:inherit;opacity:.75;
+  width:44px;justify-content:center;padding:0;
+}
+@media(max-width:440px) {
+  .books-study-return>span {flex-basis:calc(100% - 50px);}
+  .books-study-return>button:not(.books-return-dismiss) {flex:1;justify-content:center;}
+}
