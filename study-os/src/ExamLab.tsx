@@ -81,8 +81,21 @@ export function ExamLab() {
     } else {
       setFree(false);
       setSession(null);
-      // Persist before indicating successful start; old active sessions remain recoverable.
-      if (persist(putSession(source, next), next)) setNotice('이 기기에 학습 시작이 저장됐어요.');
+      // The previous mode can be free: write directly to permanent storage in this branch.
+      // Never save a real exercise to the throwaway practice document.
+      if (!blocked) {
+        try {
+          const saved = saveDocument(localStorage, putSession(source, next));
+          setDoc(saved);
+          setSession(next);
+          setError('');
+          setNotice('이 기기에 학습 시작이 저장됐어요.');
+        } catch (reason) {
+          setSession(null);
+          setError('학습 시작을 저장하지 못했어요. ' +
+            (reason instanceof Error ? reason.message : '저장 공간을 확인해 주세요.'));
+        }
+      }
     }
   }
 
@@ -121,6 +134,7 @@ export function ExamLab() {
       setSession(null);
       setFree(false);
       setFinished(false);
+      setNotice('기록을 변경하지 않고 학습 화면을 닫았어요.');
       return;
     }
     if (free) {
