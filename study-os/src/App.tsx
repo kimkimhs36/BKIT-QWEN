@@ -2092,7 +2092,9 @@ export default function App() {
                 <button aria-pressed={tab === 'materials'} onClick={() => setTab('materials')}>모든 공부 자료</button>
               </div>
             )}
-            {tab === 'study' && <BooksResume onOpen={() => setTab('books')} />}
+            {(tab === 'study' || tab === 'progress') && (
+              <BooksResume onOpen={() => setTab('books')} />
+            )}
             {tab === 'books' && (
               <Suspense fallback={<p role="status">서재를 여는 중…</p>}>
                 <Books
