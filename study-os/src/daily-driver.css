@@ -160,3 +160,87 @@
   .study-school-glance { padding: 11px 12px; }
   .study-school-glance-entries { flex-direction: column; gap: 2px; }
 }
+
+
+/* BUILD 04: high-value daily actions, in every BKIT material world. */
+.inbox-fast-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.inbox-fast-actions button { min-height: 44px; }
+.inbox-paste-feedback {
+  padding: 10px 12px;
+  border: 1px solid var(--mat-border, #8885);
+  border-radius: 12px;
+  font-size: 0.86rem;
+}
+.study-tomorrow-preview {
+  margin: 8px 0 14px;
+  border: 1px solid var(--mat-border, #8885);
+  border-radius: 15px;
+  background: var(--mat-surface, transparent);
+  overflow: hidden;
+}
+.study-tomorrow-preview summary {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  min-height: 62px;
+  padding: 12px 14px;
+  list-style: none;
+}
+.study-tomorrow-preview summary::-webkit-details-marker { display: none; }
+.study-tomorrow-head {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+.study-tomorrow-head strong { font-size: 0.87rem; }
+.study-tomorrow-head small { opacity: .75; font-size: .76rem; line-height: 1.5; }
+.study-tomorrow-preview[open] summary > svg { transform: rotate(90deg); }
+.study-tomorrow-preview summary > svg { flex-shrink: 0; transition: transform .18s ease; }
+.study-tomorrow-content {
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--mat-border, #8885);
+  font-size: .84rem;
+}
+.study-tomorrow-content > strong { display: block; margin: 12px 0 5px; }
+.study-tomorrow-content > p { margin: 10px 0; line-height: 1.6; }
+.study-tomorrow-content > small { display: block; margin-top: 12px; opacity: .75; line-height: 1.5; }
+.study-tomorrow-content ol { list-style: none; padding: 0; margin: 0; }
+.study-tomorrow-content li {
+  padding: 6px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.study-tomorrow-content li small { opacity: .73; white-space: nowrap; }
+.study-tomorrow-task {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 3px 8px;
+  padding: 10px 0;
+  min-height: 44px;
+  border: none;
+  border-bottom: 1px solid var(--mat-border, #8884);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.study-tomorrow-task span { flex: 1 1 60%; overflow-wrap: anywhere; }
+.study-tomorrow-task small { opacity: .72; font-size: .75rem; }
+@media (prefers-reduced-motion: reduce) {
+  .study-tomorrow-preview summary > svg { transition: none; }
+}
+@media (max-width: 420px) {
+  .inbox-fast-actions { flex-direction: column; }
+  .inbox-fast-actions button { width: 100%; }
+  .study-tomorrow-task { align-items: flex-start; }
+}

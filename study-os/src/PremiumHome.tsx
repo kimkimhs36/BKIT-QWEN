@@ -76,6 +76,8 @@ export function PremiumHome({
   const todayEntries = entriesForDay(state, dayKey(now));
   const tomorrowEntries = entriesForDay(state, addDays(dayKey(now), 1));
   const schoolToday = todayEntries.filter((entry) => entry.kind === 'school' && entry.schedule);
+  const schoolTomorrow = tomorrowEntries.filter((entry) => entry.kind === 'school' && entry.schedule);
+  const tomorrowDue = tomorrowEntries.filter((entry) => !!entry.task && !entry.blockId && needsAttention(entry.task));
   const nowClock = clock(now);
   const schoolCurrent = schoolToday.find(
     (entry) => entry.schedule!.start <= nowClock && nowClock < entry.schedule!.end,
@@ -159,6 +161,56 @@ export function PremiumHome({
           </small>
         )}
       </section>
+      {(schoolTomorrow.length > 0 || tomorrowDue.length > 0 || hasSchoolTimetable) && (
+        <details className="study-tomorrow-preview" aria-label="내일 학교·마감 준비">
+          <summary>
+            <span className="study-tomorrow-head">
+              <strong>내일 미리 챙기기</strong>
+              <small>
+                {schoolTomorrow.length
+                  ? `등록된 수업 ${schoolTomorrow.length}개 · 첫 수업 ${schoolTomorrow[0].title}`
+                  : '내일 등록된 수업 미확인'}
+                {' · '}마감·제출 확인 {tomorrowDue.length}개
+              </small>
+            </span>
+            <ChevronRight size={18} aria-hidden="true" />
+          </summary>
+          <div className="study-tomorrow-content">
+            {schoolTomorrow.length > 0 ? (
+              <>
+                <strong>내일 수업</strong>
+                <ol>
+                  {schoolTomorrow.map((entry, i) => (
+                    <li key={entry.id}>
+                      {i + 1}. {entry.title} <small>{entry.time}</small>
+                    </li>
+                  ))}
+                </ol>
+              </>
+            ) : (
+              <p>내일 등록된 수업이 없어요. 시간표 변경이나 휴업 여부는 학교 공지로 확인해 주세요.</p>
+            )}
+            {tomorrowDue.length > 0 && (
+              <>
+                <strong>내일 마감·제출 확인</strong>
+                {tomorrowDue.map((entry) => (
+                  <button
+                    type="button"
+                    className="study-tomorrow-task"
+                    key={entry.id}
+                    onClick={() => onEdit(entry.task!)}
+                  >
+                    <span>{entry.task!.subject} · {entry.task!.title}</span>
+                    <small>{needsSubmission(entry.task!) ? '학습 완료 · 제출 확인 필요' : taskUrgencyLabel(entry.task!, now)}</small>
+                    <ChevronRight size={16} aria-hidden="true" />
+                  </button>
+                ))}
+              </>
+            )}
+            <small>실제 등록된 일정만 표시해요. 등록되지 않은 공지는 자동으로 알 수 없어요.</small>
+          </div>
+        </details>
+      )}
       {inboxPending !== 0 && (
         <button className="study-submission has-pending" onClick={onInbox}>
           {inboxPending === null
