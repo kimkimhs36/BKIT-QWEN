@@ -407,3 +407,27 @@ html[data-material='jelly'] .books-tile:active .books-cover {
   margin:4px 0 18px;font-weight:700;font-size:12px;line-height:1.6;
 }
 .books-foundation-link:focus-visible {outline:2px solid var(--mat-accent);outline-offset:3px;}
+
+
+/* Native BKIT BOOKS → math foundations evidence. Never implies automatic mastery. */
+.books-foundation-progress {
+  display:grid;gap:11px;
+  padding:clamp(14px,3vw,22px);
+  margin:14px 0 20px;
+  border:1px solid var(--mat-line,rgba(128,128,128,.25));
+  border-radius:18px;
+  background:var(--mat-card,transparent);
+}
+.books-foundation-progress-heading {display:grid;gap:4px;}
+.books-foundation-progress-heading span {font-size:10px;letter-spacing:.12em;opacity:.65;}
+.books-foundation-progress-heading strong {font-size:18px;letter-spacing:-.035em;}
+.books-foundation-numbers {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.books-foundation-numbers>div {display:grid;gap:3px;min-width:0;border-radius:12px;padding:11px;background:var(--mat-soft,transparent);border:1px solid var(--mat-line,transparent);}
+.books-foundation-numbers strong {font-size:clamp(21px,4vw,30px);font-weight:770;letter-spacing:-.055em;line-height:1.1;}
+.books-foundation-numbers small {font-size:11px;line-height:1.4;}
+.books-foundation-progress p {font-size:12px;line-height:1.65;margin:0;}
+.books-foundation-progress .books-foundation-link {display:inline-flex;align-items:center;justify-content:space-between;gap:10px;min-height:45px;text-align:left;}
+@media(max-width:390px) {
+  .books-foundation-numbers {gap:5px;}
+  .books-foundation-numbers>div {padding:9px 7px;}
+}
