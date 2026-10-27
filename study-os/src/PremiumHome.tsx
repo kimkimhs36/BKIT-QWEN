@@ -26,6 +26,7 @@ type Props = {
   inboxPending: number | null;
   onInbox: () => void;
   onAssessment: () => void;
+  onExportCalendar: () => void;
   onEdit: (task: Task) => void;
   onAssessments: () => void;
   onSubmissions: () => void;
@@ -51,6 +52,7 @@ export function PremiumHome({
   inboxPending,
   onInbox,
   onAssessment,
+  onExportCalendar,
   onEdit,
   onAssessments,
   onSubmissions,
@@ -145,6 +147,17 @@ export function PremiumHome({
         <small className="study-school-glance-note">
           등록된 정보만 표시해요. 임시 시간표 변경은 학교 공지와 대조해 주세요.
         </small>
+        {state.schedules.length > 0 && (
+          <button type="button" className="study-text-link study-calendar-export" onClick={onExportCalendar}>
+            다음 14일 일정·준비 알림 캘린더로 내보내기
+            <ArrowUpRight size={15} aria-hidden="true" />
+          </button>
+        )}
+        {state.schedules.length > 0 && (
+          <small className="study-school-glance-note">
+            파일을 내려받은 다음 기기 캘린더에 직접 추가하고 알림 설정을 확인해 주세요.
+          </small>
+        )}
       </section>
       {inboxPending !== 0 && (
         <button className="study-submission has-pending" onClick={onInbox}>
