@@ -431,3 +431,24 @@ html[data-material='jelly'] .books-tile:active .books-cover {
   .books-foundation-numbers {gap:5px;}
   .books-foundation-numbers>div {padding:9px 7px;}
 }
+
+
+.books-quick-start {
+  margin:22px auto 8px;max-width:560px;
+  display:grid;justify-items:center;gap:12px;text-align:center;
+}
+.books-quick-start>span {font-size:12px;font-weight:750;letter-spacing:.01em;}
+.books-quick-start>div {display:flex;flex-wrap:wrap;justify-content:center;gap:8px;}
+.books-quick-start button {
+  display:inline-flex;align-items:center;gap:5px;min-height:42px;
+  padding:9px 13px;border:1px solid var(--mat-line,rgba(128,128,128,.3));
+  background:var(--mat-card,transparent);color:var(--mat-ink,inherit);
+  border-radius:999px;font-size:12px;font-weight:650;
+  transition:transform .17s ease,border-color .17s ease;
+}
+.books-quick-start button:hover {transform:translateY(-2px);}
+.books-quick-start small {max-width:43ch;font-size:11px;line-height:1.7;}
+@media(prefers-reduced-motion:reduce) {
+ .books-quick-start button {transition:none;}
+ .books-quick-start button:hover {transform:none;}
+}
