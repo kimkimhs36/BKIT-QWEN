@@ -110,3 +110,53 @@
 .daily-priority > p {
   margin: 8px 0;
 }
+
+
+/* Real-life home: one compact source-of-truth for the school day, not a second dashboard. */
+.study-school-glance {
+  margin: 5px 0 12px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, currentColor 11%, transparent);
+  border-radius: 15px;
+  background: var(--mat-surface, transparent);
+}
+.study-school-glance-heading,
+.study-school-glance-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.study-school-glance-heading {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.study-school-glance-title strong { font-size: 0.89rem; }
+.study-school-glance p { margin: 8px 0 0; font-size: 0.85rem; }
+.study-school-glance-entries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+}
+.study-school-glance-entries p {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  row-gap: 2px;
+}
+.study-school-glance-entries span,
+.study-school-glance-entries small,
+.study-school-glance-note { opacity: 0.74; }
+.study-school-glance-entries strong { font-size: 0.95rem; }
+.study-school-glance-entries small { font-size: 0.77rem; }
+.study-school-glance-note { display: block; margin-top: 9px; font-size: 0.73rem; }
+.study-triage-summary {
+  margin: 6px 0 10px;
+  font-size: 0.77rem;
+  opacity: 0.78;
+  line-height: 1.5;
+}
+@media (max-width: 420px) {
+  .study-school-glance { padding: 11px 12px; }
+  .study-school-glance-entries { flex-direction: column; gap: 2px; }
+}
