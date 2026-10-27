@@ -214,10 +214,16 @@ export function ExamLab() {
                 <button type="button" className="primary" disabled={blocked}
                   onClick={() => {
                     const resumed = { ...pausedSession, tickAt: Date.now(), updatedAt: Date.now() };
-                    if (persist(putSession(doc, resumed), resumed)) {
+                    try {
+                      const restored = saveDocument(localStorage, putSession(doc, resumed));
+                      setDoc(restored);
+                      setSession(resumed);
                       setFree(false);
                       setFinished(false);
+                      setError('');
                       setNotice('이 기기에 남겨둔 풀이를 이어가요.');
+                    } catch {
+                      setError('이어서 공부할 기록을 저장하지 못했어요. 원본을 내보내고 저장 공간을 확인해 주세요.');
                     }
                   }}>
                   이어서 문제 풀기 <ArrowRight size={16}/>
