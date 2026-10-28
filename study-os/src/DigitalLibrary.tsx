@@ -24,7 +24,7 @@ export function DigitalLibrary({
     [busy, setBusy] = useState(false),
     [link, setLink] = useState(''),
     [subject, setSubject] = useState('수학'),
-    [count, setCount] = useState(1),
+    [count, setCount] = useState(0),
     [taskId, setTaskId] = useState('');
   async function refresh() {
     try {
@@ -174,14 +174,17 @@ export function DigitalLibrary({
                   <label>
                     PDF 실제 문제 수
                     <input
+                      aria-label="PDF 실제 문제 수"
+                      aria-describedby="paper-count-help"
                       type="number"
-                      min="1"
+                      min="0"
                       max="500"
                       value={count}
                       onChange={(e) =>
-                        setCount(Math.max(1, Math.min(500, Number(e.target.value) || 1)))
+                        setCount(Math.max(0, Math.min(500, Math.floor(Number(e.target.value) || 0))))
                       }
                     />
+                    <small id="paper-count-help">원본 필기만 할 때는 0. 실제 문제를 따로 기록하려면 개수를 확인해 입력하세요.</small>
                   </label>
                   <label>
                     PDF 연결 과제
