@@ -12,7 +12,7 @@ import {
 } from './books';
 import { useBooks } from './useBooks';
 import { foundationSnapshot } from './booksExamBridge';
-import { bookLaunch } from './bookLaunch';
+import { bookLaunch, hasPracticeQuestions } from './bookLaunch';
 import { readDocument as readExamDocument } from './juggernaut/engine';
 import { Modal } from './Modal';
 import { learning, addResource, resourceProgress } from './learningEngine';
@@ -533,8 +533,8 @@ export function Books({
                 )}
                 <div className="books-materials">
                   {materials.map((m) => {
-                    const doc =
-                      m.kind === 'document' ? docs.find((d) => d.id === m.targetId) : undefined;
+                    const doc = m.kind === 'document' ? docs.find((d) => d.id === m.targetId)
+                      : m.kind === 'resource' ? docs.find((d) => d.resourceId === m.targetId) : undefined;
                     const r = learning(state).resources.find(
                       (r) =>
                         r.id === (doc?.resourceId ?? (m.kind === 'resource' ? m.targetId : null)),
@@ -579,12 +579,13 @@ export function Books({
                               자료 열기 · 필기
                             </button>
                           )}
-                          {r && m.kind === 'resource' && (
+                          {r && m.kind === 'resource' && !r.archived && hasPracticeQuestions(learning(state), r.id, docs) && (
                             <button
                               onClick={() => {
                                 if (
                                   update(book.id, (b) => ({
                                     ...b,
+                                    bookmark: { chapterId, materialId: m.id },
                                     lastOpenedAt: new Date().toISOString(),
                                   }))
                                 )

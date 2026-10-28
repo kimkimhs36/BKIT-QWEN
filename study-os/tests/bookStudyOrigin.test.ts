@@ -1,12 +1,20 @@
-import { describe, expect, it } from 'vitest';
-import { BOOK_STUDY_ORIGIN, readBookStudyOrigin, storeBookStudyOrigin } from '../src/bookStudyOrigin';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  BOOK_STUDY_ORIGIN,
+  readBookStudyOrigin,
+  storeBookStudyOrigin,
+} from '../src/bookStudyOrigin';
 
 function port() {
-  const values = new Map<string,string>();
+  const values = new Map<string, string>();
   return {
     getItem: (key: string) => values.get(key) ?? null,
-    setItem: (key: string, value: string) => { values.set(key, value); },
-    removeItem: (key: string) => { values.delete(key); },
+    setItem: (key: string, value: string) => {
+      values.set(key, value);
+    },
+    removeItem: (key: string) => {
+      values.delete(key);
+    },
   };
 }
 
@@ -27,12 +35,35 @@ describe('BOOKS post-study return navigation', () => {
   });
   it('continues app navigation when private browsing blocks session storage', () => {
     const blocked = {
-      getItem: (_: string) => { throw Error('denied'); },
-      setItem: (_: string, __: string) => { throw Error('denied'); },
-      removeItem: (_: string) => { throw Error('denied'); },
+      getItem: (_: string) => {
+        throw Error('denied');
+      },
+      setItem: (_: string, __: string) => {
+        throw Error('denied');
+      },
+      removeItem: (_: string) => {
+        throw Error('denied');
+      },
     };
     expect(readBookStudyOrigin(blocked)).toBe('');
     expect(() => storeBookStudyOrigin(blocked, 'foo')).not.toThrow();
     expect(() => storeBookStudyOrigin(blocked, null)).not.toThrow();
+  });
+  it('also guards the browser storage getter itself, before any storage method exists', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'sessionStorage');
+    Object.defineProperty(globalThis, 'sessionStorage', {
+      configurable: true,
+      get: () => {
+        throw new Error('denied');
+      },
+    });
+    try {
+      expect(readBookStudyOrigin()).toBe('');
+      expect(() => storeBookStudyOrigin(undefined, 'book')).not.toThrow();
+    } finally {
+      if (descriptor) Object.defineProperty(globalThis, 'sessionStorage', descriptor);
+      else Reflect.deleteProperty(globalThis, 'sessionStorage');
+      vi.unstubAllGlobals();
+    }
   });
 });

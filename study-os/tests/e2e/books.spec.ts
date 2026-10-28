@@ -87,7 +87,7 @@ test('existing problem engine records once and returns to book without marking c
   await page.getByRole('combobox', { name: '자료 종류', exact: true }).selectOption('resource');
   await page.getByRole('combobox', { name: '연결할 자료', exact: true }).selectOption({ label: '극한 연습' });
   await page.getByRole('button', { name: '선택한 자료 연결', exact: true }).click();
-  await page.getByRole('button', { name: '5분 공부 시작', exact: true }).click();
+  await page.getByRole('button', { name: '5분 문제 풀이', exact: true }).click();
   const w = page.getByRole('region', { name: '다중 문제 학습실' });
   await expect(w).toBeVisible();
   await page.clock.fastForward(65000);
@@ -112,6 +112,7 @@ test('existing problem engine records once and returns to book without marking c
 test('all nine material themes preserve book data and fit the viewport', async ({ page }, info) => {
   await prepare(page);
   await add(page);
+  test.setTimeout(90000);
   for (const theme of [
     'classic',
     'forest',
@@ -124,9 +125,12 @@ test('all nine material themes preserve book data and fit the viewport', async (
     'night',
   ]) {
     await page.evaluate((t) => {
-      localStorage.setItem('bkit.material.v1', t);
-      document.documentElement.dataset.material = t;
+      localStorage.setItem('bkit.material.v1', JSON.stringify({id:t,motion:'reduced',intensity:.5,lowPower:false}));
+      localStorage.setItem('bkit.study-os.theme.v1', ['forest','night'].includes(t)?'dark':'light');
     }, theme);
+    await page.reload();
+    await page.getByRole('button', { name: /최근 공부한 책/ }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-material',theme);
     await expect(page.getByRole('heading', { name: '나의 미적분Ⅰ', exact: true })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,

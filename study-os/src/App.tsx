@@ -394,11 +394,11 @@ export default function App() {
       | 'block'
       | 'import'
     >(null);
-  const [studyBookOrigin, setStudyBookOrigin] = useState(() => readBookStudyOrigin(sessionStorage));
+  const [studyBookOrigin, setStudyBookOrigin] = useState(() => readBookStudyOrigin());
   useEffect(() => {
     if (tab !== 'books' || !studyBookOrigin) return;
     setStudyBookOrigin('');
-    storeBookStudyOrigin(sessionStorage, null);
+    storeBookStudyOrigin(undefined, null);
   }, [tab, studyBookOrigin]);
   // A route trail, not browser history: back must never leave the study app.
   const routeTrail = useRef<string[]>([]);
@@ -2121,7 +2121,7 @@ export default function App() {
                   onStudy={(resourceId, taskId, fromBookId) => {
                     if (fromBookId) {
                       setStudyBookOrigin(fromBookId);
-                      storeBookStudyOrigin(sessionStorage, fromBookId);
+                      storeBookStudyOrigin(undefined, fromBookId);
                     }
                     if (resourceId) openResource(resourceId);
                     else start(5, taskId ?? '__free__');
@@ -2195,14 +2195,17 @@ export default function App() {
                   <strong>책에서 시작한 공부</strong>
                   <small>원래 책과 단원으로 한 번에 돌아갈 수 있어요.</small>
                 </span>
-                <button type="button" onClick={() => setTab('books')}>BOOKS로 돌아가기 <ArrowRight size={16} aria-hidden="true"/></button>
+                <button type="button" onClick={() => {
+                  try { sessionStorage.setItem('bkit.books.selected', studyBookOrigin); } catch { /* navigation only */ }
+                  setTab('books');
+                }}>BOOKS로 돌아가기 <ArrowRight size={16} aria-hidden="true"/></button>
                 <button
                   type="button"
                   aria-label="BOOKS 복귀 안내 닫기"
                   className="books-return-dismiss"
                   onClick={() => {
                     setStudyBookOrigin('');
-                    storeBookStudyOrigin(sessionStorage, null);
+                    storeBookStudyOrigin(undefined, null);
                   }}
                 ><X size={16} aria-hidden="true"/></button>
               </section>
