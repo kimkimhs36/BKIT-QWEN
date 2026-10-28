@@ -1,8 +1,8 @@
 .digital-paper {
-  --paper-border: #d7d9ce;
+  --paper-border: var(--mat-line, #d7d9ce);
   margin: 1rem 0;
-  color: #25332f;
-  background: #eeefe8;
+  color: var(--mat-ink, #25332f);
+  background: var(--mat-panel, #eeefe8);
   border: 1px solid var(--paper-border);
   border-radius: 16px;
   padding: 12px;
@@ -25,43 +25,46 @@
 }
 .digital-paper button,
 .digital-library button {
-  min-height: 40px;
-  background: #fafbf7;
-  color: #25332f;
-  border: 1px solid #c3c8ba;
+  min-height: 44px;
+  background: var(--mat-button, #fafbf7);
+  color: var(--mat-ink, #25332f);
+  border: 1px solid var(--paper-border, #c3c8ba);
   border-radius: 9px;
   padding: 8px 10px;
 }
-.digital-paper button[aria-pressed='true'] {
-  background: #29473e;
-  color: #fff;
-  border-color: #29473e;
+.digital-paper button[aria-pressed='true'],
+.books .digital-paper button[aria-pressed='true'] {
+  background: var(--mat-accent, #29473e);
+  color: var(--mat-on-accent, #fff);
+  border-color: var(--mat-accent, #29473e);
 }
 .digital-paper button:disabled {
   opacity: 0.5;
 }
 .digital-paper label {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 6px;
   max-width: 100%;
   font-size: 13px;
+  margin: 0;
 }
 .digital-paper select {
   width: auto;
   max-width: 150px;
-  color: #25332f;
-  background: #fff;
+  color: var(--mat-ink, #25332f);
+  background: var(--mat-control, #fff);
 }
-.digital-paper input[type='range'] {
+.digital-paper .paper-tools input[type='range'] {
   width: 80px;
 }
-.digital-paper input[type='color'] {
+.digital-paper .paper-tools input[type='color'] {
   width: 36px;
   height: 34px;
   padding: 2px;
 }
-.digital-paper input[type='checkbox'] {
+.digital-paper .paper-tools input[type='checkbox'] {
   width: 18px;
   height: 18px;
 }
@@ -72,7 +75,7 @@
   min-height: 280px;
   overflow: auto;
   overscroll-behavior: contain;
-  background: #dfe2d8;
+  background: var(--mat-soft, #dfe2d8);
   border-radius: 6px;
   padding: 16px;
   scrollbar-gutter: stable;

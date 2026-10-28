@@ -272,7 +272,7 @@
   display: block;
   margin-top: 7px;
 }
-.books fieldset {
+.books fieldset:not(.paper-tools) {
   border: 1px solid var(--mat-line);
   border-radius: var(--mat-radius);
   padding: 16px;
@@ -281,7 +281,7 @@
   margin-top: 20px;
   min-width: 0;
 }
-.books fieldset label,
+.books fieldset:not(.paper-tools) label,
 .books-form label {
   display: flex;
   flex-direction: column;
@@ -289,8 +289,8 @@
   font-size: 13px;
   min-width: 0;
 }
-.books fieldset select,
-.books fieldset input {
+.books fieldset:not(.paper-tools) select,
+.books fieldset:not(.paper-tools) input {
   width: 100%;
   min-width: 0;
 }
