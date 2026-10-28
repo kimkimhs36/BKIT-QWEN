@@ -5,9 +5,11 @@ import { localAssistant, type AssistantAction } from './assistantLogic';
 import { askLiveAssistant, checkAssistantConfig } from './assistantAI';
 import { authorizeGoogleIdentity, prepareGoogleIdentity } from './cloudClient';
 import { WaterDrop } from './WaterDrop';
+import { loadConversation, saveConversation, clearConversation, type ConversationTurn } from './assistantConversation';
 
-type Message = { source?: 'local' | 'ai'; role: 'user' | 'assistant'; text: string; action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress'; saved?: boolean };
-const SUGGESTIONS = ['오늘 뭐부터 공부해?', '공부 기록 피드백해줘', '내일 화학 학습지 3장 추가해줘', '시간표 보여줘'];
+type Message = ConversationTurn & { action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress'; saved?: boolean };
+const SUGGESTIONS = ['학원 가기 싫은데 숙제도 못 했어', '오늘 뭐부터 공부해?', '내일 화학 학습지 3장 추가해줘', '시간표 보여줘'];
+const GREETING: Message = { role: 'assistant', text: '학원 이야기든 공부 고민이든 편하게 말해줘. BKIT에 등록한 일정과 과제를 확인하면서 같이 정리하자.' };
 
 export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: {
   state: State;
@@ -15,10 +17,11 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
   onAction: (action: AssistantAction) => boolean;
   onNavigate: (tab: 'school' | 'tasks' | 'progress') => void;
 }) {
-  const [messages, setMessages] = useState<Message[]>([{
-    role: 'assistant',
-    text: '안녕! BKIT 비서야. 계획과 과제, 일정, 복습까지 여기서 편하게 말해줘. 실제 과제 변경은 확인을 받은 뒤에만 저장할게.',
-  }]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = loadConversation();
+    return saved.length ? saved : [GREETING];
+  });
+  const [storageWarning, setStorageWarning] = useState('');
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [available, setAvailable] = useState(false);
@@ -28,7 +31,23 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
   const [live, setLive] = useState(false);
   const [verified, setVerified] = useState(false);
   const [shareContext, setShareContext] = useState(false);
+  const [shareHistory, setShareHistory] = useState(false);
   const [connection, setConnection] = useState('AI 서버 상태 확인 중…');
+
+  useEffect(() => {
+    if (!saveConversation(messages)) setStorageWarning('대화를 이 기기에 저장하지 못했어. 저장 공간이나 비공개 모드를 확인해 줘.');
+    else setStorageWarning('');
+  }, [messages]);
+
+  function eraseConversation() {
+    if (!window.confirm('이 기기에 남은 BKIT 비서 대화를 모두 지울까? 공부 기록과 과제는 삭제되지 않아.')) return;
+    if (!clearConversation()) {
+      setStorageWarning('저장된 대화를 지우지 못했어. 브라우저 저장 공간을 확인해 줘.');
+      return;
+    }
+    setShareHistory(false);
+    setMessages([GREETING]);
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -84,13 +103,14 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
     setMessages(old => [...old, { role: 'user', text: question }]);
     setBusy(true);
     try {
-      const offline = localAssistant(question, state);
+      const recentTurns: ConversationTurn[] = messages.map((m) => ({ role: m.role, text: m.text, source: m.source }));
+      const offline = localAssistant(question, state, Date.now(), recentTurns);
       // Local writes must always require a separate approval; remote AI is read-only.
       if (offline.action || !live || !available || !navigator.onLine || !(token || getAccessToken())) {
         setMessages(old => [...old, { role: 'assistant', source: 'local', text: offline.answer, action: offline.action, navigate: offline.navigate }]);
       } else {
         try {
-          const answer = await askLiveAssistant(question, token || getAccessToken(), state, shareContext);
+          const answer = await askLiveAssistant(question, token || getAccessToken(), state, shareContext, undefined, shareHistory ? recentTurns : []);
           setMessages(old => [...old, { role: 'assistant', source: 'ai', text: answer, navigate: offline.navigate }]);
           setVerified(true);
           setConnection('DeepSeek가 실제 응답했어요. 저장·수정은 별도 확인이 필요해요.');
@@ -121,7 +141,12 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
         <WaterDrop />
         <div><span>YOUR STUDY COMPANION</span><h3>복잡한 하루에, 작은 여유.</h3><p>계획부터 복습까지, 함께 풀어가요.</p></div>
       </div>
-      <p className="assistant-intro">과제·일정·계획·복습을 한곳에서 관리해. 기본은 무료 로컬 비서이며, AI는 연결한 뒤 질문을 보낼 때만 사용해요.</p>
+      <p className="assistant-intro">평범한 말부터 시작해도 돼. 대화는 이 기기에만 저장되고, 실제 과제 변경은 확인을 받은 뒤 진행해. 다른 기기로는 자동 동기화되지 않아.</p>
+      <div className="assistant-history-controls">
+        <small>이 기기에 남은 대화 {Math.max(0, messages.filter(m => m.role === 'user').length)}개 질문</small>
+        <button type="button" className="text-button" onClick={eraseConversation} disabled={busy}>대화 기록 지우기</button>
+      </div>
+      {storageWarning && <p role="alert" className="hint">{storageWarning}</p>}
       <div className="note-card assistant-connection" role="group" aria-label="BKIT AI 연결">
         <p role="status">{connection}</p>
         {available && (
@@ -131,8 +156,12 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
               <input type="checkbox" checked={shareContext} onChange={e => setShareContext(e.target.checked)} />
               내 과제·일정·학습 기록 요약도 AI와 공유 (선택)
             </label>
+            <label className="checkbox">
+              <input type="checkbox" checked={shareHistory} onChange={e => setShareHistory(e.target.checked)} />
+              이전 대화 일부를 AI에 함께 전달 (선택 · 최대 최근 6개 메시지 중 용량에 맞는 일부)
+            </label>
             {live ? (
-              <button type="button" className="secondary" disabled={busy} onClick={() => { setLive(false); setVerified(false); setShareContext(false); setConnection('로컬 비서로 전환했어요.'); }}>
+              <button type="button" className="secondary" disabled={busy} onClick={() => { setLive(false); setVerified(false); setShareContext(false); setShareHistory(false); setConnection('로컬 비서로 전환했어요.'); }}>
                 로컬 비서로 전환
               </button>
             ) : (
@@ -182,7 +211,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
           <Send size={19}/>
         </button>
       </form>
-      <p className="assistant-foot"><Sparkles size={13}/> AI는 읽기 전용 · 사용자 확인 없는 일정·과제 변경 없음 · 개인 기록 전송은 선택 사항</p>
+      <p className="assistant-foot"><Sparkles size={13}/> 로컬 대화 저장 · AI로 보내는 과제와 이전 대화는 각각 별도 동의 · 사용자 승인 없는 변경 없음</p>
     </section>
   );
 }
