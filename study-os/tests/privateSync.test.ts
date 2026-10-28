@@ -91,3 +91,58 @@ it('compares restored cloud records with canonical defaults and field order', as
   restored.settings.goal = '실제로 다른 목표';
   expect(privateStudySignature(local)).not.toBe(privateStudySignature(restored));
 });
+
+it('keeps local exam planning and detailed answer evidence out of the older API and restores them by ID', async () => {
+  const { mergePrivateStudyState, privateStudySignature } = await import('../src/PrivateSync');
+  const { startQuick, finishQuick } = await import('../src/quickTimer');
+  const local = finishQuick(startQuick(newState(), 'stopwatch', 480, 1000, 'quick'), 66000);
+  local.juggernaut = { examDate: null, weeklyMinutes: 90 };
+  local.sessions[0].workspace = {
+    problem: '내 문제',
+    source: '학습지',
+    answerDraft: '개인 초안',
+    sourceType: 'school-worksheet',
+    problemNumber: '3',
+    attempts: [
+      {
+        id: 'answer',
+        answer: '-1/2',
+        submittedAt: '2026-10-28T01:00:00.000Z',
+        selfCheck: 'retry',
+        hintUsed: true,
+        confidence: 'low',
+        errorTag: 'calculation',
+      },
+    ],
+  };
+  const before = JSON.stringify(local);
+  const portable = portableStudyState(local);
+  expect(portable.juggernaut).toBeUndefined();
+  expect(portable.sessions[0].workspace).toEqual({
+    problem: '내 문제',
+    source: '학습지',
+    attempts: [
+      { id: 'answer', answer: '-1/2', submittedAt: '2026-10-28T01:00:00.000Z', selfCheck: 'retry' },
+    ],
+  });
+  const remote = JSON.parse(JSON.stringify(portable));
+  delete remote.quickTimer; // Production API omits this unsupported, device-only field.
+  expect(privateStudySignature(local)).toBe(privateStudySignature(remote));
+  remote.sessions[0].workspace.attempts[0].selfCheck = 'remembered';
+  const merged = mergePrivateStudyState(local, remote);
+  expect(merged.juggernaut).toEqual(local.juggernaut);
+  expect(merged.sessions[0].workspace).toMatchObject({
+    answerDraft: '개인 초안',
+    problemNumber: '3',
+    attempts: [
+      {
+        id: 'answer',
+        hintUsed: true,
+        confidence: 'low',
+        errorTag: 'calculation',
+        selfCheck: 'remembered',
+      },
+    ],
+  });
+  expect(JSON.stringify(local)).toBe(before);
+});

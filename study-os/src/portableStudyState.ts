@@ -8,11 +8,28 @@ export function portableStudyState(state: State): State {
     problemRetests: undefined,
     exams: undefined,
     learning: undefined,
+    juggernaut: undefined,
     revision: 0,
     tasks: state.tasks.map(({ attachmentIds: _privatePhotos, ...task }) => task),
     // Device-only identities must not create endless differences with the portable server schema.
     sessions: state.sessions.map(
-      ({ resourceId: _resource, questionPace: _pace, exam: _exam, ...session }) => session,
+      ({ resourceId: _resource, questionPace: _pace, exam: _exam, ...session }) => ({
+        ...session,
+        workspace: session.workspace
+          ? {
+              problem: session.workspace.problem,
+              source: session.workspace.source,
+              attempts: session.workspace.attempts.map(
+                ({ id, answer, submittedAt, selfCheck }) => ({
+                  id,
+                  answer,
+                  submittedAt,
+                  selfCheck,
+                }),
+              ),
+            }
+          : undefined,
+      }),
     ),
     active: null,
     quickTimer: null, // device-only live stopwatch must not sync or leak timer metadata
@@ -30,6 +47,7 @@ export function mergePrivateStudyState(local: State, incoming: State): State {
     problemRetests: local.problemRetests,
     exams: local.exams,
     learning: local.learning,
+    juggernaut: local.juggernaut,
     tasks: incoming.tasks.map((task) => {
       const existing = local.tasks.find((t) => t.id === task.id);
       return {
@@ -47,6 +65,16 @@ export function mergePrivateStudyState(local: State, incoming: State): State {
         questionPace: existing?.questionPace,
         exam: existing?.exam,
         resourceId: existing?.resourceId,
+        workspace: session.workspace
+          ? {
+              ...existing?.workspace,
+              ...session.workspace,
+              attempts: session.workspace.attempts.map((attempt) => ({
+                ...existing?.workspace?.attempts.find((item) => item.id === attempt.id),
+                ...attempt,
+              })),
+            }
+          : undefined,
       };
     }),
     plan: [],
