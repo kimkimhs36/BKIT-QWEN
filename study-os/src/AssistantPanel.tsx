@@ -10,6 +10,13 @@ import { loadConversation, saveConversation, clearConversation, type Conversatio
 type Message = ConversationTurn & { action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress'; saved?: boolean };
 const SUGGESTIONS = ['학원 가기 싫은데 숙제도 못 했어', '오늘 뭐부터 공부해?', '내일 화학 학습지 3장 추가해줘', '시간표 보여줘'];
 const GREETING: Message = { role: 'assistant', text: '학원 이야기든 공부 고민이든 편하게 말해줘. BKIT에 등록한 일정과 과제를 확인하면서 같이 정리하자.' };
+const AI_MODE_KEY = 'bkit:assistant-ai-mode:v1';
+function rememberAIMode(mode: 'ai' | 'local') {
+  try { localStorage.setItem(AI_MODE_KEY, mode); } catch { /* private browsing */ }
+}
+function restoredAIMode(): boolean {
+  try { return localStorage.getItem(AI_MODE_KEY) === 'ai'; } catch { return false; }
+}
 
 export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: {
   state: State;
@@ -29,6 +36,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
   const [ready, setReady] = useState(false);
   const [token, setToken] = useState('');
   const [live, setLive] = useState(false);
+  const [preferredAI, setPreferredAI] = useState(restoredAIMode);
   const [verified, setVerified] = useState(false);
   const [shareContext, setShareContext] = useState(false);
   const [shareHistory, setShareHistory] = useState(false);
@@ -57,6 +65,13 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
       setClientId(config.clientId);
       setConnection(config.message);
       if (!config.available) return;
+      // Restore a mode the learner previously selected, without starting a paid call.
+      const existing = preferredAI ? getAccessToken() : '';
+      if (existing) {
+        setToken(existing);
+        setLive(true);
+        setConnection('이전에 선택한 AI 모드를 복원했어. 첫 질문의 실제 응답으로 연결을 확인해.');
+      }
       try {
         await prepareGoogleIdentity();
         if (mounted) setReady(true);
@@ -74,6 +89,8 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
     if (existing) {
       setToken(existing);
       setLive(true);
+      setPreferredAI(true);
+      rememberAIMode('ai');
       setVerified(false);
       setConnection('AI 대화가 선택됐어요. 실제 응답 성공 여부는 첫 질문으로 확인해요.');
       return;
@@ -87,6 +104,8 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
       const connected = await authorizeGoogleIdentity(clientId);
       setToken(connected);
       setLive(true);
+      setPreferredAI(true);
+      rememberAIMode('ai');
       setVerified(false);
       setConnection('Google 연결 완료. 질문을 보낼 때만 AI를 호출해요.');
     } catch (error) {
@@ -161,7 +180,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
               이전 대화 일부를 AI에 함께 전달 (선택 · 최대 최근 6개 메시지 중 용량에 맞는 일부)
             </label>
             {live ? (
-              <button type="button" className="secondary" disabled={busy} onClick={() => { setLive(false); setVerified(false); setShareContext(false); setShareHistory(false); setConnection('로컬 비서로 전환했어요.'); }}>
+              <button type="button" className="secondary" disabled={busy} onClick={() => { setLive(false); setPreferredAI(false); rememberAIMode('local'); setVerified(false); setShareContext(false); setShareHistory(false); setConnection('로컬 비서로 전환했어요.'); }}>
                 로컬 비서로 전환
               </button>
             ) : (
