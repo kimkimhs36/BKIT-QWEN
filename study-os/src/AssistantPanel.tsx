@@ -7,10 +7,15 @@ import { authorizeGoogleIdentity, prepareGoogleIdentity } from './cloudClient';
 import { WaterDrop } from './WaterDrop';
 import { loadConversation, saveConversation, clearConversation, type ConversationTurn } from './assistantConversation';
 
-type Message = ConversationTurn & { action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress'; saved?: boolean };
+type Message = ConversationTurn & { action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress'; saved?: boolean; focusMinutes?: number };
 const SUGGESTIONS = ['학원 가기 싫은데 숙제도 못 했어', '오늘 뭐부터 공부해?', '내일 화학 학습지 3장 추가해줘', '시간표 보여줘'];
 const GREETING: Message = { role: 'assistant', text: '학원 이야기든 공부 고민이든 편하게 말해줘. BKIT에 등록한 일정과 과제를 확인하면서 같이 정리하자.' };
 const AI_MODE_KEY = 'bkit:assistant-ai-mode:v1';
+const DRAFT_KEY = 'bkit:assistant-draft:v1';
+function loadDraft() {
+  try { return (sessionStorage.getItem(DRAFT_KEY) || '').slice(0, 1000); }
+  catch { return ''; }
+}
 function rememberAIMode(mode: 'ai' | 'local') {
   try { localStorage.setItem(AI_MODE_KEY, mode); } catch { /* private browsing */ }
 }
@@ -18,18 +23,25 @@ function restoredAIMode(): boolean {
   try { return localStorage.getItem(AI_MODE_KEY) === 'ai'; } catch { return false; }
 }
 
-export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: {
+export function AssistantPanel({ state, onAction, onNavigate, onStartFocus, getAccessToken }: {
   state: State;
   getAccessToken: () => string;
   onAction: (action: AssistantAction) => boolean;
   onNavigate: (tab: 'school' | 'tasks' | 'progress') => void;
+  onStartFocus: (minutes: number) => void;
 }) {
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = loadConversation();
     return saved.length ? saved : [GREETING];
   });
   const [storageWarning, setStorageWarning] = useState('');
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(loadDraft);
+  useEffect(() => {
+    try {
+      if (input) sessionStorage.setItem(DRAFT_KEY, input);
+      else sessionStorage.removeItem(DRAFT_KEY);
+    } catch { /* storage blocked: draft still works until modal closes */ }
+  }, [input]);
   const [busy, setBusy] = useState(false);
   const [available, setAvailable] = useState(false);
   const [clientId, setClientId] = useState('');
@@ -126,7 +138,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
       const offline = localAssistant(question, state, Date.now(), recentTurns);
       // Local writes must always require a separate approval; remote AI is read-only.
       if (offline.action || !live || !available || !navigator.onLine || !(token || getAccessToken())) {
-        setMessages(old => [...old, { role: 'assistant', source: 'local', text: offline.answer, action: offline.action, navigate: offline.navigate }]);
+        setMessages(old => [...old, { role: 'assistant', source: 'local', text: offline.answer, action: offline.action, navigate: offline.navigate, focusMinutes: offline.focusMinutes }]);
       } else {
         try {
           const answer = await askLiveAssistant(question, token || getAccessToken(), state, shareContext, undefined, shareHistory ? recentTurns : []);
@@ -135,7 +147,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
           setConnection('DeepSeek가 실제 응답했어요. 저장·수정은 별도 확인이 필요해요.');
         } catch (error) {
           const reason = error instanceof Error ? error.message : 'AI 서버 연결을 확인해 주세요.';
-          setMessages(old => [...old, { role: 'assistant', source: 'local', text: offline.answer + '\nAI 응답 미완료: ' + reason + '\n위 답변은 로컬 안내예요.' }]);
+          setMessages(old => [...old, { role: 'assistant', source: 'local', text: offline.answer + '\nAI 응답 미완료: ' + reason + '\n위 답변은 로컬 안내예요.', focusMinutes: offline.focusMinutes }]);
           setVerified(false);
           setConnection(reason);
         }
@@ -166,7 +178,8 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
         <button type="button" className="text-button" onClick={eraseConversation} disabled={busy}>대화 기록 지우기</button>
       </div>
       {storageWarning && <p role="alert" className="hint">{storageWarning}</p>}
-      <div className="note-card assistant-connection" role="group" aria-label="BKIT AI 연결">
+      <details className="note-card assistant-connection" aria-label="BKIT AI 연결 설정">
+        <summary>AI 연결 설정 · {live ? (verified ? '실제 AI 응답 확인' : 'AI 연결 선택됨') : '기본 로컬 비서'}</summary>
         <p role="status">{connection}</p>
         {available && (
           <>
@@ -191,7 +204,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
           </>
         )}
         <small>{live ? (verified ? '현재 모드: DeepSeek 실제 답변 검증됨' : '현재 모드: AI 연결 선택 · 아직 실제 답변 미검증') : '현재 모드: 무료 로컬 비서'}</small>
-      </div>
+      </details>
       <div className="assistant-messages" role="log" aria-label="비서 대화" aria-live="polite">
         {messages.map((message, i) => (
           <article className={'assistant-message assistant-message--' + message.role} key={i}>
@@ -205,6 +218,9 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
                 <XCircle size={16}/> 취소
               </button>
             </div>}
+            {message.focusMinutes && message.role === 'assistant' && <button type="button" className="primary assistant-focus-action" disabled={busy} onClick={() => onStartFocus(message.focusMinutes!)}>
+              <Sparkles size={15} /> {message.focusMinutes}분만 집중 시작
+            </button>}
             {message.navigate && <button type="button" className="text-button" onClick={() => onNavigate(message.navigate!)}>
               관련 화면 열기 <ArrowUpRight size={15}/>
             </button>}
