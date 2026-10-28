@@ -81,7 +81,7 @@ export function academyGuidance(
   const untilPrep = Math.floor((prepareAt - now) / MIN);
   const untilDepart = Math.floor((departAt - now) / MIN);
   const timingKnown = next.prep + next.travel + next.buffer > 0;
-  const status = next.title + ' 수업은 ' + next.start + '에 시작해. ' +
+  const status = next.title + ' 수업은 ' + next.start + '~' + next.end + '로 등록돼 있어. ' +
     (!timingKnown
       ? '준비·이동 시간이 모두 0분으로 등록돼 있어 출발 시각은 판단할 수 없어.'
       : untilDepart > 0
