@@ -6,7 +6,7 @@ import { askLiveAssistant, checkAssistantConfig } from './assistantAI';
 import { authorizeGoogleIdentity, prepareGoogleIdentity } from './cloudClient';
 import { WaterDrop } from './WaterDrop';
 
-type Message = { role: 'user' | 'assistant'; text: string; action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress'; saved?: boolean };
+type Message = { source?: 'local' | 'ai'; role: 'user' | 'assistant'; text: string; action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress'; saved?: boolean };
 const SUGGESTIONS = ['오늘 뭐부터 공부해?', '공부 기록 피드백해줘', '내일 화학 학습지 3장 추가해줘', '시간표 보여줘'];
 
 export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: {
@@ -87,16 +87,16 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
       const offline = localAssistant(question, state);
       // Local writes must always require a separate approval; remote AI is read-only.
       if (offline.action || !live || !available || !navigator.onLine || !(token || getAccessToken())) {
-        setMessages(old => [...old, { role: 'assistant', text: offline.answer, action: offline.action, navigate: offline.navigate }]);
+        setMessages(old => [...old, { role: 'assistant', source: 'local', text: offline.answer, action: offline.action, navigate: offline.navigate }]);
       } else {
         try {
           const answer = await askLiveAssistant(question, token || getAccessToken(), state, shareContext);
-          setMessages(old => [...old, { role: 'assistant', text: answer, navigate: offline.navigate }]);
+          setMessages(old => [...old, { role: 'assistant', source: 'ai', text: answer, navigate: offline.navigate }]);
           setVerified(true);
           setConnection('DeepSeek가 실제 응답했어요. 저장·수정은 별도 확인이 필요해요.');
         } catch (error) {
           const reason = error instanceof Error ? error.message : 'AI 서버 연결을 확인해 주세요.';
-          setMessages(old => [...old, { role: 'assistant', text: offline.answer + '\nAI 응답 미완료: ' + reason + '\n위 답변은 로컬 안내예요.' }]);
+          setMessages(old => [...old, { role: 'assistant', source: 'local', text: offline.answer + '\nAI 응답 미완료: ' + reason + '\n위 답변은 로컬 안내예요.' }]);
           setVerified(false);
           setConnection(reason);
         }
@@ -126,7 +126,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
         <p role="status">{connection}</p>
         {available && (
           <>
-            <p className="hint">AI에는 질문만 보내요. 과목·마감·시간표·공부 기록 요약을 함께 보내려면 아래 옵션을 직접 선택해 주세요. 사진·필기 원본·개인 메모는 보내지 않아요. 사용량에 따라 API 비용이 발생할 수 있어요.</p>
+            <p className="hint">AI에는 질문만 보내요. 목표·과제 이름·과목·마감·시간표·공부 기록 요약을 함께 보내려면 아래 옵션을 직접 선택해 주세요. 크기에 따라 일부 항목만 공유해요. 사진·필기 원본·개인 메모는 보내지 않아요. 사용량에 따라 API 비용이 발생할 수 있어요.</p>
             <label className="checkbox">
               <input type="checkbox" checked={shareContext} onChange={e => setShareContext(e.target.checked)} />
               내 과제·일정·학습 기록 요약도 AI와 공유 (선택)
@@ -147,7 +147,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
       <div className="assistant-messages" role="log" aria-label="비서 대화" aria-live="polite">
         {messages.map((message, i) => (
           <article className={'assistant-message assistant-message--' + message.role} key={i}>
-            <span className="assistant-speaker">{message.role === 'user' ? '나' : 'BKIT'}</span>
+            <span className="assistant-speaker">{message.role === 'user' ? '나' : message.source === 'ai' ? 'BKIT · AI 답변' : 'BKIT · 로컬 안내'}</span>
             <p>{message.text}</p>
             {message.action && <div className="assistant-approval">
               <button type="button" className="primary" onClick={() => apply(i, message.action!)}>

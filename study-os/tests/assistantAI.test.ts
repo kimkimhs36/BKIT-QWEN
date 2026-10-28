@@ -1,27 +1,39 @@
 import { describe, expect, it, vi } from 'vitest';
 import { newState } from '../src/model';
-import { askLiveAssistant, checkAssistantConfig } from '../src/assistantAI';
+import {
+  askLiveAssistant,
+  boundedAssistantPayload,
+  checkAssistantConfig,
+} from '../src/assistantAI';
+import { taskSchema } from '../src/model';
 
 describe('owner opt-in AI assistant client', () => {
   it('checks public server config without a paid request', async () => {
     const fetcher = vi.fn(async (_url: unknown, init: RequestInit) => {
       expect(init.method).toBeUndefined();
       expect(init.cache).toBe('no-store');
-      return new Response(JSON.stringify({
-        assistantEnabled: true,
-        googleClientId: 'test.apps.googleusercontent.com',
-      }));
+      return new Response(
+        JSON.stringify({
+          assistantEnabled: true,
+          googleClientId: 'test.apps.googleusercontent.com',
+        }),
+      );
     }) as unknown as typeof fetch;
     expect(await checkAssistantConfig(fetcher)).toMatchObject({
-      available: true, clientId: 'test.apps.googleusercontent.com',
+      available: true,
+      clientId: 'test.apps.googleusercontent.com',
     });
     expect(fetcher).toHaveBeenCalledOnce();
   });
 
   it('does not expose a paid mode when the server has disabled it', async () => {
-    const fetcher = async () => new Response(JSON.stringify({
-      assistantEnabled: false, googleClientId: 'test.apps.googleusercontent.com',
-    }));
+    const fetcher = async () =>
+      new Response(
+        JSON.stringify({
+          assistantEnabled: false,
+          googleClientId: 'test.apps.googleusercontent.com',
+        }),
+      );
     expect((await checkAssistantConfig(fetcher)).available).toBe(false);
   });
 
@@ -33,12 +45,16 @@ describe('owner opt-in AI assistant client', () => {
       expect(data).toEqual({ question: '오늘 뭐부터 할까?' });
       expect(String(JSON.stringify(data))).not.toContain('비공개 목표');
       expect(init.headers).toMatchObject({ Authorization: 'Bearer approved-token' });
-      return new Response(JSON.stringify({
-        mode: 'live', answer: '등록된 과제부터 하나씩 확인해 보자.',
-      }));
+      return new Response(
+        JSON.stringify({
+          mode: 'live',
+          answer: '등록된 과제부터 하나씩 확인해 보자.',
+        }),
+      );
     }) as unknown as typeof fetch;
-    expect(await askLiveAssistant('오늘 뭐부터 할까?', 'approved-token', state, false, fetcher))
-      .toContain('과제부터');
+    expect(
+      await askLiveAssistant('오늘 뭐부터 할까?', 'approved-token', state, false, fetcher),
+    ).toContain('과제부터');
     expect(fetcher).toHaveBeenCalledOnce();
     await expect(askLiveAssistant('test', '', state, false, fetcher)).rejects.toThrow();
     expect(fetcher).toHaveBeenCalledOnce();
@@ -63,19 +79,60 @@ describe('owner opt-in AI assistant client', () => {
       { mode: 'live', answer: '' },
       { mode: 'live', answer: 123 },
     ]) {
-      await expect(askLiveAssistant('test', 'approved-token', state, false,
-        async () => new Response(JSON.stringify(bad))))
-        .rejects.toThrow('AI 응답이 검증되지 않았어요');
+      await expect(
+        askLiveAssistant(
+          'test',
+          'approved-token',
+          state,
+          false,
+          async () => new Response(JSON.stringify(bad)),
+        ),
+      ).rejects.toThrow('AI 응답이 검증되지 않았어요');
     }
   });
 
   it('handles expired authorization and provider outages without treating them as success', async () => {
     const state = newState();
-    await expect(askLiveAssistant('test', 'approved-token', state, false,
-      async () => new Response('{"error":"expired"}', { status: 401 })))
-      .rejects.toThrow('Google 연결이 만료됐어요');
-    await expect(askLiveAssistant('test', 'approved-token', state, false,
-      async () => { throw new Error('private network details'); }))
-      .rejects.not.toThrow('private network details');
+    await expect(
+      askLiveAssistant(
+        'test',
+        'approved-token',
+        state,
+        false,
+        async () => new Response('{"error":"expired"}', { status: 401 }),
+      ),
+    ).rejects.toThrow('Google 연결이 만료됐어요');
+    await expect(
+      askLiveAssistant('test', 'approved-token', state, false, async () => {
+        throw new Error('private network details');
+      }),
+    ).rejects.not.toThrow('private network details');
+  });
+  it('bounds long Korean summaries to the actual server parser without truncating facts or leaking notes', () => {
+    const state = newState();
+    state.tasks = Array.from({ length: 40 }, (_, i) =>
+      taskSchema.parse({
+        id: String(i),
+        subject: '수'.repeat(200),
+        title: '학'.repeat(200),
+        kind: '숙제',
+        due: null,
+        priority: 2,
+        minutes: 25,
+        remaining: 25,
+        status: 'todo',
+        submitted: false,
+        optional: false,
+        notes: '비밀 메모',
+        link: '',
+      }),
+    );
+    const before = JSON.stringify(state);
+    const sent = boundedAssistantPayload('질'.repeat(1000), state, true);
+    expect(new TextEncoder().encode(JSON.stringify(sent)).byteLength).toBeLessThanOrEqual(15000);
+    expect(sent.context!.tasks.length).toBeLessThan(40);
+    expect(sent.context!.tasks[0].title).toBe('학'.repeat(200));
+    expect(JSON.stringify(sent)).not.toContain('비밀 메모');
+    expect(JSON.stringify(state)).toBe(before);
   });
 });
