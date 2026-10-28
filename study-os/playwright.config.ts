@@ -29,6 +29,14 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'iphone-small',
+      use: {
+        ...devices['iPhone SE'],
+        defaultBrowserType: 'chromium',
+        launchOptions: chromiumLaunchOptions,
+      },
+    },
+    {
       name: 'iphone',
       use: {
         ...devices['iPhone 13'],

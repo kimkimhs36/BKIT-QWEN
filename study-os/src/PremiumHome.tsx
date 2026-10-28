@@ -4,7 +4,7 @@ import { fixedForDay, type Fixed } from './engine';
 import { entriesForDay } from './calendar';
 import { firstLearningAction, recommendationReason } from './now';
 import { clock, dayKey, addDays } from './time';
-import { formatTaskDeadline } from './capture';
+import { dailyTriage, taskUrgencyLabel } from './dailyTriage';
 import { needsAttention, needsSubmission, unsubmittedAssessment } from './tasks';
 import { quickClock, quickSeconds } from './quickTimer';
 import { studySeconds, elapsed } from './session';
@@ -26,6 +26,8 @@ type Props = {
   inboxPending: number | null;
   onInbox: () => void;
   onAssessment: () => void;
+  onExportCalendar: () => void;
+  onAssistant: () => void;
   onEdit: (task: Task) => void;
   onAssessments: () => void;
   onSubmissions: () => void;
@@ -51,6 +53,8 @@ export function PremiumHome({
   inboxPending,
   onInbox,
   onAssessment,
+  onExportCalendar,
+  onAssistant,
   onEdit,
   onAssessments,
   onSubmissions,
@@ -59,8 +63,9 @@ export function PremiumHome({
   onAccount,
   accountConnected,
 }: Props) {
-  const pending = tasks.filter((t) => t.status !== 'done');
-  const awaiting = state.tasks.filter(unsubmittedAssessment);
+  const triage = dailyTriage(tasks, now);
+  const pending = triage.spotlight;
+  const awaiting = state.tasks.filter((t) => t.status !== 'done' && unsubmittedAssessment(t));
   const readyToSubmit = state.tasks.filter(needsSubmission);
   const recent = state.sessions.at(-1);
   const active = state.active,
@@ -72,6 +77,15 @@ export function PremiumHome({
   const appointment = current && !['sleep', 'meal'].includes(current.kind) ? current : next;
   const todayEntries = entriesForDay(state, dayKey(now));
   const tomorrowEntries = entriesForDay(state, addDays(dayKey(now), 1));
+  const schoolToday = todayEntries.filter((entry) => entry.kind === 'school' && entry.schedule);
+  const schoolTomorrow = tomorrowEntries.filter((entry) => entry.kind === 'school' && entry.schedule);
+  const tomorrowDue = tomorrowEntries.filter((entry) => !!entry.task && !entry.blockId && needsAttention(entry.task));
+  const nowClock = clock(now);
+  const schoolCurrent = schoolToday.find(
+    (entry) => entry.schedule!.start <= nowClock && nowClock < entry.schedule!.end,
+  );
+  const schoolNext = schoolToday.find((entry) => entry.schedule!.start > nowClock);
+  const hasSchoolTimetable = state.schedules.some((item) => item.kind === 'school');
   const deadlineCount = (entries: typeof todayEntries) =>
     entries.filter((e) => e.task && !e.blockId && needsAttention(e.task)).length;
   const remainingPlan = state.plan
@@ -103,7 +117,103 @@ export function PremiumHome({
         <button onClick={onInbox}>학교 공지 보관</button>
         <button onClick={onAssessment}>수행평가 등록</button>
         <button onClick={() => onNavigate('school')}>학교 시간표</button>
+        <button onClick={() => onNavigate('books')}>BOOKS · 학습지</button>
+        <button onClick={() => onNavigate('exam-lab')}>수능관 · 기초 훈련</button>
       </div>
+      <section className="study-school-glance" aria-label="오늘 학교 시간표 빠른 확인">
+        <div className="study-school-glance-heading">
+          <div className="study-school-glance-title">
+            <Clock3 size={18} aria-hidden="true" />
+            <strong>오늘 학교 시간표</strong>
+          </div>
+          <button type="button" className="study-text-link" onClick={() => onNavigate('school')}>
+            시간표 전체 <ChevronRight size={16} aria-hidden="true" />
+          </button>
+        </div>
+        {schoolToday.length === 0 ? (
+          <p>
+            {hasSchoolTimetable
+              ? '오늘 등록된 학교 수업이 없어요. 학교 공지의 시간표 변경 여부를 확인해 주세요.'
+              : '아직 학교 시간표가 등록되지 않았어요. 등록하면 현재·다음 수업을 바로 확인할 수 있어요.'}
+          </p>
+        ) : (
+          <div className="study-school-glance-entries">
+            {schoolCurrent && (
+              <p><span>현재 수업</span><strong>{schoolCurrent.title}</strong><small>{schoolCurrent.time}</small></p>
+            )}
+            {schoolNext && (
+              <p><span>다음 수업</span><strong>{schoolNext.title}</strong><small>{schoolNext.time}</small></p>
+            )}
+            {!schoolCurrent && !schoolNext && (
+              <p>오늘 등록된 수업이 모두 끝났거나 진행 중인 수업이 없어요.</p>
+            )}
+          </div>
+        )}
+        <small className="study-school-glance-note">
+          등록된 정보만 표시해요. 임시 시간표 변경은 학교 공지와 대조해 주세요.
+        </small>
+        {state.schedules.length > 0 && (
+          <button type="button" className="study-text-link study-calendar-export" onClick={onExportCalendar}>
+            다음 14일 일정·준비 알림 캘린더로 내보내기
+            <ArrowUpRight size={15} aria-hidden="true" />
+          </button>
+        )}
+        {state.schedules.length > 0 && (
+          <small className="study-school-glance-note">
+            파일을 내려받은 다음 기기 캘린더에 직접 추가하고 알림 설정을 확인해 주세요.
+          </small>
+        )}
+      </section>
+      {(schoolTomorrow.length > 0 || tomorrowDue.length > 0 || hasSchoolTimetable) && (
+        <details className="study-tomorrow-preview" aria-label="내일 학교·마감 준비">
+          <summary>
+            <span className="study-tomorrow-head">
+              <strong>내일 미리 챙기기</strong>
+              <small>
+                {schoolTomorrow.length
+                  ? `등록된 수업 ${schoolTomorrow.length}개 · 첫 수업 ${schoolTomorrow[0].title}`
+                  : '내일 등록된 수업 미확인'}
+                {' · '}마감·제출 확인 {tomorrowDue.length}개
+              </small>
+            </span>
+            <ChevronRight size={18} aria-hidden="true" />
+          </summary>
+          <div className="study-tomorrow-content">
+            {schoolTomorrow.length > 0 ? (
+              <>
+                <strong>내일 수업</strong>
+                <ol>
+                  {schoolTomorrow.map((entry, i) => (
+                    <li key={entry.id}>
+                      {i + 1}. {entry.title} <small>{entry.time}</small>
+                    </li>
+                  ))}
+                </ol>
+              </>
+            ) : (
+              <p>내일 등록된 수업이 없어요. 시간표 변경이나 휴업 여부는 학교 공지로 확인해 주세요.</p>
+            )}
+            {tomorrowDue.length > 0 && (
+              <>
+                <strong>내일 마감·제출 확인</strong>
+                {tomorrowDue.map((entry) => (
+                  <button
+                    type="button"
+                    className="study-tomorrow-task"
+                    key={entry.id}
+                    onClick={() => onEdit(entry.task!)}
+                  >
+                    <span>{entry.task!.subject} · {entry.task!.title}</span>
+                    <small>{needsSubmission(entry.task!) ? '학습 완료 · 제출 확인 필요' : taskUrgencyLabel(entry.task!, now)}</small>
+                    <ChevronRight size={16} aria-hidden="true" />
+                  </button>
+                ))}
+              </>
+            )}
+            <small>실제 등록된 일정만 표시해요. 등록되지 않은 공지는 자동으로 알 수 없어요.</small>
+          </div>
+        </details>
+      )}
       {inboxPending !== 0 && (
         <button className="study-submission has-pending" onClick={onInbox}>
           {inboxPending === null
@@ -157,6 +267,9 @@ export function PremiumHome({
               {firstLearningAction(pending[0])} · {recommendationReason(pending[0], now)}
             </small>
           )}
+          <button type="button" className="study-text-link" onClick={onAssistant}>
+            BKIT AI 비서에게 물어보기 <ArrowRight size={15} aria-hidden="true" />
+          </button>
         </div>
         <div className="study-start-actions">
           <button
@@ -190,12 +303,18 @@ export function PremiumHome({
         {pending.length > 0 && (
           <div className="study-section-heading">
             <h2>
-              오늘 할 일<span>{pending.length}</span>
+              챙길 과제<span>{triage.total}</span>
             </h2>
             <button className="study-icon" onClick={onAdd} aria-label="오늘 과제 추가">
               <Plus size={20} />
             </button>
           </div>
+        )}
+        {triage.total > 0 && (
+          <p className="study-triage-summary">
+            오늘 마감 {triage.today.length} · 기한 지남 {triage.overdue.length} ·
+            마감 미확인 {triage.unknown.length}
+          </p>
         )}
         {pending.length ? (
           <>
@@ -206,7 +325,7 @@ export function PremiumHome({
                     <small>
                       {task.subject}
                       <span>
-                        {task.due || task.deadline ? formatTaskDeadline(task) : '마감 미확인'}
+                        {taskUrgencyLabel(task, now)}
                       </span>
                     </small>
                     <strong>{task.title}</strong>
@@ -228,7 +347,7 @@ export function PremiumHome({
           </>
         ) : (
           <div className="study-empty-agenda">
-            <p>등록한 할 일이 없어요. 학교 공지에 빠뜨린 과제가 있는지 확인해요.</p>
+            <p>등록된 미완료 과제가 없어요. 학교 공지에서 빠진 과제가 없는지 확인해요.</p>
             <button className="study-icon" onClick={onAdd} aria-label="오늘 과제 추가">
               <Plus size={20} />
             </button>
@@ -263,6 +382,9 @@ export function PremiumHome({
                 ? '달력에서 남은 계획을 재조정해요. 수면 시간을 줄여 모두 끝낼 필요는 없어요.'
                 : '배치된 공부 계획이 없어요. 수면 목표를 지키며 내일로 조정해도 괜찮아요.'}
             </p>
+            <button type="button" className="study-text-link" onClick={() => onNavigate('sleep')}>
+              취침·기상 목표 확인 <ChevronRight size={16} aria-hidden="true" />
+            </button>
           </div>
           <button className="study-icon" onClick={onRecover} aria-label="남은 계획 재조정">
             <ArrowUpRight size={20} />

@@ -71,6 +71,18 @@
 .inbox-list button[aria-pressed='true'] {
   border-color: currentColor;
 }
+.inbox-find {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 190px);
+  align-items: end;
+  gap: 8px 16px;
+}
+.inbox-find label { min-width: 0; margin-bottom: 0; }
+.inbox-list small { display: block; margin: 5px 0; opacity: .7; }
+.inbox-empty { padding: 14px 0; color: var(--muted); }
+@media (max-width: 540px) {
+  .inbox-find { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
 .daily-confirm,
 .daily-linked {
   padding: 18px 0;
@@ -109,4 +121,163 @@
 }
 .daily-priority > p {
   margin: 8px 0;
+}
+
+
+/* Real-life home: one compact source-of-truth for the school day, not a second dashboard. */
+.study-school-glance {
+  margin: 5px 0 12px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, currentColor 11%, transparent);
+  border-radius: 15px;
+  background: var(--mat-surface, transparent);
+}
+.study-school-glance-heading,
+.study-school-glance-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.study-school-glance-heading {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.study-school-glance-title strong { font-size: 0.89rem; }
+.study-school-glance p { margin: 8px 0 0; font-size: 0.85rem; }
+.study-school-glance-entries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+}
+.study-school-glance-entries p {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  row-gap: 2px;
+}
+.study-school-glance-entries span,
+.study-school-glance-entries small,
+.study-school-glance-note { opacity: 0.74; }
+.study-school-glance-entries strong { font-size: 0.95rem; }
+.study-school-glance-entries small { font-size: 0.77rem; }
+.study-school-glance-note { display: block; margin-top: 9px; font-size: 0.73rem; }
+.study-triage-summary {
+  margin: 6px 0 10px;
+  font-size: 0.77rem;
+  opacity: 0.78;
+  line-height: 1.5;
+}
+@media (max-width: 420px) {
+  .study-school-glance { padding: 11px 12px; }
+  .study-school-glance-entries { flex-direction: column; gap: 2px; }
+}
+
+
+/* BUILD 04: high-value daily actions, in every BKIT material world. */
+.inbox-fast-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.inbox-fast-actions button { min-height: 44px; }
+.inbox-paste-feedback {
+  padding: 10px 12px;
+  border: 1px solid var(--mat-border, #8885);
+  border-radius: 12px;
+  font-size: 0.86rem;
+}
+.study-tomorrow-preview {
+  margin: 8px 0 14px;
+  border: 1px solid var(--mat-border, #8885);
+  border-radius: 15px;
+  background: var(--mat-surface, transparent);
+  overflow: hidden;
+}
+.study-tomorrow-preview summary {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  min-height: 62px;
+  padding: 12px 14px;
+  list-style: none;
+}
+.study-tomorrow-preview summary::-webkit-details-marker { display: none; }
+.study-tomorrow-head {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+.study-tomorrow-head strong { font-size: 0.87rem; }
+.study-tomorrow-head small { opacity: .75; font-size: .76rem; line-height: 1.5; }
+.study-tomorrow-preview[open] summary > svg { transform: rotate(90deg); }
+.study-tomorrow-preview summary > svg { flex-shrink: 0; transition: transform .18s ease; }
+.study-tomorrow-content {
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--mat-border, #8885);
+  font-size: .84rem;
+}
+.study-tomorrow-content > strong { display: block; margin: 12px 0 5px; }
+.study-tomorrow-content > p { margin: 10px 0; line-height: 1.6; }
+.study-tomorrow-content > small { display: block; margin-top: 12px; opacity: .75; line-height: 1.5; }
+.study-tomorrow-content ol { list-style: none; padding: 0; margin: 0; }
+.study-tomorrow-content li {
+  padding: 6px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.study-tomorrow-content li small { opacity: .73; white-space: nowrap; }
+.study-tomorrow-task {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 3px 8px;
+  padding: 10px 0;
+  min-height: 44px;
+  border: none;
+  border-bottom: 1px solid var(--mat-border, #8884);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.study-tomorrow-task span { flex: 1 1 60%; overflow-wrap: anywhere; }
+.study-tomorrow-task small { opacity: .72; font-size: .75rem; }
+@media (prefers-reduced-motion: reduce) {
+  .study-tomorrow-preview summary > svg { transition: none; }
+}
+@media (max-width: 420px) {
+  .inbox-fast-actions { flex-direction: column; }
+  .inbox-fast-actions button { width: 100%; }
+  .study-tomorrow-task { align-items: flex-start; }
+}
+
+
+/* Calm one-row everyday actions: preserves Compact home's visual hierarchy. */
+.study-home .daily-activation {
+  display:flex;flex-wrap:nowrap;gap:8px;align-items:center;
+  overflow-x:auto;overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;scrollbar-width:none;
+  margin:0 -2px;padding:12px 2px 15px;
+}
+.study-home .daily-activation::-webkit-scrollbar { display:none; }
+.study-home .daily-activation>button {
+  flex:0 0 auto;white-space:nowrap;scroll-snap-align:start;
+  border-radius:999px;padding:10px 16px;min-height:44px;
+  font-size:12px;font-weight:650;letter-spacing:-.01em;
+  border:1px solid var(--mat-line,rgba(127,127,127,.2));
+  background:var(--mat-card,transparent);color:var(--mat-ink,inherit);
+}
+.study-home .daily-activation>button:first-child {
+  background:var(--mat-soft,transparent);
+  border-color:color-mix(in srgb,var(--mat-accent,currentColor) 25%,transparent);
+}
+.study-home .daily-activation>button:focus-visible {
+  outline:2px solid var(--mat-accent,currentColor);
+  outline-offset:3px;
 }

@@ -1,6 +1,11 @@
 import { activation } from './activation';
 import { NoticePdf } from './NoticePdf';
-import { useRef, useState } from 'react';
+import { prepareNoticePaste } from './noticePaste';
+import { findNotices, type NoticeFilter } from './noticeIndex';
+import { fullDate } from './time';
+import { useRef, useState, lazy, Suspense } from 'react';
+import type { PaperDocument } from './paperModel';
+import { listPaperDocuments } from './paperStorage';
 import { TaskMaterials } from './TaskMaterials';
 import { PhotoText } from './PhotoText';
 import {
@@ -16,6 +21,9 @@ import { taskSchema, uid, type State, type Task } from './model';
 import { captureDeadline } from './capture';
 import { sameMission } from './atelier';
 import { formatTaskDeadline } from './capture';
+const DigitalPaperRoom = lazy(() =>
+  import('./DigitalPaperRoom').then((m) => ({ default: m.DigitalPaperRoom })),
+);
 
 export function SchoolInbox({
   state,
@@ -24,7 +32,6 @@ export function SchoolInbox({
   onEdit,
   onCalendar,
   onStart,
-  onPaper,
 }: {
   state: State;
   noticeId?: string;
@@ -32,7 +39,6 @@ export function SchoolInbox({
   onEdit: (task: Task) => void;
   onCalendar: (task: Task) => void;
   onStart: (id: string) => void;
-  onPaper: (id: string) => void;
 }) {
   const [initial] = useState(() => {
     let raw: string | null = null;
@@ -64,6 +70,30 @@ export function SchoolInbox({
   const notice = data.notices.find((n) => n.id === selected);
   const linked = notice ? noticeTasks(notice, state.tasks) : [];
   const [confirmed, setConfirmed] = useState(false);
+  const [pasteBusy, setPasteBusy] = useState(false);
+  const [pasteFeedback, setPasteFeedback] = useState('');
+  const [openedPaper, setOpenedPaper] = useState<PaperDocument | null>(null);
+  const [paperError, setPaperError] = useState('');
+  async function openOriginal(resourceId: string) {
+    try {
+      const original = (await listPaperDocuments()).find((doc) => doc.resourceId === resourceId);
+      if (!original)
+        throw new Error('이 기기에 연결 PDF가 없어요. 원본을 보관한 기기나 ZIP 백업을 확인하세요.');
+      setPaperError('');
+      setOpenedPaper(original);
+    } catch (error) {
+      setPaperError(error instanceof Error ? error.message : 'PDF 원본을 열지 못했어요.');
+    }
+  }
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<NoticeFilter>('inbox');
+  const visible = findNotices(data.notices, state.tasks, query, filter);
+  function reveal(item: SchoolNotice) {
+    setSelected(item.id);
+    setQuery('');
+    setFilter(item.archived ? 'archived' : 'inbox');
+    setConfirmed(false);
+  }
   function persist(next: SchoolInboxData) {
     dataRef.current = next;
     setData(next); // Keep typed content available for retry when storage fails.
@@ -95,10 +125,57 @@ export function SchoolInbox({
   function create() {
     const next = newNotice();
     if (persist({ ...data, notices: [next, ...data.notices] })) {
-      setSelected(next.id);
-      setConfirmed(false);
+      reveal(next);
+      setPasteFeedback('');
     }
   }
+  async function pasteFromClipboard() {
+    if (pasteBusy || busy || initial.error) return;
+    setPasteBusy(true);
+    setPasteFeedback('');
+    try {
+      if (!navigator.clipboard?.readText)
+        throw new Error(
+          '이 브라우저에서 클립보드를 읽을 수 없어요. 새 공지를 연 뒤 입력칸에 직접 붙여넣어 주세요.',
+        );
+      // Initiated by an explicit click; no automatic clipboard access.
+      const copied = await navigator.clipboard.readText();
+      const result = prepareNoticePaste(copied, dataRef.current.notices);
+      if (result.kind === 'error') {
+        setPasteFeedback(result.message);
+      } else if (result.kind === 'duplicate') {
+        reveal(dataRef.current.notices.find((item) => item.id === result.noticeId)!);
+        setPasteFeedback('이미 보관한 같은 공지를 열었어요. 중복으로 추가하지 않았어요.');
+      } else {
+        const item = { ...newNotice(), text: result.text };
+        if (
+          persist({
+            ...dataRef.current,
+            notices: [item, ...dataRef.current.notices],
+          })
+        ) {
+          reveal(item);
+          setPasteFeedback(
+            '공지 원문을 이 기기에 보관했어요. 과제·마감일은 원본과 확인한 뒤 등록해 주세요.',
+          );
+        }
+      }
+    } catch {
+      setPasteFeedback(
+        '클립보드 접근이 차단됐어요. 새 공지 보관을 누르고 직접 붙여넣을 수 있어요.',
+      );
+    } finally {
+      setPasteBusy(false);
+    }
+  }
+  if (openedPaper)
+    return (
+      <section className="daily-panel" aria-label="학교 공지 원본 학습실">
+        <Suspense fallback={<p role="status">공지 원본을 여는 중…</p>}>
+          <DigitalPaperRoom initial={openedPaper} onClose={() => setOpenedPaper(null)} />
+        </Suspense>
+      </section>
+    );
   return (
     <section className="daily-panel school-inbox" aria-label="학교 공지 받은함">
       <div className="section-head">
@@ -106,10 +183,26 @@ export function SchoolInbox({
           <h2>학교 공지 받은함</h2>
           <p>사진부터 보관하고, 확인한 과제만 등록해요.</p>
         </div>
-        <button className="primary" onClick={create} disabled={busy || !!initial.error}>
-          새 공지 보관
-        </button>
+        <div className="inbox-fast-actions">
+          <button
+            type="button"
+            className="primary"
+            onClick={() => void pasteFromClipboard()}
+            disabled={busy || pasteBusy || !!initial.error}
+          >
+            {pasteBusy ? '클립보드 확인 중…' : '복사한 공지 바로 보관'}
+          </button>
+          <button type="button" onClick={create} disabled={busy || pasteBusy || !!initial.error}>
+            사진·PDF 공지 추가
+          </button>
+        </div>
       </div>
+      {pasteFeedback && (
+        <p role="status" className="inbox-paste-feedback">
+          {pasteFeedback}
+        </p>
+      )}
+      {paperError && <p role="alert">{paperError}</p>}
       <p className="hint">
         공지 글·사진·PDF 원본은 이 기기에만 보관돼요. 과제 정보는 Cloud v2 연결 시 동기화되지만
         원본은 전송되지 않아요. 다른 기기로 옮길 때 설정의 완전한 ZIP 백업을 이용하세요.
@@ -135,8 +228,35 @@ export function SchoolInbox({
           <button onClick={() => persist(data)}>공지 저장 재시도</button>
         </div>
       )}
+      <div className="inbox-find" role="search" aria-label="학교 공지 찾기">
+        <label>
+          공지 검색
+          <input
+            type="search"
+            value={query}
+            placeholder="공지 내용·과목·과제·PDF 이름"
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </label>
+        <label>
+          공지 보기
+          <select
+            value={filter}
+            onChange={(event) => setFilter(event.target.value as NoticeFilter)}
+          >
+            <option value="inbox">받은함</option>
+            <option value="review">정리할 공지</option>
+            <option value="submission">완료 후 제출 확인</option>
+            <option value="archived">보관 처리한 공지</option>
+            <option value="all">모든 공지</option>
+          </select>
+        </label>
+      </div>
+      <p className="hint" role="status">
+        공지 {visible.length}개 · 최근 받은 순서
+      </p>
       <div className="inbox-list" aria-label="보관한 공지">
-        {data.notices.map((n) => (
+        {visible.map((n) => (
           <button
             key={n.id}
             disabled={busy}
@@ -147,6 +267,7 @@ export function SchoolInbox({
             }}
           >
             <span>{noticeStatus(n, state.tasks)}</span>
+            <small>{fullDate(new Date(n.createdAt))}</small>
             <strong>
               {n.text.slice(0, 45) ||
                 (n.materials.photoIds.length
@@ -156,6 +277,13 @@ export function SchoolInbox({
           </button>
         ))}
       </div>
+      {!visible.length && (
+        <p className="inbox-empty">
+          {data.notices.length
+            ? '이 조건에 맞는 공지가 없어요. 검색어나 공지 보기를 바꿔 보세요.'
+            : '첫 공지 한 장이면 충분해요. 복사한 글이나 사진을 보관해 보세요.'}
+        </p>
+      )}
       {noticeId && !notice && (
         <p role="status">
           연결된 공지 원본이 이 기기에 없어요. 등록한 기기에서 확인하거나 그 기기의 완전한 ZIP
@@ -170,6 +298,11 @@ export function SchoolInbox({
       )}
       {notice && (
         <div key={notice.id}>
+          {!visible.some((item) => item.id === notice.id) && (
+            <p className="hint">
+              아래는 열어 둔 공지예요. 검색 결과와 별개로 원본을 계속 확인할 수 있어요.
+            </p>
+          )}
           <label>
             원본 공지 · ChatGPT에서 복사한 글도 가능
             <textarea
@@ -212,7 +345,7 @@ export function SchoolInbox({
               {p.name} · PDF는 원본을 열어 내용을 직접 확인하세요.
               <NoticePdf resourceId={p.resource.id} name={p.name} />
               {state.learning?.resources.some((r) => r.id === p.resource.id) && (
-                <button onClick={() => onPaper(p.resource.id)}>연결 PDF 열기</button>
+                <button onClick={() => void openOriginal(p.resource.id)}>연결 PDF 열기</button>
               )}
             </div>
           ))}
@@ -228,6 +361,8 @@ export function SchoolInbox({
               const f = new FormData(e.currentTarget);
               try {
                 const date = String(f.get('date') || '');
+                const dueTime = String(f.get('time') || '');
+                if (dueTime && !date) throw new Error('시각을 정하려면 날짜도 확인해 주세요.');
                 const task = taskSchema.parse({
                   id: uid(),
                   subject: String(f.get('subject') || '').trim() || '미분류',
@@ -235,8 +370,8 @@ export function SchoolInbox({
                   kind: f.get('kind'),
                   ...captureDeadline({
                     due: date,
-                    precision: date ? 'date-only' : 'unknown',
-                    dueTime: '',
+                    precision: date ? (dueTime ? 'exact-time' : 'date-only') : 'unknown',
+                    dueTime,
                     provenance: 'user-confirmed',
                   }),
                   attachmentIds: notice.materials.photoIds,
@@ -247,7 +382,8 @@ export function SchoolInbox({
                   submitted: false,
                   submissionRequired: f.has('submission'),
                   optional: false,
-                  notes: `[학교공지:${notice.id}] 원본은 등록한 기기의 학교 공지 받은함에 보관됩니다.`,
+                  notes:
+                    `${String(f.get('details') || '').trim()}\n[학교공지:${notice.id}] 원본은 등록한 기기의 학교 공지 받은함에 보관됩니다.`.trim(),
                   link: '',
                   capture: {
                     source: notice.materials.photoIds.length ? 'photo' : 'text',
@@ -294,7 +430,20 @@ export function SchoolInbox({
                 확인한 마감 날짜
                 <input name="date" type="date" />
               </label>
+              <label>
+                확인한 마감 시각 (선택)
+                <input name="time" type="time" />
+              </label>
             </div>
+            <label>
+              해야 할 일·준비물·제출물 (선택)
+              <textarea
+                name="details"
+                rows={3}
+                maxLength={2500}
+                placeholder="원본을 보며 필요한 내용을 적어 두세요."
+              />
+            </label>
             <label className="checkbox">
               <input type="checkbox" name="submission" defaultChecked />
               학습 완료 후 제출 확인 필요
@@ -337,7 +486,7 @@ export function SchoolInbox({
                   </strong>
                   <p>
                     {formatTaskDeadline(t)} · 학습 {t.status === 'done' ? '완료' : '미완료'} · 제출{' '}
-                    {t.submitted ? '완료' : '미확인'}
+                    {t.submitted ? '완료' : t.submissionRequired === false ? '불필요' : '미확인'}
                   </p>
                   <button onClick={() => onEdit(t)}>과제 확인</button>
                   <button onClick={() => onCalendar(t)}>달력에서 보기</button>

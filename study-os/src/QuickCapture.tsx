@@ -203,7 +203,7 @@ export function QuickCapture({
             </>
           ) : (
             <>
-              오늘에 담기 <CornerDownLeft size={17} />
+              과제 저장 <CornerDownLeft size={17} />
             </>
           )}
         </button>

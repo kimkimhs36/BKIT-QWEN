@@ -16,7 +16,24 @@ export type CaptureFields = {
   estimateSource: 'default' | 'user';
 };
 const subjects =
-  /수학|영어|국어|경제|물리|화학|생명과학|지구과학|과학|사회|한국사|역사|정보|일본어|중국어/;
+  /수학|영어|국어|경제|물리|화학|생명과학|지구과학|과학|사회|한국사|역사|정보|일본어|중국어|한문|기술가정/;
+// Longest/specific school course names first. Never assume that general chemistry,
+// physics or math automatically means one of the separate elective courses.
+const specificSubjects: ReadonlyArray<readonly [RegExp, string]> = [
+  [/미술\s*감상\s*과\s*비평/, '미술 감상과 비평'],
+  [/로봇\s*[·및과]\s*소프트웨어\s*공학/, '로봇·소프트웨어 공학'],
+  [/소프트웨어\s*기초/, '소프트웨어 기초'],
+  [/물질\s*과\s*에너지/, '물질과 에너지'],
+  [/역학\s*과\s*에너지/, '역학과 에너지'],
+  [/사회\s*와\s*문화|사문\s*수행/, '사회와 문화'],
+  [/스포츠\s*생활/, '스포츠 생활'],
+  [/미적분\s*(?:Ⅱ|II|2)(?!\d)/i, '미적분Ⅱ'],
+  [/미적분\s*(?:Ⅰ|I|1)(?!\d)/i, '미적분Ⅰ'],
+  [/미적분(?!\s*[ⅠⅡI12])/i, '미적분'],
+  [/영어\s*(?:Ⅱ|II|2)(?!\d)/i, '영어Ⅱ'],
+  [/문학/, '문학'],
+  [/대수/, '대수'],
+];
 const unitMap: Record<string, CaptureUnit> = {
   문제: 'problems',
   문항: 'problems',
@@ -33,7 +50,8 @@ function validDay(y: number, m: number, d: number): string {
 }
 export function parseCapture(text: string, now = Date.now()): CaptureFields {
   const today = dayKey(now),
-    subject = text.match(subjects)?.[0] || '기타';
+    subject = specificSubjects.find(([pattern]) => pattern.test(text))?.[1] ||
+      text.match(subjects)?.[0] || '기타';
   const kind: Task['kind'] = /수행평가/.test(text)
     ? '수행평가'
     : /시험|시험공부/.test(text)

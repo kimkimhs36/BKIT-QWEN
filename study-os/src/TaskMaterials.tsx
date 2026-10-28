@@ -63,7 +63,8 @@ export function TaskMaterials({
               linkedTaskId: taskId,
               linkedMediaIds: [],
             },
-            [''],
+            // Original pages are not authored questions; keep existing records untouched.
+            [],
           );
           const resource = s.learning!.resources[0];
           const { importPaper } = await import('./paperPdf');

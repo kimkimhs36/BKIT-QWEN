@@ -12,6 +12,18 @@ async function nav(page: Page, name: string) {
     .first()
     .click();
 }
+async function originals(page: Page) {
+  await nav(page, '도구');
+  await page
+    .getByRole('navigation', { name: '추가 도구', exact: true })
+    .getByRole('button', { name: '공부 자료', exact: true })
+    .click();
+  await page.getByText('PDF · 사진 학습지 열기와 필기', { exact: true }).click();
+}
+async function backupSettings(page: Page) {
+  await page.getByRole('button', { name: '설정 열기', exact: true }).click();
+  await page.getByText('백업 · 복구', { exact: true }).click();
+}
 async function seed(page: Page) {
   await page.clock.install({ time: new Date('2026-10-19T12:00:00Z') });
   await page.addInitScript((s) => {
@@ -19,7 +31,7 @@ async function seed(page: Page) {
       localStorage.setItem('bkit.study-os.v1', JSON.stringify(s));
   }, newState());
   await page.goto('./');
-  await nav(page, '집중');
+  await originals(page);
 }
 async function upload(page: Page) {
   const pdf = await PDFDocument.create();
@@ -29,6 +41,9 @@ async function upload(page: Page) {
   }
   const bytes = Buffer.from(await pdf.save());
   await page.getByText('PDF·사진 가져오기', { exact: true }).click();
+  // These synthetic tests intentionally exercise ten indexed problems. Ordinary
+  // imports default to originals only and must not manufacture a question.
+  await page.getByLabel('PDF 실제 문제 수', { exact: true }).fill('10');
   await page
     .getByLabel('PDF·학습지 사진 파일', { exact: true })
     .setInputFiles({ name: 'ten-page-worksheet.pdf', mimeType: 'application/pdf', buffer: bytes });
@@ -187,7 +202,7 @@ test('10-page local PDF, 105 editable strokes, pen/touch boundary, rotation alig
   await room(page).getByLabel('종이 페이지', { exact: true }).selectOption(doc.pages[8].id);
   await saved(page);
   await page.reload();
-  await nav(page, '집중');
+  await originals(page);
   await page.getByRole('button', { name: '종이 열기', exact: true }).click();
   await expect(room(page).getByLabel('종이 페이지', { exact: true })).toHaveValue(doc.pages[8].id);
   await saved(page);
@@ -275,7 +290,7 @@ test('worksheet problem 8 ink and answer survive finish, resume 9, review and co
   await saved(page);
   await page.getByRole('button', { name: '저장하고 학습 종료', exact: true }).click();
   await page.getByRole('button', { name: '학습 기록 저장 · 종료', exact: true }).click();
-  await nav(page, '집중');
+  await originals(page);
   await page.getByRole('button', { name: '9번부터 이어 풀기', exact: true }).click();
   await expect(w.getByLabel('문제 목록', { exact: true })).toHaveValue(problems[8].id);
   await expect(room(page).getByTestId('ink-canvas')).toBeVisible();
@@ -295,11 +310,7 @@ test('worksheet problem 8 ink and answer survive finish, resume 9, review and co
   const retryLayers = doc.layers.filter((l) => l.problemId === problems[7].id);
   expect(retryLayers.at(-1)!.strokes).toHaveLength(0);
   expect(retryLayers.some((l) => l.strokes.length === 1)).toBe(true);
-  await nav(page, '더보기');
-  await page
-    .getByRole('navigation', { name: '추가 도구', exact: true })
-    .getByRole('button', { name: '설정', exact: true })
-    .click();
+  await backupSettings(page);
   const backup = page.getByRole('region', { name: '사진 포함 전체 백업' }),
     dl = page.waitForEvent('download', { timeout: 20000 });
   await backup.getByRole('button', { name: '사진 포함 전체 ZIP 내보내기', exact: true }).click();
@@ -307,16 +318,17 @@ test('worksheet problem 8 ink and answer survive finish, resume 9, review and co
     path = (await zip.path())!;
   const context = await browser.newContext({ viewport: { width: 1200, height: 900 } }),
     fresh = await context.newPage();
+  await context.route('**/*', (route) =>
+    new URL(route.request().url()).origin === new URL(page.url()).origin
+      ? route.continue()
+      : route.abort('blockedbyclient'),
+  );
   await fresh.goto(page.url());
   await fresh.evaluate(() => {
     localStorage.setItem('bkit.atelier.visited.v1', '1');
   });
   await fresh.reload();
-  await nav(fresh, '더보기');
-  await fresh
-    .getByRole('navigation', { name: '추가 도구', exact: true })
-    .getByRole('button', { name: '설정', exact: true })
-    .click();
+  await backupSettings(fresh);
   const restore = fresh.getByRole('region', { name: '사진 포함 전체 백업' });
   await restore.getByLabel('전체 ZIP 백업 검사', { exact: true }).setInputFiles(path);
   await expect(restore.getByText('PDF·디지털 종이 1개', { exact: false })).toBeVisible();
@@ -446,7 +458,9 @@ test('editable tools, two-finger navigation, pointer cancellation and unsaved-in
     .toBeGreaterThan(150);
   // React zoom renders before the IndexedDB autosave finishes; wait for the
   // persisted zoom so the pre-gesture snapshot reflects the visible scale.
-  const displayedZoom = Number((await room(page).locator('output').first().innerText()).replace('%', ''));
+  const displayedZoom = Number(
+    (await room(page).locator('output').first().innerText()).replace('%', ''),
+  );
   await expect
     .poll(async () => Math.round((await readDocs(page))[0].cursor.zoom * 100))
     .toBe(displayedZoom);
@@ -571,6 +585,9 @@ test('worksheet photo original, finger ink and source policy stay local and fit 
   const original = (await readDocs(page))[0];
   expect(original.mime).toBe('image/png');
   expect(original.pages).toHaveLength(1);
+  const imported = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
+  expect(imported.learning.problems).toHaveLength(0);
+  expect(imported.learning.attempts).toHaveLength(0);
   await room(page).getByLabel('펜 전용 · 손가락 이동', { exact: true }).uncheck();
   await pointer(
     page,
@@ -612,44 +629,54 @@ test('in-progress Apple Pencil stroke survives a guarded navigation request', as
   await upload(page);
   await page.getByRole('button', { name: '종이 열기', exact: true }).click();
   await expect(room(page).getByTestId('ink-canvas')).toBeVisible();
-  const allowed = await room(page).getByTestId('ink-canvas').evaluate((canvas) => {
-    const el = canvas as HTMLCanvasElement;
-    // Synthetic pointer events do not own native capture in WebKit.
-    el.setPointerCapture = () => {};
-    el.releasePointerCapture = () => {};
-    el.hasPointerCapture = () => false;
-    const box = el.getBoundingClientRect();
-    const send = (kind: string, y: number) =>
-      el.dispatchEvent(new PointerEvent(kind, {
-        bubbles: true,
-        cancelable: true,
-        pointerId: 808,
-        pointerType: 'pen',
-        button: 0,
-        buttons: 1,
-        clientX: box.left + 40,
-        clientY: box.top + y,
-        pressure: 0.6,
-      }));
-    send('pointerdown', 90);
-    send('pointermove', 130);
-    // User asks the app to update while the pen is still down.
-    return document.dispatchEvent(new CustomEvent('bkit:flush-learning-draft', {
-      cancelable: true,
-      detail: {
-        resume: () => {
-          (window as typeof window & { bkitSaveFinished?: boolean }).bkitSaveFinished = true;
-        },
-      },
-    }));
-  });
+  const allowed = await room(page)
+    .getByTestId('ink-canvas')
+    .evaluate((canvas) => {
+      const el = canvas as HTMLCanvasElement;
+      // Synthetic pointer events do not own native capture in WebKit.
+      el.setPointerCapture = () => {};
+      el.releasePointerCapture = () => {};
+      el.hasPointerCapture = () => false;
+      const box = el.getBoundingClientRect();
+      const send = (kind: string, y: number) =>
+        el.dispatchEvent(
+          new PointerEvent(kind, {
+            bubbles: true,
+            cancelable: true,
+            pointerId: 808,
+            pointerType: 'pen',
+            button: 0,
+            buttons: 1,
+            clientX: box.left + 40,
+            clientY: box.top + y,
+            pressure: 0.6,
+          }),
+        );
+      send('pointerdown', 90);
+      send('pointermove', 130);
+      // User asks the app to update while the pen is still down.
+      return document.dispatchEvent(
+        new CustomEvent('bkit:flush-learning-draft', {
+          cancelable: true,
+          detail: {
+            resume: () => {
+              (window as typeof window & { bkitSaveFinished?: boolean }).bkitSaveFinished = true;
+            },
+          },
+        }),
+      );
+    });
   expect(allowed).toBe(false);
   await expect.poll(async () => (await readDocs(page))[0].layers[0].strokes.length).toBe(1);
-  await expect.poll(() => page.evaluate(() =>
-    (window as typeof window & { bkitSaveFinished?: boolean }).bkitSaveFinished ?? false,
-  )).toBe(true);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window as typeof window & { bkitSaveFinished?: boolean }).bkitSaveFinished ?? false,
+      ),
+    )
+    .toBe(true);
   await page.reload();
-  await nav(page, '집중');
+  await originals(page);
   await page.getByRole('button', { name: '종이 열기', exact: true }).click();
   await expect.poll(async () => (await readDocs(page))[0].layers[0].strokes.length).toBe(1);
 });

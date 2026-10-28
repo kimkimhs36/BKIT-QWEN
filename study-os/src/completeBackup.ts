@@ -1,4 +1,7 @@
 import { INBOX_KEY, inboxSchema } from './schoolInbox';
+import { BOOKS_KEY, booksSchema, mergeBooks } from './books';
+import { KEY as EXAM_KEY, EXT_KEY as EXAM_EXT_KEY, readDocument as readExamDocument,
+  mergeDocuments as mergeExamDocuments, partitionDocument as partitionExamDocument } from './juggernaut/engine';
 import { GARAGE_KEY } from './drive/garage';
 import {
   paperManifestSchema,
@@ -18,6 +21,9 @@ import { closeSegment } from './session';
 import { LocalZipWriter, readLocalZip, sha256 } from './localZip';
 import { photoIds, readVaultPhoto, addVaultPhoto, type Vault } from './photoVault';
 export const BACKUP_KEYS = [
+  EXAM_KEY,
+  EXAM_EXT_KEY,
+  BOOKS_KEY,
   INBOX_KEY,
   GARAGE_KEY,
   'bkit.study-os.theme.v1',
@@ -72,6 +78,11 @@ function validateKeys(keys: StoredKeys) {
     if (!BACKUP_KEYS.includes(key) || (value !== null && typeof value !== 'string'))
       throw new Error('지원하지 않는 저장 항목입니다.');
   }
+  if (keys[EXAM_KEY] || keys[EXAM_EXT_KEY]) {
+    const verified = readExamDocument({ getItem: (key: string) => keys[key] ?? null });
+    if (verified.error) throw new Error(verified.error);
+  }
+  if (keys[BOOKS_KEY]) booksSchema.parse(JSON.parse(keys[BOOKS_KEY]!));
   if (keys[KEY]) stateSchema.parse(JSON.parse(keys[KEY]!));
   if (keys[INBOX_KEY]) inboxSchema.parse(JSON.parse(keys[INBOX_KEY]!));
   if (keys[SLEEP_KEY]) sleepSchema.parse(JSON.parse(keys[SLEEP_KEY]!));
@@ -103,6 +114,22 @@ function assertReferences(keys: StoredKeys, manifest: Manifest) {
     throw new Error(
       `사진 원본 ${missing.length}개가 누락되었습니다: ${missing.slice(0, 3).join(', ')}. 완전한 백업으로 처리할 수 없습니다.`,
     );
+}
+function assertDocumentReferences(keys: StoredKeys, documents: InspectedPaper['documents']) {
+  if (keys[BOOKS_KEY]) {
+    const books = booksSchema.parse(JSON.parse(keys[BOOKS_KEY]!));
+    for (const book of books.books)
+      for (const link of book.materials)
+        if (link.kind === 'document' && !documents.some((doc) => doc.id === link.targetId))
+          throw new Error(`${book.title}: 연결된 PDF·사진 원본이 누락됐습니다. 완전한 ZIP 백업으로 처리할 수 없습니다.`);
+  }
+  if (keys[INBOX_KEY]) {
+    const inbox = inboxSchema.parse(JSON.parse(keys[INBOX_KEY]!));
+    for (const notice of inbox.notices)
+      for (const paper of notice.materials.papers)
+        if (!documents.some((doc) => doc.resourceId === paper.resource.id))
+          throw new Error(`${paper.name}: 공지 PDF 원본이 누락됐습니다. 완전한 ZIP 백업으로 처리할 수 없습니다.`);
+  }
 }
 export async function exportCompleteBackup(
   storage: Storage,
@@ -159,6 +186,7 @@ export async function exportCompleteBackup(
   const paper = await exportPaperBackup(writer, 250 * 1024 * 1024 - total);
   manifest.paper = paper.manifest;
   assertReferences(keys, manifest);
+  assertDocumentReferences(keys, paper.baseline);
   const data = new Blob([JSON.stringify({ keys })], { type: 'application/json' });
   if (data.size > 20 * 1024 * 1024) throw new Error('학습 JSON 데이터가 20MB를 초과합니다.');
   manifest.dataSha256 = await sha256(data);
@@ -186,6 +214,9 @@ export function backupMatchesCurrent(archive: InspectedBackup) {
   return {
     study:
       archive.keys[KEY] === archive.baseline[KEY] &&
+      (archive.keys[BOOKS_KEY] ?? null) === (archive.baseline[BOOKS_KEY] ?? null) &&
+      (archive.keys[EXAM_KEY] ?? null) === (archive.baseline[EXAM_KEY] ?? null) &&
+      (archive.keys[EXAM_EXT_KEY] ?? null) === (archive.baseline[EXAM_EXT_KEY] ?? null) &&
       (archive.keys[INBOX_KEY] ?? null) === (archive.baseline[INBOX_KEY] ?? null),
     sleep: archive.keys[SLEEP_KEY] === archive.baseline[SLEEP_KEY],
     paper: JSON.stringify(archive.paper.documents) === JSON.stringify(archive.paper.baseline),
@@ -223,6 +254,7 @@ export async function inspectCompleteBackup(
     onProgress(`사진 무결성 검사 ${++i}/${manifest.photos.length}`);
   }
   const paper = await inspectPaperBackup(manifest.paper, files);
+  assertDocumentReferences(parsed.keys, paper.documents);
   if (
     files.size !==
     manifest.photos.length + 2 + (manifest.paper ? manifest.paper.originals.length + 1 : 0)
@@ -374,7 +406,22 @@ export async function restoreCompleteBackup(
     incoming['bkit.landscape.v1'] =
       map.get('study:' + incoming['bkit.landscape.v1']) ?? incoming['bkit.landscape.v1'];
   let next: StoredKeys = { ...backup.baseline };
+  // The historical three-concept document and the newer two-concept extension
+  // are one logical study history with two physical namespaces.
+  // Merge both together before writing either; never mix snapshots blindly.
+  if (mode === 'merge' && (incoming[EXAM_KEY] || incoming[EXAM_EXT_KEY])) {
+    const localExam = readExamDocument({ getItem: (k: string) => next[k] ?? null });
+    const importedExam = readExamDocument({ getItem: (k: string) => incoming[k] ?? null });
+    if (localExam.error || importedExam.error)
+      throw new Error(localExam.error || importedExam.error);
+    const mergedExam = partitionExamDocument(
+      mergeExamDocuments(localExam.document, importedExam.document),
+    );
+    next[EXAM_KEY] = JSON.stringify(mergedExam.legacy);
+    next[EXAM_EXT_KEY] = JSON.stringify(mergedExam.extension);
+  }
   for (const key of BACKUP_KEYS) {
+    if (mode === 'merge' && (key === EXAM_KEY || key === EXAM_EXT_KEY)) continue;
     if (incoming[key] === null || incoming[key] === undefined) continue;
     if (key === KEY) {
       let state = stateSchema.parse(JSON.parse(incoming[key]!));
@@ -385,6 +432,10 @@ export async function restoreCompleteBackup(
         active: state.active ? { ...state.active, segmentStart: null } : null,
       };
       next[key] = JSON.stringify(stateSchema.parse(state));
+    } else if (key === BOOKS_KEY && mode === 'merge' && next[key]) {
+      next[key] = JSON.stringify(mergeBooks(
+        booksSchema.parse(JSON.parse(next[key]!)), booksSchema.parse(JSON.parse(incoming[key]!)),
+      ));
     } else if (key === INBOX_KEY && mode === 'merge' && next[key]) {
       const old = inboxSchema.parse(JSON.parse(next[key]!)),
         value = inboxSchema.parse(JSON.parse(incoming[key]!));

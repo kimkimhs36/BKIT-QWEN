@@ -38,7 +38,7 @@ test('forgotten notice survives closing page, local OCR failure, duplicate retry
 }, info) => {
   await seed(page);
   await inbox(page);
-  await page.getByRole('button', { name: '새 공지 보관', exact: true }).click();
+  await page.getByRole('button', { name: '사진·PDF 공지 추가', exact: true }).click();
   await page
     .getByLabel('원본 공지', { exact: true })
     .fill('영어 발표 수행평가 · 10월 20일 · 제출 자료 원본 확인');
@@ -76,7 +76,7 @@ test('forgotten notice survives closing page, local OCR failure, duplicate retry
   await nav(page, '과제');
   await page.getByRole('button', { name: '발표 자료 준비 학습 완료로 변경', exact: true }).click();
   await nav(page, '오늘');
-  await page.getByRole('button', { name: /아직 제출하지 않은 수행평가 1개/ }).click();
+  await page.getByRole('button', { name: /학습 완료 후 제출 확인 1개/ }).click();
   await expect(page.getByRole('region', { name: '과제 목록' })).toContainText('발표 자료 준비');
   await nav(page, '오늘');
   await inbox(page);
@@ -93,7 +93,7 @@ test('inbox quota failure keeps text and photo, retry persists only confirmed ta
 }) => {
   await seed(page);
   await inbox(page);
-  await page.getByRole('button', { name: '새 공지 보관' }).click();
+  await page.getByRole('button', { name: '사진·PDF 공지 추가' }).click();
   await page.getByLabel('원본 공지', { exact: true }).fill('수학 원본 공지');
   await page
     .getByLabel('갤러리 사진 첨부', { exact: true })
@@ -132,7 +132,7 @@ test('actual Korean OCR is local and cannot create a task before original compar
   test.setTimeout(90000);
   await seed(page);
   await inbox(page);
-  await page.getByRole('button', { name: '새 공지 보관' }).click();
+  await page.getByRole('button', { name: '사진·PDF 공지 추가' }).click();
   await page.getByLabel('갤러리 사진 첨부').setInputFiles('tests/fixtures/printed-homework.png');
   await expect(page.locator('.atelier-photos img')).toBeVisible();
   await page.locator('.photo-text > summary').click();
@@ -269,7 +269,7 @@ test('portable cloud data never claims original photos exist on second device', 
   await expect(page.locator('.atelier-photo img')).toHaveCount(0);
   expect((await state(page)).tasks[0].attachmentIds).toBeUndefined();
   await nav(page, '오늘');
-  await page.getByRole('button', { name: /아직 제출하지 않은 수행평가 1개/ }).click();
+  await page.getByRole('button', { name: /학습 완료 후 제출 확인 1개/ }).click();
   await expect(page.getByRole('region', { name: '과제 목록' })).toContainText('다른 기기 수행평가');
 });
 
@@ -279,7 +279,7 @@ test('activation is optional, home/inbox are accessible and no horizontal overfl
   await seed(page);
   expect(await page.evaluate(() => localStorage.getItem('bkit.activation-local.v1'))).toBeNull();
   await inbox(page);
-  await page.getByRole('button', { name: '새 공지 보관' }).click();
+  await page.getByRole('button', { name: '사진·PDF 공지 추가' }).click();
   const result = await new AxeBuilder({ page })
     .include('.school-inbox')
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
@@ -311,7 +311,7 @@ test('notice photo and PDF originals round-trip through an external ZIP into an 
   const { PDFDocument } = await import('pdf-lib');
   await seed(page);
   await inbox(page);
-  await page.getByRole('button', { name: '새 공지 보관' }).click();
+  await page.getByRole('button', { name: '사진·PDF 공지 추가' }).click();
   await page.getByLabel('원본 공지', { exact: true }).fill('한 공지의 영어 발표와 보고서');
   await page.getByLabel('갤러리 사진 첨부').setInputFiles('tests/fixtures/printed-homework.png');
   await expect(page.locator('.atelier-photos img')).toBeVisible();

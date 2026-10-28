@@ -20,8 +20,8 @@ import { API_URL } from './ai';
 import { authorizeGoogleIdentity, prepareGoogleIdentity } from './cloudClient';
 import { stateSchema, type State } from './model';
 
-import { portableStudyState, mergePrivateStudyState } from './portableStudyState';
-export { portableStudyState, mergePrivateStudyState } from './portableStudyState';
+import { portableStudyState, mergePrivateStudyState, privateStudySignature } from './portableStudyState';
+export { portableStudyState, mergePrivateStudyState, privateStudySignature } from './portableStudyState';
 const cloudSchema = z.object({
   version: z.number().int().nonnegative(),
   state: stateSchema.nullable(),
@@ -43,9 +43,6 @@ export type Connection =
   | 'storage-error'
   | 'invalid-data';
 const tokenHeaders = (token: string) => ({ Authorization: 'Bearer ' + token });
-export function privateStudySignature(s: State) {
-  return JSON.stringify(stateSchema.parse(portableStudyState(s)));
-}
 const signature = privateStudySignature;
 async function digest(s: State) {
   const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(signature(s)));

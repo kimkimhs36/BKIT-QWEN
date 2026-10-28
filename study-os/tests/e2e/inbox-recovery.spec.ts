@@ -7,7 +7,7 @@ test('corrupt notice metadata is never overwritten and raw bytes remain download
   await page.addInitScript((raw) => localStorage.setItem('bkit.school-inbox.v1', raw), raw);
   await page.goto('./');
   await page.getByRole('button', { name: '학교 공지 보관', exact: true }).click();
-  await expect(page.getByRole('button', { name: '새 공지 보관', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: '사진·PDF 공지 추가', exact: true })).toBeDisabled();
   await expect(page.getByRole('alert').first()).toContainText('원본을 덮어쓰지 않습니다');
   const downloaded = page.waitForEvent('download');
   await page.getByRole('button', { name: '공지 보관함 원본 JSON 내보내기', exact: true }).click();
