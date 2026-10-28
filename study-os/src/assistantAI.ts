@@ -1,6 +1,7 @@
 import { API_URL } from './ai';
 import type { State } from './model';
 import { assistantContext } from './assistantLogic';
+import { questionWithContext, type ConversationTurn } from './assistantConversation';
 
 export type AssistantConfig = { available: boolean; clientId: string; message: string };
 
@@ -64,11 +65,17 @@ export async function askLiveAssistant(
   state: State,
   shareStudyContext: boolean,
   fetcher: typeof fetch = fetch,
+  consentedHistory: ConversationTurn[] = [],
 ): Promise<string> {
   const query = question.trim();
   if (!token || query.length < 1 || query.length > 1000)
     throw new Error('Google 인증과 1,000자 이내의 질문을 확인해 주세요.');
-  const payload = boundedAssistantPayload(query, state, shareStudyContext);
+  // The deployed legacy API accepts only a question and optional study summary.
+  // Explicitly consented short history is encoded into the question without changing API contracts.
+  const payload = boundedAssistantPayload(
+    questionWithContext(query, consentedHistory, consentedHistory.length > 0),
+    state, shareStudyContext,
+  );
   let response: Response;
   try {
     response = await fetcher(API_URL + '/api/assistant', {

@@ -2,6 +2,7 @@ import type { State, Task } from './model';
 import { uid } from './model';
 import { parseCapture, captureDeadline, formatTaskDeadline } from './capture';
 import { dayKey } from './time';
+import type { ConversationTurn } from './assistantConversation';
 
 export type AssistantAction =
   | { kind: 'add'; task: Task }
@@ -33,10 +34,47 @@ export function assistantContext(state: State, now = Date.now()) {
     })),
   };
 }
-export function localAssistant(question: string, state: State, now = Date.now()): AssistantReply {
+export function localAssistant(question: string, state: State, now = Date.now(), history: ConversationTurn[] = []): AssistantReply {
   const q = question.trim().slice(0, 1000);
   const pending = rankedPending(state);
-  if (!q) return { answer: '무엇을 도와줄까? 과제 추가, 완료 처리, 시간 변경, 오늘 우선순위, 복습 피드백을 물어봐.' };
+  if (!q) return { answer: '무엇을 도와줄까? 학원 이야기부터 공부 계획까지 편하게 말해줘.' };
+
+  // On-device academy counselling is useful without enabling paid AI.
+  // Only show actual registered data; never invent class times or attendance.
+  const previouslyDiscussedAcademy = history.slice(-8).some(
+    (turn) => turn.role === 'user' && /학원|과외/.test(turn.text),
+  );
+  const followUp = previouslyDiscussedAcademy &&
+    /^(?:숙제\s*때문|피곤|힘들|가기\s*싫|못\s*했|응|맞아|그거|시간\s*때문)/.test(q);
+  if ((/학원|과외/.test(q) || followUp) &&
+      !/(?:추가해|등록해|완료했|완료로|\d+\s*분으로|삭제해)/.test(q)) {
+    const today = dayKey(now);
+    const weekday = new Date(now).getDay();
+    const todayAcademies = state.schedules.filter(
+      (s) => s.kind === 'academy' &&
+        s.days.includes(weekday) &&
+        (!s.date || s.date === today) &&
+        !s.excluded.includes(today),
+    ).sort((a, b) => a.start.localeCompare(b.start));
+    const schedule = todayAcademies.length
+      ? '오늘 등록된 학원: ' + todayAcademies.map((s) => s.title + ' ' + s.start + '~' + s.end).join(', ') + '.'
+      : '오늘 등록된 학원 일정은 확인되지 않아. 실제 수업 여부는 직접 확인해야 해.';
+    const academyTasks = pending.filter((t) => /학원|과외/.test(t.title)).slice(0, 3);
+    const taskLine = academyTasks.length
+      ? ' 학원 관련 미완료 과제: ' + academyTasks.map((t) => t.title).join(', ') + '.'
+      : ' 학원 숙제는 현재 BKIT 기록만으로 확인되지 않아.';
+    if (/시간|몇\s*시|언제|일정/.test(q) && !/숙제/.test(q)) {
+      return { answer: schedule + taskLine, navigate: 'school' };
+    }
+    if (/가기\s*싫|안\s*가|못\s*가|빠질|지각|늦었|늦을|숙제|피곤|힘들|못\s*했/.test(q) || followUp) {
+      return {
+        answer: '학원 때문에 마음이 복잡하구나. ' + schedule + taskLine +
+          ' 지금 가장 걸리는 게 숙제를 못 끝낸 것인지, 체력적으로 지친 것인지 알려줘. 이유에 맞춰 출발 준비나 남은 숙제의 최소 계획을 같이 정하자. 학원에 갈지 말지는 네가 결정해야 해.',
+        navigate: 'school',
+      };
+    }
+    return { answer: schedule + taskLine + ' 학원 수업, 숙제, 다니는 문제 중 무엇을 이야기하고 싶어?', navigate: 'school' };
+  }
 
   if (/시간표|일정/.test(q) && /추가|만들|등록|입력/.test(q)) {
     return { answer: '고정 일정은 요일·시작·종료 시간을 확인해야 해. 시간표 입력 화면으로 이동해서 정확하게 등록하자.', navigate: 'school' };
