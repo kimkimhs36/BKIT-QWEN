@@ -21,7 +21,8 @@ function shouldContinue(q: string, history: ConversationTurn[]): boolean {
   const recent = history.slice(-4);
   const previousUser = [...recent].reverse().find(t => t.role === 'user')?.text ?? '';
   const previousAssistant = [...recent].reverse().find(t => t.role === 'assistant')?.text ?? '';
-  return /학원|과외/.test(previousUser) || /학원|과외/.test(previousAssistant);
+  return /학원|과외/.test(previousUser) ||
+    (!!previousUser && /숙제|피곤|힘들|지각/.test(previousUser) && /학원|과외/.test(previousAssistant));
 }
 
 function outstanding(state: State, current?: Schedule) {
@@ -79,13 +80,16 @@ export function academyGuidance(
   const departAt = classStart - (next.travel + next.buffer) * MIN;
   const untilPrep = Math.floor((prepareAt - now) / MIN);
   const untilDepart = Math.floor((departAt - now) / MIN);
+  const timingKnown = next.prep + next.travel + next.buffer > 0;
   const status = next.title + ' 수업은 ' + next.start + '에 시작해. ' +
-    (untilDepart > 0
-      ? '등록된 이동·여유 시간을 적용한 출발 기준은 ' + clock(departAt) + '이야.'
-      : '등록된 출발 기준 시각 ' + clock(departAt) + '이 지났거나 지금이야. 실제 상황을 확인해 줘.');
-  const preparation = next.prep + next.travel + next.buffer > 0
+    (!timingKnown
+      ? '준비·이동 시간이 모두 0분으로 등록돼 있어 출발 시각은 판단할 수 없어.'
+      : untilDepart > 0
+        ? '등록된 이동·여유 시간을 적용한 출발 기준은 ' + clock(departAt) + '이야.'
+        : '등록된 출발 기준 시각 ' + clock(departAt) + '이 지났거나 지금이야. 실제 상황을 확인해 줘.');
+  const preparation = timingKnown
     ? ' 준비 시작 기준은 ' + clock(prepareAt) + '이야.'
-    : ' 별도 준비·이동 시간이 입력되지 않았으므로 출발 시각은 추정할 수 없어.';
+    : ' 실제 이동·준비 시간을 먼저 확인해 줘.';
   const details = status + preparation;
 
   if (/몇\s*시|언제|시간|지각|늦었|늦을|출발|준비/.test(q) &&
@@ -95,12 +99,15 @@ export function academyGuidance(
 
   if (/피곤|지쳤|힘들|졸려|잠/.test(q) && !/숙제/.test(q)) {
     return { answer: details + ' 피곤하다면 억지로 학습량을 늘리지 말고 물 마시고 준비물부터 챙기자. ' +
-      (untilPrep >= 15 ? '준비 전까지 10분 정도 휴식하는 건 어때?' : '이제 준비가 우선이야.') +
+      (timingKnown && untilPrep >= 15 ? '준비 전까지 10분 정도 휴식하는 건 어때?' : '준비 시간을 확인하고 여유가 있으면 짧게 쉬자.') +
       ' 수업 참석 여부는 네 상황을 고려해 직접 결정하자.', navigate: 'school' };
   }
 
   if (/숙제|못\s*했/.test(q) || continuation) {
     const isHomeworkReason = /숙제|못\s*했/.test(q);
+    if (!timingKnown) {
+      return { answer: details + ' ' + taskLabel + ' 출발 준비 시간을 먼저 확인해야 해. 숙제를 어느 정도 못 했는지 말해주면 분량을 나눠 보자.', navigate: 'school' };
+    }
     if (untilPrep <= 5) {
       return { answer: details + ' 준비할 시간이 거의 없으니 지금은 숙제를 억지로 끝내기보다 준비물을 챙기는 게 우선이야. ' +
         taskLabel + ' 숙제 상황을 선생님께 사실대로 이야기할 준비를 하자.', navigate: 'school' };
