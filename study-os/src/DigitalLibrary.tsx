@@ -181,10 +181,14 @@ export function DigitalLibrary({
                       max="500"
                       value={count}
                       onChange={(e) =>
-                        setCount(Math.max(0, Math.min(500, Math.floor(Number(e.target.value) || 0))))
+                        setCount(
+                          Math.max(0, Math.min(500, Math.floor(Number(e.target.value) || 0))),
+                        )
                       }
                     />
-                    <small id="paper-count-help">원본 필기만 할 때는 0. 실제 문제를 따로 기록하려면 개수를 확인해 입력하세요.</small>
+                    <small id="paper-count-help">
+                      원본 필기만 할 때는 0. 실제 문제를 따로 기록하려면 개수를 확인해 입력하세요.
+                    </small>
                   </label>
                   <label>
                     PDF 연결 과제
