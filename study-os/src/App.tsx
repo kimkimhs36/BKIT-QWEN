@@ -2159,6 +2159,7 @@ export default function App() {
                 }}
                 onAssessment={addAssessmentNow}
                 onExportCalendar={exportCalendar}
+                onAssistant={() => open('assistant')}
                 onRecover={recovery}
                 inboxPending={inboxPending}
                 unavailable={
