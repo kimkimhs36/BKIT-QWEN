@@ -18,9 +18,11 @@ const headers = {
 };
 const payload = JSON.stringify({ question: '오늘 무엇부터 공부해야 할까?' });
 const response = (content: unknown, finish_reason = 'stop') =>
-  new Response(JSON.stringify({
-    choices: [{ finish_reason, message: { content: JSON.stringify(content) } }],
-  }));
+  new Response(
+    JSON.stringify({
+      choices: [{ finish_reason, message: { content: JSON.stringify(content) } }],
+    }),
+  );
 async function withServer(app: Express, run: (root: string) => Promise<void>) {
   const server = app.listen(0, '127.0.0.1');
   await new Promise<void>((resolve) => server.once('listening', resolve));
@@ -35,50 +37,83 @@ async function withServer(app: Express, run: (root: string) => Promise<void>) {
 
 describe('opt-in BKIT live AI assistant', () => {
   it('is disabled by default, without changing briefing availability or charging money', async () => {
-    const reserve = vi.fn(), fetcher = vi.fn();
-    const app = createPrivateApi({ ...env, BKIT_ASSISTANT_LIVE: undefined }, {
-      budget: { reserve }, verify: async () => true, fetcher,
-    });
+    const reserve = vi.fn(),
+      fetcher = vi.fn();
+    const app = createPrivateApi(
+      { ...env, BKIT_ASSISTANT_LIVE: undefined },
+      {
+        budget: { reserve },
+        verify: async () => true,
+        fetcher,
+      },
+    );
     await withServer(app, async (root) => {
       const health = await (await fetch(root + '/api/health')).json();
       expect(health.features).toMatchObject({ briefing: true, assistant: false });
       expect((await (await fetch(root + '/api/config')).json()).assistantEnabled).toBe(false);
-      expect((await fetch(root + '/api/assistant', { method: 'POST', headers, body: payload })).status).toBe(503);
+      expect(
+        (await fetch(root + '/api/assistant', { method: 'POST', headers, body: payload })).status,
+      ).toBe(503);
     });
     expect(reserve).not.toHaveBeenCalled();
     expect(fetcher).not.toHaveBeenCalled();
   });
 
   it('requires owner authentication and approved origin before any AI usage', async () => {
-    const reserve = vi.fn(), fetcher = vi.fn();
+    const reserve = vi.fn(),
+      fetcher = vi.fn();
     const app = createPrivateApi(env, {
-      budget: { reserve }, fetcher, verify: async () => false,
+      budget: { reserve },
+      fetcher,
+      verify: async () => false,
     });
     await withServer(app, async (root) => {
       const health = await (await fetch(root + '/api/health')).json();
       expect(health.features.assistant).toBe(true);
-      expect((await fetch(root + '/api/assistant', { method: 'POST', headers, body: payload })).status).toBe(401);
-      expect((await fetch(root + '/api/assistant', { method: 'POST', headers: { ...headers, Origin: 'https://bad.example' }, body: payload })).status).toBe(403);
+      expect(
+        (await fetch(root + '/api/assistant', { method: 'POST', headers, body: payload })).status,
+      ).toBe(401);
+      expect(
+        (
+          await fetch(root + '/api/assistant', {
+            method: 'POST',
+            headers: { ...headers, Origin: 'https://bad.example' },
+            body: payload,
+          })
+        ).status,
+      ).toBe(403);
     });
     expect(reserve).not.toHaveBeenCalled();
     expect(fetcher).not.toHaveBeenCalled();
   });
 
   it('rejects extra/private fields, invalid context and empty questions before charging', async () => {
-    const reserve = vi.fn(), fetcher = vi.fn();
-    await withServer(createPrivateApi(env, {
-      budget: { reserve }, fetcher, verify: async () => true,
-    }), async root => {
-      for (const input of [
-        { question: '' },
-        { question: '안녕', notes: 'should never be sent' },
-        { question: '안녕', context: { tasks: [{ secret: 'x' }] } },
-      ]) {
-        expect((await fetch(root + '/api/assistant', {
-          method: 'POST', headers, body: JSON.stringify(input),
-        })).status).toBe(400);
-      }
-    });
+    const reserve = vi.fn(),
+      fetcher = vi.fn();
+    await withServer(
+      createPrivateApi(env, {
+        budget: { reserve },
+        fetcher,
+        verify: async () => true,
+      }),
+      async (root) => {
+        for (const input of [
+          { question: '' },
+          { question: '안녕', notes: 'should never be sent' },
+          { question: '안녕', context: { tasks: [{ secret: 'x' }] } },
+        ]) {
+          expect(
+            (
+              await fetch(root + '/api/assistant', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(input),
+              })
+            ).status,
+          ).toBe(400);
+        }
+      },
+    );
     expect(reserve).not.toHaveBeenCalled();
     expect(fetcher).not.toHaveBeenCalled();
   });
@@ -99,26 +134,47 @@ describe('opt-in BKIT live AI assistant', () => {
       expect(body.messages[1].content).not.toContain('private info');
       return response({ answer: '가장 가까운 마감의 과제부터 5분 시작하자.' });
     }) as unknown as typeof fetch;
-    await withServer(createPrivateApi(env, {
-      budget: { reserve }, fetcher, verify: async () => true,
-    }), async root => {
-      const res = await fetch(root + '/api/assistant', { method: 'POST', headers, body: payload });
-      expect(res.status).toBe(200);
-      expect(await res.json()).toMatchObject({
-        mode: 'live', model: 'deepseek-flash', answer: '가장 가까운 마감의 과제부터 5분 시작하자.',
-      });
-    });
+    await withServer(
+      createPrivateApi(env, {
+        budget: { reserve },
+        fetcher,
+        verify: async () => true,
+      }),
+      async (root) => {
+        const res = await fetch(root + '/api/assistant', {
+          method: 'POST',
+          headers,
+          body: payload,
+        });
+        expect(res.status).toBe(200);
+        expect(await res.json()).toMatchObject({
+          mode: 'live',
+          model: 'deepseek-flash',
+          answer: '가장 가까운 마감의 과제부터 5분 시작하자.',
+        });
+      },
+    );
     expect(reserve).toHaveBeenCalledOnce();
     expect(fetcher).toHaveBeenCalledOnce();
   });
 
   it('fails closed when shared budget is exhausted, without provider calls', async () => {
-    const fetcher = vi.fn(), reserve = vi.fn(async () => { throw new Error('Daily cap'); });
-    await withServer(createPrivateApi(env, {
-      budget: { reserve }, fetcher, verify: async () => true,
-    }), async root => {
-      expect((await fetch(root + '/api/assistant', { method: 'POST', headers, body: payload })).status).toBe(503);
-    });
+    const fetcher = vi.fn(),
+      reserve = vi.fn(async () => {
+        throw new Error('Daily cap');
+      });
+    await withServer(
+      createPrivateApi(env, {
+        budget: { reserve },
+        fetcher,
+        verify: async () => true,
+      }),
+      async (root) => {
+        expect(
+          (await fetch(root + '/api/assistant', { method: 'POST', headers, body: payload })).status,
+        ).toBe(503);
+      },
+    );
     expect(fetcher).not.toHaveBeenCalled();
   });
 
@@ -130,15 +186,62 @@ describe('opt-in BKIT live AI assistant', () => {
     ]) {
       const app = createPrivateApi(env, {
         budget: { reserve: async () => ({ calls: 1, reservedKRW: 1 }) },
-        verify: async () => true, fetcher: provider,
+        verify: async () => true,
+        fetcher: provider,
       });
-      await withServer(app, async root => {
-        const res = await fetch(root + '/api/assistant', { method: 'POST', headers, body: payload });
+      await withServer(app, async (root) => {
+        const res = await fetch(root + '/api/assistant', {
+          method: 'POST',
+          headers,
+          body: payload,
+        });
         expect(res.status).toBe(503);
         const bodyText = await res.text();
         expect(bodyText).not.toContain('secret-provider-content');
         expect(bodyText).not.toContain('synthetic-secret');
       });
     }
+  });
+  it('redacts arbitrary network and ledger exceptions instead of reflecting credentials', async () => {
+    for (const phase of ['budget', 'provider']) {
+      const fail = async () => {
+        throw Error('https://internal.invalid?token=private-test-secret');
+      };
+      const reserve = phase === 'budget' ? fail : async () => ({ calls: 1, reservedKRW: 1 });
+      const provider = vi.fn(fail);
+      await withServer(
+        createPrivateApi(env, { verify: async () => true, budget: { reserve }, fetcher: provider }),
+        async (root) => {
+          const res = await fetch(root + '/api/assistant', {
+            method: 'POST',
+            headers,
+            body: payload,
+          });
+          expect(res.status).toBe(503);
+          const body = await res.text();
+          expect(body).not.toContain('private-test-secret');
+          expect(body).not.toContain('internal.invalid');
+        },
+      );
+      if (phase === 'budget') expect(provider).not.toHaveBeenCalled();
+    }
+  });
+  it('returns bounded JSON errors for oversized and malformed requests before reserving budget', async () => {
+    const reserve = vi.fn();
+    await withServer(
+      createPrivateApi(env, { verify: async () => true, budget: { reserve } }),
+      async (root) => {
+        for (const [body, status] of [
+          [JSON.stringify({ question: '한'.repeat(20000) }), 413],
+          ['{invalid', 400],
+        ] as const) {
+          const res = await fetch(root + '/api/assistant', { method: 'POST', headers, body });
+          expect(res.status).toBe(status);
+          expect(res.headers.get('content-type')).toContain('application/json');
+          expect(await res.text()).not.toContain('SyntaxError');
+        }
+      },
+    );
+    expect(reserve).not.toHaveBeenCalled();
   });
 });

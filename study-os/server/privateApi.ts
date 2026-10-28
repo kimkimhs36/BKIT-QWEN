@@ -23,7 +23,11 @@ function snapshotSafety(raw: string | null) {
     return {
       status: 'healthy' as const,
       version,
-      counts: { tasks: data.tasks.length, schedules: data.schedules.length, sessions: data.sessions.length },
+      counts: {
+        tasks: data.tasks.length,
+        schedules: data.schedules.length,
+        sessions: data.sessions.length,
+      },
     };
   } catch {
     try {
@@ -41,7 +45,6 @@ function snapshotSafety(raw: string | null) {
     }
   }
 }
-
 
 const syncScript = `
 local current = redis.call('GET', KEYS[1])
@@ -285,7 +288,11 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
         // A one-time server-proven fresh namespace authorizes client checkpoint reset.
         // It does not erase device-local learning data or stored login credentials.
         const previous = await redisCommand(['EXISTS', legacySyncKey]);
-        return void res.json({ version: 0, state: null, ...(previous === 1 ? { resetNamespace: 2 } : {}) });
+        return void res.json({
+          version: 0,
+          state: null,
+          ...(previous === 1 ? { resetNamespace: 2 } : {}),
+        });
       }
       if (typeof raw !== 'string') throw new Error('동기화 기록이 올바르지 않아요.');
       const record = snapshotEnvelope.parse(JSON.parse(raw));
@@ -458,38 +465,65 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
 
   // Read-only, owner-authenticated AI advice. All calls share the Redis KRW budget
   // with briefing. No browser data is read server-side and no task writes occur here.
-  const assistantContext = z.object({
-    today: z.string().regex(/^20\d{2}-\d{2}-\d{2}$/),
-    goal: z.string().max(200),
-    tasks: z.array(z.object({
-      subject: z.string().max(200),
-      title: z.string().max(200),
-      due: z.string().regex(/^20\d{2}-\d{2}-\d{2}$/).nullable(),
-      remaining: z.number().finite().min(0).max(480),
-      priority: z.number().int().min(1).max(3),
-    }).strict()).max(40),
-    schedules: z.array(z.object({
-      title: z.string().max(200),
-      subject: z.string().max(200),
-      days: z.array(z.number().int().min(0).max(6)).max(7),
-      start: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
-      end: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
-    }).strict()).max(40),
-    sessions: z.array(z.object({
-      subject: z.string().max(200),
-      problems: z.number().int().min(0).max(10000),
-      rating: z.enum(['어려움', '보통', '이해함']),
-      seconds: z.number().finite().min(0),
-    }).strict()).max(15),
-  }).strict();
-  const assistantInput = z.object({
-    question: z.string().trim().min(1).max(1000),
-    // Context is omitted unless the person explicitly opts into sharing it.
-    context: assistantContext.optional(),
-  }).strict();
+  const assistantContext = z
+    .object({
+      today: z.string().regex(/^20\d{2}-\d{2}-\d{2}$/),
+      goal: z.string().max(200),
+      tasks: z
+        .array(
+          z
+            .object({
+              subject: z.string().max(200),
+              title: z.string().max(200),
+              due: z
+                .string()
+                .regex(/^20\d{2}-\d{2}-\d{2}$/)
+                .nullable(),
+              remaining: z.number().finite().min(0).max(480),
+              priority: z.number().int().min(1).max(3),
+            })
+            .strict(),
+        )
+        .max(40),
+      schedules: z
+        .array(
+          z
+            .object({
+              title: z.string().max(200),
+              subject: z.string().max(200),
+              days: z.array(z.number().int().min(0).max(6)).max(7),
+              start: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+              end: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+            })
+            .strict(),
+        )
+        .max(40),
+      sessions: z
+        .array(
+          z
+            .object({
+              subject: z.string().max(200),
+              problems: z.number().int().min(0).max(10000),
+              rating: z.enum(['어려움', '보통', '이해함']),
+              seconds: z.number().finite().min(0),
+            })
+            .strict(),
+        )
+        .max(15),
+    })
+    .strict();
+  const assistantInput = z
+    .object({
+      question: z.string().trim().min(1).max(1000),
+      // Context is omitted unless the person explicitly opts into sharing it.
+      context: assistantContext.optional(),
+    })
+    .strict();
   app.post('/api/assistant', async (req, res) => {
     if (!assistantLive || !budget) {
-      res.status(503).json({ error: 'AI 비서는 아직 승인된 연결 준비 중이에요. 로컬 비서를 사용해 주세요.' });
+      res
+        .status(503)
+        .json({ error: 'AI 비서는 아직 승인된 연결 준비 중이에요. 로컬 비서를 사용해 주세요.' });
       return;
     }
     const parsed = assistantInput.safeParse(req.body);
@@ -508,9 +542,11 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
     ].join(' ');
     const maxTokens = 900;
     const bytes = Buffer.byteLength(system) + Buffer.byteLength(JSON.stringify(parsed.data)) + 1000;
+    let failureMessage = 'AI 사용량을 확인하지 못했어요. 유료 요청은 보내지 않았어요.';
     try {
       // Same shared, fail-closed Redis counter as the existing briefing endpoint.
       const reserved = await budget.reserve((bytes * 0.3 + maxTokens * 1.2) / 1_000_000);
+      failureMessage = 'AI 서버 연결에 실패했어요. 로컬 비서를 사용해 주세요.';
       const response = await fetcher('https://api.deepseek.com/chat/completions', {
         method: 'POST',
         headers: { Authorization: 'Bearer ' + env.AI_API_KEY!, 'Content-Type': 'application/json' },
@@ -530,28 +566,41 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
       if (!response.ok) {
         // Never return provider error bodies or credentials.
         const status = response.status;
-        throw new Error(
-          status === 401 ? 'AI 서버 인증 설정을 확인해 주세요. (401)' :
-          status === 402 ? 'AI 제공업체의 잔액을 확인해 주세요. (402)' :
-          status === 429 ? 'AI 제공업체 요청 제한에 도달했어요. (429)' :
-          'AI 서비스가 응답하지 않았어요. (' + status + ')',
-        );
+        return void res
+          .status(503)
+          .json({
+            error:
+              status === 401
+                ? 'AI 서버 인증 설정을 확인해 주세요. (401)'
+                : status === 402
+                  ? 'AI 제공업체의 잔액을 확인해 주세요. (402)'
+                  : status === 429
+                    ? 'AI 제공업체 요청 제한에 도달했어요. (429)'
+                    : 'AI 서비스가 응답하지 않았어요. (' + status + ')',
+          });
       }
-      const raw = z.object({
-        choices: z.array(z.object({
-          finish_reason: z.string(),
-          message: z.object({ content: z.string() }),
-        })).min(1),
-      }).parse(await response.json());
+      failureMessage = 'AI 답변을 검증하지 못했어요. 로컬 비서를 사용해 주세요.';
+      const raw = z
+        .object({
+          choices: z
+            .array(
+              z.object({
+                finish_reason: z.string(),
+                message: z.object({ content: z.string() }),
+              }),
+            )
+            .min(1),
+        })
+        .parse(await response.json());
       if (raw.choices[0].finish_reason !== 'stop') throw new Error('AI 응답이 완성되지 않았어요.');
-      const result = z.object({ answer: z.string().trim().min(1).max(2000) }).parse(
-        JSON.parse(raw.choices[0].message.content),
-      );
+      const result = z
+        .object({ answer: z.string().trim().min(1).max(2000) })
+        .parse(JSON.parse(raw.choices[0].message.content));
       res.json({ mode: 'live', model: 'deepseek-flash', answer: result.answer, budget: reserved });
-    } catch (error) {
+    } catch {
       res.status(503).json({
-        error: error instanceof Error && !['ZodError', 'SyntaxError'].includes(error.name)
-          ? error.message : 'AI 답변을 검증하지 못했어요. 로컬 비서를 사용해 주세요.',
+        error: failureMessage,
+        requestId: res.locals.requestId,
       });
     }
   });
@@ -559,5 +608,16 @@ export function createPrivateApi(env: Environment, dependencies: Dependencies = 
   app.use('/api', (_req, res) =>
     res.status(503).json({ error: '이 AI 기능은 아직 연결 준비 중이에요.' }),
   );
+  const parseFailure: import('express').ErrorRequestHandler = (error, _req, res, _next) => {
+    // Never expose Express stack traces, provider errors, request bodies or tokens.
+    const tooLarge = error?.type === 'entity.too.large';
+    res.status(tooLarge ? 413 : 400).json({
+      error: tooLarge
+        ? '요청이 너무 커요. 공유할 내용을 줄여 주세요.'
+        : '요청 형식을 확인해 주세요.',
+      requestId: res.locals.requestId,
+    });
+  };
+  app.use(parseFailure);
   return app;
 }
