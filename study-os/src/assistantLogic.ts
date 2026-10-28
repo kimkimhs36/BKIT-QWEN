@@ -46,7 +46,8 @@ export function localAssistant(question: string, state: State, now = Date.now(),
   );
   const followUp = previouslyDiscussedAcademy &&
     /^(?:숙제\s*때문|피곤|힘들|가기\s*싫|못\s*했|응|맞아|그거|시간\s*때문)/.test(q);
-  if (/학원|과외/.test(q) || followUp) {
+  if ((/학원|과외/.test(q) || followUp) &&
+      !/(?:추가해|등록해|완료했|완료로|\d+\s*분으로|삭제해)/.test(q)) {
     const today = dayKey(now);
     const weekday = new Date(now).getDay();
     const todayAcademies = state.schedules.filter(
