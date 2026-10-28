@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
     "test": "vitest run",
+    "test:api-contract": "tsx scripts/verify-private-api-contract.ts",
     "test:e2e": "playwright test",
     "preview": "vite preview --host 0.0.0.0",
     "server": "tsx server/index.ts",

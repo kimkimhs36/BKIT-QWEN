@@ -1,4 +1,8 @@
-import type { State } from './model';
+import { stateSchema, type State } from './model';
+
+export function privateStudySignature(state: State) {
+  return JSON.stringify(stateSchema.parse(portableStudyState(state)));
+}
 
 /** Never send a live focus timer or device-only photo references to the cloud. */
 export function portableStudyState(state: State): State {
