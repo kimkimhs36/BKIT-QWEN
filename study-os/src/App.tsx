@@ -3466,6 +3466,15 @@ export default function App() {
                 state={s}
                 getAccessToken={cloud.getAccessToken}
                 onAction={applyAssistantAction}
+                onStartFocus={(minutes) => {
+                  if (current) {
+                    setNotice('현재 ' + current.title + ' 시간이라 새로운 집중을 시작하지 않았어.');
+                    return;
+                  }
+                  if (!s.active && !s.quickTimer) beginQuick('countdown', minutes);
+                  setModal(null);
+                  setTab('study');
+                }}
                 onNavigate={(next) => {
                   setModal(null);
                   setTab(next);
