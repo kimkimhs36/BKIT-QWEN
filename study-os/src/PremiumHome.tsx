@@ -113,6 +113,16 @@ export function PremiumHome({
   const availableMinutes = Math.max(0, Math.floor(freeMs / 60000));
   return (
     <div className="study-home">
+      <section className="study-chat-first" aria-label="BKIT에 바로 말하기">
+        <div className="study-chat-first-copy">
+          <span>YOUR STUDY COMPANION</span>
+          <strong>학원 이야기부터, 그냥 말해줘.</strong>
+          <small>일정 · 숙제 · 공부 고민을 한 대화에서</small>
+        </div>
+        <button type="button" onClick={onAssistant} aria-label="BKIT 비서와 대화 시작">
+          대화하기 <ArrowRight size={17} aria-hidden="true" />
+        </button>
+      </section>
       <div className="daily-activation" aria-label="첫 60초에 할 수 있는 일">
         <button onClick={onInbox}>학교 공지 보관</button>
         <button onClick={onAssessment}>수행평가 등록</button>
