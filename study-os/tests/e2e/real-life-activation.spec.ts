@@ -76,7 +76,7 @@ test('forgotten notice survives closing page, local OCR failure, duplicate retry
   await nav(page, '과제');
   await page.getByRole('button', { name: '발표 자료 준비 학습 완료로 변경', exact: true }).click();
   await nav(page, '오늘');
-  await page.getByRole('button', { name: /아직 제출하지 않은 수행평가 1개/ }).click();
+  await page.getByRole('button', { name: /학습 완료 후 제출 확인 1개/ }).click();
   await expect(page.getByRole('region', { name: '과제 목록' })).toContainText('발표 자료 준비');
   await nav(page, '오늘');
   await inbox(page);
@@ -269,7 +269,7 @@ test('portable cloud data never claims original photos exist on second device', 
   await expect(page.locator('.atelier-photo img')).toHaveCount(0);
   expect((await state(page)).tasks[0].attachmentIds).toBeUndefined();
   await nav(page, '오늘');
-  await page.getByRole('button', { name: /아직 제출하지 않은 수행평가 1개/ }).click();
+  await page.getByRole('button', { name: /학습 완료 후 제출 확인 1개/ }).click();
   await expect(page.getByRole('region', { name: '과제 목록' })).toContainText('다른 기기 수행평가');
 });
 

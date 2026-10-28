@@ -555,7 +555,7 @@ export function Books({
                             : m.kind === 'task'
                               ? '기존 과제 연결'
                               : '기존 문제 자료 연결'}
-                          {progress ? ` · 남은 문제 ${progress.remainingCount}개` : ''}
+                          {progress?.total ? ` · 남은 문제 ${progress.remainingCount}개` : doc ? ' · 원본 필기' : ''}
                         </small>
                         {missing && (
                           <p>

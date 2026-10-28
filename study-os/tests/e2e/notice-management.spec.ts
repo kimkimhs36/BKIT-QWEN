@@ -7,6 +7,7 @@ test.use({ serviceWorkers: 'block' });
 test('capture original PDF, register a confirmed KST deadline and recover everything after reload', async ({
   page,
 }) => {
+  await page.clock.install({ time: new Date('2026-10-28T00:00:00Z') });
   await page.goto('./');
   await page.getByRole('button', { name: '학교 공지 보관', exact: true }).click();
   await page.getByRole('button', { name: '사진·PDF 공지 추가', exact: true }).click();
@@ -15,13 +16,11 @@ test('capture original PDF, register a confirmed KST deadline and recover everyt
     .fill('물질과 에너지 실험 보고서. 보안경 지참, PDF 양식으로 제출.');
   const pdf = await PDFDocument.create();
   pdf.addPage([300, 400]);
-  await page
-    .getByLabel('과제 PDF 첨부', { exact: true })
-    .setInputFiles({
-      name: 'experiment.pdf',
-      mimeType: 'application/pdf',
-      buffer: Buffer.from(await pdf.save()),
-    });
+  await page.getByLabel('과제 PDF 첨부', { exact: true }).setInputFiles({
+    name: 'experiment.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from(await pdf.save()),
+  });
   await expect(page.getByText('PDF 원본 보관됨 · experiment.pdf')).toBeVisible();
   await page.getByLabel('확인한 과제 이름', { exact: true }).fill('실험 보고서');
   await page.getByLabel('확인한 과목', { exact: true }).fill('물질과 에너지');
@@ -51,6 +50,18 @@ test('capture original PDF, register a confirmed KST deadline and recover everyt
     page.getByRole('link', { name: 'experiment.pdf PDF 원본 보기', exact: true }),
   ).toBeVisible();
   await expect(linked).toContainText('제출 미확인');
+  await page.getByRole('button', { name: '연결 PDF 열기', exact: true }).click();
+  await expect(page.getByTestId('ink-canvas')).toBeVisible();
+  expect(
+    await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!).active),
+  ).toBeNull();
+  await page.getByRole('button', { name: '종이 닫기', exact: true }).click();
+  await page.getByRole('button', { name: '이 과제 5분 시작', exact: true }).click();
+  const active = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('bkit.study-os.v1')!).active,
+  );
+  expect(active.taskId).toBe(saved.tasks[0].id);
+  expect(active.resourceId).toBeUndefined();
 });
 
 test('find linked subjects, distinguish completed from submitted, archive and rediscover an original', async ({
@@ -95,14 +106,14 @@ test('find linked subjects, distinguish completed from submitted, archive and re
   await page.goto('./');
   await page.getByRole('button', { name: '학교 공지 보관', exact: true }).click();
   await page.getByLabel('공지 검색', { exact: true }).fill('에너지');
-  await page.getByLabel('공지 보기', { exact: true }).selectOption('submission');
+  await page.getByRole('combobox', { name: '공지 보기', exact: true }).selectOption('submission');
   await expect(page.locator('.inbox-list button')).toHaveCount(1);
   await expect(page.getByRole('region', { name: '공지에서 등록한 과제' })).toContainText(
     '학습 완료 · 제출 미확인',
   );
   await page.getByRole('button', { name: '공지 보관 처리', exact: true }).click();
   await expect(page.locator('.inbox-list button')).toHaveCount(0);
-  await page.getByLabel('공지 보기', { exact: true }).selectOption('archived');
+  await page.getByRole('combobox', { name: '공지 보기', exact: true }).selectOption('archived');
   await expect(page.locator('.inbox-list button')).toHaveCount(1);
   await page.getByRole('button', { name: '받은함으로 이동', exact: true }).click();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));

@@ -2267,7 +2267,6 @@ export default function App() {
                   }
                   onEdit={taskEditor}
                   onStart={(id) => start(5, id)}
-                  onPaper={openResource}
                   onCalendar={(task) => {
                     setDay(task.deadline?.date || (task.due ? dayKey(task.due) : today));
                     setTab('school');

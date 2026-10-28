@@ -94,7 +94,7 @@ test('photo notice → failed save → retry → paused stopwatch attachment →
   await page.getByRole('button', { name: '학교 발표 준비 학습 완료로 변경', exact: true }).click();
   expect((await state(page)).tasks[0].submitted).toBe(false);
   await nav(page, '오늘');
-  await page.getByRole('button', { name: /아직 제출하지 않은 수행평가 1개/ }).click();
+  await page.getByRole('button', { name: /학습 완료 후 제출 확인 1개/ }).click();
   await expect(page.getByRole('region', { name: '과제 목록' })).toContainText('학교 발표 준비');
   await nav(page, '과제');
   await page.getByRole('button', { name: '제출 확인', exact: true }).click();

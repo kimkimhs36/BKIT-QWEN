@@ -3,7 +3,9 @@ import { NoticePdf } from './NoticePdf';
 import { prepareNoticePaste } from './noticePaste';
 import { findNotices, type NoticeFilter } from './noticeIndex';
 import { fullDate } from './time';
-import { useRef, useState } from 'react';
+import { useRef, useState, lazy, Suspense } from 'react';
+import type { PaperDocument } from './paperModel';
+import { listPaperDocuments } from './paperStorage';
 import { TaskMaterials } from './TaskMaterials';
 import { PhotoText } from './PhotoText';
 import {
@@ -19,6 +21,9 @@ import { taskSchema, uid, type State, type Task } from './model';
 import { captureDeadline } from './capture';
 import { sameMission } from './atelier';
 import { formatTaskDeadline } from './capture';
+const DigitalPaperRoom = lazy(() =>
+  import('./DigitalPaperRoom').then((m) => ({ default: m.DigitalPaperRoom })),
+);
 
 export function SchoolInbox({
   state,
@@ -27,7 +32,6 @@ export function SchoolInbox({
   onEdit,
   onCalendar,
   onStart,
-  onPaper,
 }: {
   state: State;
   noticeId?: string;
@@ -35,7 +39,6 @@ export function SchoolInbox({
   onEdit: (task: Task) => void;
   onCalendar: (task: Task) => void;
   onStart: (id: string) => void;
-  onPaper: (id: string) => void;
 }) {
   const [initial] = useState(() => {
     let raw: string | null = null;
@@ -69,6 +72,19 @@ export function SchoolInbox({
   const [confirmed, setConfirmed] = useState(false);
   const [pasteBusy, setPasteBusy] = useState(false);
   const [pasteFeedback, setPasteFeedback] = useState('');
+  const [openedPaper, setOpenedPaper] = useState<PaperDocument | null>(null);
+  const [paperError, setPaperError] = useState('');
+  async function openOriginal(resourceId: string) {
+    try {
+      const original = (await listPaperDocuments()).find((doc) => doc.resourceId === resourceId);
+      if (!original)
+        throw new Error('이 기기에 연결 PDF가 없어요. 원본을 보관한 기기나 ZIP 백업을 확인하세요.');
+      setPaperError('');
+      setOpenedPaper(original);
+    } catch (error) {
+      setPaperError(error instanceof Error ? error.message : 'PDF 원본을 열지 못했어요.');
+    }
+  }
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<NoticeFilter>('inbox');
   const visible = findNotices(data.notices, state.tasks, query, filter);
@@ -152,6 +168,14 @@ export function SchoolInbox({
       setPasteBusy(false);
     }
   }
+  if (openedPaper)
+    return (
+      <section className="daily-panel" aria-label="학교 공지 원본 학습실">
+        <Suspense fallback={<p role="status">공지 원본을 여는 중…</p>}>
+          <DigitalPaperRoom initial={openedPaper} onClose={() => setOpenedPaper(null)} />
+        </Suspense>
+      </section>
+    );
   return (
     <section className="daily-panel school-inbox" aria-label="학교 공지 받은함">
       <div className="section-head">
@@ -178,6 +202,7 @@ export function SchoolInbox({
           {pasteFeedback}
         </p>
       )}
+      {paperError && <p role="alert">{paperError}</p>}
       <p className="hint">
         공지 글·사진·PDF 원본은 이 기기에만 보관돼요. 과제 정보는 Cloud v2 연결 시 동기화되지만
         원본은 전송되지 않아요. 다른 기기로 옮길 때 설정의 완전한 ZIP 백업을 이용하세요.
@@ -320,7 +345,7 @@ export function SchoolInbox({
               {p.name} · PDF는 원본을 열어 내용을 직접 확인하세요.
               <NoticePdf resourceId={p.resource.id} name={p.name} />
               {state.learning?.resources.some((r) => r.id === p.resource.id) && (
-                <button onClick={() => onPaper(p.resource.id)}>연결 PDF 열기</button>
+                <button onClick={() => void openOriginal(p.resource.id)}>연결 PDF 열기</button>
               )}
             </div>
           ))}

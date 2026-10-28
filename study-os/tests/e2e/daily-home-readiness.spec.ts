@@ -43,8 +43,9 @@ test('home counts deadlines once and opens all unsubmitted assessments after rel
   await page.goto('./');
   await expect(page.getByRole('button', { name: /오늘 마감 2/ })).toBeVisible();
   await page.reload();
-  await page.getByRole('button', { name: /아직 제출하지 않은 수행평가 2개/ }).click();
+  await expect(page.getByRole('button', { name: /아직 제출하지 않은 수행평가 1개/ })).toBeVisible();
+  await page.getByRole('button', { name: /학습 완료 후 제출 확인 1개/ }).click();
   const list = page.getByRole('region', { name: '과제 목록' });
   await expect(list).toContainText('발표');
-  await expect(list).toContainText('보고서');
+  await expect(list).not.toContainText('보고서');
 });

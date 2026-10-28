@@ -348,7 +348,7 @@ export function resourceForTask(s: State, taskId: string | undefined) {
   if (!taskId) return undefined;
   const data = learning(s);
   return data.resources
-    .filter((r) => !r.archived && r.linkedTaskId === taskId)
+    .filter((r) => !r.archived && r.linkedTaskId === taskId && resourceProgress(data, r.id).total > 0)
     .sort(
       (a, b) =>
         Number(resourceProgress(data, b.id).remainingCount > 0) -
