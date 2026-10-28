@@ -36,7 +36,7 @@ describe('BUILD 10 real-world academy guidance', () => {
       '학원 언제?', data(academy({ days: [4] })),
       Date.parse('2026-10-29T00:10:00+09:00'),
     )!;
-    expect(afterUtcDayShift.answer).toContain('오늘 BKIT에 등록된 학원');
+    expect(afterUtcDayShift.answer).toContain('화학 학원 수업은 19:00~21:00');
     expect(afterUtcDayShift.answer).not.toContain('일정이 없어');
   });
   it('moves from dilemma to homework-based feasible micro-action, not repeated questioning', () => {
