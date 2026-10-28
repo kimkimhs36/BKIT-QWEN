@@ -71,6 +71,18 @@
 .inbox-list button[aria-pressed='true'] {
   border-color: currentColor;
 }
+.inbox-find {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 190px);
+  align-items: end;
+  gap: 8px 16px;
+}
+.inbox-find label { min-width: 0; margin-bottom: 0; }
+.inbox-list small { display: block; margin: 5px 0; opacity: .7; }
+.inbox-empty { padding: 14px 0; color: var(--muted); }
+@media (max-width: 540px) {
+  .inbox-find { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
 .daily-confirm,
 .daily-linked {
   padding: 18px 0;
