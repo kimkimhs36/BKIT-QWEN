@@ -33,6 +33,9 @@ async function add(page: Page) {
 test('book persists, chapter PDF opens, ink room returns, original survives trash and restore', async ({
   page,
 }) => {
+  // Import/render/reload/trash/restore is one complete lifecycle; WebKit's PDF
+  // worker startup can exceed the default 30 seconds on a shared CI runner.
+  test.setTimeout(60000);
   await prepare(page);
   await add(page);
   await page.getByRole('button', { name: '대단원 추가', exact: true }).click();

@@ -6,6 +6,7 @@ dist/
 .runtime/
 playwright-report/
 test-results/
+test-results-*/
 *.tsbuildinfo
 
 public/pdf-assets/

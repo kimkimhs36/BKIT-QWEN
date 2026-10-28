@@ -1,7 +1,7 @@
 name: Verify BKIT Real Life Command Center (no deployment)
 on:
   push:
-    branches: [feat/bkit-real-life-command-center-20261028, feat/bkit-real-life-build04-clipboard-tomorrow, feat/bkit-books-real-life-build05, feat/bkit-exam-lab-real-life-build06, feat/bkit-books-exam-build07-20261028, feat/bkit-books-study-loop-build08-20261028]
+    branches: [feat/bkit-real-life-command-center-20261028, feat/bkit-real-life-build04-clipboard-tomorrow, feat/bkit-books-real-life-build05, feat/bkit-exam-lab-real-life-build06, feat/bkit-books-exam-build07-20261028, feat/bkit-books-study-loop-build08-20261028, feat/bkit-complete-os-build08]
   workflow_dispatch:
 permissions:
   contents: read
@@ -11,7 +11,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 18
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: study-os
@@ -26,12 +26,24 @@ jobs:
           cache-dependency-path: study-os/package-lock.json
       - name: Install pinned dependencies
         run: npm ci
+      - name: Checkout reviewed API contract without deploying it
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 3b932eb95d07f796b6413d3257ea78e73742f0a4
+          path: api-contract
+          persist-credentials: false
+      - name: Install isolated API contract dependencies
+        run: npm ci --prefix ../api-contract/study-os
+      - name: Verify frontend against actual API schema
+        run: npm run test:api-contract -- ../api-contract
       - name: Verify TypeScript
         run: npm run typecheck
       - name: Verify date, school subject and lifecycle regressions
         run: npm run test -- tests/dailyTriage.test.ts tests/noticePaste.test.ts tests/books.test.ts tests/juggernaut-build03.test.ts tests/examBackup.test.ts tests/booksExamBridge.test.ts tests/bookStudyOrigin.test.ts tests/bookLaunch.test.ts
       - name: Run complete unit suite
         run: npm test
+      - name: Verify full local data recovery
+        run: npm test -- tests/completeOsRecovery.test.ts tests/completeBackup.test.ts tests/paper.test.ts tests/examBackup.test.ts
       - name: Verify production frontend build
         run: npm run build
       - name: Install Chromium browser
@@ -39,4 +51,15 @@ jobs:
       - name: iPhone clipboard to School Inbox e2e
         env:
           BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
-        run: npm run test:e2e -- tests/e2e/real-life-clipboard.spec.ts tests/e2e/books.spec.ts tests/e2e/exam-lab.spec.ts --project=iphone --workers=1
+        run: npm run test:e2e -- tests/e2e/real-life-clipboard.spec.ts tests/e2e/books.spec.ts tests/e2e/exam-lab.spec.ts tests/e2e/notice-management.spec.ts tests/e2e/inbox-recovery.spec.ts tests/e2e/real-life-activation.spec.ts tests/e2e/assistant-integration.spec.ts tests/e2e/private-sync.spec.ts tests/e2e/daily-home-readiness.spec.ts --project=iphone --workers=1
+      - name: Four viewport, nine material visual journeys
+        env:
+          BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
+        run: npm run test:e2e -- tests/e2e/complete-os-visual.spec.ts --project=iphone-small --project=iphone --project=ipad --project=desktop --output=test-results-visual
+      - name: Preserve synthetic visual evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: bkit-build08-visual-evidence
+          path: study-os/test-results-visual/**/*.png
+          retention-days: 14
