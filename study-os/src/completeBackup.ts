@@ -115,6 +115,22 @@ function assertReferences(keys: StoredKeys, manifest: Manifest) {
       `사진 원본 ${missing.length}개가 누락되었습니다: ${missing.slice(0, 3).join(', ')}. 완전한 백업으로 처리할 수 없습니다.`,
     );
 }
+function assertDocumentReferences(keys: StoredKeys, documents: InspectedPaper['documents']) {
+  if (keys[BOOKS_KEY]) {
+    const books = booksSchema.parse(JSON.parse(keys[BOOKS_KEY]!));
+    for (const book of books.books)
+      for (const link of book.materials)
+        if (link.kind === 'document' && !documents.some((doc) => doc.id === link.targetId))
+          throw new Error(`${book.title}: 연결된 PDF·사진 원본이 누락됐습니다. 완전한 ZIP 백업으로 처리할 수 없습니다.`);
+  }
+  if (keys[INBOX_KEY]) {
+    const inbox = inboxSchema.parse(JSON.parse(keys[INBOX_KEY]!));
+    for (const notice of inbox.notices)
+      for (const paper of notice.materials.papers)
+        if (!documents.some((doc) => doc.resourceId === paper.resource.id))
+          throw new Error(`${paper.name}: 공지 PDF 원본이 누락됐습니다. 완전한 ZIP 백업으로 처리할 수 없습니다.`);
+  }
+}
 export async function exportCompleteBackup(
   storage: Storage,
   onProgress: (message: string) => void = () => {},
@@ -170,6 +186,7 @@ export async function exportCompleteBackup(
   const paper = await exportPaperBackup(writer, 250 * 1024 * 1024 - total);
   manifest.paper = paper.manifest;
   assertReferences(keys, manifest);
+  assertDocumentReferences(keys, paper.baseline);
   const data = new Blob([JSON.stringify({ keys })], { type: 'application/json' });
   if (data.size > 20 * 1024 * 1024) throw new Error('학습 JSON 데이터가 20MB를 초과합니다.');
   manifest.dataSha256 = await sha256(data);
@@ -237,6 +254,7 @@ export async function inspectCompleteBackup(
     onProgress(`사진 무결성 검사 ${++i}/${manifest.photos.length}`);
   }
   const paper = await inspectPaperBackup(manifest.paper, files);
+  assertDocumentReferences(parsed.keys, paper.documents);
   if (
     files.size !==
     manifest.photos.length + 2 + (manifest.paper ? manifest.paper.originals.length + 1 : 0)
