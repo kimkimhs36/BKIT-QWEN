@@ -83,11 +83,20 @@ test('nine materials preserve the daily journey and real originals at this viewp
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
       name + ' fits',
     ).toBe(true);
-    await page.screenshot({
-      path: info.outputPath(name + '.png'),
-      fullPage: true,
-      animations: 'disabled',
-    });
+    const dialog = page.getByRole('dialog').filter({ visible: true });
+    if (await dialog.count())
+      await dialog.screenshot({
+        path: info.outputPath(name + '.png'),
+        animations: 'disabled',
+        scale: 'css',
+      });
+    else
+      await page.screenshot({
+        path: info.outputPath(name + '.png'),
+        fullPage: true,
+        animations: 'disabled',
+        scale: 'css',
+      });
   };
   await page.goto('./');
   // Use valid persisted preferences and reload; dataset-only mutations miss real theme regressions.
@@ -111,7 +120,7 @@ test('nine materials preserve the daily journey and real originals at this viewp
     await capture(material.id + '-notice');
     await nav(page, '오늘');
     await page.getByRole('button', { name: 'BOOKS · 학습지', exact: true }).click();
-    await expect(page.getByRole('region', {name:'BKIT BOOKS',exact:true})).toBeVisible();
+    await expect(page.getByRole('region', { name: 'BKIT BOOKS', exact: true })).toBeVisible();
     await expect(page.locator('.books-tile')).toBeVisible();
     await capture(material.id + '-bookshelf');
     await page.locator('.books-tile').click();

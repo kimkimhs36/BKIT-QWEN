@@ -56,10 +56,18 @@ jobs:
         env:
           BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
         run: npm run test:e2e -- tests/e2e/complete-os-visual.spec.ts --project=iphone-small --project=iphone --project=ipad --project=desktop --output=test-results-visual
+      - name: PDF, editable pen and complete ZIP browser regressions
+        env:
+          BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
+        run: npm run test:e2e -- tests/e2e/digital-paper.spec.ts tests/e2e/storage-readiness.spec.ts --project=iphone --workers=1 --output=test-results-paper
+      - name: Installed offline shell and saved learning
+        env:
+          BKIT_TEST_BASE_URL: http://127.0.0.1:4173/
+        run: npm run test:e2e -- tests/e2e/offline-study.spec.ts --project=iphone --workers=1 --output=test-results-offline
       - name: Preserve synthetic visual evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: bkit-build08-visual-evidence
           path: study-os/test-results-visual/**/*.png
-          retention-days: 14
+          retention-days: 7
