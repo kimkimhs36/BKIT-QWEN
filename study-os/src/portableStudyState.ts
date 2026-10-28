@@ -63,6 +63,8 @@ export function mergePrivateStudyState(local: State, incoming: State): State {
     }),
     sessions: incoming.sessions.map((session) => {
       const existing = local.sessions.find((s) => s.id === session.id);
+      const compatible = existing?.workspace?.problem === session.workspace?.problem &&
+        existing?.workspace?.source === session.workspace?.source ? existing?.workspace : undefined;
       return {
         ...session,
         quick: session.quick ?? existing?.quick,
@@ -71,14 +73,14 @@ export function mergePrivateStudyState(local: State, incoming: State): State {
         resourceId: existing?.resourceId,
         workspace: session.workspace
           ? {
-              ...existing?.workspace,
+              ...compatible,
               ...session.workspace,
               attempts: session.workspace.attempts.map((attempt) => ({
-                ...existing?.workspace?.attempts.find((item) => item.id === attempt.id),
+                ...compatible?.attempts.find((item) => item.id === attempt.id),
                 ...attempt,
               })),
             }
-          : undefined,
+          : existing?.workspace,
       };
     }),
     plan: [],

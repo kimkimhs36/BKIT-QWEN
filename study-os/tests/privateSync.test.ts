@@ -145,4 +145,6 @@ it('keeps local exam planning and detailed answer evidence out of the older API 
     ],
   });
   expect(JSON.stringify(local)).toBe(before);
+  delete remote.sessions[0].workspace;
+  expect(mergePrivateStudyState(local, remote).sessions[0].workspace).toEqual(local.sessions[0].workspace);
 });
