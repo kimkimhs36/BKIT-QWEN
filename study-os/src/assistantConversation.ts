@@ -39,7 +39,13 @@ export function loadConversation(storage: Pick<Storage, 'getItem'> | null = type
 export function saveConversation(turns: ConversationTurn[], storage: Pick<Storage, 'setItem'> | null = typeof localStorage === 'undefined' ? null : localStorage): boolean {
   try {
     if (!storage) return false;
-    const data = JSON.stringify(normalizeConversation(turns));
+    const safe = normalizeConversation(turns);
+    let data = JSON.stringify(safe);
+    // Prefer recent turns over permanently failing once the local quota is reached.
+    while (data.length > MAX_BYTES && safe.length > 1) {
+      safe.shift();
+      data = JSON.stringify(safe);
+    }
     if (data.length > MAX_BYTES) return false;
     storage.setItem(KEY, data);
     return true;
