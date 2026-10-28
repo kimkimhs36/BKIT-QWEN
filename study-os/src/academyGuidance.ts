@@ -1,4 +1,4 @@
-import type { State, Task, Schedule } from './model';
+import type { State, Schedule } from './model';
 import type { ConversationTurn } from './assistantConversation';
 import { at, clock, dayKey, MIN, weekday } from './time';
 
@@ -126,7 +126,7 @@ export function academyGuidance(
   }
 
   return {
-    answer: details + ' ' + taskLabel + ' 지금 가장 걸리는 건 숙제, 체력, 아니면 학원 자체에 대한 고민이야?',
+    answer: details + ' ' + taskLabel + ' 지금 가장 걸리는 게 숙제, 체력, 아니면 학원 자체에 대한 고민이야?',
     navigate: 'school',
   };
 }
