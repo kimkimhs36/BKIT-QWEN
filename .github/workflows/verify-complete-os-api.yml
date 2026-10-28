@@ -1,0 +1,27 @@
+name: Verify complete OS API (no deployment or paid requests)
+on:
+  push:
+    branches: [feat/bkit-complete-os-api-build08]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Install isolated Redis test binaries
+        run: sudo apt-get update -qq && sudo apt-get install -y redis-server redis-tools
+      - run: npm run test:redis
