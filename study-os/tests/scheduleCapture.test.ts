@@ -31,6 +31,13 @@ describe('BUILD 10: academy speech to approved records', () => {
       expect(parsed.schedule.days).toEqual([5]);
     }
   });
+  it('does not roll a missed this-week day forward silently', () => {
+    const missed = parseSpokenSchedule('이번 주 월요일 오후 6시부터 8시까지 수학 학원 추가해줘', NOW);
+    expect(missed.kind).toBe('invalid');
+    const future = parseSpokenSchedule('이번 주 금요일 오후 6시부터 8시까지 수학 학원 추가해줘', NOW);
+    expect(future.kind).toBe('draft');
+    if (future.kind === 'draft') expect(future.schedule.date).toBe('2026-10-30');
+  });
   it('understands explicit two-sided meridian, no guessing about bare hours', () => {
     const explicit = parseSpokenSchedule('매주 화요일 오전 11시부터 오후 1시까지 영어 과외 추가해줘', NOW);
     expect(explicit.kind).toBe('draft');
