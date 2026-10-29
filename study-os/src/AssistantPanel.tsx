@@ -5,10 +5,11 @@ import { localAssistant, type AssistantAction } from './assistantLogic';
 import { askLiveAssistant, checkAssistantConfig } from './assistantAI';
 import { authorizeGoogleIdentity, prepareGoogleIdentity } from './cloudClient';
 import { WaterDrop } from './WaterDrop';
+import { isScheduleCommand, recoverScheduleQuestion } from './scheduleCapture';
 import { loadConversation, saveConversation, clearConversation, type ConversationTurn } from './assistantConversation';
 
 type Message = ConversationTurn & { action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress'; saved?: boolean };
-const SUGGESTIONS = ['학원 가기 싫은데 숙제도 못 했어', '오늘 뭐부터 공부해?', '내일 화학 학습지 3장 추가해줘', '시간표 보여줘'];
+const SUGGESTIONS = ['학원 가기 싫은데 숙제도 못 했어', '매주 화요일 오후 6시부터 8시까지 수학 학원 등록해줘', '오늘 뭐부터 공부해?', '내일 화학 학습지 3장 추가해줘'];
 const GREETING: Message = { role: 'assistant', text: '학원 이야기든 공부 고민이든 편하게 말해줘. BKIT에 등록한 일정과 과제를 확인하면서 같이 정리하자.' };
 const AI_MODE_KEY = 'bkit:assistant-ai-mode:v1';
 function rememberAIMode(mode: 'ai' | 'local') {
@@ -125,7 +126,8 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
       const recentTurns: ConversationTurn[] = messages.map((m) => ({ role: m.role, text: m.text, source: m.source }));
       const offline = localAssistant(question, state, Date.now(), recentTurns);
       // Local writes must always require a separate approval; remote AI is read-only.
-      if (offline.action || !live || !available || !navigator.onLine || !(token || getAccessToken())) {
+      const controlledSchedule = isScheduleCommand(recoverScheduleQuestion(question, recentTurns));
+      if (offline.action || controlledSchedule || !live || !available || !navigator.onLine || !(token || getAccessToken())) {
         setMessages(old => [...old, { role: 'assistant', source: 'local', text: offline.answer, action: offline.action, navigate: offline.navigate }]);
       } else {
         try {
@@ -151,8 +153,8 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
     setMessages(old => old.map((item, i) => i === index
       ? { ...item, action: undefined, saved: success } : item)
       .concat({ role: 'assistant', text: success
-        ? '확인한 변경사항을 BKIT에 저장했어. Google Sheets가 연결되어 있다면 이어서 동기화돼.'
-        : '항목이 바뀌었거나 저장이 실패했어. 과제 목록을 확인하고 다시 요청해줘.' }));
+        ? '확인한 변경사항을 BKIT에 저장했어. Google Sheets 연결 상태는 별도로 확인해 줘.'
+        : '항목이 중복되었거나 저장이 실패했어. BKIT 과제·일정 목록을 확인하고 다시 요청해줘.' }));
   }
   return (
     <section className="assistant-panel" aria-label="BKIT 멀티 비서">
@@ -170,7 +172,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
         <p role="status">{connection}</p>
         {available && (
           <>
-            <p className="hint">AI에는 질문만 보내요. 목표·과제 이름·과목·마감·시간표·공부 기록 요약을 함께 보내려면 아래 옵션을 직접 선택해 주세요. 크기에 따라 일부 항목만 공유해요. 사진·필기 원본·개인 메모는 보내지 않아요. 사용량에 따라 API 비용이 발생할 수 있어요.</p>
+            <p className="hint">AI에는 질문만 보내고, 선택한 경우에만 이전 대화 일부 또는 학습 기록 요약을 함께 전송해. 사진·필기 원본·개인 메모는 보내지 않아. 서버 AI 사용량에 따라 비용이 발생할 수 있어.</p>
             <label className="checkbox">
               <input type="checkbox" checked={shareContext} onChange={e => setShareContext(e.target.checked)} />
               내 과제·일정·학습 기록 요약도 AI와 공유 (선택)
@@ -218,7 +220,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
       <form className="assistant-compose" onSubmit={submit}>
         <label className="sr-only" htmlFor="assistant-question">비서에게 질문하기</label>
         <textarea id="assistant-question" rows={2} maxLength={1000} value={input}
-          placeholder="예: 오늘 계획 짜줘 / 수학 학습지 완료했어"
+          placeholder="학원 고민을 말하거나, 일정·과제를 직접 등록해 봐"
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {

@@ -1,11 +1,13 @@
-import type { State, Task } from './model';
+import type { State, Task, Schedule } from './model';
 import { uid } from './model';
 import { parseCapture, captureDeadline, formatTaskDeadline } from './capture';
 import { dayKey } from './time';
 import type { ConversationTurn } from './assistantConversation';
+import { isScheduleCommand, parseSpokenSchedule, recoverScheduleQuestion } from './scheduleCapture';
 
 export type AssistantAction =
   | { kind: 'add'; task: Task }
+  | { kind: 'add-schedule'; schedule: Schedule }
   | { kind: 'complete'; taskId: string; title: string }
   | { kind: 'minutes'; taskId: string; title: string; minutes: number };
 export type AssistantReply = { answer: string; action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress' };
@@ -38,6 +40,26 @@ export function localAssistant(question: string, state: State, now = Date.now(),
   const q = question.trim().slice(0, 1000);
   const pending = rankedPending(state);
   if (!q) return { answer: '무엇을 도와줄까? 학원 이야기부터 공부 계획까지 편하게 말해줘.' };
+
+  const scheduleQuestion = recoverScheduleQuestion(q, history);
+  if (isScheduleCommand(scheduleQuestion)) {
+    const parsed = parseSpokenSchedule(scheduleQuestion, now);
+    if (parsed.kind !== 'draft') return { answer: parsed.answer, navigate: 'school' };
+    const match = parsed.schedule;
+    const colliding = state.schedules.filter((s) =>
+      s.start < match.end && match.start < s.end &&
+      (s.date && match.date ? s.date === match.date :
+        !s.date && !match.date ? s.days.some(d => match.days.includes(d)) :
+          s.date ? match.days.includes(new Date(s.date + 'T00:00:00Z').getUTCDay()) :
+            match.date ? s.days.includes(new Date(match.date + 'T00:00:00Z').getUTCDay()) : false),
+    );
+    return {
+      answer: '일정을 이렇게 해석했어: ' + parsed.detail + '. 정확한지 확인해 줘.' +
+        (colliding.length ? ' 같은 시간대에 등록된 일정이 있어: ' + colliding.map(s => s.title).slice(0, 3).join(', ') + '. 중복 또는 겹침을 확인해.' : '') +
+        ' 아래 저장 버튼을 눌러야 실제 등록돼.',
+      action: { kind: 'add-schedule', schedule: match }, navigate: 'school',
+    };
+  }
 
   // On-device academy counselling is useful without enabling paid AI.
   // Only show actual registered data; never invent class times or attendance.
