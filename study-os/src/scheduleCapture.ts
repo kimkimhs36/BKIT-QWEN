@@ -77,7 +77,7 @@ export function parseSpokenSchedule(input: string, now = Date.now()): SpokenSche
   if (!weekly && !date) return {kind:'incomplete', answer:'날짜를 확인할 수 없어. 예: 10월 30일 오후 6시부터 8시까지.'};
   const name = question.match(/([가-힣A-Za-z0-9]{1,24})\s*(학원|과외)/);
   const ignored = new Set(['까지', '부터', '오전', '오후', '오늘', '내일', '모레', '이번', '다음', '매주', '시간', '수업']);
-  const isRealName = !!name && !ignored.has(name[1]) && !/요일$/.test(name[1]);
+  const isRealName = !!name && !ignored.has(name[1]) && !/(?:요일|까지|부터)$/.test(name[1]);
   const title = isRealName ? name![1] + ' ' + name![2] : '수업';
   if (title === '수업') return {
     kind: 'incomplete', answer:'어떤 수업인지 이름을 알려줘. 예: 매주 화요일 오후 6시부터 8시까지 수학 학원 등록해줘.',
