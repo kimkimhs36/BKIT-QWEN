@@ -773,6 +773,16 @@ export default function App() {
     ),
   );
   function applyAssistantAction(action: AssistantAction): boolean {
+    if (action.kind === 'add-schedule') {
+      const target = action.schedule;
+      if (s.schedules.some((item) => item.id === target.id || (
+        item.kind === target.kind && item.title === target.title &&
+        item.start === target.start && item.end === target.end &&
+        item.date === target.date &&
+        item.days.slice().sort().join(',') === target.days.slice().sort().join(',')
+      ))) return false;
+      return commit((v) => ({ ...v, schedules: [...v.schedules, target], undo: null }));
+    }
     if (action.kind === 'add') {
       if (s.tasks.some((t) => sameMission(t, action.task))) return false;
       return commit((v) => ({ ...v, tasks: [...v.tasks, action.task] }));
