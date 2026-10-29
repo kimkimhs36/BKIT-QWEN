@@ -9,6 +9,7 @@ export type SpokenSchedule =
 
 /** Deliberately narrow: never treat an ordinary academy discussion as a write request. */
 export function isScheduleCommand(text: string): boolean {
+  if (/(?:숙제|학습지|과제|수행평가|문제)/.test(text) && !/(?:시간표|수업\s*일정|학원\s*일정)/.test(text)) return false;
   return /(?:학원|과외|수업|고정\s*일정|시간표)/.test(text) &&
     /(?:등록|추가|넣어|저장|만들어)/.test(text) &&
     !/(?:삭제|제거|취소|수정|변경|옮겨|미루)/.test(text);
