@@ -1,6 +1,6 @@
 import { parseCapture } from './capture';
 import { scheduleSchema, uid, type Schedule } from './model';
-import { dayKey } from './time';
+import { dayKey, addDays, weekday } from './time';
 
 export type SpokenSchedule =
   | { kind: 'draft'; schedule: Schedule; detail: string }
@@ -73,7 +73,19 @@ export function parseSpokenSchedule(input: string, now = Date.now()): SpokenSche
   if (!weekly && !dateWords) return {
     kind:'incomplete', answer:'이 일정은 한 번만 있는 수업이야, 매주 반복되는 수업이야? 예: 이번 주 금요일 / 매주 금요일.',
   };
-  const date = weekly ? null : parseCapture(question, now).due || null;
+  let date = weekly ? null : parseCapture(question, now).due || null;
+  if (!weekly && /이번\s*주/.test(question)) {
+    const specifiedDay = question.match(/([일월화수목금토])요일/);
+    if (specifiedDay) {
+      const today = dayKey(now);
+      const monday = addDays(today, -((weekday(today) + 6) % 7));
+      const targetWeekday = '일월화수목금토'.indexOf(specifiedDay[1]);
+      date = addDays(monday, (targetWeekday + 6) % 7);
+      if (date < today) return {
+        kind: 'invalid', answer: '이번 주 해당 요일은 이미 지났어. 다음 주 수업이라면 "다음 주"라고 말해 줘.',
+      };
+    }
+  }
   if (!weekly && !date) return {kind:'incomplete', answer:'날짜를 확인할 수 없어. 예: 10월 30일 오후 6시부터 8시까지.'};
   const name = question.match(/([가-힣A-Za-z0-9]{1,24})\s*(학원|과외)/);
   const ignored = new Set(['까지', '부터', '오전', '오후', '오늘', '내일', '모레', '이번', '다음', '매주', '시간', '수업']);
