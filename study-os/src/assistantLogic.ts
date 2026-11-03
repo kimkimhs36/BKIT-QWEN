@@ -3,6 +3,7 @@ import { uid } from './model';
 import { parseCapture, captureDeadline, formatTaskDeadline } from './capture';
 import { dayKey } from './time';
 import type { ConversationTurn } from './assistantConversation';
+import { assessmentWatch } from './assessmentWatch';
 import { isScheduleCommand, parseSpokenSchedule, recoverScheduleQuestion } from './scheduleCapture';
 
 export type AssistantAction =
@@ -169,12 +170,33 @@ export function localAssistant(question: string, state: State, now = Date.now(),
     };
   }
 
-  if (/계획|오늘|우선|뭐부터|무엇부터|할\s*일|숙제|과제/.test(q)) {
-    if (!pending.length) return { answer: '현재 미완료 과제가 없어. 새 과제를 등록하거나 시간표를 점검해 봐.', navigate: 'tasks' };
+  if (/계획|오늘|우선|뭐부터|무엇부터|할\s*일|숙제|과제|제출/.test(q)) {
+    // A finished assignment may still need a real-world submission. Never
+    // infer 'submitted' from a completed study session or a passed deadline.
+    const submissionWatch = assessmentWatch(state.tasks, now);
+    const awaitingSubmission = submissionWatch.completedNotSubmitted.slice(0, 3);
+    const submissionReminder = awaitingSubmission.length
+      ? '\n제출 확인 필요: ' + awaitingSubmission.map(t => t.subject + ' · ' + t.title).join(', ') +
+        '. 실제 제출 여부를 확인한 뒤 직접 제출 완료로 기록해.'
+      : '';
+    const unknownDeadlineReminder = submissionWatch.undated.length
+      ? '\n마감 미확인 수행·제출 과제 ' + submissionWatch.undated.length +
+        '개는 선생님 공지에서 확인해.'
+      : '';
+    if (!pending.length) {
+      return {
+        answer: (awaitingSubmission.length
+          ? '진행 중인 공부 과제는 없지만 제출 확인이 남아 있어.'
+          : '현재 미완료 과제가 없어. 새 과제를 등록하거나 시간표를 점검해 봐.') +
+          submissionReminder + unknownDeadlineReminder,
+        navigate: 'tasks',
+      };
+    }
     const lines = pending.slice(0, 3).map((t, i) =>
       `${i + 1}. ${t.subject} · ${t.title} (${t.remaining}분, ${formatTaskDeadline(t)})`);
     return {
-      answer: `미완료 과제 ${pending.length}개 중 현재 마감과 우선순위로 정렬한 첫 3개야:\n${lines.join('\n')}\n먼저 1번을 5분만 시작해 봐. 마감 미확인 과제는 실제 날짜를 확인해줘.`,
+      answer: `미완료 과제 ${pending.length}개 중 현재 마감과 우선순위로 정렬한 첫 3개야:\n${lines.join('\n')}\n먼저 1번을 5분만 시작해 봐.` +
+        submissionReminder + unknownDeadlineReminder,
       navigate: 'tasks',
     };
   }
