@@ -57,4 +57,33 @@ describe('LIFE OS assistant prioritizes submissions without guessing', () => {
     expect(reply.answer).toContain('마감 미확인 수행·제출 과제 1개');
     expect(reply.answer).toContain('마감 확인 필요');
   });
+  it('limits the combined list of study actions and submission checks to three', () => {
+    const state = newState();
+    state.tasks = [
+      task('submit1', { title: '화학 수행' }),
+      task('submit2', { title: '물리 수행' }),
+      task('study1', { title: '수학 복습', kind: '숙제', status: 'todo', submissionRequired: false }),
+      task('study2', { title: '국어 독서', kind: '숙제', status: 'todo', submissionRequired: false }),
+    ];
+    const reply = localAssistant('오늘 뭐부터 해?', state, now);
+    expect(reply.answer).toContain('화학 수행');
+    expect(reply.answer).toContain('물리 수행');
+    expect(reply.answer).toContain('수학 복습');
+    expect(reply.answer).not.toContain('국어 독서');
+  });
+
+  it('prioritizes three submission checks over additional study suggestions', () => {
+    const state = newState();
+    state.tasks = [
+      task('submit1', { title: '수행 A' }),
+      task('submit2', { title: '수행 B' }),
+      task('submit3', { title: '수행 C' }),
+      task('study', { title: '수학 숙제', kind: '숙제', status: 'todo', submissionRequired: false }),
+    ];
+    const reply = localAssistant('오늘 할 일', state, now);
+    expect(reply.answer).toContain('제출 확인 필요 (3건)');
+    expect(reply.answer).toContain('미완료 공부 과제도 1개');
+    expect(reply.answer).not.toContain('1. 역학과 에너지 · 수학 숙제');
+  });
+
 });
