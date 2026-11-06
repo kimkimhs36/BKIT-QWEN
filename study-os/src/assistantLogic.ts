@@ -174,9 +174,14 @@ export function localAssistant(question: string, state: State, now = Date.now(),
     // A finished assignment may still need a real-world submission. Never
     // infer 'submitted' from a completed study session or a passed deadline.
     const submissionWatch = assessmentWatch(state.tasks, now);
+    // Keep the total number of recommended actions at three, including
+    // submission handoffs; otherwise three study tasks + three submissions
+    // overwhelm the learner and hide the most urgent real-world action.
     const awaitingSubmission = submissionWatch.completedNotSubmitted.slice(0, 3);
+    const slotsForStudy = Math.max(0, 3 - awaitingSubmission.length);
     const submissionReminder = awaitingSubmission.length
-      ? '\n제출 확인 필요: ' + awaitingSubmission.map(t => t.subject + ' · ' + t.title).join(', ') +
+      ? '\n제출 확인 필요 (' + awaitingSubmission.length + '건): ' +
+        awaitingSubmission.map(t => t.subject + ' · ' + t.title).join(', ') +
         '. 실제 제출 여부를 확인한 뒤 직접 제출 완료로 기록해.'
       : '';
     const unknownDeadlineReminder = submissionWatch.undated.length
@@ -192,11 +197,13 @@ export function localAssistant(question: string, state: State, now = Date.now(),
         navigate: 'tasks',
       };
     }
-    const lines = pending.slice(0, 3).map((t, i) =>
+    const lines = pending.slice(0, slotsForStudy).map((t, i) =>
       `${i + 1}. ${t.subject} · ${t.title} (${t.remaining}분, ${formatTaskDeadline(t)})`);
+    const studyPlan = lines.length
+      ? `미완료 과제 ${pending.length}개 중 우선순위가 높은 ${lines.length}개야:\n${lines.join('\n')}\n먼저 1번을 5분만 시작해 봐.`
+      : `미완료 공부 과제도 ${pending.length}개 있지만, 우선 제출 확인 ${awaitingSubmission.length}건부터 처리해 봐.`;
     return {
-      answer: `미완료 과제 ${pending.length}개 중 현재 마감과 우선순위로 정렬한 첫 3개야:\n${lines.join('\n')}\n먼저 1번을 5분만 시작해 봐.` +
-        submissionReminder + unknownDeadlineReminder,
+      answer: studyPlan + submissionReminder + unknownDeadlineReminder,
       navigate: 'tasks',
     };
   }
