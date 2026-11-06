@@ -127,7 +127,10 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
       const offline = localAssistant(question, state, Date.now(), recentTurns);
       // Local writes must always require a separate approval; remote AI is read-only.
       const controlledSchedule = isScheduleCommand(recoverScheduleQuestion(question, recentTurns));
-      // For daily priorities with completed-but-unsubmitted work, use the verified\n      // on-device three-action plan regardless of AI mode or sharing consent.\n      // No private task details are sent to the remote provider.\n      if (offline.action || controlledSchedule || needsLocalSubmissionPlan(question, state) || !live || !available || !navigator.onLine || !(token || getAccessToken())) {
+      // For daily priorities with completed-but-unsubmitted work, use the verified
+      // on-device three-action plan regardless of AI mode or sharing consent.
+      // No private task details are sent to the remote provider.
+      if (offline.action || controlledSchedule || needsLocalSubmissionPlan(question, state) || !live || !available || !navigator.onLine || !(token || getAccessToken())) {
         setMessages(old => [...old, { role: 'assistant', source: 'local', text: offline.answer, action: offline.action, navigate: offline.navigate }]);
       } else {
         try {
