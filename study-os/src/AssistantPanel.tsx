@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ArrowUpRight, CheckCircle2, Send, Sparkles, XCircle } from 'lucide-react';
 import type { State } from './model';
-import { localAssistant, type AssistantAction } from './assistantLogic';
+import { localAssistant, needsLocalSubmissionPlan, type AssistantAction } from './assistantLogic';
 import { askLiveAssistant, checkAssistantConfig } from './assistantAI';
 import { authorizeGoogleIdentity, prepareGoogleIdentity } from './cloudClient';
 import { WaterDrop } from './WaterDrop';
@@ -127,7 +127,7 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
       const offline = localAssistant(question, state, Date.now(), recentTurns);
       // Local writes must always require a separate approval; remote AI is read-only.
       const controlledSchedule = isScheduleCommand(recoverScheduleQuestion(question, recentTurns));
-      if (offline.action || controlledSchedule || !live || !available || !navigator.onLine || !(token || getAccessToken())) {
+      // For daily priorities with completed-but-unsubmitted work, use the verified\n      // on-device three-action plan regardless of AI mode or sharing consent.\n      // No private task details are sent to the remote provider.\n      if (offline.action || controlledSchedule || needsLocalSubmissionPlan(question, state) || !live || !available || !navigator.onLine || !(token || getAccessToken())) {
         setMessages(old => [...old, { role: 'assistant', source: 'local', text: offline.answer, action: offline.action, navigate: offline.navigate }]);
       } else {
         try {
