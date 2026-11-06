@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { localAssistant } from '../src/assistantLogic';
+import { localAssistant, needsLocalSubmissionPlan } from '../src/assistantLogic';
 import { newState, type Task } from '../src/model';
 
 const now = new Date('2026-11-04T12:00:00+09:00').getTime();
@@ -84,6 +84,23 @@ describe('LIFE OS assistant prioritizes submissions without guessing', () => {
     expect(reply.answer).toContain('제출 확인 필요 (3건)');
     expect(reply.answer).toContain('미완료 공부 과제도 1개');
     expect(reply.answer).not.toContain('1. 역학과 에너지 · 수학 숙제');
+  });
+
+  it('keeps TODAY submission reminders on device even when AI mode is selected', () => {
+    const state = newState();
+    state.tasks = [task('awaiting')];
+    expect(needsLocalSubmissionPlan('오늘 뭐부터 공부해?', state, now)).toBe(true);
+    expect(needsLocalSubmissionPlan('제출 확인해줘', state, now)).toBe(true);
+    expect(needsLocalSubmissionPlan('역학 개념 설명해줘', state, now)).toBe(false);
+    state.tasks[0].submitted = true;
+    expect(needsLocalSubmissionPlan('오늘 뭐부터 공부해?', state, now)).toBe(false);
+  });
+
+  it('does not route unrelated AI questions or unfinished-only tasks through the submission guard', () => {
+    const state = newState();
+    state.tasks = [task('unfinished', { status: 'todo' })];
+    expect(needsLocalSubmissionPlan('오늘 할 일', state, now)).toBe(false);
+    expect(needsLocalSubmissionPlan('화학 반응식 알려줘', state, now)).toBe(false);
   });
 
 });
