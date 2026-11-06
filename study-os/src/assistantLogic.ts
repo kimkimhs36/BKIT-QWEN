@@ -37,6 +37,14 @@ export function assistantContext(state: State, now = Date.now()) {
     })),
   };
 }
+/** Keep submission-sensitive TODAY requests deterministic and on-device.
+ * A remote AI response must not silently replace the three-action plan or
+ * imply that completed schoolwork has already been submitted. */
+export function needsLocalSubmissionPlan(question: string, state: State, now = Date.now()): boolean {
+  if (!/계획|오늘|우선|뭐부터|무엇부터|할\\s*일|숙제|과제|제출/.test(question.trim())) return false;
+  return assessmentWatch(state.tasks, now).completedNotSubmitted.length > 0;
+}
+
 export function localAssistant(question: string, state: State, now = Date.now(), history: ConversationTurn[] = []): AssistantReply {
   const q = question.trim().slice(0, 1000);
   const pending = rankedPending(state);
