@@ -154,17 +154,22 @@ export function localAssistant(question: string, state: State, now = Date.now(),
     const title = q.replace(/^(?:과제\s*)?(?:하나\s*)?/, '')
       .replace(/(?:을|를)?\s*(?:등록|추가|기록|넣어|만들어)(?:해\s*줘|줘|주세요|해)?[.!?]*\s*$/, '').trim();
     if (title.length < 3 || title.length > 200) return { answer: '과제 이름을 조금 더 명확하게 적어줘. 예: 내일 수학 학습지 3장 추가해줘.' };
-    // Avoid creating duplicate active homework when the same chat command is
-    // repeated (for example after reconnecting or reopening the assistant).
-    // Finished tasks are intentionally excluded: recurring homework may share
-    // a title across different weeks.
+    // Compare the parsed assignment rather than the raw chat command.
+    // Different confirmed deadlines must remain distinct recurring homework.
+    const p = parseCapture(title, now);
+    const parsedDeadline = captureDeadline(p);
     const normalizeTitle = (value: string) => value.normalize('NFKC').replace(/\\s+/g, '').toLocaleLowerCase();
-    const duplicate = state.tasks.find(t => t.status !== 'done' && normalizeTitle(t.title) === normalizeTitle(title));
+    const duplicate = state.tasks.find(t => {
+      if (t.status === 'done' || normalizeTitle(t.title) !== normalizeTitle(title)) return false;
+      const existingDate = t.deadline?.date || (t.due ? dayKey(t.due) : null);
+      const incomingDate = parsedDeadline.deadline?.date || (parsedDeadline.due ? dayKey(parsedDeadline.due) : null);
+      // Unknown dates are conservatively treated as possible duplicates.
+      return !existingDate || !incomingDate || existingDate === incomingDate;
+    });
     if (duplicate) return {
       answer: `'${duplicate.title}'은(는) 이미 미완료 과제로 등록되어 있어. 중복 등록하지 않았어. 과제 화면에서 기존 기록을 확인해.`,
       navigate: 'tasks',
     };
-    const p = parseCapture(title, now);
     const t: Task = {
       id: uid(), title, subject: p.subject, kind: p.kind, ...captureDeadline(p),
       quantity: p.quantityUnit && p.quantityTotal ? {
