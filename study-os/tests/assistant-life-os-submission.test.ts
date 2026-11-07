@@ -81,9 +81,27 @@ describe('LIFE OS assistant prioritizes submissions without guessing', () => {
       task('study', { title: '수학 숙제', kind: '숙제', status: 'todo', submissionRequired: false }),
     ];
     const reply = localAssistant('오늘 할 일', state, now);
-    expect(reply.answer).toContain('제출 확인 필요 (3건)');
+    expect(reply.answer).toContain('제출 확인 필요 (전체 3건, 우선 3건)');
     expect(reply.answer).toContain('미완료 공부 과제도 1개');
     expect(reply.answer).not.toContain('1. 역학과 에너지 · 수학 숙제');
+  });
+
+  it('reveals the real submission backlog without exceeding three immediate actions', () => {
+    const state = newState();
+    state.tasks = [
+      task('s1', { title: '수행 A' }),
+      task('s2', { title: '수행 B' }),
+      task('s3', { title: '수행 C' }),
+      task('s4', { title: '수행 D' }),
+      task('s5', { title: '수행 E' }),
+      task('study', { title: '영어 단어', kind: '숙제', status: 'todo', submissionRequired: false }),
+    ];
+    const reply = localAssistant('오늘 뭐부터 해?', state, now);
+    expect(reply.answer).toContain('제출 확인 필요 (전체 5건, 우선 3건)');
+    expect(reply.answer).toContain('추가로 2건이 남아 있어');
+    expect(reply.answer).not.toContain('수행 D');
+    expect(reply.answer).not.toContain('수행 E');
+    expect(reply.answer).toContain('과제 화면에서 확인해');
   });
 
   it('keeps TODAY submission reminders on device even when AI mode is selected', () => {
