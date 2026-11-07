@@ -27,6 +27,25 @@ describe('LIFE OS assistant prioritizes submissions without guessing', () => {
     expect(state.tasks).toHaveLength(1);
   });
 
+  it('detects whitespace-only variants of active homework titles', () => {
+    const state = newState();
+    state.tasks = [task('active', { title: '수학 학습지 3장', status: 'todo', kind: '숙제' })];
+    const reply = localAssistant('수학  학습지 3장 추가해줘', state, now);
+    expect(reply.action).toBeUndefined();
+    expect(reply.answer).toContain('중복 등록하지 않았어');
+  });
+
+  it('allows a recurring unfinished assignment with a different confirmed deadline', () => {
+    const state = newState();
+    state.tasks = [task('active', {
+      title: '내일 수학 학습지 3장', status: 'todo', kind: '숙제',
+      deadline: { date: '2026-11-05', precision: 'date-only', provenance: 'user-confirmed' },
+    })];
+    const reply = localAssistant('내일 수학 학습지 3장 추가해줘', state, new Date('2026-11-11T12:00:00+09:00').getTime());
+    expect(reply.action?.kind).toBe('add');
+    expect(state.tasks).toHaveLength(1);
+  });
+
   it('allows new homework when an older same-title task is finished', () => {
     const state = newState();
     state.tasks = [task('old', {
