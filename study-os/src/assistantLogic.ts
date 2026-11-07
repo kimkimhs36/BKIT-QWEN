@@ -1,8 +1,9 @@
 import type { State, Task, Schedule } from './model';
 import { uid } from './model';
 import { parseCapture, captureDeadline, formatTaskDeadline } from './capture';
-import { dayKey } from './time';
+import { dayKey, weekday } from './time';
 import type { ConversationTurn } from './assistantConversation';
+import { assessmentWatch } from './assessmentWatch';
 import { isScheduleCommand, parseSpokenSchedule, recoverScheduleQuestion } from './scheduleCapture';
 
 export type AssistantAction =
@@ -12,18 +13,24 @@ export type AssistantAction =
   | { kind: 'minutes'; taskId: string; title: string; minutes: number };
 export type AssistantReply = { answer: string; action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress' };
 
-function rankedPending(state: State): Task[] {
+function rankedPending(state: State, now = Date.now()): Task[] {
+  const urgency = assessmentWatch(state.tasks, now).byId;
+  const urgentRank = (t: Task): number => {
+    const status = urgency.get(t.id);
+    return status === 'overdue' ? 0 : status === 'today' ? 1 : status === 'tomorrow' ? 2 : 3;
+  };
   return state.tasks.filter(t => t.status !== 'done').sort((a, b) => {
+    const rankDiff = urgentRank(a) - urgentRank(b);
     const ad = a.deadline?.date || (a.due ? dayKey(a.due) : '9999-12-31');
     const bd = b.deadline?.date || (b.due ? dayKey(b.due) : '9999-12-31');
-    return ad.localeCompare(bd) || b.priority - a.priority;
+    return rankDiff || ad.localeCompare(bd) || b.priority - a.priority;
   });
 }
 export function assistantContext(state: State, now = Date.now()) {
   return {
     today: dayKey(now),
     goal: state.settings.goal,
-    tasks: rankedPending(state).slice(0, 40).map(t => ({
+    tasks: rankedPending(state, now).slice(0, 40).map(t => ({
       subject: t.subject, title: t.title,
       due: t.deadline?.date || (t.due ? dayKey(t.due) : null),
       remaining: t.remaining, priority: t.priority,
@@ -36,9 +43,24 @@ export function assistantContext(state: State, now = Date.now()) {
     })),
   };
 }
+/** Keep submission-sensitive TODAY requests deterministic and on-device.
+ * A remote AI response must not silently replace the three-action plan or
+ * imply that completed schoolwork has already been submitted. */
+export function needsLocalSubmissionPlan(question: string, state: State, now = Date.now()): boolean {
+  if (!/계획|오늘|우선|뭐부터|무엇부터|할\s*일|숙제|과제|제출/.test(question.trim())) return false;
+  const watch = assessmentWatch(state.tasks, now);
+  // Keep urgent unfinished submissions on device too: remote AI must not
+  // accidentally omit a real assessment due today or tomorrow.
+  return watch.completedNotSubmitted.length > 0 ||
+    watch.critical.some(t => {
+      const urgency = watch.byId.get(t.id);
+      return urgency === 'overdue' || urgency === 'today' || urgency === 'tomorrow';
+    });
+}
+
 export function localAssistant(question: string, state: State, now = Date.now(), history: ConversationTurn[] = []): AssistantReply {
   const q = question.trim().slice(0, 1000);
-  const pending = rankedPending(state);
+  const pending = rankedPending(state, now);
   if (!q) return { answer: '무엇을 도와줄까? 학원 이야기부터 공부 계획까지 편하게 말해줘.' };
 
   const scheduleQuestion = recoverScheduleQuestion(q, history);
@@ -71,10 +93,10 @@ export function localAssistant(question: string, state: State, now = Date.now(),
   if ((/학원|과외/.test(q) || followUp) &&
       !/(?:추가해|등록해|완료했|완료로|\d+\s*분으로|삭제해)/.test(q)) {
     const today = dayKey(now);
-    const weekday = new Date(now).getDay();
+    const todayWeekday = weekday(today);
     const todayAcademies = state.schedules.filter(
       (s) => s.kind === 'academy' &&
-        s.days.includes(weekday) &&
+        s.days.includes(todayWeekday) &&
         (!s.date || s.date === today) &&
         !s.excluded.includes(today),
     ).sort((a, b) => a.start.localeCompare(b.start));
@@ -132,7 +154,22 @@ export function localAssistant(question: string, state: State, now = Date.now(),
     const title = q.replace(/^(?:과제\s*)?(?:하나\s*)?/, '')
       .replace(/(?:을|를)?\s*(?:등록|추가|기록|넣어|만들어)(?:해\s*줘|줘|주세요|해)?[.!?]*\s*$/, '').trim();
     if (title.length < 3 || title.length > 200) return { answer: '과제 이름을 조금 더 명확하게 적어줘. 예: 내일 수학 학습지 3장 추가해줘.' };
+    // Compare the parsed assignment rather than the raw chat command.
+    // Different confirmed deadlines must remain distinct recurring homework.
     const p = parseCapture(title, now);
+    const parsedDeadline = captureDeadline(p);
+    const normalizeTitle = (value: string) => value.normalize('NFKC').replace(/\s+/g, '').toLocaleLowerCase();
+    const duplicate = state.tasks.find(t => {
+      if (t.status === 'done' || normalizeTitle(t.title) !== normalizeTitle(title)) return false;
+      const existingDate = t.deadline?.date || (t.due ? dayKey(t.due) : null);
+      const incomingDate = parsedDeadline.deadline?.date || (parsedDeadline.due ? dayKey(parsedDeadline.due) : null);
+      // Unknown dates are conservatively treated as possible duplicates.
+      return !existingDate || !incomingDate || existingDate === incomingDate;
+    });
+    if (duplicate) return {
+      answer: `'${duplicate.title}'은(는) 이미 미완료 과제로 등록되어 있어. 중복 등록하지 않았어. 과제 화면에서 기존 기록을 확인해.`,
+      navigate: 'tasks',
+    };
     const t: Task = {
       id: uid(), title, subject: p.subject, kind: p.kind, ...captureDeadline(p),
       quantity: p.quantityUnit && p.quantityTotal ? {
@@ -169,12 +206,68 @@ export function localAssistant(question: string, state: State, now = Date.now(),
     };
   }
 
-  if (/계획|오늘|우선|뭐부터|무엇부터|할\s*일|숙제|과제/.test(q)) {
-    if (!pending.length) return { answer: '현재 미완료 과제가 없어. 새 과제를 등록하거나 시간표를 점검해 봐.', navigate: 'tasks' };
-    const lines = pending.slice(0, 3).map((t, i) =>
+  if (/계획|오늘|우선|뭐부터|무엇부터|할\s*일|숙제|과제|제출/.test(q)) {
+    // A finished assignment may still need a real-world submission. Never
+    // infer 'submitted' from a completed study session or a passed deadline.
+    const submissionWatch = assessmentWatch(state.tasks, now);
+    // Keep the total number of recommended actions at three, including
+    // submission handoffs; otherwise three study tasks + three submissions
+    // overwhelm the learner and hide the most urgent real-world action.
+    // Rank all actionable schoolwork together. A finished but undated
+    // submission must not displace an unfinished assessment due today.
+    const urgencyRank = (t: Task): number => {
+      const urgency = submissionWatch.byId.get(t.id);
+      return urgency === 'overdue' ? 0 : urgency === 'today' ? 1 :
+        urgency === 'tomorrow' ? 2 : urgency === 'two-days' ? 3 :
+          urgency === 'unknown' ? 4 : 5;
+    };
+    const submissionCandidates = submissionWatch.completedNotSubmitted;
+    const candidates = [
+      ...submissionCandidates.map(t => ({ task: t, submission: true })),
+      ...pending.map(t => ({ task: t, submission: false })),
+    ].sort((a, b) =>
+      urgencyRank(a.task) - urgencyRank(b.task) ||
+      (a.submission === b.submission ? 0 : a.submission ? -1 : 1) ||
+      b.task.priority - a.task.priority);
+    const selected = candidates.slice(0, 3);
+    const awaitingSubmission = selected.filter(item => item.submission).map(item => item.task);
+    const studyTasks = selected.filter(item => !item.submission).map(item => item.task);
+    const remainingSubmissions = submissionCandidates.length - awaitingSubmission.length;
+    const submissionReminder = awaitingSubmission.length
+      ? '\n제출 확인 필요 (전체 ' + submissionWatch.completedNotSubmitted.length + '건, 우선 ' + awaitingSubmission.length + '건): ' +
+        awaitingSubmission.map(t => {
+          const urgency = submissionWatch.byId.get(t.id);
+          const deadline = urgency === 'overdue' ? '마감 지남 · 날짜 재확인' :
+            urgency === 'today' ? '오늘 마감' :
+            urgency === 'tomorrow' ? '내일 마감' :
+            urgency === 'unknown' ? '마감 확인 필요' : null;
+          return t.subject + ' · ' + t.title + (deadline ? ' (' + deadline + ')' : '');
+        }).join(', ') +
+        (remainingSubmissions ? '. 추가로 ' + remainingSubmissions + '건이 남아 있어. 과제 화면에서 확인해.' : '') +
+        ' 실제 제출 여부를 확인한 뒤 직접 제출 완료로 기록해.'
+      : remainingSubmissions > 0
+        ? '\n제출 확인 대기 ' + remainingSubmissions + '건이 추천 3개 밖에 남아 있어. 과제 화면에서 실제 제출 여부를 확인해.'
+        : '';
+    const unknownDeadlineReminder = submissionWatch.undated.length
+      ? '\n마감 미확인 수행·제출 과제 ' + submissionWatch.undated.length +
+        '개는 선생님 공지에서 확인해.'
+      : '';
+    if (!pending.length) {
+      return {
+        answer: (awaitingSubmission.length
+          ? '진행 중인 공부 과제는 없지만 제출 확인이 남아 있어.'
+          : '현재 미완료 과제가 없어. 새 과제를 등록하거나 시간표를 점검해 봐.') +
+          submissionReminder + unknownDeadlineReminder,
+        navigate: 'tasks',
+      };
+    }
+    const lines = studyTasks.map((t, i) =>
       `${i + 1}. ${t.subject} · ${t.title} (${t.remaining}분, ${formatTaskDeadline(t)})`);
+    const studyPlan = lines.length
+      ? `미완료 과제 ${pending.length}개 중 우선순위가 높은 ${lines.length}개야:\n${lines.join('\n')}\n먼저 1번을 5분만 시작해 봐.`
+      : `미완료 공부 과제도 ${pending.length}개 있지만, 우선 제출 확인 ${awaitingSubmission.length}건부터 처리해 봐.`;
     return {
-      answer: `미완료 과제 ${pending.length}개 중 현재 마감과 우선순위로 정렬한 첫 3개야:\n${lines.join('\n')}\n먼저 1번을 5분만 시작해 봐. 마감 미확인 과제는 실제 날짜를 확인해줘.`,
+      answer: studyPlan + submissionReminder + unknownDeadlineReminder,
       navigate: 'tasks',
     };
   }

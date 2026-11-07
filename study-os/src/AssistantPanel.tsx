@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ArrowUpRight, CheckCircle2, Send, Sparkles, XCircle } from 'lucide-react';
 import type { State } from './model';
-import { localAssistant, type AssistantAction } from './assistantLogic';
+import { localAssistant, needsLocalSubmissionPlan, type AssistantAction } from './assistantLogic';
 import { askLiveAssistant, checkAssistantConfig } from './assistantAI';
 import { authorizeGoogleIdentity, prepareGoogleIdentity } from './cloudClient';
 import { WaterDrop } from './WaterDrop';
@@ -127,7 +127,10 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
       const offline = localAssistant(question, state, Date.now(), recentTurns);
       // Local writes must always require a separate approval; remote AI is read-only.
       const controlledSchedule = isScheduleCommand(recoverScheduleQuestion(question, recentTurns));
-      if (offline.action || controlledSchedule || !live || !available || !navigator.onLine || !(token || getAccessToken())) {
+      // For daily priorities with completed-but-unsubmitted work, use the verified
+      // on-device three-action plan regardless of AI mode or sharing consent.
+      // No private task details are sent to the remote provider.
+      if (offline.action || controlledSchedule || needsLocalSubmissionPlan(question, state) || !live || !available || !navigator.onLine || !(token || getAccessToken())) {
         setMessages(old => [...old, { role: 'assistant', source: 'local', text: offline.answer, action: offline.action, navigate: offline.navigate }]);
       } else {
         try {
@@ -151,10 +154,12 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
   function apply(index: number, action: AssistantAction) {
     const success = onAction(action);
     setMessages(old => old.map((item, i) => i === index
-      ? { ...item, action: undefined, saved: success } : item)
+      // Failed persistence must not consume the learner's approved draft.
+      // Keep it available for retry or explicit cancellation.
+      ? (success ? { ...item, action: undefined, saved: true } : item) : item)
       .concat({ role: 'assistant', text: success
         ? '확인한 변경사항을 BKIT에 저장했어. Google Sheets 연결 상태는 별도로 확인해 줘.'
-        : '항목이 중복되었거나 저장이 실패했어. BKIT 과제·일정 목록을 확인하고 다시 요청해줘.' }));
+        : '저장되지 않았어. 과제·일정 목록을 확인하고 다시 저장하거나 취소할 수 있어.' }));
   }
   return (
     <section className="assistant-panel" aria-label="BKIT 멀티 비서">
