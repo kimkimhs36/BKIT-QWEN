@@ -198,4 +198,18 @@ describe('LIFE OS assistant prioritizes submissions without guessing', () => {
     expect(state.tasks.find(t => t.id === 'urgent')?.status).toBe('todo');
   });
 
+  it('still discloses submission checks when three urgent unfinished tasks occupy the plan', () => {
+    const state = newState();
+    state.tasks = [
+      task('submitted-wait', { title: '제출 확인 대기 과제' }),
+      ...['지난 마감', '오늘 마감', '내일 마감'].map((title, i) =>
+        task('urgent-' + i, { title, status: 'todo',
+          deadline: { date: ['2026-11-03', '2026-11-04', '2026-11-05'][i], precision: 'date-only', provenance: 'user-confirmed' } })),
+    ];
+    const reply = localAssistant('오늘 뭐부터 해?', state, now);
+    expect(reply.answer).toContain('제출 확인 대기 1건이 추천 3개 밖에 남아 있어');
+    expect(reply.answer).toContain('3. 역학과 에너지 · 내일 마감');
+    expect(state.tasks.find(t => t.id === 'submitted-wait')?.submitted).toBe(false);
+  });
+
 });
