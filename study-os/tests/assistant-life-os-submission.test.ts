@@ -121,4 +121,16 @@ describe('LIFE OS assistant prioritizes submissions without guessing', () => {
     expect(needsLocalSubmissionPlan('화학 반응식 알려줘', state, now)).toBe(false);
   });
 
+  it('honors confirmed date-only deadlines even when legacy due is absent', () => {
+    const state = newState();
+    state.tasks = [task('dated', {
+      title: '오늘 제출할 수행평가', status: 'todo',
+      due: null,
+      deadline: { date: '2026-11-04', precision: 'date-only', provenance: 'user-confirmed' },
+    })];
+    const reply = localAssistant('오늘 뭐부터 해?', state, now);
+    expect(reply.answer).toContain('오늘 제출할 수행평가');
+    expect(reply.answer).not.toContain('마감 미확인 수행·제출 과제 1개');
+  });
+
 });
