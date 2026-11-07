@@ -133,8 +133,9 @@ export function captureDeadline(
   };
 }
 export function formatTaskDeadline(task: Task) {
-  if (!task.due) return '마감 확인 필요';
+  // A confirmed date is meaningful even when the legacy timestamp is absent.
   if (task.deadline?.precision === 'date-only') return task.deadline.date + ' · 시각 미확인';
+  if (!task.due) return '마감 확인 필요';
   return dayKey(task.due) + ' ' + clock(task.due);
 }
 export function formatQuantity(q: Task['quantity']) {
