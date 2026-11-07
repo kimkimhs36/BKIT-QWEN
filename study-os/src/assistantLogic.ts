@@ -1,7 +1,7 @@
 import type { State, Task, Schedule } from './model';
 import { uid } from './model';
 import { parseCapture, captureDeadline, formatTaskDeadline } from './capture';
-import { dayKey } from './time';
+import { dayKey, weekday } from './time';
 import type { ConversationTurn } from './assistantConversation';
 import { assessmentWatch } from './assessmentWatch';
 import { isScheduleCommand, parseSpokenSchedule, recoverScheduleQuestion } from './scheduleCapture';
@@ -93,10 +93,10 @@ export function localAssistant(question: string, state: State, now = Date.now(),
   if ((/학원|과외/.test(q) || followUp) &&
       !/(?:추가해|등록해|완료했|완료로|\d+\s*분으로|삭제해)/.test(q)) {
     const today = dayKey(now);
-    const weekday = new Date(now).getDay();
+    const todayWeekday = weekday(today);
     const todayAcademies = state.schedules.filter(
       (s) => s.kind === 'academy' &&
-        s.days.includes(weekday) &&
+        s.days.includes(todayWeekday) &&
         (!s.date || s.date === today) &&
         !s.excluded.includes(today),
     ).sort((a, b) => a.start.localeCompare(b.start));
