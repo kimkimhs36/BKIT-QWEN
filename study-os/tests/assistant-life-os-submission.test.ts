@@ -267,4 +267,16 @@ describe('LIFE OS assistant prioritizes submissions without guessing', () => {
     expect(state.tasks.find(t => t.id === 'submitted-wait')?.submitted).toBe(false);
   });
 
+  it('shows a confirmed date-only deadline in the study plan without a legacy timestamp', () => {
+    const state = newState();
+    state.tasks = [task('date-only', {
+      title: '화학 수행평가 준비', status: 'todo', due: null,
+      deadline: { date: '2026-11-04', precision: 'date-only', provenance: 'user-confirmed' },
+    })];
+    const reply = localAssistant('오늘 뭐부터 해?', state, now);
+    expect(reply.answer).toContain('화학 수행평가 준비 (25분, 2026-11-04 · 시각 미확인)');
+    expect(reply.answer).not.toContain('마감 확인 필요');
+    expect(reply.answer).not.toContain('23:59');
+  });
+
 });
