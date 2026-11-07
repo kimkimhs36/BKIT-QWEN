@@ -230,7 +230,9 @@ export function localAssistant(question: string, state: State, now = Date.now(),
         }).join(', ') +
         (remainingSubmissions ? '. 추가로 ' + remainingSubmissions + '건이 남아 있어. 과제 화면에서 확인해.' : '') +
         ' 실제 제출 여부를 확인한 뒤 직접 제출 완료로 기록해.'
-      : '';
+      : remainingSubmissions > 0
+        ? '\n제출 확인 대기 ' + remainingSubmissions + '건이 추천 3개 밖에 남아 있어. 과제 화면에서 실제 제출 여부를 확인해.'
+        : '';
     const unknownDeadlineReminder = submissionWatch.undated.length
       ? '\n마감 미확인 수행·제출 과제 ' + submissionWatch.undated.length +
         '개는 선생님 공지에서 확인해.'
