@@ -15,6 +15,28 @@ function task(id: string, changes: Partial<Task> = {}): Task {
 }
 
 describe('LIFE OS assistant prioritizes submissions without guessing', () => {
+  it('prevents repeated chat commands from duplicating active homework', () => {
+    const state = newState();
+    state.tasks = [task('existing', {
+      title: '수학 학습지 3장', kind: '숙제', status: 'todo', submissionRequired: false,
+    })];
+    const reply = localAssistant('수학  학습지 3장 추가해줘', state, now);
+    expect(reply.action).toBeUndefined();
+    expect(reply.answer).toContain('중복 등록하지 않았어');
+    expect(reply.navigate).toBe('tasks');
+    expect(state.tasks).toHaveLength(1);
+  });
+
+  it('allows new homework when an older same-title task is finished', () => {
+    const state = newState();
+    state.tasks = [task('old', {
+      title: '수학 학습지 3장', kind: '숙제', status: 'done', submissionRequired: false,
+    })];
+    const reply = localAssistant('수학 학습지 3장 추가해줘', state, now);
+    expect(reply.action?.kind).toBe('add');
+    expect(state.tasks).toHaveLength(1);
+  });
+
   it('does not hide finished but unsubmitted assessments when no study tasks remain', () => {
     const state = newState();
     state.tasks = [task('completed')];
