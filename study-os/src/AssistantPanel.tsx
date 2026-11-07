@@ -154,10 +154,12 @@ export function AssistantPanel({ state, onAction, onNavigate, getAccessToken }: 
   function apply(index: number, action: AssistantAction) {
     const success = onAction(action);
     setMessages(old => old.map((item, i) => i === index
-      ? { ...item, action: undefined, saved: success } : item)
+      // Failed persistence must not consume the learner's approved draft.
+      // Keep it available for retry or explicit cancellation.
+      ? (success ? { ...item, action: undefined, saved: true } : item) : item)
       .concat({ role: 'assistant', text: success
         ? '확인한 변경사항을 BKIT에 저장했어. Google Sheets 연결 상태는 별도로 확인해 줘.'
-        : '항목이 중복되었거나 저장이 실패했어. BKIT 과제·일정 목록을 확인하고 다시 요청해줘.' }));
+        : '저장되지 않았어. 과제·일정 목록을 확인하고 다시 저장하거나 취소할 수 있어.' }));
   }
   return (
     <section className="assistant-panel" aria-label="BKIT 멀티 비서">
