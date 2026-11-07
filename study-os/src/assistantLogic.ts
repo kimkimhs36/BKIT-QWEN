@@ -13,18 +13,24 @@ export type AssistantAction =
   | { kind: 'minutes'; taskId: string; title: string; minutes: number };
 export type AssistantReply = { answer: string; action?: AssistantAction; navigate?: 'school' | 'tasks' | 'progress' };
 
-function rankedPending(state: State): Task[] {
+function rankedPending(state: State, now = Date.now()): Task[] {
+  const urgency = assessmentWatch(state.tasks, now).byId;
+  const urgentRank = (t: Task): number => {
+    const status = urgency.get(t.id);
+    return status === 'overdue' ? 0 : status === 'today' ? 1 : status === 'tomorrow' ? 2 : 3;
+  };
   return state.tasks.filter(t => t.status !== 'done').sort((a, b) => {
+    const rankDiff = urgentRank(a) - urgentRank(b);
     const ad = a.deadline?.date || (a.due ? dayKey(a.due) : '9999-12-31');
     const bd = b.deadline?.date || (b.due ? dayKey(b.due) : '9999-12-31');
-    return ad.localeCompare(bd) || b.priority - a.priority;
+    return rankDiff || ad.localeCompare(bd) || b.priority - a.priority;
   });
 }
 export function assistantContext(state: State, now = Date.now()) {
   return {
     today: dayKey(now),
     goal: state.settings.goal,
-    tasks: rankedPending(state).slice(0, 40).map(t => ({
+    tasks: rankedPending(state, now).slice(0, 40).map(t => ({
       subject: t.subject, title: t.title,
       due: t.deadline?.date || (t.due ? dayKey(t.due) : null),
       remaining: t.remaining, priority: t.priority,
@@ -54,7 +60,7 @@ export function needsLocalSubmissionPlan(question: string, state: State, now = D
 
 export function localAssistant(question: string, state: State, now = Date.now(), history: ConversationTurn[] = []): AssistantReply {
   const q = question.trim().slice(0, 1000);
-  const pending = rankedPending(state);
+  const pending = rankedPending(state, now);
   if (!q) return { answer: '무엇을 도와줄까? 학원 이야기부터 공부 계획까지 편하게 말해줘.' };
 
   const scheduleQuestion = recoverScheduleQuestion(q, history);
