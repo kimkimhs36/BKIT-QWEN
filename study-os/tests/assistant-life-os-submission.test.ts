@@ -133,4 +133,19 @@ describe('LIFE OS assistant prioritizes submissions without guessing', () => {
     expect(reply.answer).not.toContain('마감 미확인 수행·제출 과제 1개');
   });
 
+  it('shows urgency on submission handoffs without inventing a due time', () => {
+    const state = newState();
+    state.tasks = [
+      task('overdue', { title: '지난 수행', deadline: { date: '2026-11-03', precision: 'date-only', provenance: 'user-confirmed' } }),
+      task('today', { title: '오늘 수행', deadline: { date: '2026-11-04', precision: 'date-only', provenance: 'user-confirmed' } }),
+      task('unknown', { title: '미확인 수행' }),
+    ];
+    const reply = localAssistant('오늘 뭐부터 해?', state, now);
+    expect(reply.answer).toContain('지난 수행 (마감 지남 · 날짜 재확인)');
+    expect(reply.answer).toContain('오늘 수행 (오늘 마감)');
+    expect(reply.answer).toContain('미확인 수행 (마감 확인 필요)');
+    expect(reply.answer).not.toContain('23:59');
+    expect(reply.answer).toContain('전체 3건, 우선 3건');
+  });
+
 });
