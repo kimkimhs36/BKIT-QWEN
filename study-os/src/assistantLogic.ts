@@ -186,11 +186,13 @@ export function localAssistant(question: string, state: State, now = Date.now(),
     // submission handoffs; otherwise three study tasks + three submissions
     // overwhelm the learner and hide the most urgent real-world action.
     const awaitingSubmission = submissionWatch.completedNotSubmitted.slice(0, 3);
+    const remainingSubmissions = submissionWatch.completedNotSubmitted.length - awaitingSubmission.length;
     const slotsForStudy = Math.max(0, 3 - awaitingSubmission.length);
     const submissionReminder = awaitingSubmission.length
-      ? '\n제출 확인 필요 (' + awaitingSubmission.length + '건): ' +
+      ? '\n제출 확인 필요 (전체 ' + submissionWatch.completedNotSubmitted.length + '건, 우선 ' + awaitingSubmission.length + '건): ' +
         awaitingSubmission.map(t => t.subject + ' · ' + t.title).join(', ') +
-        '. 실제 제출 여부를 확인한 뒤 직접 제출 완료로 기록해.'
+        (remainingSubmissions ? '. 추가로 ' + remainingSubmissions + '건이 남아 있어. 과제 화면에서 확인해.' : '') +
+        ' 실제 제출 여부를 확인한 뒤 직접 제출 완료로 기록해.'
       : '';
     const unknownDeadlineReminder = submissionWatch.undated.length
       ? '\n마감 미확인 수행·제출 과제 ' + submissionWatch.undated.length +
