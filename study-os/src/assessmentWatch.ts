@@ -13,13 +13,15 @@ export type AssessmentWatch = {
 };
 
 export function assessmentUrgency(task: Task, today: string, now: number): TaskUrgency {
-  if (!task.due) return 'unknown';
-  const deadlineDay = task.deadline?.date || dayKey(task.due);
+  // A confirmed calendar date remains useful even when the legacy due
+  // timestamp is absent (for example, after an offline edit/import).
+  const deadlineDay = task.deadline?.date || (task.due ? dayKey(task.due) : null);
+  if (!deadlineDay) return 'unknown';
   if (deadlineDay < today) return 'overdue';
   if (deadlineDay === today) {
     // Only exact times are overdue within a day. A date-only 23:59 planning
     // boundary must never be presented as a confirmed 23:59 submission time.
-    if (task.deadline?.precision !== 'date-only' && Date.parse(task.due) < now)
+    if (task.due && task.deadline?.precision !== 'date-only' && Date.parse(task.due) < now)
       return 'overdue';
     return 'today';
   }
