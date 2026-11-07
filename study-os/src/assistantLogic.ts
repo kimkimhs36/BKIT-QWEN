@@ -198,9 +198,27 @@ export function localAssistant(question: string, state: State, now = Date.now(),
     // Keep the total number of recommended actions at three, including
     // submission handoffs; otherwise three study tasks + three submissions
     // overwhelm the learner and hide the most urgent real-world action.
-    const awaitingSubmission = submissionWatch.completedNotSubmitted.slice(0, 3);
-    const remainingSubmissions = submissionWatch.completedNotSubmitted.length - awaitingSubmission.length;
-    const slotsForStudy = Math.max(0, 3 - awaitingSubmission.length);
+    // Rank all actionable schoolwork together. A finished but undated
+    // submission must not displace an unfinished assessment due today.
+    const urgencyRank = (t: Task): number => {
+      const urgency = submissionWatch.byId.get(t.id);
+      return urgency === 'overdue' ? 0 : urgency === 'today' ? 1 :
+        urgency === 'tomorrow' ? 2 : urgency === 'two-days' ? 3 :
+          urgency === 'unknown' ? 4 : 5;
+    };
+    const submissionCandidates = submissionWatch.completedNotSubmitted;
+    const candidates = [
+      ...submissionCandidates.map(t => ({ task: t, submission: true })),
+      ...pending.map(t => ({ task: t, submission: false })),
+    ].sort((a, b) =>
+      urgencyRank(a.task) - urgencyRank(b.task) ||
+      (a.submission === b.submission ? 0 : a.submission ? -1 : 1) ||
+      b.task.priority - a.task.priority);
+    const selected = candidates.slice(0, 3);
+    const awaitingSubmission = selected.filter(item => item.submission).map(item => item.task);
+    const studyTasks = selected.filter(item => !item.submission).map(item => item.task);
+    const remainingSubmissions = submissionCandidates.length - awaitingSubmission.length;
+    const slotsForStudy = studyTasks.length;
     const submissionReminder = awaitingSubmission.length
       ? '\n제출 확인 필요 (전체 ' + submissionWatch.completedNotSubmitted.length + '건, 우선 ' + awaitingSubmission.length + '건): ' +
         awaitingSubmission.map(t => {
@@ -227,7 +245,7 @@ export function localAssistant(question: string, state: State, now = Date.now(),
         navigate: 'tasks',
       };
     }
-    const lines = pending.slice(0, slotsForStudy).map((t, i) =>
+    const lines = studyTasks.map((t, i) =>
       `${i + 1}. ${t.subject} · ${t.title} (${t.remaining}분, ${formatTaskDeadline(t)})`);
     const studyPlan = lines.length
       ? `미완료 과제 ${pending.length}개 중 우선순위가 높은 ${lines.length}개야:\n${lines.join('\n')}\n먼저 1번을 5분만 시작해 봐.`
