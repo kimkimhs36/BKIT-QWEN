@@ -190,7 +190,14 @@ export function localAssistant(question: string, state: State, now = Date.now(),
     const slotsForStudy = Math.max(0, 3 - awaitingSubmission.length);
     const submissionReminder = awaitingSubmission.length
       ? '\n제출 확인 필요 (전체 ' + submissionWatch.completedNotSubmitted.length + '건, 우선 ' + awaitingSubmission.length + '건): ' +
-        awaitingSubmission.map(t => t.subject + ' · ' + t.title).join(', ') +
+        awaitingSubmission.map(t => {
+          const urgency = submissionWatch.byId.get(t.id);
+          const deadline = urgency === 'overdue' ? '마감 지남 · 날짜 재확인' :
+            urgency === 'today' ? '오늘 마감' :
+            urgency === 'tomorrow' ? '내일 마감' :
+            urgency === 'unknown' ? '마감 확인 필요' : null;
+          return t.subject + ' · ' + t.title + (deadline ? ' (' + deadline + ')' : '');
+        }).join(', ') +
         (remainingSubmissions ? '. 추가로 ' + remainingSubmissions + '건이 남아 있어. 과제 화면에서 확인해.' : '') +
         ' 실제 제출 여부를 확인한 뒤 직접 제출 완료로 기록해.'
       : '';
