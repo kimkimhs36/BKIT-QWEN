@@ -165,4 +165,20 @@ describe('LIFE OS assistant prioritizes submissions without guessing', () => {
     expect(reply.answer).toContain('전체 3건, 우선 3건');
   });
 
+  it('reserves three study actions for urgent unfinished assessments before undated homework', () => {
+    const state = newState();
+    state.tasks = [
+      task('math', { title: '일반 수학 숙제', kind: '숙제', status: 'todo', submissionRequired: false, priority: 5 }),
+      task('today', { title: '오늘 제출 수행', status: 'todo', deadline: { date: '2026-11-04', precision: 'date-only', provenance: 'user-confirmed' } }),
+      task('tomorrow', { title: '내일 제출 수행', status: 'todo', deadline: { date: '2026-11-05', precision: 'date-only', provenance: 'user-confirmed' } }),
+      task('overdue', { title: '지난 수행 확인', status: 'todo', deadline: { date: '2026-11-03', precision: 'date-only', provenance: 'user-confirmed' } }),
+    ];
+    const reply = localAssistant('오늘 뭐부터 해?', state, now);
+    expect(reply.answer).toContain('1. 역학과 에너지 · 지난 수행 확인');
+    expect(reply.answer).toContain('2. 역학과 에너지 · 오늘 제출 수행');
+    expect(reply.answer).toContain('3. 역학과 에너지 · 내일 제출 수행');
+    expect(reply.answer).not.toContain('일반 수학 숙제');
+    expect(state.tasks.find(t => t.id === 'today')?.submitted).toBe(false);
+  });
+
 });
