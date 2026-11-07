@@ -15,6 +15,20 @@ function task(id: string, changes: Partial<Task> = {}): Task {
 }
 
 describe('LIFE OS assistant prioritizes submissions without guessing', () => {
+  it('uses Korea weekday for academy counselling even when browser timezone is UTC', () => {
+    const state = newState();
+    // Saturday 00:30 KST is still Friday 15:30 UTC.
+    const saturdayKst = new Date('2026-11-07T00:30:00+09:00').getTime();
+    state.schedules = [{
+      id: 'academy-saturday', title: '토요일 물리 학원', subject: '물리',
+      kind: 'academy', days: [6], start: '10:00', end: '12:00',
+      excluded: [],
+    } as typeof state.schedules[number]];
+    const reply = localAssistant('오늘 학원 몇 시야?', state, saturdayKst);
+    expect(reply.answer).toContain('토요일 물리 학원 10:00~12:00');
+    expect(reply.answer).not.toContain('오늘 등록된 학원 일정은 확인되지 않아');
+  });
+
   it('prevents repeated chat commands from duplicating active homework', () => {
     const state = newState();
     state.tasks = [task('existing', {
