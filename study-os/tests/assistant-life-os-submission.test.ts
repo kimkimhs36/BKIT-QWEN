@@ -181,4 +181,21 @@ describe('LIFE OS assistant prioritizes submissions without guessing', () => {
     expect(state.tasks.find(t => t.id === 'today')?.submitted).toBe(false);
   });
 
+  it('does not hide urgent unfinished assessments behind three undated submission checks', () => {
+    const state = newState();
+    state.tasks = [
+      task('s1', { title: '제출 확인 A' }),
+      task('s2', { title: '제출 확인 B' }),
+      task('s3', { title: '제출 확인 C' }),
+      task('urgent', { title: '오늘 마감 화학 수행', status: 'todo',
+        deadline: { date: '2026-11-04', precision: 'date-only', provenance: 'user-confirmed' } }),
+    ];
+    const reply = localAssistant('오늘 뭐부터 해?', state, now);
+    expect(reply.answer).toContain('오늘 마감 화학 수행');
+    expect(reply.answer).toContain('제출 확인 필요 (전체 3건, 우선 2건)');
+    expect(reply.answer).toContain('추가로 1건이 남아 있어');
+    expect(reply.answer).not.toContain('제출 확인 C');
+    expect(state.tasks.find(t => t.id === 'urgent')?.status).toBe('todo');
+  });
+
 });
