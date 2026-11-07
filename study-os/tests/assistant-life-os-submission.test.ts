@@ -114,6 +114,23 @@ describe('LIFE OS assistant prioritizes submissions without guessing', () => {
     expect(needsLocalSubmissionPlan('오늘 뭐부터 공부해?', state, now)).toBe(false);
   });
 
+  it('keeps urgent unfinished assessments on device in AI mode without guessing submission', () => {
+    const state = newState();
+    state.tasks = [task('due-today', {
+      status: 'todo', title: '오늘 제출 수행',
+      deadline: { date: '2026-11-04', precision: 'date-only', provenance: 'user-confirmed' },
+    })];
+    expect(needsLocalSubmissionPlan('오늘 뭐부터 해?', state, now)).toBe(true);
+    expect(localAssistant('오늘 뭐부터 해?', state, now).answer).toContain('오늘 제출 수행');
+    expect(needsLocalSubmissionPlan('화학 개념 설명해줘', state, now)).toBe(false);
+    state.tasks[0].deadline = { date: '2026-11-05', precision: 'date-only', provenance: 'user-confirmed' };
+    expect(needsLocalSubmissionPlan('오늘 할 일', state, now)).toBe(true);
+    state.tasks[0].deadline = { date: '2026-11-10', precision: 'date-only', provenance: 'user-confirmed' };
+    expect(needsLocalSubmissionPlan('오늘 할 일', state, now)).toBe(false);
+    state.tasks[0].submitted = true;
+    expect(needsLocalSubmissionPlan('오늘 할 일', state, now)).toBe(false);
+  });
+
   it('does not route unrelated AI questions or unfinished-only tasks through the submission guard', () => {
     const state = newState();
     state.tasks = [task('unfinished', { status: 'todo' })];
