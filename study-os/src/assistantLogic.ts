@@ -42,7 +42,14 @@ export function assistantContext(state: State, now = Date.now()) {
  * imply that completed schoolwork has already been submitted. */
 export function needsLocalSubmissionPlan(question: string, state: State, now = Date.now()): boolean {
   if (!/계획|오늘|우선|뭐부터|무엇부터|할\s*일|숙제|과제|제출/.test(question.trim())) return false;
-  return assessmentWatch(state.tasks, now).completedNotSubmitted.length > 0;
+  const watch = assessmentWatch(state.tasks, now);
+  // Keep urgent unfinished submissions on device too: remote AI must not
+  // accidentally omit a real assessment due today or tomorrow.
+  return watch.completedNotSubmitted.length > 0 ||
+    watch.critical.some(t => {
+      const urgency = watch.byId.get(t.id);
+      return urgency === 'overdue' || urgency === 'today' || urgency === 'tomorrow';
+    });
 }
 
 export function localAssistant(question: string, state: State, now = Date.now(), history: ConversationTurn[] = []): AssistantReply {
