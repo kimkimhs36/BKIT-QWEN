@@ -218,7 +218,6 @@ export function localAssistant(question: string, state: State, now = Date.now(),
     const awaitingSubmission = selected.filter(item => item.submission).map(item => item.task);
     const studyTasks = selected.filter(item => !item.submission).map(item => item.task);
     const remainingSubmissions = submissionCandidates.length - awaitingSubmission.length;
-    const slotsForStudy = studyTasks.length;
     const submissionReminder = awaitingSubmission.length
       ? '\n제출 확인 필요 (전체 ' + submissionWatch.completedNotSubmitted.length + '건, 우선 ' + awaitingSubmission.length + '건): ' +
         awaitingSubmission.map(t => {
