@@ -158,7 +158,7 @@ export function localAssistant(question: string, state: State, now = Date.now(),
     // Different confirmed deadlines must remain distinct recurring homework.
     const p = parseCapture(title, now);
     const parsedDeadline = captureDeadline(p);
-    const normalizeTitle = (value: string) => value.normalize('NFKC').replace(/\\s+/g, '').toLocaleLowerCase();
+    const normalizeTitle = (value: string) => value.normalize('NFKC').replace(/\s+/g, '').toLocaleLowerCase();
     const duplicate = state.tasks.find(t => {
       if (t.status === 'done' || normalizeTitle(t.title) !== normalizeTitle(title)) return false;
       const existingDate = t.deadline?.date || (t.due ? dayKey(t.due) : null);
