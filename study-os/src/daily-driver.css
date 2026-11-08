@@ -343,3 +343,17 @@
   .bkit-action-first-actions { flex-direction: column; }
   .bkit-action-first-actions button { flex: unset; width: 100%; }
 }
+
+
+/* Home sleep preparation writes directly to the existing Sleep Guard record. */
+.bkit-home-sleep-steps { margin: 22px 0 8px; padding: 16px; border: 1px solid rgba(220,232,251,.25); border-radius: 18px; display: grid; gap: 9px; min-width: 0; }
+.bkit-home-sleep-steps legend { padding: 0 8px; color: #d8e8fa; font-size: 13px; font-weight: 750; }
+.bkit-home-sleep-step { display: flex; align-items: center; gap: 13px; min-height: 43px; padding: 9px 13px; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; background: rgba(255,255,255,.07); color: #f7faff; font-size: 14px; cursor: pointer; }
+.bkit-home-sleep-step input { width: 20px; height: 20px; flex: 0 0 20px; accent-color: #a3cdf5; }
+.bkit-home-sleep-step:focus-within { outline: 2px solid #b2dbff; outline-offset: 2px; }
+.bkit-home-sleep-steps button { min-height: 44px; padding: 11px 15px; background: transparent; border: 1px solid rgba(255,255,255,.45); border-radius: 12px; color: #f8fbff; font-size: 13px; font-weight: 700; cursor: pointer; }
+.bkit-home-sleep-steps button:focus-visible { outline: 3px solid #b2dbff; outline-offset: 3px; }
+.bkit-home-sleep-steps p { margin: 1px 0; color: #d8e5f5; font-size: 12px; line-height: 1.5; }
+.bkit-home-sleep-steps p[role="alert"] { color: #ffe1ca; }
+.bkit-home-sleep-steps small { color: #9eb3cc; font-size: 11px; line-height: 1.5; }
+@media(max-width:520px) { .bkit-home-sleep-steps { padding: 12px; } .bkit-home-sleep-step { padding: 10px; } }
