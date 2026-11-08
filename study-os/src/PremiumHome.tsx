@@ -7,6 +7,7 @@ import { clock, dayKey, addDays } from './time';
 import { dailyTriage, taskUrgencyLabel } from './dailyTriage';
 import { needsAttention, needsSubmission, unsubmittedAssessment } from './tasks';
 import { quickClock, quickSeconds } from './quickTimer';
+import { chooseHomeNextAction } from './actionFirst';
 import { studySeconds, elapsed } from './session';
 
 type Props = {
@@ -111,8 +112,48 @@ export function PremiumHome({
     }
   }
   const availableMinutes = Math.max(0, Math.floor(freeMs / 60000));
+  const nextAction = chooseHomeNextAction(now, {
+    busy,
+    current,
+    bedtime,
+    next,
+    unavailable,
+    task: pending[0],
+  });
   return (
     <div className="study-home">
+      <section className="bkit-action-first" aria-label="지금 할 일 한 가지">
+        <div className="bkit-action-first-top">
+          <span className="bkit-action-first-overline">BKIT · NEXT MOVE</span>
+          <span className="bkit-action-first-status">{nextAction.kind === 'sleep' ? '휴식 우선' : nextAction.kind === 'resume' ? '진행 중' : nextAction.kind === 'blocked' ? '일정 보호' : '지금 시작 가능'}</span>
+        </div>
+        <h2>{nextAction.title}</h2>
+        <p>{nextAction.detail}</p>
+        <div className="bkit-action-first-actions">
+          <button
+            type="button"
+            className="bkit-action-first-primary"
+            onClick={() => {
+              if (nextAction.kind === 'sleep') onNavigate('sleep');
+              else if (nextAction.kind === 'resume') onNavigate('study');
+              else if (nextAction.kind === 'blocked') onRecover();
+              else onQuick(nextAction.minutes ?? 10);
+            }}
+          >
+            {nextAction.kind === 'study' ? <Play size={18} fill="currentColor" aria-hidden="true" /> : <ArrowRight size={18} aria-hidden="true" />}
+            {nextAction.label}
+          </button>
+          <button
+            type="button"
+            className="bkit-action-first-secondary"
+            onClick={() => onNavigate(nextAction.kind === 'sleep' ? 'tasks' : 'sleep')}
+          >
+            {nextAction.kind === 'sleep' ? '내일 할 일 확인' : '수면 루틴'}
+            <ChevronRight size={16} aria-hidden="true" />
+          </button>
+        </div>
+        <small>실제 완료·취침 여부는 자동으로 확정하지 않아요. 기록은 기존 BKIT에 남습니다.</small>
+      </section>
       <section className="study-chat-first" aria-label="BKIT에 바로 말하기">
         <div className="study-chat-first-copy">
           <span>YOUR STUDY COMPANION</span>
