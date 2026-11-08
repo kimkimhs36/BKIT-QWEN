@@ -2147,6 +2147,7 @@ export default function App() {
                 tasks={ordered}
                 next={next}
                 current={current}
+                sleepGuard={sleep}
                 bedtime={
                   fixed
                     .filter((item) => item.kind === 'sleep' && item.end > now)
