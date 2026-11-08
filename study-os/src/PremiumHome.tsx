@@ -158,7 +158,7 @@ export function PremiumHome({
             <ChevronRight size={16} aria-hidden="true" />
           </button>
         </div>
-        {nextAction.kind === 'sleep' && (
+        {(nextAction.kind === 'sleep' || (sleepGuard.state.enabled && sleepGuard.status.phase !== 'day')) && (
           <SleepHomeActions guard={sleepGuard} busy={busy} onOpen={() => onNavigate('sleep')} />
         )}
         <small>실제 완료·취침 여부는 자동으로 확정하지 않아요. 기록은 기존 BKIT에 남습니다.</small>
