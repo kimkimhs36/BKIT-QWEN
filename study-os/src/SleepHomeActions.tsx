@@ -25,12 +25,13 @@ export function SleepHomeActions({ guard, busy, onOpen }: Props) {
   };
 
   return (
-    <fieldset className="bkit-home-sleep-steps" disabled={guard.blocked}>
+    <fieldset className="bkit-home-sleep-steps">
       <legend>잠들기 전 세 가지 · {done}/3 확인</legend>
       {HOME_SLEEP_STEPS.map((step, index) => (
         <label className="bkit-home-sleep-step" key={step}>
           <input
             type="checkbox"
+            disabled={guard.blocked}
             checked={checks[index]}
             onChange={(event) => toggle(index as HomeSleepStepIndex, event.target.checked)}
           />
