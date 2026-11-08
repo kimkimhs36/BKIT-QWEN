@@ -60,7 +60,7 @@
 <div class="step"><i>01</i><span>공부를 시작하기 전 입력을 요구하지 않기</span></div>
 <div class="step"><i>02</i><span>완료했다고 추정하지 않기 · 스스로 확인</span></div>
 <div class="step"><i>03</i><span>취침 시간에는 새 계획보다 정리와 휴식</span></div>
-<div class="stat">이 미리보기의 타이머는 <strong>체험용</strong>이며 앱 기록으로 저장되지 않아.</div>
+<div class="stat">이 미리보기의 타이머와 선택적 기록은 <strong>이 브라우저에만</strong> 저장되며 기존 BKIT 계정과 동기화되지 않아.</div>
 </section>
 </div></main>
 <footer class="footer">TEAM BKIT / ACTION-FIRST PREVIEW · 기존 BKIT 앱의 새 홈 설계 검증용<br>운영 배포와 계정 데이터 변경 없음.</footer>
@@ -74,11 +74,35 @@
   function renderHistory(){const list=read();if(!list.length){q('history').textContent='이 브라우저에 저장된 행동 기록이 아직 없어.';return}const last=list[list.length-1];q('history').textContent='이 기기에만 기록 '+list.length+'개 · 최근 '+(last.kind==='sleep'?'취침 준비 확인':'집중 '+Math.floor(last.seconds/60)+'분 '+last.seconds%60+'초')+' · 실제 수면·과제 제출을 의미하지 않아.'}
   let checkSeconds=0;
 
+  const ACTIVE='bkit-action-preview-active-v1';
+  const saveActive=()=>{
+    try {
+      if(mode==='study' && (running || elapsed>0)) {
+        localStorage.setItem(ACTIVE,JSON.stringify({elapsed:elapsedSeconds(),running:running&&!paused,paused,at:Date.now(),topic:choice}));
+      } else localStorage.removeItem(ACTIVE);
+    } catch { q('hint').textContent='이 브라우저에서 진행 중인 타이머를 복구할 수 없어. 화면을 유지해 줘.'; }
+  };
+  const restoreActive=()=>{
+    try {
+      const saved=JSON.parse(localStorage.getItem(ACTIVE)||'null');
+      if(!saved || !Number.isFinite(saved.elapsed) || !Number.isFinite(saved.at) || saved.elapsed<0 || saved.elapsed>600 || saved.at>Date.now()+60000) return;
+      choice=typeof saved.topic==='string'?saved.topic.slice(0,90):choice;
+      elapsed=Math.min(600,Math.floor(saved.elapsed+(saved.running?Math.max(0,(Date.now()-saved.at)/1000):0)));
+      paused=!!saved.paused; running=elapsed<600;
+      if(running && !paused) startedAt=Date.now();
+      q('timer').hidden=false; q('timer').textContent=format(elapsed);
+      q('sessionActions').hidden=false;
+      q('primary').textContent=running?(paused?'▶ 이어하기':'일시정지'):'10분 경과 · 종료';
+      q('state').textContent=running?(paused?'일시정지':'진행 중인 집중 복구'):'학습 결과 직접 확인';
+      q('description').textContent='이 브라우저에서 이어진 집중이야. 공부한 시간을 확인하고 직접 종료·기록할 수 있어.';
+      if(running && !paused) ticker=setInterval(tick,300);
+    } catch { try { localStorage.removeItem(ACTIVE); } catch {} }
+  };
   let mode='study', running=false, paused=false, elapsed=0, startedAt=0, ticker=null, choice='수학 문제 하나';
   const format=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
-  function tick(){if(!running||paused)return;const seconds=elapsed+Math.max(0,Math.floor((Date.now()-startedAt)/1000));q('timer').textContent=format(Math.min(600,seconds));if(seconds>=600){elapsed=600;running=false;paused=false;clearInterval(ticker);q('primary').textContent='10분 경과 · 종료';q('finishSession').textContent='■ 학습 결과 확인';q('state').textContent='직접 학습 결과 확인';q('description').textContent='시간이 지났어. 문제를 독립적으로 풀었는지는 직접 확인해야 해.';}}
+  function tick(){if(!running||paused)return;const seconds=elapsed+Math.max(0,Math.floor((Date.now()-startedAt)/1000));q('timer').textContent=format(Math.min(600,seconds));if(seconds>=600){elapsed=600;running=false;paused=false;clearInterval(ticker);saveActive();q('primary').textContent='10분 경과 · 종료';q('finishSession').textContent='■ 학습 결과 확인';q('state').textContent='직접 학습 결과 확인';q('description').textContent='시간이 지났어. 문제를 독립적으로 풀었는지는 직접 확인해야 해.';}}
   function setMode(next){
-    mode=next;running=false;paused=false;elapsed=0;clearInterval(ticker);q('timer').hidden=true;q('sessionActions').hidden=true;q('selfCheck').hidden=true;
+    mode=next;running=false;paused=false;elapsed=0;clearInterval(ticker);saveActive();q('timer').hidden=true;q('sessionActions').hidden=true;q('selfCheck').hidden=true;
     q('studyMode').setAttribute('aria-pressed',String(mode==='study'));q('sleepMode').setAttribute('aria-pressed',String(mode==='sleep'));
     q('checks').hidden=mode!=='sleep';
     if(mode==='sleep'){
@@ -95,14 +119,14 @@
   q('secondary').onclick=()=>setMode(mode==='sleep'?'study':'sleep');
   q('primary').onclick=()=>{
     if(mode==='sleep'){q('checks').hidden=false;q('checks').querySelector('input').focus();return;}
-    if(!running){running=true;paused=false;elapsed=0;startedAt=Date.now();q('timer').hidden=false;q('sessionActions').hidden=false;q('state').textContent='실제 타이머 실행 중';q('description').textContent='지금은 화면을 꾸미는 시간이 아니라 문제를 푸는 시간이야.';q('primary').textContent='일시정지';clearInterval(ticker);ticker=setInterval(tick,300);tick();}
-    else if(!paused){elapsed+=Math.floor((Date.now()-startedAt)/1000);paused=true;q('primary').textContent='▶ 이어하기';q('state').textContent='일시정지';}
-    else{paused=false;startedAt=Date.now();q('primary').textContent='일시정지';q('state').textContent='실제 타이머 실행 중';}
+    if(!running){running=true;paused=false;elapsed=0;startedAt=Date.now();q('timer').hidden=false;q('sessionActions').hidden=false;q('state').textContent='실제 타이머 실행 중';q('description').textContent='지금은 화면을 꾸미는 시간이 아니라 문제를 푸는 시간이야.';q('primary').textContent='일시정지';clearInterval(ticker);ticker=setInterval(tick,300);saveActive();tick();}
+    else if(!paused){elapsed+=Math.floor((Date.now()-startedAt)/1000);paused=true;q('primary').textContent='▶ 이어하기';q('state').textContent='일시정지';saveActive();}
+    else{paused=false;startedAt=Date.now();q('primary').textContent='일시정지';q('state').textContent='실제 타이머 실행 중';saveActive();}
   };
   function elapsedSeconds(){return Math.min(600,elapsed+(running&&!paused?Math.max(0,Math.floor((Date.now()-startedAt)/1000)):0))}
   q('finishSession').onclick=()=>{
     if(!running && elapsed===0)return;
-    checkSeconds=elapsedSeconds();running=false;paused=false;clearInterval(ticker);elapsed=checkSeconds;
+    checkSeconds=elapsedSeconds();running=false;paused=false;clearInterval(ticker);elapsed=checkSeconds;saveActive();
     q('selfCheck').hidden=false;q('sessionActions').hidden=true;q('primary').textContent='▶ 새 집중 시작';
     q('state').textContent='학습 결과 직접 확인';q('independent').checked=false;
     q('description').textContent='집중 '+format(checkSeconds)+'. 해설 없이 풀었는지 확인한 뒤 기록할 수 있어. 기록은 선택이야.';
@@ -118,6 +142,9 @@
     if(record({kind:'sleep',checked})){q('hint').textContent=checked+'개 준비를 직접 확인했어. 취침 시간이나 수면 여부는 기록하지 않았어.'}
   };
   renderHistory();
+  restoreActive();
+  window.addEventListener('pagehide',saveActive);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveActive()});
   document.querySelectorAll('[data-task]').forEach(button=>button.onclick=()=>{
     const id=button.dataset.task;
     if(id==='2'){setMode('study');q('headline').textContent='제출 확인은 직접 해야 해.';q('description').textContent='숙제가 끝나도 제출 여부를 확인하기 전에는 제출 완료로 표시하지 않아.';q('state').textContent='제출 확인 필요';return;}
