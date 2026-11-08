@@ -15,7 +15,7 @@ describe('home next action', () => {
     expect(chooseHomeNextAction(now, { ...basic, busy: true })).toMatchObject({ kind: 'resume', minutes: null });
   });
   it('protects active sleep time ahead of a study action', () => {
-    expect(chooseHomeNextAction(now, { ...basic, current: { kind: 'sleep', title: '수면' }, busy: true }).kind).toBe('sleep');
+    expect(chooseHomeNextAction(now, { ...basic, current: { kind: 'sleep', title: '수면' }, busy: true })).toMatchObject({ kind: 'sleep', label: '진행 중인 공부 마무리' });
   });
   it('suggests preparing 45 minutes before a confirmed bedtime', () => {
     expect(chooseHomeNextAction(now, { ...basic, bedtime: { start: now + 20 * 60_000, end: now + 8 * 60 * 60_000 } }).kind).toBe('sleep');
