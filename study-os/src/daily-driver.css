@@ -314,3 +314,32 @@
   .study-home .study-chat-first>button {padding:10px}
   .study-chat-first-copy>small {font-size:11px}
 }
+
+
+/* BKIT action-first home: the decision comes before navigation and dashboards. */
+.bkit-action-first {
+  margin: 0 0 20px;
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid rgba(166, 176, 203, .27);
+  border-radius: 28px;
+  background: linear-gradient(136deg, #111929, #1b2b43 66%, #293b54);
+  color: #f8fafc;
+  box-shadow: 0 16px 45px rgba(13, 25, 44, .12);
+}
+.bkit-action-first-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.bkit-action-first-overline { color: #a5c9f5; font: 700 11px/1.5 inherit; letter-spacing: .15em; }
+.bkit-action-first-status { padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.1); font-size: 12px; }
+.bkit-action-first h2 { margin: 20px 0 9px; font-size: clamp(24px, 4vw, 35px); line-height: 1.25; letter-spacing: -.04em; color: #fff; }
+.bkit-action-first p { color: #c5d1e1; line-height: 1.6; margin: 0 0 21px; }
+.bkit-action-first-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.bkit-action-first-actions button { min-height: 52px; padding: 12px 18px; border-radius: 15px; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 9px; cursor: pointer; }
+.bkit-action-first-primary { background: #eff6ff; color: #102139; border: 1px solid #eff6ff; flex: 1 1 190px; }
+.bkit-action-first-secondary { color: #f0f6ff; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.19); flex: 0 1 auto; }
+.bkit-action-first-actions button:hover { filter: brightness(1.05); }
+.bkit-action-first-actions button:focus-visible { outline: 3px solid #b5dbff; outline-offset: 3px; }
+.bkit-action-first > small { display: block; margin-top: 16px; color: #aebed1; font-size: 11px; line-height: 1.5; }
+@media (max-width: 520px) {
+  .bkit-action-first { border-radius: 22px; padding: 21px; }
+  .bkit-action-first-actions { flex-direction: column; }
+  .bkit-action-first-actions button { flex: unset; width: 100%; }
+}
