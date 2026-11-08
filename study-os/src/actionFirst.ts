@@ -40,7 +40,7 @@ export function chooseHomeNextAction(
       detail: busy
         ? '진행 중인 공부는 집중 화면에서 직접 정리하고, 수면 루틴을 시작해요.'
         : '씻기 → 기기 내려놓기 → 눕기. 실제 취침은 확인한 뒤 기록해요.',
-      label: '취침 루틴 열기',
+      label: busy ? '진행 중인 공부 마무리' : '취침 루틴 열기',
       minutes: null,
     };
   }
