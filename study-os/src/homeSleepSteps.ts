@@ -3,11 +3,11 @@
  * The fourth existing Sleep Guard check means "actually in bed" and must not be
  * toggled by a quick home-screen preparation shortcut.
  */
-export const HOME_SLEEP_STEPS = [
-  '공부 자료 정리',
-  '씻기',
-  '휴대폰 내려놓고 취침 준비',
-] as const;
+import { CHECKS } from './sleep';
+
+// Mirror the existing Sleep Guard labels so a home check means exactly the
+// same thing when the user opens the full sleep screen.
+export const HOME_SLEEP_STEPS = CHECKS.slice(0, 3);
 
 export type HomeSleepStepIndex = 0 | 1 | 2;
 
