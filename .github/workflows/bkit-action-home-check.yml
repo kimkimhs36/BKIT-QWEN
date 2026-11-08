@@ -11,6 +11,7 @@ on:
       - 'study-os/tests/actionFirst.test.ts'
       - 'study-os/tests/homeSleepSteps.test.ts'
       - 'study-os/src/App.tsx'
+      - 'study-os/src/daily-driver.css'
       - '.github/workflows/bkit-action-home-check.yml'
   workflow_dispatch:
 
@@ -41,3 +42,10 @@ jobs:
         run: npx vitest run tests/actionFirst.test.ts tests/homeSleepSteps.test.ts
       - name: TypeScript and production build
         run: npm run build
+      - name: Publish actual-app build for review (not production)
+        uses: actions/upload-artifact@v4
+        with:
+          name: bkit-action-home-build-${{ github.sha }}
+          path: study-os/dist/
+          if-no-files-found: error
+          retention-days: 7
