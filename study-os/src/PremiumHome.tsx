@@ -8,6 +8,8 @@ import { dailyTriage, taskUrgencyLabel } from './dailyTriage';
 import { needsAttention, needsSubmission, unsubmittedAssessment } from './tasks';
 import { quickClock, quickSeconds } from './quickTimer';
 import { chooseHomeNextAction, resolveHomeStudyStart } from './actionFirst';
+import type { SleepController } from './useSleepGuard';
+import { SleepHomeActions } from './SleepHomeActions';
 import { studySeconds, elapsed } from './session';
 
 type Props = {
@@ -17,6 +19,7 @@ type Props = {
   next?: Fixed;
   current?: Fixed;
   bedtime?: Fixed;
+  sleepGuard: SleepController;
   resource?: { id: string; title: string } | null;
   onStart: (id?: string, minutes?: number) => void;
   onQuick: (minutes?: number) => void;
@@ -44,6 +47,7 @@ export function PremiumHome({
   next,
   current,
   bedtime,
+  sleepGuard,
   resource,
   onStart,
   onQuick,
@@ -135,7 +139,7 @@ export function PremiumHome({
             type="button"
             className="bkit-action-first-primary"
             onClick={() => {
-              if (nextAction.kind === 'sleep') onNavigate('sleep');
+              if (nextAction.kind === 'sleep') onNavigate(busy ? 'study' : 'sleep');
               else if (nextAction.kind === 'resume') onNavigate('study');
               else if (nextAction.kind === 'blocked') onRecover();
               else if (startTarget?.kind === 'task') onStart(startTarget.taskId, startTarget.minutes);
@@ -143,7 +147,7 @@ export function PremiumHome({
             }}
           >
             {nextAction.kind === 'study' ? <Play size={18} fill="currentColor" aria-hidden="true" /> : <ArrowRight size={18} aria-hidden="true" />}
-            {nextAction.label}
+            {nextAction.kind === 'sleep' && busy ? '진행 중인 공부 마무리' : nextAction.label}
           </button>
           <button
             type="button"
@@ -154,6 +158,9 @@ export function PremiumHome({
             <ChevronRight size={16} aria-hidden="true" />
           </button>
         </div>
+        {nextAction.kind === 'sleep' && (
+          <SleepHomeActions guard={sleepGuard} busy={busy} onOpen={() => onNavigate('sleep')} />
+        )}
         <small>실제 완료·취침 여부는 자동으로 확정하지 않아요. 기록은 기존 BKIT에 남습니다.</small>
       </section>
       <section className="study-chat-first" aria-label="BKIT에 바로 말하기">
