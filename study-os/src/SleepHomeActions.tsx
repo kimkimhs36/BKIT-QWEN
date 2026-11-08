@@ -46,7 +46,7 @@ export function SleepHomeActions({ guard, busy, onOpen }: Props) {
       )}
       {(guard.error || localError) && <p role="alert">{guard.error || localError}</p>}
       {busy && <p>진행 중인 공부가 있다면 집중 화면에서 직접 마무리해 줘.</p>}
-      <button type="button" onClick={onOpen}>실제 취침 확인 · 수면 기록 열기</button>
+      <button type="button" onClick={onOpen}>{busy ? "진행 중인 공부로 돌아가기" : "실제 취침 확인 · 수면 기록 열기"}</button>
       <small>이 단계는 실제 취침·수면 시간을 자동으로 기록하지 않아요.</small>
     </fieldset>
   );
