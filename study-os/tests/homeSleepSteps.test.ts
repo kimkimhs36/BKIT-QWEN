@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { readHomeSleepSteps, setHomeSleepStep } from '../src/homeSleepSteps';
+import { HOME_SLEEP_STEPS, readHomeSleepSteps, setHomeSleepStep } from '../src/homeSleepSteps';
+import { CHECKS } from '../src/sleep';
 
 describe('home bedtime preparation', () => {
+  it('shows the exact existing Sleep Guard steps rather than mismatched labels', () => {
+    expect(HOME_SLEEP_STEPS).toEqual(CHECKS.slice(0, 3));
+  });
   it('starts with unchecked steps without inventing bedtime records', () => {
     expect(readHomeSleepSteps()).toEqual([false, false, false]);
   });
