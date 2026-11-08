@@ -20,6 +20,27 @@ describe('home next action', () => {
   it('suggests preparing 45 minutes before a confirmed bedtime', () => {
     expect(chooseHomeNextAction(now, { ...basic, bedtime: { start: now + 20 * 60_000, end: now + 8 * 60 * 60_000 } }).kind).toBe('sleep');
   });
+  it('keeps the sleep priority when Sleep Guard supplies an explicit night window', () => {
+    const night = Date.parse('2026-11-09T23:15:00+09:00');
+    const bedtime = {
+      start: Date.parse('2026-11-09T23:00:00+09:00'),
+      end: Date.parse('2026-11-10T07:00:00+09:00'),
+    };
+    expect(chooseHomeNextAction(night, { ...basic, bedtime })).toMatchObject({
+      kind: 'sleep', minutes: null,
+    });
+    expect(resolveHomeStudyStart(chooseHomeNextAction(night, { ...basic, bedtime }))).toBeNull();
+  });
+  it('prioritizes user bedtime preparation over a suggested task', () => {
+    const preparing = Date.parse('2026-11-09T22:35:00+09:00');
+    const bedtime = {
+      start: Date.parse('2026-11-09T23:00:00+09:00'),
+      end: Date.parse('2026-11-10T07:00:00+09:00'),
+    };
+    expect(chooseHomeNextAction(preparing, {
+      ...basic, bedtime, task: { subject: '수학', title: '미완료 숙제' },
+    }).kind).toBe('sleep');
+  });
   it('does not claim a bedtime if it was never supplied', () => {
     expect(chooseHomeNextAction(now, basic).kind).toBe('study');
   });
