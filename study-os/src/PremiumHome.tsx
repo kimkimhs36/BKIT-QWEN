@@ -116,10 +116,20 @@ export function PremiumHome({
     }
   }
   const availableMinutes = Math.max(0, Math.floor(freeMs / 60000));
+  // Sleep Guard is the user's explicit bedtime setting. The action-first home
+  // must not suggest another study block during its preparation/night window
+  // merely because the fixed schedule lacks a matching sleep entry.
+  const guardSleepWindow =
+    sleepGuard.state.enabled && sleepGuard.status.available &&
+    (sleepGuard.status.phase === 'prepare' || sleepGuard.status.phase === 'night')
+      ? { start: sleepGuard.status.bed, end: sleepGuard.status.wake }
+      : undefined;
   const nextAction = chooseHomeNextAction(now, {
     busy,
-    current,
-    bedtime,
+    current: guardSleepWindow && sleepGuard.status.phase === 'night'
+      ? { kind: 'sleep', title: '수면' }
+      : current,
+    bedtime: guardSleepWindow ?? bedtime,
     next,
     unavailable,
     task: pending[0],
