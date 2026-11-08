@@ -1,0 +1,43 @@
+name: BKIT action-first home validation
+on:
+  push:
+    branches:
+      - preview/bkit-action-home-20261109
+    paths:
+      - 'study-os/src/PremiumHome.tsx'
+      - 'study-os/src/SleepHomeActions.tsx'
+      - 'study-os/src/homeSleepSteps.ts'
+      - 'study-os/src/actionFirst.ts'
+      - 'study-os/tests/actionFirst.test.ts'
+      - 'study-os/tests/homeSleepSteps.test.ts'
+      - 'study-os/src/App.tsx'
+      - '.github/workflows/bkit-action-home-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bkit-action-home-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  action-home-tests:
+    name: Action-first behavior and canonical sleep record
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Focused user-behavior regression
+        run: npx vitest run tests/actionFirst.test.ts tests/homeSleepSteps.test.ts
+      - name: TypeScript and production build
+        run: npm run build
