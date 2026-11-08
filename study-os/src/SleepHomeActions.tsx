@@ -42,7 +42,7 @@ export function SleepHomeActions({ guard, busy, onOpen }: Props) {
         <p role="status">준비 세 가지를 확인했어. 실제로 잠자리에 누웠는지는 따로 확인해 줘.</p>
       )}
       {!guard.state.enabled && (
-        <p>수면 보호 알림은 꺼져 있어요. 체크는 저장되며, 수면 보호 설정은 별도로 켤 수 있어요.</p>
+        <p>수면 보호 알림은 꺼져 있어요. 체크는 기존 수면 기록에만 저장돼요.</p>
       )}
       {(guard.error || localError) && <p role="alert">{guard.error || localError}</p>}
       {busy && <p>진행 중인 공부가 있다면 집중 화면에서 직접 마무리해 줘.</p>}
