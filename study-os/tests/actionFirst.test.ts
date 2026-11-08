@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chooseHomeNextAction } from '../src/actionFirst';
+import { chooseHomeNextAction, resolveHomeStudyStart } from '../src/actionFirst';
 
 const now = Date.parse('2026-11-09T13:00:00+09:00');
 const basic = { busy: false, unavailable: '' };
@@ -29,4 +29,21 @@ describe('home next action', () => {
   it('shortens a study block when there are only five to nine minutes before the next fixed event', () => {
     expect(chooseHomeNextAction(now, { ...basic, next: { start: now + 8 * 60_000 } })).toMatchObject({ kind: 'study', minutes: 5 });
   });
+  it('links a home recommendation to a real task and the selected ten minutes', () => {
+    const a = chooseHomeNextAction(now, { ...basic, task: { subject: '미적분Ⅰ', title: '마플 시너지' } });
+    expect(resolveHomeStudyStart(a, 'math-1')).toEqual({ kind: 'task', taskId: 'math-1', minutes: 10 });
+  });
+  it('keeps a one-tap quick timer for an empty task list', () => {
+    expect(resolveHomeStudyStart(chooseHomeNextAction(now, basic))).toEqual({ kind: 'quick', minutes: 10 });
+  });
+  it('carries the five-minute schedule boundary into a linked task session', () => {
+    const a = chooseHomeNextAction(now, { ...basic, next: { start: now + 8 * 60_000 } });
+    expect(resolveHomeStudyStart(a, 'physics-1')).toEqual({ kind: 'task', taskId: 'physics-1', minutes: 5 });
+  });
+  it('never turns a sleep, resume, or blocked action into a new study session', () => {
+    expect(resolveHomeStudyStart(chooseHomeNextAction(now, { ...basic, current: { kind: 'sleep', title: '수면' } }), 'a')).toBeNull();
+    expect(resolveHomeStudyStart(chooseHomeNextAction(now, { ...basic, busy: true }), 'a')).toBeNull();
+    expect(resolveHomeStudyStart(chooseHomeNextAction(now, { ...basic, unavailable: '학교 수업' }), 'a')).toBeNull();
+  });
+
 });

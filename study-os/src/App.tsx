@@ -2153,7 +2153,7 @@ export default function App() {
                     .sort((a, b) => a.start - b.start)[0]
                 }
                 resource={resumeResource}
-                onStart={(id) => start(5, id)}
+                onStart={(id, minutes) => start(minutes ?? 5, id)}
                 onQuick={(minutes) => {
                   beginQuick(minutes ? 'countdown' : 'stopwatch', minutes ?? 480);
                   setTab('study');

@@ -74,3 +74,16 @@ export function chooseHomeNextAction(
     minutes,
   };
 }
+
+/** Route the named priority into a linked session instead of an unlinked timer. */
+export type HomeStudyStart =
+  | { kind: 'task'; taskId: string; minutes: 5 | 10 }
+  | { kind: 'quick'; minutes: 5 | 10 }
+  | null;
+
+export function resolveHomeStudyStart(action: HomeNextAction, taskId?: string): HomeStudyStart {
+  if (action.kind !== 'study' || action.minutes === null) return null;
+  return taskId
+    ? { kind: 'task', taskId, minutes: action.minutes }
+    : { kind: 'quick', minutes: action.minutes };
+}

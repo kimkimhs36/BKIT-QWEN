@@ -7,7 +7,7 @@ import { clock, dayKey, addDays } from './time';
 import { dailyTriage, taskUrgencyLabel } from './dailyTriage';
 import { needsAttention, needsSubmission, unsubmittedAssessment } from './tasks';
 import { quickClock, quickSeconds } from './quickTimer';
-import { chooseHomeNextAction } from './actionFirst';
+import { chooseHomeNextAction, resolveHomeStudyStart } from './actionFirst';
 import { studySeconds, elapsed } from './session';
 
 type Props = {
@@ -18,7 +18,7 @@ type Props = {
   current?: Fixed;
   bedtime?: Fixed;
   resource?: { id: string; title: string } | null;
-  onStart: (id?: string) => void;
+  onStart: (id?: string, minutes?: number) => void;
   onQuick: (minutes?: number) => void;
   onNavigate: (route: string) => void;
   onAdd: () => void;
@@ -120,6 +120,7 @@ export function PremiumHome({
     unavailable,
     task: pending[0],
   });
+  const startTarget = resolveHomeStudyStart(nextAction, pending[0]?.id);
   return (
     <div className="study-home">
       <section className="bkit-action-first" aria-label="지금 할 일 한 가지">
@@ -137,7 +138,8 @@ export function PremiumHome({
               if (nextAction.kind === 'sleep') onNavigate('sleep');
               else if (nextAction.kind === 'resume') onNavigate('study');
               else if (nextAction.kind === 'blocked') onRecover();
-              else onQuick(nextAction.minutes ?? 10);
+              else if (startTarget?.kind === 'task') onStart(startTarget.taskId, startTarget.minutes);
+              else if (startTarget?.kind === 'quick') onQuick(startTarget.minutes);
             }}
           >
             {nextAction.kind === 'study' ? <Play size={18} fill="currentColor" aria-hidden="true" /> : <ArrowRight size={18} aria-hidden="true" />}
