@@ -126,7 +126,7 @@ export function PremiumHome({
       : undefined;
   const nextAction = chooseHomeNextAction(now, {
     busy,
-    current: guardSleepWindow && sleepGuard.status.phase === 'night'
+    current: guardSleepWindow && (sleepGuard.status.phase === 'night' || sleepGuard.status.phase === 'prepare')
       ? { kind: 'sleep', title: '수면' }
       : current,
     bedtime: guardSleepWindow ?? bedtime,
@@ -162,9 +162,9 @@ export function PremiumHome({
           <button
             type="button"
             className="bkit-action-first-secondary"
-            onClick={() => onNavigate(nextAction.kind === 'sleep' ? 'tasks' : 'sleep')}
+            onClick={() => onNavigate('sleep')}
           >
-            {nextAction.kind === 'sleep' ? '내일 할 일 확인' : '수면 루틴'}
+            {nextAction.kind === 'sleep' ? '수면 기록 확인' : '수면 루틴'}
             <ChevronRight size={16} aria-hidden="true" />
           </button>
         </div>
