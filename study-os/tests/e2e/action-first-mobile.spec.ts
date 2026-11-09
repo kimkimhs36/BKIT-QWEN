@@ -71,7 +71,7 @@ test('mobile home -> 10-minute focus -> pause -> reload -> resume -> one durable
   expect(persisted.quickTimer).toBeNull();
 });
 
-test('saved quick focus offers an immediate independent five-minute problem retry without changing old records', async ({ page }) => {
+test('saved quick focus offers an immediate independent five-minute problem retry without changing old records', async ({ page }, testInfo) => {
   await openFreshHome(page, newState());
   await page.getByRole('region', { name: '지금 할 일 한 가지' })
     .getByRole('button', { name: '10분 집중 시작', exact: true }).click();
@@ -83,6 +83,9 @@ test('saved quick focus offers an immediate independent five-minute problem retr
   expect(before.sessions[0].seconds).toBeGreaterThanOrEqual(60);
   const retry = quick.getByRole('button', { name: '혼자 다시 풀기 · 5분' });
   await expect(retry).toBeVisible();
+  // Actual compiled BKIT screen, with only synthetic session data.
+  await retry.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('post-focus-retry-synthetic.png') });
   await retry.click();
   const practicing = await read(page);
   expect(practicing.sessions).toEqual(before.sessions);
