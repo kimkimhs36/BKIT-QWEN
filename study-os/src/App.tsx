@@ -9,6 +9,7 @@ import { MaterialSettings } from './themes/MaterialSettings';
 import { AnimatedClock } from './AnimatedClock';
 import { MaterialEffects } from './themes/MaterialEffects';
 import { RecordOverview } from './RecordOverview';
+import { EvidenceWeek } from './EvidenceWeek';
 import { StudyRecordManager } from './StudyRecordManager';
 import {
   discardUnsavedTimer,
@@ -2756,6 +2757,19 @@ export default function App() {
             )}
             {tab === 'progress' && (
               <>
+                <EvidenceWeek
+                  state={s}
+                  sleep={sleep.state}
+                  today={today}
+                  studying={!!s.active || !!s.quickTimer}
+                  sleepProtected={sleep.status.available &&
+                    (sleep.status.phase === 'prepare' || sleep.status.phase === 'night')}
+                  onStartOrResume={() => {
+                    if (memory.current.active || memory.current.quickTimer) setTab('study');
+                    else start(5, '__free__');
+                  }}
+                  onSleep={() => setTab('sleep')}
+                />
                 {(hasDueProblemReview || hasDueSessionReview) && (
                   <section className="bkit-review-now" aria-label="지금 독립 재풀이">
                     <div className="bkit-review-now-intro">
