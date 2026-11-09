@@ -7,6 +7,16 @@ import { dayKey } from './time';
  * Observed actions only. This is NOT a measure of achievement, attention,
  * sleep quality, or improvement against a baseline we do not have.
  */
+/** Describe exactly what was saved, including sub-minute focus sessions. */
+export function formatRecordedFocus(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds <= 0) return '미기록';
+  const duration = Math.floor(seconds);
+  if (duration < 60) return `${duration || 1}초`;
+  const minutes = Math.floor(duration / 60);
+  const hours = Math.floor(minutes / 60);
+  return hours ? `${hours}시간 ${minutes % 60}분` : `${minutes}분`;
+}
+
 export type EvidenceDay = {
   day: string;
   studySeconds: number;
