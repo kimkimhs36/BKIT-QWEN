@@ -8,6 +8,7 @@ import { dailyTriage, taskUrgencyLabel } from './dailyTriage';
 import { needsAttention, needsSubmission, unsubmittedAssessment } from './tasks';
 import { quickClock, quickSeconds } from './quickTimer';
 import { chooseHomeNextAction, resolveHomeStudyStart } from './actionFirst';
+import { firstDueReview } from './homeDueReview';
 import type { SleepController } from './useSleepGuard';
 import { SleepHomeActions } from './SleepHomeActions';
 import { studySeconds, elapsed } from './session';
@@ -135,6 +136,7 @@ export function PremiumHome({
     task: pending[0],
   });
   const startTarget = resolveHomeStudyStart(nextAction, pending[0]?.id);
+  const dueReview = firstDueReview(state, dayKey(now));
   return (
     <div className="study-home">
       <section className="bkit-action-first" aria-label="지금 할 일 한 가지">
@@ -173,6 +175,21 @@ export function PremiumHome({
         )}
         <small>실제 완료·취침 여부는 자동으로 확정하지 않아요. 기록은 기존 BKIT에 남습니다.</small>
       </section>
+      {nextAction.kind === 'study' && dueReview && (
+        <section className="bkit-due-review" aria-label="오늘 독립 재풀이">
+          <span className="bkit-due-review-eyebrow">REAL REVIEW · {dueReview.due}</span>
+          <div className="bkit-due-review-row">
+            <div>
+              <h2>지난번 막힌 문제, 오늘 한 번만 다시.</h2>
+              <p><strong>{dueReview.subject}</strong> · {dueReview.title}</p>
+              <small>기록된 오답만 추천해요. 해설을 보기 전 직접 풀고, 결과는 스스로 확인하세요.</small>
+            </div>
+            <button type="button" onClick={() => onNavigate('progress')}>
+              독립 재풀이 시작 <ArrowRight size={17} aria-hidden="true" />
+            </button>
+          </div>
+        </section>
+      )}
       <section className="study-chat-first" aria-label="BKIT에 바로 말하기">
         <div className="study-chat-first-copy">
           <span>YOUR STUDY COMPANION</span>
