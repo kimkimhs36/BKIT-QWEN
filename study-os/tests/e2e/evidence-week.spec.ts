@@ -1,5 +1,5 @@
 import { test, expect, type Page } from './local-fixture';
-import { newState, type State } from '../../src/model';
+import { newState, scheduleSchema, type State } from '../../src/model';
 import { defaultSleep, SLEEP_KEY, type SleepState } from '../../src/sleep';
 import { at, iso } from '../../src/time';
 
@@ -9,9 +9,9 @@ const stateKey = 'bkit.study-os.v1';
 const evidence = (page: Page) => page.getByRole('region', { name: '최근 7일 실제 행동 확인' });
 const read = (page: Page) =>
   page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), stateKey);
-async function seed(page: Page, state: State, sleep = defaultSleep()) {
-  await page.clock.install({ time: new Date('2026-11-09T05:00:00Z') });
-  await page.clock.pauseAt(new Date('2026-11-09T05:00:01Z'));
+async function seed(page: Page, state: State, sleep = defaultSleep(), atTime = '2026-11-09T05:00:00Z') {
+  await page.clock.install({ time: new Date(atTime) });
+  await page.clock.pauseAt(new Date(Date.parse(atTime) + 1000));
   await page.addInitScript(({ study, sleep }) => {
     if (!localStorage.getItem('bkit.study-os.v1'))
       localStorage.setItem('bkit.study-os.v1', JSON.stringify(study));
@@ -90,4 +90,64 @@ test('real checked sleep steps and hint-free retest count separately from actual
   expect((await read(page)).problemRetests).toHaveLength(1);
   expect(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SLEEP_KEY))
     .toMatchObject({ records: [{ actualBed:null, actualWake:null }] });
+});
+
+test('Sleep Guard preparation refuses quick start and paused-session resume, preserving existing seconds', async ({ page }) => {
+  const sleep = defaultSleep(); sleep.enabled = true;
+  const state = newState();
+  await seed(page, state, sleep, '2026-11-09T13:30:00Z'); // 22:30 Korea, bedtime preparation
+  await page.getByRole('navigation', { name: '주 메뉴' })
+    .getByRole('button', { name: '집중', exact: true }).click();
+  const timer = page.getByRole('region', { name: '바로 시작 타이머' });
+  await timer.getByRole('button', { name: '지금 시작' }).click();
+  expect((await read(page)).quickTimer).toBeNull();
+  expect((await read(page)).sessions).toHaveLength(0);
+
+  // A previously paused study is never resumed implicitly in protected time.
+  const started = iso(at('2026-11-09','21:50'));
+  const previous = newState();
+  previous.quickTimer = {
+    id:'protected-q', mode:'countdown', targetMinutes:10, started,
+    segmentStart:null, elapsed:90, segments:[{
+      start:started, end:iso(at('2026-11-09','21:51') + 30_000),
+    }],
+  };
+  await page.evaluate((next) => localStorage.setItem('bkit.study-os.v1', JSON.stringify(next)), previous);
+  await page.reload();
+  await page.getByRole('navigation', { name: '주 메뉴' })
+    .getByRole('button', { name: '집중', exact: true }).click();
+  await timer.getByRole('button', { name: '이어하기' }).click();
+  expect((await read(page)).quickTimer).toMatchObject({
+    id:'protected-q', segmentStart:null, elapsed:90,
+  });
+  expect((await read(page)).sessions).toHaveLength(0);
+});
+
+test('school boundary blocks a long quick timer and caps a shorter stopwatch at class start', async ({ page }) => {
+  const state = newState();
+  state.schedules = [scheduleSchema.parse({
+    id:'class-1', kind:'school', title:'학교 물리 수업', subject:'물리',
+    days:[1], start:'15:00', end:'15:50', prep:0, travel:0, buffer:0,
+    materials:'', date:null, excluded:[],
+  })];
+  await seed(page, state, defaultSleep(), '2026-11-09T05:53:00Z'); // 14:53 Korea
+  await page.getByRole('navigation', { name: '주 메뉴' })
+    .getByRole('button', { name: '집중', exact: true }).click();
+  const timer = page.getByRole('region', { name: '바로 시작 타이머' });
+  await timer.getByRole('button', { name: '심플 타이머' }).click();
+  await timer.getByLabel('간단 타이머 시간').fill('10');
+  await timer.getByRole('button', { name: '지금 시작' }).click();
+  expect((await read(page)).quickTimer).toBeNull();
+
+  // A free stopwatch can start in the seven-minute gap, but may not credit
+  // time after 15:00 as study when the scheduled school class begins.
+  await timer.getByRole('button', { name: '스톱워치', exact: true }).click();
+  await timer.getByRole('button', { name: '지금 시작' }).click();
+  expect((await read(page)).quickTimer).toMatchObject({ mode:'stopwatch' });
+  await page.clock.fastForward(9 * 60_000);
+  await expect.poll(async () => (await read(page)).quickTimer.segmentStart).toBeNull();
+  const stopped = (await read(page)).quickTimer;
+  expect(stopped.elapsed).toBeGreaterThanOrEqual(415);
+  expect(stopped.elapsed).toBeLessThanOrEqual(421);
+  expect((await read(page)).sessions).toHaveLength(0);
 });
