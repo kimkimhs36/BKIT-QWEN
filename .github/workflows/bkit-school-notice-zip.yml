@@ -1,0 +1,40 @@
+name: BKIT school notice ZIP regression (isolated)
+
+on:
+  push:
+    branches:
+      - preview/bkit-school-notice-backup-20261110
+    paths:
+      - 'study-os/**'
+      - '.github/workflows/bkit-school-notice-zip.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notice-zip-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: School notice ZIP regressions
+        run: npm test -- --run tests/schoolNoticeBackupCoverage.test.ts
+      - name: Full Vitest regression
+        run: npm test -- --run
+      - name: TypeScript check
+        if: success() || failure()
+        run: npm run typecheck
+      - name: Production-style build
+        if: success() || failure()
+        run: npm run build
