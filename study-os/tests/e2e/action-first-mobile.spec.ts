@@ -103,3 +103,33 @@ test('mobile home recommendation begins the exact existing task and never claims
   await page.reload();
   expect((await read(page)).sessions).toEqual(finished.sessions);
 });
+
+
+// Simulate the browser's lifecycle event without crediting the hidden interval.
+// This exercises the real App event handler and persisted state, not just a timer helper.
+test('mobile pagehide pauses a live quick timer and requires explicit resume', async ({ page }) => {
+  await openFreshHome(page, newState());
+  await page.getByRole('region', { name: '지금 할 일 한 가지' })
+    .getByRole('button', { name: '10분 집중 시작', exact: true }).click();
+  await page.clock.fastForward(45000);
+  await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+  const paused = (await read(page)).quickTimer;
+  expect(paused.segmentStart).toBeNull();
+  expect(paused.elapsed).toBeGreaterThanOrEqual(44);
+  await page.clock.fastForward(5 * 60_000);
+  await page.reload();
+  const recovered = (await read(page)).quickTimer;
+  expect(recovered.id).toBe(paused.id);
+  expect(Math.abs(recovered.elapsed - paused.elapsed)).toBeLessThanOrEqual(1);
+  await page.getByRole('region', { name: '지금 할 일 한 가지' })
+    .getByRole('button', { name: '공부 이어가기', exact: true }).click();
+  const timer = page.getByRole('region', { name: '바로 시작 타이머' });
+  await expect(timer.getByRole('button', { name: '이어하기' })).toBeVisible();
+  await timer.getByRole('button', { name: '이어하기' }).click();
+  await page.clock.fastForward(15000);
+  await timer.getByRole('button', { name: '끝내고 시간 저장' }).click();
+  const saved = await read(page);
+  expect(saved.sessions).toHaveLength(1);
+  expect(saved.sessions[0].seconds).toBeGreaterThanOrEqual(59);
+  expect(saved.sessions[0].seconds).toBeLessThan(75);
+});
