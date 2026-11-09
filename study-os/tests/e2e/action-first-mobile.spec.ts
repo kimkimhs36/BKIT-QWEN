@@ -133,9 +133,10 @@ test('learner-labelled retry keeps the exact problem, answer and self-check thro
   expect(state.active).toMatchObject({
     quick: true, target: 5, taskId: null,
     workspace: {
-      problem: recordedProblem, source: '직접 입력', sourceType: 'user-note', attempts: [],
+      problem: recordedProblem, source: '', attempts: [],
     },
   });
+  expect(state.active.workspace.sourceType).toBeUndefined();
   const workspace = page.getByRole('region', { name: '실제 문제 풀이' });
   await expect(workspace.getByText(recordedProblem)).toBeVisible();
   await workspace.getByRole('textbox', { name: '내 답을 먼저 써보기' })
