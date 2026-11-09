@@ -26,6 +26,9 @@ type Props = {
   resource?: { id: string; title: string } | null;
   onStart: (id?: string, minutes?: number) => void;
   onQuick: (minutes?: number) => void;
+  onQuickPause: () => void;
+  onQuickResume: () => void;
+  onQuickFinish: () => void;
   onNavigate: (route: string) => void;
   onAdd: () => void;
   onRecover: () => void;
@@ -54,6 +57,9 @@ export function PremiumHome({
   resource,
   onStart,
   onQuick,
+  onQuickPause,
+  onQuickResume,
+  onQuickFinish,
   onNavigate,
   onAdd,
   onRecover,
@@ -177,6 +183,27 @@ export function PremiumHome({
             <ChevronRight size={16} aria-hidden="true" />
           </button>
         </div>
+        {quick && (
+          <div className="bkit-home-quick" role="group" aria-label="진행 중인 빠른 집중 관리">
+            <div className="bkit-home-quick-status">
+              <strong>{quick.segmentStart ? '집중 중' : '일시정지 중'}</strong>
+              <span>{quickClock(quickSeconds(quick, now))} 실제 집중</span>
+            </div>
+            <div className="bkit-home-quick-actions">
+              <button type="button" onClick={quick.segmentStart ? onQuickPause : onQuickResume}>
+                {quick.segmentStart ? '잠깐 멈추기' : '계속 공부하기'}
+              </button>
+              <button type="button" onClick={onQuickFinish}>끝내고 시간 저장</button>
+            </div>
+            <small>일시정지한 시간은 공부 시간에 포함되지 않아요. 저장 후에도 과제 완료·제출은 직접 확인해요.</small>
+          </div>
+        )}
+        {!busy && recent?.quick && now >= Date.parse(recent.ended) && now - Date.parse(recent.ended) < 30 * 60_000 && (
+          <div className="bkit-home-quick-receipt" role="status">
+            <strong>최근 집중 {quickClock(recent.seconds)} 저장됨</strong>
+            <button type="button" onClick={() => onNavigate('study')}>한 문제 다시 풀기 <ArrowRight size={15} aria-hidden="true" /></button>
+          </div>
+        )}
         {(nextAction.kind === 'sleep' || (sleepGuard.state.enabled && sleepGuard.status.phase !== 'day')) && (
           <SleepHomeActions guard={sleepGuard} busy={busy} onOpen={() => onNavigate(busy ? 'study' : 'sleep')} />
         )}

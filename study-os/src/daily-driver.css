@@ -338,6 +338,18 @@
 .bkit-action-first-actions button:hover { filter: brightness(1.05); }
 .bkit-action-first-actions button:focus-visible { outline: 3px solid #b5dbff; outline-offset: 3px; }
 .bkit-action-first > small { display: block; margin-top: 16px; color: #aebed1; font-size: 11px; line-height: 1.5; }
+.bkit-home-quick { margin-top: 17px; padding: 17px; border: 1px solid rgba(191,215,244,.27); border-radius: 17px; background: rgba(255,255,255,.065); }
+.bkit-home-quick-status { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+.bkit-home-quick-status span { font-variant-numeric: tabular-nums; color: #d0def0; }
+.bkit-home-quick-actions { display: flex; gap: 9px; flex-wrap: wrap; margin: 13px 0 9px; }
+.bkit-home-quick-actions button, .bkit-home-quick-receipt button { min-height: 44px; padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(223,235,255,.35); background: rgba(255,255,255,.12); color: #fff; font-weight: 700; cursor: pointer; }
+.bkit-home-quick-actions button:last-child { background: #eef6ff; color: #142840; border-color: #eef6ff; }
+.bkit-home-quick-actions button:focus-visible, .bkit-home-quick-receipt button:focus-visible { outline: 3px solid #a9d6ff; outline-offset: 3px; }
+.bkit-home-quick small { color: #b9cbe1; line-height: 1.5; font-size: 11px; }
+.bkit-home-quick-receipt { margin-top: 16px; padding: 13px 16px; border-radius: 15px; background: rgba(166,215,255,.12); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.bkit-home-quick-receipt strong { font-size: 13px; }
+.bkit-home-quick-receipt button { display: inline-flex; align-items: center; gap: 7px; }
+@media (max-width: 520px) { .bkit-home-quick { padding: 14px; } .bkit-home-quick-actions { flex-direction: column; } .bkit-home-quick-actions button, .bkit-home-quick-receipt button { width: 100%; justify-content: center; } }
 @media (max-width: 520px) {
   .bkit-action-first { border-radius: 22px; padding: 21px; }
   .bkit-action-first-actions { flex-direction: column; }

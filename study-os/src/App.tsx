@@ -2262,9 +2262,12 @@ export default function App() {
                 resource={resumeResource}
                 onStart={(id, minutes) => start(minutes ?? 5, id)}
                 onQuick={(minutes) => {
-                  beginQuick(minutes ? 'countdown' : 'stopwatch', minutes ?? 480);
-                  setTab('study');
+                  if (beginQuick(minutes ? 'countdown' : 'stopwatch', minutes ?? 480))
+                    setTab('study');
                 }}
+                onQuickPause={pauseQuickNow}
+                onQuickResume={resumeQuickNow}
+                onQuickFinish={finishQuickNow}
                 onNavigate={(route) => {
                   if (route === 'school') setDay(today);
                   setTab(route);
