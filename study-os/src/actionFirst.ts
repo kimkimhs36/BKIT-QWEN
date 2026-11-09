@@ -95,7 +95,10 @@ export type HomeStudyStart =
 
 export function resolveHomeStudyStart(action: HomeNextAction, taskId?: string): HomeStudyStart {
   if (action.kind !== 'study' || action.minutes === null) return null;
-  return taskId
-    ? { kind: 'task', taskId, minutes: action.minutes }
+  // Empty or whitespace-only identifiers must never create an orphan task session.
+  // Fall back to the existing quick-session flow without altering the user's task list.
+  const validTaskId = taskId?.trim();
+  return validTaskId
+    ? { kind: 'task', taskId: validTaskId, minutes: action.minutes }
     : { kind: 'quick', minutes: action.minutes };
 }
