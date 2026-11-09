@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { newState, type Session } from '../src/model';
 import { defaultSleep, type SleepRecord } from '../src/sleep';
-import { summarizeEvidenceWeek } from '../src/evidenceWeek';
+import { formatRecordedFocus, summarizeEvidenceWeek } from '../src/evidenceWeek';
 import { at, iso } from '../src/time';
 
 const today = '2026-11-09';
@@ -87,5 +87,19 @@ describe('7-day evidence based only on the learner’s existing records', () => 
     expect(result.days[6].actualBedEntered).toBe(true);
     expect(result.days[6].actualWakeEntered).toBe(false);
     expect(result.checkedPrepDays).toBe(0);
+  });
+});
+
+describe('honest display of short focus records', () => {
+  it('shows missing records separately from a saved 30-second attempt', () => {
+    expect(formatRecordedFocus(0)).toBe('미기록');
+    expect(formatRecordedFocus(30)).toBe('30초');
+    expect(formatRecordedFocus(59.9)).toBe('59초');
+  });
+  it('does not overstate fractional time and formats longer focus', () => {
+    expect(formatRecordedFocus(0.4)).toBe('1초 미만');
+    expect(formatRecordedFocus(60)).toBe('1분');
+    expect(formatRecordedFocus(3720)).toBe('1시간 2분');
+    expect(formatRecordedFocus(NaN)).toBe('미기록');
   });
 });
