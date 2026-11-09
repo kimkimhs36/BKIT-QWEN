@@ -1,0 +1,101 @@
+import { test, expect, type Page } from './local-fixture';
+import { newState, taskSchema, type State } from '../../src/model';
+
+// One action from the real home to the real durable study store on phone widths.
+// Chromium mobile emulation is not certification on a physical iPhone.
+test.use({ serviceWorkers: 'block', viewport: { width: 390, height: 844 }, hasTouch: true });
+test.setTimeout(60000);
+
+const key = 'bkit.study-os.v1';
+const read = (page: Page) =>
+  page.evaluate((name) => JSON.parse(localStorage.getItem(name)!), key);
+
+async function openFreshHome(page: Page, state: State) {
+  await page.clock.install({ time: new Date('2026-11-09T04:00:00Z') });
+  await page.clock.pauseAt(new Date('2026-11-09T04:00:01Z'));
+  await page.addInitScript((snapshot) => {
+    if (!localStorage.getItem('bkit.study-os.v1'))
+      localStorage.setItem('bkit.study-os.v1', JSON.stringify(snapshot));
+  }, state);
+  await page.goto('./');
+  await expect(page.getByRole('region', { name: '지금 할 일 한 가지' })).toBeVisible();
+}
+
+test('mobile home -> 10-minute focus -> pause -> reload -> resume -> one durable record', async ({ page }) => {
+  await openFreshHome(page, newState());
+  const action = page.getByRole('region', { name: '지금 할 일 한 가지' });
+  const go = action.getByRole('button', { name: '10분 집중 시작', exact: true });
+  await expect(go).toBeVisible();
+  const tapArea = await go.boundingBox();
+  expect(tapArea && tapArea.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+
+  await go.click();
+  const started = await read(page);
+  expect(started.quickTimer).toMatchObject({ mode: 'countdown', targetMinutes: 10 });
+  expect(started.active).toBeNull();
+
+  const timer = page.getByRole('region', { name: '바로 시작 타이머' });
+  await expect(timer.getByRole('button', { name: '일시정지' })).toBeVisible();
+  await page.clock.fastForward(77000);
+  await timer.getByRole('button', { name: '일시정지' }).click();
+  const paused = (await read(page)).quickTimer;
+  expect(paused.elapsed).toBeGreaterThanOrEqual(76);
+  expect(paused.segmentStart).toBeNull();
+
+  // Time spent in a paused/closed browser must never become fake study credit.
+  await page.clock.fastForward(6 * 60 * 1000);
+  await page.reload();
+  const reloaded = (await read(page)).quickTimer;
+  expect(reloaded.id).toBe(paused.id);
+  expect(Math.abs(reloaded.elapsed - paused.elapsed)).toBeLessThanOrEqual(1);
+  await timer.getByRole('button', { name: '이어하기' }).click();
+  await page.clock.fastForward(50000);
+  await timer.getByRole('button', { name: '끝내고 시간 저장' }).click();
+
+  const finished = await read(page);
+  expect(finished.quickTimer).toBeNull();
+  expect(finished.sessions).toHaveLength(1);
+  expect(finished.sessions[0].id).toBe(paused.id);
+  expect(finished.sessions[0].quick).toBe(true);
+  expect(finished.sessions[0].seconds).toBeGreaterThanOrEqual(126);
+  expect(finished.sessions[0].seconds).toBeLessThan(145);
+
+  await page.reload();
+  const persisted = await read(page);
+  expect(persisted.sessions).toEqual(finished.sessions);
+  expect(persisted.quickTimer).toBeNull();
+});
+
+test('mobile home recommendation begins the exact existing task and never claims submission', async ({ page }) => {
+  const s = newState();
+  s.tasks = [taskSchema.parse({
+    id: 'physics-homework', title: '역학 학습지 1문제', subject: '물리',
+    kind: '숙제', due: null, priority: 2, minutes: 25, remaining: 25,
+    status: 'todo', submitted: false, optional: false, notes: '', link: '',
+  })];
+  await openFreshHome(page, s);
+  const home = page.getByRole('region', { name: '지금 할 일 한 가지' });
+  await expect(home).toContainText('역학 학습지 1문제');
+  await home.getByRole('button', { name: '10분 집중 시작', exact: true }).click();
+
+  const active = await read(page);
+  expect(active.active).toMatchObject({
+    taskId: 'physics-homework', target: 10, subject: '물리',
+  });
+  expect(active.tasks[0].status).toBe('doing');
+  expect(active.tasks[0].submitted).toBe(false);
+
+  await page.clock.fastForward(65000);
+  await page.getByRole('button', { name: '학습량 기록 · 종료', exact: true }).click();
+  await page.getByRole('button', { name: '학습 기록 저장 · 종료', exact: true }).click();
+
+  const finished = await read(page);
+  expect(finished.active).toBeNull();
+  expect(finished.sessions).toHaveLength(1);
+  expect(finished.sessions[0].taskId).toBe('physics-homework');
+  expect(finished.sessions[0].seconds).toBeGreaterThanOrEqual(64);
+  expect(finished.tasks[0].submitted).toBe(false);
+  await page.reload();
+  expect((await read(page)).sessions).toEqual(finished.sessions);
+});
