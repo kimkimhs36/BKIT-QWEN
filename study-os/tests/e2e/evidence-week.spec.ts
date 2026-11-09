@@ -3,7 +3,7 @@ import { newState, scheduleSchema, type State } from '../../src/model';
 import { defaultSleep, SLEEP_KEY, type SleepState } from '../../src/sleep';
 import { at, iso } from '../../src/time';
 
-test.use({ serviceWorkers: 'block', viewport: { width: 390, height: 844 }, hasTouch: true });
+test.use({ serviceWorkers: 'block', viewport: { width: 390, height: 844 }, hasTouch: true, timezoneId: 'Asia/Seoul' });
 test.setTimeout(60000);
 const stateKey = 'bkit.study-os.v1';
 const evidence = (page: Page) => page.getByRole('region', { name: '최근 7일 실제 행동 확인' });
