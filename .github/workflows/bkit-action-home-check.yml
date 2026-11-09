@@ -8,7 +8,9 @@ on:
       - 'study-os/src/SleepHomeActions.tsx'
       - 'study-os/src/homeSleepSteps.ts'
       - 'study-os/src/actionFirst.ts'
+      - 'study-os/src/homeDueReview.ts'
       - 'study-os/tests/actionFirst.test.ts'
+      - 'study-os/tests/homeDueReview.test.ts'
       - 'study-os/tests/homeSleepSteps.test.ts'
       - 'study-os/src/App.tsx'
       - 'study-os/src/daily-driver.css'
@@ -39,7 +41,7 @@ jobs:
           cache-dependency-path: study-os/package-lock.json
       - run: npm ci --no-audit --no-fund
       - name: Focused user-behavior regression
-        run: npx vitest run tests/actionFirst.test.ts tests/homeSleepSteps.test.ts
+        run: npx vitest run tests/actionFirst.test.ts tests/homeSleepSteps.test.ts tests/homeDueReview.test.ts
       - name: TypeScript and production build
         run: npm run build
       - name: Verify real-app static bundle integrity
