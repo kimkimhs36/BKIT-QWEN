@@ -39,12 +39,13 @@ test('public mobile preview can save focus and immediately start an independent 
   expect(snapshot.records[0].seconds).toBeGreaterThanOrEqual(64);
   expect(snapshot.canonical).toBe('do-not-touch');
 
+  await page.getByRole('textbox', { name: '다시 풀 문제 (선택)' }).fill('수학 학습지 3쪽 4번');
   await retry.click();
   let active = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('bkit-action-preview-active-v1') || 'null'),
   );
   expect(active.target).toBe(300);
-  expect(active.topic).toBe('방금 문제 독립 재풀이');
+  expect(active.topic).toBe('수학 학습지 3쪽 4번');
 
   await page.clock.fastForward(21_000);
   await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
@@ -68,7 +69,7 @@ test('public mobile preview can save focus and immediately start an independent 
     canonical: localStorage.getItem('bkit.study-os.v1'),
   }));
   expect(snapshot.records).toHaveLength(2);
-  expect(snapshot.records[1].topic).toBe('방금 문제 독립 재풀이');
+  expect(snapshot.records[1].topic).toBe('수학 학습지 3쪽 4번');
   expect(snapshot.records[1].seconds).toBeGreaterThanOrEqual(28);
   expect(snapshot.records[1].seconds).toBeLessThan(40);
   expect(snapshot.canonical).toBe('do-not-touch');
