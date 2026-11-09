@@ -7,7 +7,9 @@ import {
   type AttemptMeta,
   type ErrorTag,
   type ProblemSourceMeta,
+  reviewInterval,
 } from './problemReview';
+import { addDays, dayKey } from './time';
 
 type Active = NonNullable<State['active']>;
 type Workspace = NonNullable<Active['workspace']>;
@@ -138,6 +140,12 @@ export function ProblemWorkspace({
                 ))}
               </ol>
             </details>
+          )}
+          {last && last.selfCheck !== 'unreviewed' && (
+            <p className="problem-next-review" role="status">
+              다음 독립 복습 권장일: <strong>{addDays(dayKey(last.submittedAt), reviewInterval(last))}</strong>
+              {' '}· 직접 확인한 답에 따른 제안이에요. 실제 재풀이·알림 완료를 의미하지 않아요.
+            </p>
           )}
           {last?.selfCheck === 'unreviewed' ? (
             <div className="problem-selfcheck" role="group" aria-label="직접 확인한 답">
