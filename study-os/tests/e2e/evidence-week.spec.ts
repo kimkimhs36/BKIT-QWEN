@@ -154,3 +154,24 @@ test('school boundary blocks a long quick timer and caps a shorter stopwatch at 
   expect(stopped.elapsed).toBeLessThanOrEqual(421);
   expect((await read(page)).sessions).toHaveLength(0);
 });
+
+test('a scheduled class makes weekly CTA open the actual schedule instead of a failed timer', async ({ page }, testInfo) => {
+  const state = newState();
+  state.schedules = [scheduleSchema.parse({
+    id:'verified-school', title:'물리 수업', subject:'물리', kind:'school',
+    days:[1], start:'14:00', end:'15:00', prep:0, travel:0, buffer:0,
+    materials:'', date:null, excluded:[],
+  })];
+  await seed(page, state, defaultSleep(), '2026-11-09T05:30:00Z'); // Monday 14:30 KST
+  await openEvidence(page);
+  const panel = evidence(page);
+  await expect(panel).toContainText('물리 수업 시간이에요');
+  await expect(panel.getByRole('button', { name: '오늘 일정 확인' })).toBeVisible();
+  await expect(panel.getByRole('button', { name: '자율 학습 5분 시작' })).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath('evidence-schedule-synthetic.png'), fullPage: true });
+  await panel.getByRole('button', { name: '오늘 일정 확인' }).click();
+  await expect(page.getByRole('region', { name: '지금 할 일 한 가지' })).toBeVisible();
+  expect((await read(page)).active).toBeNull();
+  expect((await read(page)).quickTimer).toBeNull();
+  expect((await read(page)).sessions).toHaveLength(0);
+});
