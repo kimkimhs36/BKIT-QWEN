@@ -58,6 +58,14 @@ describe('home next action', () => {
   it('does not start new study when a fixed activity is blocking', () => {
     expect(chooseHomeNextAction(now, { ...basic, unavailable: '학교 수업' })).toMatchObject({ kind: 'blocked', minutes: null });
   });
+  it('does not start a nominal five-minute block with only two minutes before an appointment', () => {
+    const action = chooseHomeNextAction(now, { ...basic, next: { start: now + 2 * 60_000 }, task: { subject: '수학', title: '숙제' } });
+    expect(action).toMatchObject({ kind: 'blocked', minutes: null });
+    expect(resolveHomeStudyStart(action, 'math-1')).toBeNull();
+  });
+  it('still allows exactly five minutes before the next appointment', () => {
+    expect(chooseHomeNextAction(now, { ...basic, next: { start: now + 5 * 60_000 } })).toMatchObject({ kind: 'study', minutes: 5 });
+  });
   it('shortens a study block when there are only five to nine minutes before the next fixed event', () => {
     expect(chooseHomeNextAction(now, { ...basic, next: { start: now + 8 * 60_000 } })).toMatchObject({ kind: 'study', minutes: 5 });
   });
