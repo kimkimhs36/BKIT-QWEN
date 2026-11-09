@@ -1000,8 +1000,13 @@ export default function App() {
   const [historyEditingId, setHistoryEditingId] = useState<string | null>(null);
   const [deletedStudyRecords, setDeletedStudyRecords] = useState<Session[] | null>(null);
   const quickToday = quickDaySeconds(s, now);
-  function beginQuick(mode: 'stopwatch' | 'countdown', target: number, independentRetry = false) {
-    if (!flushLearning(() => beginQuick(mode, target, independentRetry))) return false;
+  function beginQuick(
+    mode: 'stopwatch' | 'countdown',
+    target: number,
+    independentRetry = false,
+    retryProblem = '',
+  ) {
+    if (!flushLearning(() => beginQuick(mode, target, independentRetry, retryProblem))) return false;
     if (memory.current.active || memory.current.quickTimer) {
       setNotice('기존 타이머가 진행 중입니다. 먼저 마무리해 주세요.');
       return false;
@@ -1033,7 +1038,25 @@ export default function App() {
       const next = startQuick(v, mode, target, started, sessionId);
       // One atomic state write: the retry opens the existing problem workspace,
       // rather than creating an unlinked demo clock or a second running session.
-      return independentRetry ? attachQuickStudy(next) : next;
+      if (!independentRetry) return next;
+      const attached = attachQuickStudy(next);
+      const chosenProblem = retryProblem.trim().slice(0, 200);
+      if (!chosenProblem || !attached.active) return attached;
+      // Only the learner's explicit problem description is carried into
+      // their durable problem workspace. No invented accuracy or submission.
+      return {
+        ...attached,
+        active: {
+          ...attached.active,
+          action: '직접 선택한 문제 독립 재풀이',
+          workspace: {
+            problem: chosenProblem,
+            source: '직접 입력',
+            sourceType: 'user-note' as const,
+            attempts: [],
+          },
+        },
+      };
     });
     if (saved) {
       if (independentRetry) {
@@ -1148,7 +1171,7 @@ export default function App() {
     editingId: quickEditingId,
     focusBusy: !!s.active,
     onStart: beginQuick,
-    onIndependentRetry: () => beginQuick('countdown', 5, true),
+    onIndependentRetry: (problem?: string) => beginQuick('countdown', 5, true, problem),
     onPause: pauseQuickNow,
     onResume: resumeQuickNow,
     onFinish: finishQuickNow,
