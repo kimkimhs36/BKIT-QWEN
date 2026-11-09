@@ -1051,8 +1051,9 @@ export default function App() {
           action: '직접 선택한 문제 독립 재풀이',
           workspace: {
             problem: chosenProblem,
-            source: '직접 입력',
-            sourceType: 'user-note' as const,
+            // A typed worksheet reference is not necessarily a user-authored note.
+            // Leave the source unknown until the learner explicitly supplies it.
+            source: '',
             attempts: [],
           },
         },
