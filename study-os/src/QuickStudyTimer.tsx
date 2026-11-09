@@ -90,6 +90,17 @@ export function QuickStudyTimer({
           오늘 기록한 시간 <strong>{quickClock(todaySeconds)}</strong>
         </span>
       </header>
+      {!timer && !focusBusy && last?.quick &&
+        Date.parse(last.ended) <= now && now - Date.parse(last.ended) < 30 * 60_000 && (
+        <div className="quick-timer-retry" aria-label="저장한 공부 다음 행동">
+          <span className="quick-timer-retry-step">NEXT · 한 문제만</span>
+          <p>시간은 저장됐어요. 방금 공부한 문제를 해설 없이 한 번 더 풀어볼까요?</p>
+          <button type="button" className="primary" onClick={onIndependentRetry}>
+            <Play size={16} aria-hidden="true" /> 혼자 다시 풀기 · 5분
+          </button>
+          <small>새로운 5분 기록으로 시작합니다. 정답·과제 완료·제출 여부는 직접 확인해요.</small>
+        </div>
+      )}
       {!timer ? (
         <div className="quick-timer-idle">
           <div className="quick-timer-modes" role="group" aria-label="빠른 타이머 종류">
@@ -236,17 +247,6 @@ export function QuickStudyTimer({
               )}
             </details>
           )}
-        </div>
-      )}
-      {!timer && !focusBusy && last?.quick &&
-        Date.parse(last.ended) <= now && now - Date.parse(last.ended) < 30 * 60_000 && (
-        <div className="quick-timer-retry" aria-label="저장한 공부 다음 행동">
-          <span className="quick-timer-retry-step">NEXT · 한 문제만</span>
-          <p>시간은 저장됐어요. 방금 공부한 문제를 해설 없이 한 번 더 풀어볼까요?</p>
-          <button type="button" className="primary" onClick={onIndependentRetry}>
-            <Play size={16} aria-hidden="true" /> 혼자 다시 풀기 · 5분
-          </button>
-          <small>새로운 5분 기록으로 시작합니다. 정답·과제 완료·제출 여부는 직접 확인해요.</small>
         </div>
       )}
       {!timer && last?.quick && (editingId === last.id || expanded || showEditor) && (
