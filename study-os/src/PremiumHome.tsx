@@ -152,17 +152,25 @@ export function PremiumHome({
   );
   return (
     <div className="study-home">
-      <section className="bkit-action-first" aria-label="지금 할 일 한 가지">
+      <section className="study-start bkit-action-first" aria-label="지금 할 일 한 가지" data-home-action={nextAction.kind}>
         <div className="bkit-action-first-top">
           <span className="bkit-action-first-overline">BKIT · NEXT MOVE</span>
           <span className="bkit-action-first-status">{nextAction.kind === 'sleep' ? '휴식 우선' : nextAction.kind === 'resume' ? '진행 중' : nextAction.kind === 'blocked' ? '일정 보호' : '지금 시작 가능'}</span>
         </div>
         <h2>{nextAction.title}</h2>
         <p>{nextAction.detail}</p>
+        {nextAction.kind === 'study' && pending[0] && (
+          <small className="study-recommendation-reason">
+            {firstLearningAction(pending[0])} · {recommendationReason(pending[0], now)}
+          </small>
+        )}
+        <button type="button" className="study-text-link bkit-action-assistant" onClick={onAssistant}>
+          BKIT AI 비서에게 물어보기 <ArrowRight size={15} aria-hidden="true" />
+        </button>
         <div className="bkit-action-first-actions">
           <button
             type="button"
-            className="bkit-action-first-primary"
+            className="study-start-primary bkit-action-first-primary"
             onClick={() => {
               if (nextAction.kind === 'sleep') onNavigate(busy ? 'study' : 'sleep');
               else if (nextAction.kind === 'resume') onNavigate('study');
@@ -176,12 +184,17 @@ export function PremiumHome({
           </button>
           <button
             type="button"
-            className="bkit-action-first-secondary"
+            className="study-start-five bkit-action-first-secondary"
             onClick={() => onNavigate('sleep')}
           >
             {nextAction.kind === 'sleep' ? '수면 기록 확인' : '수면 루틴'}
             <ChevronRight size={16} aria-hidden="true" />
           </button>
+          {nextAction.kind === 'study' && (
+            <button type="button" className="study-start-five bkit-action-five" onClick={() => onQuick(5)}>
+              5분만 시작하기
+            </button>
+          )}
         </div>
         {quick && (
           <div className="bkit-home-quick" role="group" aria-label="진행 중인 빠른 집중 관리">
@@ -379,53 +392,6 @@ export function PremiumHome({
         </section>
       )}
 
-      <section className="study-start" aria-label="바로 공부 시작">
-        <div className="study-start-copy">
-          <h2>{busy ? '공부 이어하기' : '공부 시작'}</h2>
-          <p>
-            {busy
-              ? `${active?.subject || '자율 학습'} · ${quickClock(seconds)}`
-              : pending[0]
-                ? `${pending[0].subject} · ${pending[0].title}`
-                : '타이머를 켜고, 가볍게 시작해요.'}
-          </p>
-          {!busy && pending[0] && (
-            <small className="study-recommendation-reason">
-              {firstLearningAction(pending[0])} · {recommendationReason(pending[0], now)}
-            </small>
-          )}
-          <button type="button" className="study-text-link" onClick={onAssistant}>
-            BKIT AI 비서에게 물어보기 <ArrowRight size={15} aria-hidden="true" />
-          </button>
-        </div>
-        <div className="study-start-actions">
-          <button
-            disabled={!busy && !!unavailable}
-            className="study-start-primary"
-            onClick={() =>
-              busy ? onNavigate('study') : pending[0] ? onStart(pending[0].id) : onQuick()
-            }
-          >
-            <Play size={18} fill="currentColor" aria-hidden="true" />
-            {busy ? '공부 이어가기' : '지금 공부 시작'}
-            <ArrowRight size={18} aria-hidden="true" />
-          </button>
-          {!busy && (
-            <button
-              disabled={!!unavailable}
-              className="study-start-five"
-              onClick={() => onQuick(5)}
-            >
-              5분만 시작하기
-            </button>
-          )}
-        </div>
-        {!busy && unavailable && (
-          <p role="status">
-            {unavailable} 과제는 그대로예요. <button onClick={onRecover}>남은 계획 재조정</button>
-          </p>
-        )}
-      </section>
       <section className="study-agenda" aria-label="오늘 해야 할 일">
         {pending.length > 0 && (
           <div className="study-section-heading">
