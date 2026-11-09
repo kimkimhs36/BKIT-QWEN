@@ -83,6 +83,9 @@ test('saved quick focus offers an immediate independent five-minute problem retr
   expect(before.sessions[0].seconds).toBeGreaterThanOrEqual(60);
   const retry = quick.getByRole('button', { name: '혼자 다시 풀기 · 5분' });
   await expect(retry).toBeVisible();
+  const nextMove = await retry.boundingBox();
+  const genericStart = await quick.getByRole('button', { name: '지금 시작', exact: true }).boundingBox();
+  expect(nextMove?.y ?? Infinity).toBeLessThan(genericStart?.y ?? -Infinity);
   // Actual compiled BKIT screen, with only synthetic session data.
   await retry.scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('post-focus-retry-synthetic.png') });
