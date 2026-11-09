@@ -21,7 +21,14 @@ export default defineConfig(({ mode }) => ({
       apply: 'build',
       async closeBundle() {
         await writeFile('dist/build-info.json', JSON.stringify({
-          sourceCommit: process.env.VERCEL_GIT_COMMIT_SHA || execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+          sourceCommit: process.env.VERCEL_GIT_COMMIT_SHA || process.env.BKIT_SOURCE_COMMIT || (() => {
+            try {
+              return execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+            } catch {
+              // ZIP-based local previews have no Git metadata. Never fabricate a commit SHA.
+              return 'untracked-local-build';
+            }
+          })(),
           environment: process.env.VERCEL_ENV || 'local-verified-build',
         }, null, 2) + '\n');
         // Keep OCR out of the initial app shell. Only a user tap downloads the

@@ -9,7 +9,7 @@ import { MaterialSettings } from './themes/MaterialSettings';
 import { AnimatedClock } from './AnimatedClock';
 import { MaterialEffects } from './themes/MaterialEffects';
 import { RecordOverview } from './RecordOverview';
-import { EvidenceWeek } from './EvidenceWeek';
+import { EvidenceWeek } from './EvidenceWeekPanel';
 import { StudyRecordManager } from './StudyRecordManager';
 import {
   discardUnsavedTimer,
@@ -196,7 +196,7 @@ const StudyCalendar = lazy(() =>
   import('./StudyCalendar').then((m) => ({ default: m.StudyCalendar })),
 );
 const HelpCenter = lazy(() => import('./HelpCenter').then((m) => ({ default: m.HelpCenter })));
-const Books = lazy(() => import('./Books').then((m) => ({ default: m.Books })));
+const Books = lazy(() => import('./BooksPanel').then((m) => ({ default: m.Books })));
 const ExamLab = lazy(() => import('./ExamLab').then((m) => ({ default: m.ExamLab })));
 
 
@@ -216,7 +216,7 @@ const SleepGuard = lazy(() => import('./SleepGuard').then((m) => ({ default: m.S
 const MoreHub = lazy(() => import('./MoreHub').then((m) => ({ default: m.MoreHub })));
 const ExamPanel = lazy(() => import('./ExamPanel').then((m) => ({ default: m.ExamPanel })));
 const LearningEvidence = lazy(() =>
-  import('./LearningEvidence').then((m) => ({ default: m.LearningEvidence })),
+  import('./LearningEvidencePanel').then((m) => ({ default: m.LearningEvidence })),
 );
 const ProblemReviewQueue = lazy(() =>
   import('./ProblemReviewQueue').then((m) => ({ default: m.ProblemReviewQueue })),
@@ -243,7 +243,7 @@ const AIZone = lazy(() => import('./AIZone').then((m) => ({ default: m.AIZone })
 const SubjectWorkspace = lazy(() =>
   import('./SubjectWorkspace').then((m) => ({ default: m.SubjectWorkspace })),
 );
-const SchoolInbox = lazy(() => import('./SchoolInbox').then((m) => ({ default: m.SchoolInbox })));
+const SchoolInbox = lazy(() => import('./SchoolInboxPanel').then((m) => ({ default: m.SchoolInbox })));
 const SchoolTimetable = lazy(() =>
   import('./SchoolTimetable').then((m) => ({ default: m.SchoolTimetable })),
 );
