@@ -75,7 +75,7 @@ export function chooseHomeNextAction(
     };
   }
 
-  const minutes: 5 | 10 = next && next.start - now < 10 * 60_000 ? 5 : 10;
+  const minutes: 5 | 10 = next && next.start > now && next.start - now < 10 * 60_000 ? 5 : 10;
   return {
     kind: 'study',
     title: task ? task.subject + ' · ' + task.title : '질문 하나부터 바로 시작',
