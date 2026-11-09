@@ -865,6 +865,8 @@ export default function App() {
     [s, today],
   );
   const dueProblems = problemQueue.overdue.length + problemQueue.today.length + resourceDue.length;
+  const hasDueProblemReview = problemQueue.overdue.length + problemQueue.today.length > 0;
+  const hasDueSessionReview = reviewQueue.due.length > 0;
   const resumeResource = learning(s)
     .resources.filter((r) => !r.archived && resourceProgress(learning(s), r.id).remainingCount > 0)
     .sort((a, b) => (b.lastOpenedAt ?? '').localeCompare(a.lastOpenedAt ?? ''))[0];
@@ -2739,6 +2741,28 @@ export default function App() {
             )}
             {tab === 'progress' && (
               <>
+                {(hasDueProblemReview || hasDueSessionReview) && (
+                  <section className="bkit-review-now" aria-label="지금 독립 재풀이">
+                    <div className="bkit-review-now-intro">
+                      <span>BKIT / RECALL FIRST</span>
+                      <h2>지금 다시 풀 문제</h2>
+                      <p>이전에 직접 기록한 오답만 보여줘요. 먼저 답을 떠올리고, 확인은 스스로 해 주세요.</p>
+                    </div>
+                    {hasDueProblemReview && (
+                      <Suspense fallback={<p role="status">문제별 복습을 여는 중…</p>}>
+                        <ProblemReviewQueue
+                          state={s}
+                          today={today}
+                          onAttempt={recordProblemRetest}
+                          onCheck={checkProblemRetest}
+                        />
+                      </Suspense>
+                    )}
+                    {hasDueSessionReview && (
+                      <ReviewDeck queue={reviewQueue} onReview={handleReview} />
+                    )}
+                  </section>
+                )}
                 <RecordOverview
                   sessions={s.sessions}
                   today={today}
@@ -2767,14 +2791,16 @@ export default function App() {
                     <Suspense fallback={<p role="status">학습 증거를 여는 중…</p>}>
                       <LearningEvidence state={s} today={today} />
                     </Suspense>
-                    <Suspense fallback={<p role="status">복습 문제를 여는 중…</p>}>
-                      <ProblemReviewQueue
-                        state={s}
-                        today={today}
-                        onAttempt={recordProblemRetest}
-                        onCheck={checkProblemRetest}
-                      />
-                    </Suspense>
+                    {!hasDueProblemReview && (
+                      <Suspense fallback={<p role="status">복습 문제를 여는 중…</p>}>
+                        <ProblemReviewQueue
+                          state={s}
+                          today={today}
+                          onAttempt={recordProblemRetest}
+                          onCheck={checkProblemRetest}
+                        />
+                      </Suspense>
+                    )}
                     {s.sessions.some((entry) => entry.workspace?.attempts.length) && (
                       <section className="panel problem-history">
                         <div className="section-head">
