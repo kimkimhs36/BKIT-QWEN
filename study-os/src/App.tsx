@@ -619,21 +619,22 @@ export default function App() {
   const foregroundAt = useRef(iso(Date.now()));
   const shownRecommendations = useRef(new Set<string>());
   useEffect(() => {
+    const pauseForBackground = () => {
+      // iOS Safari can navigate away without a reliable visibilitychange.
+      // pagehide is a second chance to close the same segment; the state
+      // updater checks segmentStart again so duplicate events stay idempotent.
+      const current = memory.current;
+      if (!current.active?.segmentStart && !current.quickTimer?.segmentStart) return;
+      const stoppedAt = Date.now();
+      commit((state) => ({
+        ...pauseQuick(state, stoppedAt),
+        active: state.active?.segmentStart
+          ? closeSegment(state.active, stoppedAt)
+          : state.active,
+      }));
+    };
     const visible = () => {
-      if (document.visibilityState === 'hidden') {
-        // A backgrounded browser cannot prove continued attention. Preserve
-        // elapsed foreground segments and require an explicit resume tap.
-        const current = memory.current;
-        if (current.active?.segmentStart || current.quickTimer?.segmentStart) {
-          const stoppedAt = Date.now();
-          commit((state) => ({
-            ...pauseQuick(state, stoppedAt),
-            active: state.active?.segmentStart
-              ? closeSegment(state.active, stoppedAt)
-              : state.active,
-          }));
-        }
-      }
+      if (document.visibilityState === 'hidden') pauseForBackground();
       if (document.visibilityState === 'visible') {
         foregroundAt.current = iso(Date.now());
         shownRecommendations.current.clear();
@@ -641,7 +642,11 @@ export default function App() {
       }
     };
     document.addEventListener('visibilitychange', visible);
-    return () => document.removeEventListener('visibilitychange', visible);
+    window.addEventListener('pagehide', pauseForBackground);
+    return () => {
+      document.removeEventListener('visibilitychange', visible);
+      window.removeEventListener('pagehide', pauseForBackground);
+    };
   }, []);
   const storedRaw = useRef(initial.raw);
   const memory = useRef(s);
