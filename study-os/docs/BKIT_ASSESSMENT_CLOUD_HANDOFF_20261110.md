@@ -1,0 +1,52 @@
+# TEAM BKIT — PC-OFF CONTINUATION HANDOFF
+**Updated:** 2026-11-10 KST · **Product:** TEAM BKIT / `study-os` (not `TEAM_BKIT_LAB`, `bkit-focus`, or TOHEŞAR)
+
+## Source of truth and safe branch lineage
+- GitHub: `kimkimhs36/BKIT-QWEN` — the authoritative, durable source.
+- Production `main` last confirmed `371226acbbcf3043913d9d8fbaf1312489510414`. Recheck; do **not** merge or deploy production without explicit user approval.
+- Assessment rescue base: `preview/bkit-assessment-rescue-20261110` at `d866339acad3a3f5650b284a946c6c9c7c324350` (already includes assessment list + linked 5-minute focus).
+- This change: `preview/bkit-notice-capture-20261110` feature commit **`afb8cbeb7d4a5d7156dd1d1c7429daf94f620a08`**; this document may create a later doc-only HEAD.
+- Review PR **#56** targets the assessment rescue branch, **not main**: https://github.com/kimkimhs36/BKIT-QWEN/pull/56 . Draft, unmerged.
+- Vercel team `teambkit`, non-production preview project `bkit-study-os-36-preview` (`prj_aRPnZINoxqmwueu8XHUYMcRbJzhF`); deployment `dpl_FnVNctcHJvC63t6TpAwJNctt4696` pinned to feature commit. Reverify READY and HTTP/browser route before claiming preview works. Root URL: https://bkit-study-os-36-preview-hfshdd1e4-teambkit.vercel.app/ . This is **not** teambkit.com.
+
+## User problem and product intent
+User reported multiple severely unsuccessful school performance assessments and, more urgently, not knowing which assessments exist. **Do not fabricate the four assessment subjects, grades, actual due dates, or submissions.** Optimize a real behavior: find school notice → save original → inspect and explicitly confirm each task → see deadline/submission state → optionally start one five-minute block. Feature count, PR count, and preview views are not learning improvement.
+
+## Completed feature behavior
+1. Real `PremiumHome` assessment rescue panel has **복사한 공지 한 번에 보관**, opening the actual `SchoolInboxPanel` on the copied notice. If clipboard is blocked, the user receives feedback and can use **공지함 · 직접 붙여넣기**.
+2. `homeNoticeCapture.ts` reuses `prepareNoticePaste`, validates `inboxSchema`, checks duplicate content, refuses malformed existing inboxes/oversized/blank text, checks optimistic raw state before writing, and traps quota/read errors. School notices are stored under existing device-only `bkit.school-inbox.v1`; the user’s `bkit.study-os.v1` tasks and due fields are **not** changed during notice import.
+3. `App.tsx` routes directly to the selected notice via `onOpenNotice`; existing `SchoolInboxPanel` requires manual task title and **원본의 이 과제와 마감을 대조했어요** confirmation before creating a linked assessment. Linked notice/task and reload tested.
+4. A completed-but-not-submitted assessment now offers **제출 확인**, not an irrelevant second five-minute study session; the action opens existing editor without auto-submitting.
+5. Existing original BKIT material themes, BOOKS, Exam Lab, Sleep Guard, account paths and study storage contracts are preserved; no migration, deletion, data export, secret alteration, external messaging or paid AI use.
+
+### Changed feature files
+- `study-os/src/homeNoticeCapture.ts` (new)
+- `study-os/src/PremiumHome.tsx`
+- `study-os/src/App.tsx`
+- `study-os/src/daily-driver.css`
+- `study-os/tests/homeNoticeCapture.test.ts` (new)
+- `study-os/tests/e2e/home-notice-capture.spec.ts` (new)
+- `study-os/tests/homeQuickFlow.test.ts` (only mock props updated)
+
+## Actual verification on TEAM-BKIT Windows (feature commit)
+- Focused Vitest `tests/homeNoticeCapture.test.ts tests/noticePaste.test.ts tests/assessmentRescue.test.ts`: **18/18 PASS**.
+- Full Vitest: **464/465 PASS**, 1 failing pre-existing `tests/examsSleepIntegration.test.ts` at line 67 comparing 19:55 vs 20:00 sleep boundary; exit 1. **Not caused by this feature.** Do not spend a third execution solely re-auditing the same old failure.
+- `npm run typecheck`: exit **0**.
+- `npm run build`: exit **0**.
+- iPhone 13-sized Chrome Playwright against local isolated preview: **3/3 PASS**; cases: saved original → manual task conversion → reload; clipboard permission denied → manual path; completed-but-unsubmitted action without false state change. A first test attempt failed from a test fixture unconditionally resetting localStorage on reload; fixture corrected and rerun green.
+- A physical iPhone/Safari test and user’s 7+ day real use have NOT been verified; simulated iPhone is not physical-device certification.
+
+## PC OFF = GitHub/Vercel cloud-first, no dependency on local checkout
+1. First verify latest GitHub PR #56 head SHA, parent assessment branch SHA, active GitHub Actions/CI, and any concurrent agents. If HEAD moved, read the new diff and **never force-push or clobber changes**.
+2. When the Desktop Commander device is offline, **do not wait for the user's PC to reconnect**. Use connected GitHub file/edit/commit/branch APIs to make small, independently testable safe changes on a newly isolated branch from the latest verified feature SHA; use connected Vercel **preview-only** Git deployments for actual build/URL QA. GitHub and Vercel APIs do not require the user's powered-on computer; this does **not** guarantee that an automation will execute if its own scheduler or connector is unavailable.
+3. Never claim CI tests executed when only source was edited. Prefer existing Vercel build status, GitHub Actions and connected cloud sandbox tooling for execution. If execution is unavailable, state it explicitly and leave reviewable code + a focused regression test.
+4. Record each meaningful change in GitHub along with exact commit SHA, changed paths, test exit codes, confirmed preview status and one user-visible next action. Keep the parent PR as a Draft; avoid creating duplicate PRs each hour.
+5. If using a local worktree when PC happens to be online: `C:\Users\kimki\Documents\Codex\BKIT_NOTICE_CAPTURE_20261110`. Its `node_modules` is a junction into another local checkout; **this path is optional**, not the source of truth. Never depend on any untracked local log or process for future continuity.
+
+## Next highest-value vertical task (do one, not a dashboard redesign)
+**Confirm that the cloud preview of the exact feature SHA actually works after a full browser reload and after clipboard denial**, and that the existing School Inbox and complete ZIP backup preserve original notice text and linked assessment without merging device-local originals into cloud-v2 study records. If the preview already passes, improve what prevents the user from finding school assignments; do not invent a school integration. Choose another bottleneck only when evidence warrants it.
+
+## Release & privacy limits
+- No `main` merge, teambkit.com deployment, domain change, auth/API secret action, destructive storage migration, paid credit use or outgoing message without user approval.
+- Never infer sleep amount, scores, assessment completion or actual submission from a button click.
+- Preview localStorage belongs to preview origin and will not automatically carry over from teambkit.com. School notice originals remain device-local; explicitly backed-up ZIP import is the supported cross-device route.
