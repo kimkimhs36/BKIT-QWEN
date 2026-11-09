@@ -20,6 +20,8 @@ on:
       - 'study-os/tests/e2e/action-first-mobile.spec.ts'
       - 'study-os/tests/homeSleepSteps.test.ts'
       - 'study-os/src/App.tsx'
+      - 'study-os/src/QuickStudyTimer.tsx'
+      - 'study-os/src/quick-timer.css'
       - 'study-os/src/daily-driver.css'
       - '.github/workflows/bkit-action-home-check.yml'
   workflow_dispatch:
@@ -48,7 +50,15 @@ jobs:
           cache-dependency-path: study-os/package-lock.json
       - run: npm ci --no-audit --no-fund
       - name: Focused user-behavior regression
-        run: npx vitest run tests/actionFirst.test.ts tests/homeSleepSteps.test.ts tests/homeDueReview.test.ts tests/evidenceWeek.test.ts tests/evidenceNextAction.test.ts
+        run: npx vitest run tests/actionFirst.test.ts tests/homeSleepSteps.test.ts tests/homeDueReview.test.ts tests/evidenceWeek.test.ts tests/evidenceNextAction.test.ts tests/quickTimer.test.ts
+      - name: Full unit regression (diagnostic)
+        continue-on-error: true
+        run: |
+          set +e
+          npx vitest run
+          status=$?
+          echo "Full unit regression exit code: $status" | tee -a "$GITHUB_STEP_SUMMARY"
+          exit "$status"
       - name: TypeScript and production build
         run: npm run build
       - name: Install Chromium for mobile scenario
