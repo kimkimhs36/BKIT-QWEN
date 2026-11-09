@@ -979,6 +979,18 @@ export default function App() {
     )
       setNotice(boundary.title + '에 맞춰 타이머를 멈췄습니다. 실제 공부한 양만 기록하세요.');
   }, [now, s.active, sleep.state]);
+  // The unlinked one-tap timer must be capped at school/meal/bedtime too,
+  // otherwise the quick path can silently accrue time through a protected block.
+  useEffect(() => {
+    const timer = s.quickTimer;
+    if (!timer?.segmentStart) return;
+    const started = Date.parse(timer.segmentStart);
+    const boundary = protectedBoundary(
+      s, started, now, sleepConstraints(sleep.state, started, now),
+    );
+    if (boundary && commit((v) => pauseQuick(v, boundary.at)))
+      setNotice(boundary.title + ' 시작에 맞춰 빠른 타이머를 일시정지했어요. 기존 공부 시간은 유지됩니다.');
+  }, [now, s.quickTimer, sleep.state]);
   const canStudy = !current;
   const seconds = s.active ? elapsed(s.active, now) : 0;
   const quickElapsed = s.quickTimer ? quickSeconds(s.quickTimer, now) : 0;
