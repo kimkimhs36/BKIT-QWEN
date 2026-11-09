@@ -63,6 +63,9 @@ describe('home next action', () => {
     expect(action).toMatchObject({ kind: 'blocked', minutes: null });
     expect(resolveHomeStudyStart(action, 'math-1')).toBeNull();
   });
+  it('ignores an elapsed appointment instead of incorrectly shortening focus to five minutes', () => {
+    expect(chooseHomeNextAction(now, { ...basic, next: { start: now - 60_000 } })).toMatchObject({ kind: 'study', minutes: 10 });
+  });
   it('still allows exactly five minutes before the next appointment', () => {
     expect(chooseHomeNextAction(now, { ...basic, next: { start: now + 5 * 60_000 } })).toMatchObject({ kind: 'study', minutes: 5 });
   });
