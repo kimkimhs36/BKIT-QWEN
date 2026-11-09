@@ -1,6 +1,6 @@
 import type { State } from './model';
 import type { SleepState } from './sleep';
-import { summarizeEvidenceWeek } from './evidenceWeek';
+import { formatRecordedFocus, summarizeEvidenceWeek } from './evidenceWeek';
 
 type Props = {
   state: State;
@@ -44,7 +44,7 @@ export function EvidenceWeek({
             role="listitem"
           >
             <time dateTime={item.day}>{item.day.slice(5).replace('-', '.')}</time>
-            <strong>{item.studyRecorded ? Math.floor(item.studySeconds / 60) + '분' : '미기록'}</strong>
+            <strong>{formatRecordedFocus(item.studySeconds)}</strong>
             <small>{item.selfCheckedRetests > 0 ? '재풀이 확인 ' + item.selfCheckedRetests : '재풀이 미기록'}</small>
             <small>{item.bedtimeChecks > 0 ? '취침 준비 ' + item.bedtimeChecks + '/3' : '취침 준비 미기록'}</small>
           </div>
