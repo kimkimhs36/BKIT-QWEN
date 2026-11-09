@@ -123,7 +123,7 @@
   q('secondary').onclick=()=>setMode(mode==='sleep'?'study':'sleep');
   q('primary').onclick=()=>{
     if(mode==='sleep'){q('checks').hidden=false;q('checks').querySelector('input').focus();return;}
-    if(!running){running=true;paused=false;elapsed=0;startedAt=Date.now();q('timer').hidden=false;q('sessionActions').hidden=false;q('state').textContent='실제 타이머 실행 중';q('description').textContent='지금은 화면을 꾸미는 시간이 아니라 문제를 푸는 시간이야.';q('primary').textContent='일시정지';clearInterval(ticker);ticker=setInterval(tick,300);saveActive();tick();}
+    if(!running){if(elapsed>0){q('hint').textContent='이전 집중 '+format(elapsed)+'이 남아 있어. 먼저 학습 결과 확인 또는 기록 없이 초기화를 선택해 줘.';q('sessionActions').hidden=false;q('finishSession').focus();return;}running=true;paused=false;elapsed=0;startedAt=Date.now();q('timer').hidden=false;q('sessionActions').hidden=false;q('state').textContent='실제 타이머 실행 중';q('description').textContent='지금은 화면을 꾸미는 시간이 아니라 문제를 푸는 시간이야.';q('primary').textContent='일시정지';clearInterval(ticker);ticker=setInterval(tick,300);saveActive();tick();}
     else if(!paused){elapsed+=Math.floor((Date.now()-startedAt)/1000);paused=true;q('primary').textContent='▶ 이어하기';q('state').textContent='일시정지';saveActive();}
     else{paused=false;startedAt=Date.now();q('primary').textContent='일시정지';q('state').textContent='실제 타이머 실행 중';saveActive();}
   };
