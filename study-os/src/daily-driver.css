@@ -736,3 +736,33 @@
   .bkit-assessment-rescue-actions button { width: 100%; }
   .bkit-assessment-rescue-actions .bkit-assessment-rescue-main { grid-column: 1 / -1; justify-content: center; }
 }
+
+
+/* Keep the existing edit action and explicit study start separate for touch and keyboard. */
+.bkit-assessment-rescue-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.bkit-assessment-rescue-row .bkit-assessment-rescue-item {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.bkit-assessment-rescue-start {
+  flex: 0 0 auto;
+  min-height: 44px;
+  align-self: center;
+  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid currentColor;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.bkit-assessment-rescue-start:disabled { opacity: 0.45; cursor: not-allowed; }
+.bkit-assessment-rescue-start:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+@media (max-width: 380px) {
+  .bkit-assessment-rescue-row { gap: 0.35rem; }
+  .bkit-assessment-rescue-start { padding: 0.45rem 0.5rem; }
+}

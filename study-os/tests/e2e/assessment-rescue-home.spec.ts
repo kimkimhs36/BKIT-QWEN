@@ -54,3 +54,19 @@ test('iPhone: without recorded assessments the audit points to the existing capt
   await expect(dialog).toBeVisible();
   await expect(dialog.locator('select[name="kind"]')).toHaveValue('수행평가');
 });
+
+test('iPhone: an explicitly chosen assessment starts the existing five-minute study flow', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-11-10T10:00:00+09:00') });
+  const initial = newState();
+  initial.tasks = [item('target', { title: '직접 고른 보고서' })];
+  await page.addInitScript((state) => {
+    localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
+    localStorage.setItem('bkit.atelier.visited.v1', '1');
+  }, initial);
+  await page.goto('./');
+  const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
+  await rescue.getByRole('button', { name: '직접 고른 보고서 5분 공부 시작' }).click();
+  await expect(page.getByText('직접 고른 보고서').first()).toBeVisible();
+  const state = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
+  expect(state.tasks.find((task: Task) => task.id === 'target').submitted).toBe(false);
+});

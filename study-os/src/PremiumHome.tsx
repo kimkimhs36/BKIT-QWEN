@@ -269,10 +269,21 @@ export function PremiumHome({
         {rescue.top.length > 0 ? (
           <div className="bkit-assessment-rescue-list" aria-label="먼저 점검할 수행평가 최대 세 개">
             {rescue.top.map(({ task, status }) => (
-              <button key={task.id} type="button" className="bkit-assessment-rescue-item" onClick={() => onEdit(task)}>
-                <span><strong>{task.subject} · {task.title}</strong><small>{status}</small></span>
-                <ChevronRight size={18} aria-hidden="true" />
-              </button>
+              <div key={task.id} className="bkit-assessment-rescue-row">
+                <button type="button" className="bkit-assessment-rescue-item" onClick={() => onEdit(task)}>
+                  <span><strong>{task.subject} · {task.title}</strong><small>{status}</small></span>
+                  <ChevronRight size={18} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  className="bkit-assessment-rescue-start"
+                  disabled={busy}
+                  aria-label={`${task.title} 5분 공부 시작`}
+                  onClick={() => onStart(task.id, 5)}
+                >
+                  5분 시작
+                </button>
+              </div>
             ))}
           </div>
         ) : (
