@@ -652,3 +652,87 @@
   outline: 3px solid var(--mat-accent, currentColor);
   outline-offset: 3px;
 }
+
+/* Assessment rescue: same real task/inbox flows, no fabricated school records. */
+.bkit-assessment-rescue {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0 16px;
+  padding: clamp(17px, 3.2vw, 27px);
+  border: 1px solid color-mix(in srgb, currentColor 17%, transparent);
+  border-radius: 22px;
+  background: var(--mat-surface, color-mix(in srgb, currentColor 3%, transparent));
+}
+.bkit-assessment-rescue-head,
+.bkit-assessment-rescue-signals,
+.bkit-assessment-rescue-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px 13px;
+}
+.bkit-assessment-rescue-head { justify-content: space-between; }
+.bkit-assessment-rescue-kicker {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .14em;
+  opacity: .72;
+}
+.bkit-assessment-rescue-count { font-size: 12px; opacity: .8; }
+.bkit-assessment-rescue h2 { margin: 0; font-size: clamp(19px, 3vw, 25px); letter-spacing: -.035em; }
+.bkit-assessment-rescue > p { margin: 0; line-height: 1.6; font-size: 13px; opacity: .84; }
+.bkit-assessment-rescue-signals span {
+  border: 1px solid color-mix(in srgb, currentColor 17%, transparent);
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.bkit-assessment-rescue-list { display: grid; gap: 7px; }
+.bkit-assessment-rescue-item {
+  width: 100%;
+  min-height: 58px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  border-radius: 13px;
+  padding: 11px 13px;
+  background: color-mix(in srgb, currentColor 4%, transparent);
+  color: inherit;
+}
+.bkit-assessment-rescue-item span { display: grid; gap: 5px; min-width: 0; }
+.bkit-assessment-rescue-item strong {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.bkit-assessment-rescue-item small { font-size: 11px; opacity: .77; }
+.bkit-assessment-rescue-item svg { flex: 0 0 auto; }
+.bkit-assessment-rescue-actions button {
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, currentColor 21%, transparent);
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.bkit-assessment-rescue-actions .bkit-assessment-rescue-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ink, #243a56);
+  color: var(--paper, #fff);
+  border-color: transparent;
+}
+.bkit-assessment-rescue-disclaimer { font-size: 11px; opacity: .65; line-height: 1.5; }
+.bkit-assessment-rescue button:focus-visible { outline: 3px solid #648fe8; outline-offset: 3px; }
+@media (max-width: 530px) {
+  .bkit-assessment-rescue-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bkit-assessment-rescue-actions button { width: 100%; }
+  .bkit-assessment-rescue-actions .bkit-assessment-rescue-main { grid-column: 1 / -1; justify-content: center; }
+}

@@ -7,6 +7,7 @@ import { firstLearningAction, recommendationReason } from './now';
 import { clock, dayKey, addDays } from './time';
 import { dailyTriage, taskUrgencyLabel } from './dailyTriage';
 import { needsAttention, needsSubmission, unsubmittedAssessment } from './tasks';
+import { assessmentRescue } from './assessmentRescue';
 import { quickClock, quickSeconds } from './quickTimer';
 import { chooseHomeNextAction, resolveHomeStudyStart } from './actionFirst';
 import { firstDueReview } from './homeDueReview';
@@ -84,6 +85,7 @@ export function PremiumHome({
   accountConnected,
 }: Props) {
   const triage = dailyTriage(tasks, now);
+  const rescue = assessmentRescue(state.tasks, now);
   const pending = triage.spotlight;
   const awaiting = state.tasks.filter((t) => t.status !== 'done' && unsubmittedAssessment(t));
   const readyToSubmit = state.tasks.filter(needsSubmission);
@@ -246,6 +248,50 @@ export function PremiumHome({
           <SleepHomeActions guard={sleepGuard} busy={busy} onOpen={() => onNavigate(busy ? 'study' : 'sleep')} />
         )}
         <small>실제 완료·취침 여부는 자동으로 확정하지 않아요. 기록은 기존 BKIT에 남습니다.</small>
+      </section>
+      <section className="bkit-assessment-rescue" aria-label="수행평가 긴급 점검">
+        <div className="bkit-assessment-rescue-head">
+          <span className="bkit-assessment-rescue-kicker">SCHOOL / ASSESSMENT CHECK</span>
+          <span className="bkit-assessment-rescue-count">기록 {rescue.registered}건 · 확인 필요 {rescue.outstanding}건</span>
+        </div>
+        <h2>수행평가, 빠진 것부터 확인하자.</h2>
+        <p>
+          {rescue.registered === 0
+            ? 'BKIT에 등록된 수행평가가 없어요. 실제 학교에 수행평가가 없다는 뜻은 아니에요.'
+            : 'BKIT에 직접 등록한 수행평가만 보여줘요. 없는 과제와 실제 점수는 학교 공지·선생님에게 확인해야 해요.'}
+        </p>
+        {(rescue.submissionChecks > 0 || rescue.deadlinesToVerify > 0) && (
+          <div className="bkit-assessment-rescue-signals">
+            {rescue.submissionChecks > 0 && <span>제출 확인 필요 {rescue.submissionChecks}건</span>}
+            {rescue.deadlinesToVerify > 0 && <span>마감 미확인·추정 {rescue.deadlinesToVerify}건</span>}
+          </div>
+        )}
+        {rescue.top.length > 0 ? (
+          <div className="bkit-assessment-rescue-list" aria-label="먼저 점검할 수행평가 최대 세 개">
+            {rescue.top.map(({ task, status }) => (
+              <button key={task.id} type="button" className="bkit-assessment-rescue-item" onClick={() => onEdit(task)}>
+                <span><strong>{task.subject} · {task.title}</strong><small>{status}</small></span>
+                <ChevronRight size={18} aria-hidden="true" />
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="bkit-assessment-rescue-empty">
+            {rescue.registered > 0
+              ? '등록된 기록에서 추가 확인할 항목은 없어요. 빠진 수행평가가 없는지는 별도로 확인해요.'
+              : '학교 공지나 학급 안내에서 수행평가 목록을 먼저 확인해 주세요.'}
+          </p>
+        )}
+        <div className="bkit-assessment-rescue-actions">
+          <button type="button" className="bkit-assessment-rescue-main" onClick={onInbox}>
+            학교 공지 확인 <ArrowRight size={16} aria-hidden="true" />
+          </button>
+          <button type="button" onClick={onAssessment}>빠진 수행평가 등록</button>
+          <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
+        </div>
+        <small className="bkit-assessment-rescue-disclaimer">
+          학교 시스템 자동 조회 아님 · 제출/성적/완료 여부를 임의로 기록하지 않아요.
+        </small>
       </section>
       <div className="bkit-evidence-entry">
         <span>지난 7일 · 직접 기록한 날 {activityWeek.evidenceDays}일</span>
