@@ -10,10 +10,12 @@ on:
       - 'study-os/src/actionFirst.ts'
       - 'study-os/src/homeDueReview.ts'
       - 'study-os/src/evidenceWeek.ts'
+      - 'study-os/src/evidenceNextAction.ts'
       - 'study-os/src/EvidenceWeek.tsx'
       - 'study-os/tests/actionFirst.test.ts'
       - 'study-os/tests/homeDueReview.test.ts'
       - 'study-os/tests/evidenceWeek.test.ts'
+      - 'study-os/tests/evidenceNextAction.test.ts'
       - 'study-os/tests/e2e/evidence-week.spec.ts'
       - 'study-os/tests/e2e/action-first-mobile.spec.ts'
       - 'study-os/tests/homeSleepSteps.test.ts'
@@ -46,7 +48,7 @@ jobs:
           cache-dependency-path: study-os/package-lock.json
       - run: npm ci --no-audit --no-fund
       - name: Focused user-behavior regression
-        run: npx vitest run tests/actionFirst.test.ts tests/homeSleepSteps.test.ts tests/homeDueReview.test.ts tests/evidenceWeek.test.ts
+        run: npx vitest run tests/actionFirst.test.ts tests/homeSleepSteps.test.ts tests/homeDueReview.test.ts tests/evidenceWeek.test.ts tests/evidenceNextAction.test.ts
       - name: TypeScript and production build
         run: npm run build
       - name: Install Chromium for mobile scenario
