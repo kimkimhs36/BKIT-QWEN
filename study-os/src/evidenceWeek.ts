@@ -11,7 +11,8 @@ import { dayKey } from './time';
 export function formatRecordedFocus(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) return '미기록';
   const duration = Math.floor(seconds);
-  if (duration < 60) return `${duration || 1}초`;
+  if (duration < 1) return '1초 미만';
+  if (duration < 60) return `${duration}초`;
   const minutes = Math.floor(duration / 60);
   const hours = Math.floor(minutes / 60);
   return hours ? `${hours}시간 ${minutes % 60}분` : `${minutes}분`;
