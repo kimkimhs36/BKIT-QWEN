@@ -7,6 +7,7 @@ import type { State, Session, Task } from './model';
 import { quickSeconds, quickClock } from './quickTimer';
 import './quick-timer.css';
 import { QuickSessionEditor } from './QuickSessionEditor';
+import { QuickRetryPrompt } from './QuickRetryPrompt';
 
 type Props = {
   timer: State['quickTimer'];
@@ -58,17 +59,11 @@ export function QuickStudyTimer({
   const [minutes, setMinutes] = useState(25);
   const [expanded, setExpanded] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
-  const [retryProblem, setRetryProblem] = useState('');
   useEffect(() => {
     if (editingId && editingId === last?.id) {
       setShowEditor(true);
     }
   }, [editingId, last?.id]);
-  useEffect(() => {
-    // Prefill only a problem actually recorded by the learner in this session.
-    // Do not infer a problem number from the timer, subject, or task title.
-    setRetryProblem(last?.workspace?.problem ?? '');
-  }, [last?.id]);
   const seconds = timer ? quickSeconds(timer, now) : 0;
   const remaining =
     timer?.mode === 'countdown' ? Math.max(0, timer.targetMinutes * 60 - seconds) : seconds;
@@ -98,26 +93,12 @@ export function QuickStudyTimer({
       </header>
       {!timer && !focusBusy && last?.quick &&
         Date.parse(last.ended) <= now && now - Date.parse(last.ended) < 30 * 60_000 && (
-        <div className="quick-timer-retry" aria-label="저장한 공부 다음 행동">
-          <span className="quick-timer-retry-step">NEXT · 한 문제만</span>
-          <p>시간은 저장됐어요. 문제 하나를 해설 없이 다시 풀어볼까요?</p>
-          <label className="quick-timer-retry-problem">
-            <span>다시 풀 문제 (선택)</span>
-            <input
-              aria-label="다시 풀 문제 (선택)"
-              type="text"
-              maxLength={200}
-              autoComplete="off"
-              placeholder="예: 수학 학습지 3쪽 4번"
-              value={retryProblem}
-              onChange={(event) => setRetryProblem(event.target.value)}
-            />
-          </label>
-          <button type="button" className="primary" onClick={() => onIndependentRetry(retryProblem.trim() || undefined)}>
-            <Play size={16} aria-hidden="true" /> 혼자 다시 풀기 · 5분
-          </button>
-          <small>입력한 문제만 문제 풀이 공간에 연결해요. 비워 두면 자유 재풀이로 시작하며, 정답·완료·제출은 직접 확인해야 해요.</small>
-        </div>
+        <QuickRetryPrompt
+          key={last.id}
+          initialProblem={last.workspace?.problem}
+          savedSeconds={last.seconds}
+          onStart={onIndependentRetry}
+        />
       )}
       {!timer ? (
         <div className="quick-timer-idle">

@@ -13,6 +13,7 @@ import { firstDueReview } from './homeDueReview';
 import { summarizeEvidenceWeek } from './evidenceWeek';
 import type { SleepController } from './useSleepGuard';
 import { SleepHomeActions } from './SleepHomeActions';
+import { QuickRetryPrompt } from './QuickRetryPrompt';
 import { studySeconds, elapsed } from './session';
 
 type Props = {
@@ -29,6 +30,7 @@ type Props = {
   onQuickPause: () => void;
   onQuickResume: () => void;
   onQuickFinish: () => void;
+  onIndependentRetry: (problem?: string) => void;
   onNavigate: (route: string) => void;
   onAdd: () => void;
   onRecover: () => void;
@@ -60,6 +62,7 @@ export function PremiumHome({
   onQuickPause,
   onQuickResume,
   onQuickFinish,
+  onIndependentRetry,
   onNavigate,
   onAdd,
   onRecover,
@@ -167,6 +170,22 @@ export function PremiumHome({
         <button type="button" className="study-text-link bkit-action-assistant" onClick={onAssistant}>
           BKIT AI 비서에게 물어보기 <ArrowRight size={15} aria-hidden="true" />
         </button>
+        {!busy && recent?.quick && now >= Date.parse(recent.ended) && now - Date.parse(recent.ended) < 30 * 60_000 && (
+          nextAction.kind === 'study' ? (
+            <QuickRetryPrompt
+              key={recent.id}
+              className="bkit-home-retry"
+              initialProblem={recent.workspace?.problem}
+              savedSeconds={recent.seconds}
+              onStart={onIndependentRetry}
+            />
+          ) : (
+            <div className="bkit-home-quick-receipt" role="status">
+              <strong>최근 집중 {quickClock(recent.seconds)} 저장됨</strong>
+              <small>지금은 수면 또는 일정이 우선이에요. 재풀이는 가능한 시간에 시작해요.</small>
+            </div>
+          )
+        )}
         <div className="bkit-action-first-actions">
           <button
             type="button"
@@ -211,12 +230,7 @@ export function PremiumHome({
             <small>일시정지한 시간은 공부 시간에 포함되지 않아요. 저장 후에도 과제 완료·제출은 직접 확인해요.</small>
           </div>
         )}
-        {!busy && recent?.quick && now >= Date.parse(recent.ended) && now - Date.parse(recent.ended) < 30 * 60_000 && (
-          <div className="bkit-home-quick-receipt" role="status">
-            <strong>최근 집중 {quickClock(recent.seconds)} 저장됨</strong>
-            <button type="button" onClick={() => onNavigate('study')}>한 문제 다시 풀기 <ArrowRight size={15} aria-hidden="true" /></button>
-          </div>
-        )}
+
         {(nextAction.kind === 'sleep' || (sleepGuard.state.enabled && sleepGuard.status.phase !== 'day')) && (
           <SleepHomeActions guard={sleepGuard} busy={busy} onOpen={() => onNavigate(busy ? 'study' : 'sleep')} />
         )}

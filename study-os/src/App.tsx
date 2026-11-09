@@ -2268,6 +2268,7 @@ export default function App() {
                 onQuickPause={pauseQuickNow}
                 onQuickResume={resumeQuickNow}
                 onQuickFinish={finishQuickNow}
+                onIndependentRetry={(problem) => { beginQuick('countdown', 5, true, problem); }}
                 onNavigate={(route) => {
                   if (route === 'school') setDay(today);
                   setTab(route);

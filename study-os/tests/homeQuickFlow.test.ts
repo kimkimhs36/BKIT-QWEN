@@ -17,7 +17,7 @@ function home(state: State, now: number) {
   return renderToStaticMarkup(createElement(PremiumHome, {
     state, now, tasks: state.tasks, sleepGuard: guard, unavailable: '',
     inboxPending: 0, accountConnected: false, onStart: noop, onQuick: noop,
-    onQuickPause: noop, onQuickResume: noop, onQuickFinish: noop,
+    onQuickPause: noop, onQuickResume: noop, onQuickFinish: noop, onIndependentRetry: noop,
     onNavigate: noop, onAdd: noop, onRecover: noop, onInbox: noop,
     onAssessment: noop, onExportCalendar: noop, onAssistant: noop,
     onEdit: noop, onAssessments: noop, onSubmissions: noop,
@@ -47,7 +47,8 @@ describe('actual home quick focus lifecycle', () => {
     });
     const finished = home(state, began + 10 * 60_000);
     expect(finished).toContain('최근 집중 02:30 저장됨');
-    expect(finished).toContain('한 문제 다시 풀기');
+    expect(finished).toContain('혼자 다시 풀기 · 5분');
+    expect(finished).toContain('다시 풀 문제 (선택)');
     expect(finished).not.toContain('진행 중인 빠른 집중 관리');
     expect(state.tasks).toHaveLength(0);
   });

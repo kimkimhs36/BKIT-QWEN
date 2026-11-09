@@ -568,3 +568,45 @@
   .bkit-evidence-today button {width:100%;}
   .bkit-evidence-entry button {justify-content:flex-start;}
 }
+
+
+/* The saved-focus next action now uses the same REAL retry workflow as Focus.
+   Keep it part of each chosen material, never a separate navy demo. */
+.study-home .quick-timer-retry.bkit-home-retry {
+  display: grid;
+  justify-items: stretch;
+  gap: 10px;
+  margin-top: 17px;
+  padding: clamp(14px, 3vw, 21px);
+  border: 1px solid var(--mat-line, rgba(127,127,127,.22));
+  border-radius: var(--mat-radius, 17px);
+  background: var(--mat-soft, rgba(127,127,127,.08));
+  color: inherit;
+  position: relative;
+  z-index: 1;
+}
+.study-home .bkit-home-retry .quick-timer-retry-step { color: inherit; opacity: .7; }
+.study-home .bkit-home-retry .quick-timer-retry-problem {
+  display: grid; gap: 7px; color: inherit; font-size: 12px;
+}
+.study-home .bkit-home-retry input {
+  border-color: var(--mat-line, rgba(127,127,127,.3));
+  border-radius: var(--mat-button-radius, 12px);
+  background: var(--mat-card, rgba(255,255,255,.6));
+  color: var(--mat-ink, inherit);
+}
+.study-home .bkit-home-retry button.primary {
+  justify-self: start;
+  width: auto;
+  min-width: min(100%, 245px);
+  min-height: 48px;
+  border-radius: var(--mat-button-radius, 12px);
+  background: var(--mat-primary, #244d66);
+  color: var(--mat-on-accent, #fff);
+  font-weight: 700;
+}
+.study-home .bkit-home-retry small { color: inherit; opacity: .76; }
+.study-home .bkit-home-quick-receipt small { font-size: 12px; line-height: 1.5; opacity: .78; }
+@media (max-width: 520px) {
+  .study-home .bkit-home-retry button.primary { width: 100%; }
+}
