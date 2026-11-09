@@ -50,3 +50,11 @@ User reported multiple severely unsuccessful school performance assessments and,
 - No `main` merge, teambkit.com deployment, domain change, auth/API secret action, destructive storage migration, paid credit use or outgoing message without user approval.
 - Never infer sleep amount, scores, assessment completion or actual submission from a button click.
 - Preview localStorage belongs to preview origin and will not automatically carry over from teambkit.com. School notice originals remain device-local; explicitly backed-up ZIP import is the supported cross-device route.
+
+## 2026-11-10 01:43 KST — school notice ZIP coverage isolated continuation
+- Source verified: PR #56 still Draft/open at `c92462a45d5c9e8745fcc4806ade7d673dc4b36f`; base remains assessment-rescue `d866339`. Original source and PR unchanged.
+- Isolated branch: `preview/bkit-school-notice-backup-20261110` forked from exact `c92462a`. Code/test commit `393299bce5560c81cf78f5029526850471ce0dcb`.
+- Changed: `src/completeBackup.ts` now exposes `schoolNotices` freshness independently; `src/CompleteBackupPanel.tsx` explicitly warns when inspected ZIP lacks current notice changes, and reminds users linked assessment records require study coverage too; `tests/schoolNoticeBackupCoverage.test.ts` adds a fresh-device ZIP restore and stale-notice regression test.
+- The pre-existing ZIP code already included `INBOX_KEY` in `BACKUP_KEYS`, validated its schema, and merged notices by ID. This work avoids claiming ZIP support was newly invented; it makes the existing protection visible to users.
+- **Verification honesty:** source edits were committed via GitHub API; tests/typecheck/build/browser E2E on this new SHA **not executed yet**. Vercel READY deployment `dpl_2XVX2u6MLTpFfPBX7rH3WymnS23R` is pinned to older `c92462a` and **does not include** these changes. No preview URL or user benefit claimed for new SHA until actual CI/preview verification.
+- Next ONE action: run `npm test -- --run tests/schoolNoticeBackupCoverage.test.ts`, then full suite, `npm run typecheck`, `npm run build`; correct any regression, deploy **preview-only** from this branch, confirm exact SHA and HTTP/mobile path. Do not merge into main or force-update PR #56.
