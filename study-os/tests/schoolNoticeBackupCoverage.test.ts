@@ -60,6 +60,31 @@ describe('school notice ZIP coverage', () => {
     expect(backupMatchesCurrent(outdated).study).toBe(false);
   });
 
+  it('merges an archived notice without deleting a newer local notice', async () => {
+    const source = storage({
+      [KEY]: JSON.stringify(newState()),
+      [INBOX_KEY]: JSON.stringify(originalNotice),
+    });
+    const zip = await exportCompleteBackup(source);
+    globalThis.indexedDB = new IDBFactory();
+    const newerNotice = {
+      ...originalNotice.notices[0],
+      id: 'notice-newer',
+      text: '기기에서 새로 받은 수행평가 공지',
+    };
+    const target = storage({
+      [KEY]: JSON.stringify(newState()),
+      [INBOX_KEY]: JSON.stringify({ ...originalNotice, notices: [newerNotice] }),
+    });
+    const checked = await inspectCompleteBackup(zip, target);
+    expect(backupMatchesCurrent(checked).schoolNotices).toBe(false);
+    await restoreCompleteBackup(checked, 'merge', target);
+    const restored = JSON.parse(target.getItem(INBOX_KEY)!);
+    expect(restored.notices).toHaveLength(2);
+    expect(restored.notices.find((notice: { id: string }) => notice.id === 'notice-newer')).toEqual(newerNotice);
+    expect(restored.notices.find((notice: { id: string }) => notice.id === 'notice-1')).toEqual(originalNotice.notices[0]);
+  });
+
   it('restores the original school notice from the ZIP on a fresh device', async () => {
     const source = storage({
       [KEY]: JSON.stringify(newState()),
