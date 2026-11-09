@@ -357,3 +357,42 @@
 .bkit-home-sleep-steps p[role="alert"] { color: #ffe1ca; }
 .bkit-home-sleep-steps small { color: #9eb3cc; font-size: 11px; line-height: 1.5; }
 @media(max-width:520px) { .bkit-home-sleep-steps { padding: 12px; } .bkit-home-sleep-step { padding: 10px; } }
+
+
+/* A real due-review action is visible without navigating deep into statistics. */
+.bkit-due-review {
+  margin: 0 0 20px;
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid rgba(68, 105, 152, .24);
+  border-radius: 22px;
+  background: linear-gradient(130deg, #f3f7ff, #fff 60%);
+  color: #223247;
+}
+.bkit-due-review-eyebrow {
+  display: block; color: #3866a1; letter-spacing: .09em;
+  font-size: 11px; font-weight: 800; margin-bottom: 11px;
+}
+.bkit-due-review-row { display: flex; align-items: center; gap: 18px; justify-content: space-between; }
+.bkit-due-review-row h2 { color: #1b3049; font-size: clamp(18px, 3vw, 23px); letter-spacing: -.04em; margin: 0 0 7px; }
+.bkit-due-review-row p { margin: 0 0 8px; color: #465e78; font-size: 14px; overflow-wrap: anywhere; }
+.bkit-due-review-row small { color: #687f9b; display: block; line-height: 1.6; font-size: 12px; }
+.bkit-due-review-row button {
+  border: none; border-radius: 14px; background: #233e65; color: #fff;
+  min-height: 49px; padding: 12px 17px; font-size: 13px; font-weight: 750;
+  display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; cursor: pointer;
+}
+.bkit-due-review button:focus-visible { outline: 3px solid #3a83d3; outline-offset: 3px; }
+.bkit-review-now {
+  margin-bottom: 22px; padding: clamp(16px, 3vw, 24px);
+  border-radius: 23px; background: linear-gradient(150deg, #eef3fb, #fff);
+  border: 1px solid #dce6f2;
+}
+.bkit-review-now-intro { padding: 3px 3px 16px; }
+.bkit-review-now-intro span { color: #4573a8; letter-spacing: .09em; font-size: 11px; font-weight: 750; }
+.bkit-review-now-intro h2 { margin: 8px 0 7px; font-size: 22px; color: #1b3049; }
+.bkit-review-now-intro p { color: #566c85; margin: 0; font-size: 13px; line-height: 1.65; }
+@media(max-width: 620px) {
+ .bkit-due-review-row { flex-direction: column; align-items: stretch; }
+ .bkit-due-review-row button { width: 100%; justify-content: center; }
+ .bkit-review-now { border-radius: 17px; }
+}
