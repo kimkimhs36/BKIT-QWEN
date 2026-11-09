@@ -29,7 +29,7 @@ export function chooseHomeNextAction(
     current?.kind === 'sleep' ||
     Boolean(
       bedtime &&
-        bedtime.start - 45 * 60_000 <= now &&
+        bedtime.start - 60 * 60_000 <= now &&
         now < (bedtime.end ?? bedtime.start + 12 * 60 * 60_000),
     );
 
