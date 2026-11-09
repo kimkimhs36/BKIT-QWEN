@@ -57,6 +57,17 @@ jobs:
         run: npx playwright install --with-deps webkit
       - name: Safari-engine mobile action-first start and save
         run: npx playwright test tests/e2e/action-first-mobile.spec.ts tests/e2e/evidence-week.spec.ts --project=webkit-iphone --reporter=list
+      - name: Publish synthetic mobile UI screenshots (Chromium + Safari)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bkit-mobile-evidence-screens-${{ github.sha }}
+          path: |
+            study-os/test-results/**/home-*-synthetic.png
+            study-os/test-results/**/evidence-*-synthetic.png
+            study-os/test-results/**/evidence-with-synthetic-records.png
+          if-no-files-found: warn
+          retention-days: 7
       - name: Verify real-app static bundle integrity
         run: |
           set -euo pipefail
