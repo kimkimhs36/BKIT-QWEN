@@ -18,6 +18,8 @@ on:
       - 'study-os/tests/evidenceNextAction.test.ts'
       - 'study-os/tests/e2e/evidence-week.spec.ts'
       - 'study-os/tests/e2e/action-first-mobile.spec.ts'
+      - 'study-os/tests/e2e/action-first-preview.spec.ts'
+      - 'previews/bkit-action-home-20261109/index.html'
       - 'study-os/tests/homeSleepSteps.test.ts'
       - 'study-os/src/App.tsx'
       - 'study-os/src/QuickStudyTimer.tsx'
@@ -64,11 +66,11 @@ jobs:
       - name: Install Chromium for mobile scenario
         run: npx playwright install --with-deps chromium
       - name: Real-app mobile action-first start and save
-        run: npx playwright test tests/e2e/action-first-mobile.spec.ts tests/e2e/evidence-week.spec.ts --project=iphone --reporter=list
+        run: npx playwright test tests/e2e/action-first-mobile.spec.ts tests/e2e/action-first-preview.spec.ts tests/e2e/evidence-week.spec.ts --project=iphone --reporter=list
       - name: Install WebKit for Safari-engine iPhone emulation
         run: npx playwright install --with-deps webkit
       - name: Safari-engine mobile action-first start and save
-        run: npx playwright test tests/e2e/action-first-mobile.spec.ts tests/e2e/evidence-week.spec.ts --project=webkit-iphone --reporter=list
+        run: npx playwright test tests/e2e/action-first-mobile.spec.ts tests/e2e/action-first-preview.spec.ts tests/e2e/evidence-week.spec.ts --project=webkit-iphone --reporter=list
       - name: Publish synthetic mobile UI screenshots (Chromium + Safari)
         if: always()
         uses: actions/upload-artifact@v4
