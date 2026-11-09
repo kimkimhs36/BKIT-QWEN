@@ -396,3 +396,93 @@
  .bkit-due-review-row button { width: 100%; justify-content: center; }
  .bkit-review-now { border-radius: 17px; }
 }
+
+
+/* Evidence, not gamification: seven real days and one reversible next action. */
+.bkit-evidence-entry {
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
+  gap:8px 14px; margin:-7px 0 16px; padding:10px 4px;
+  color:var(--mat-ink,inherit); font-size:12px;
+  border-bottom:1px solid var(--mat-line,rgba(127,127,127,.2));
+}
+.bkit-evidence-entry span {opacity:.8; font-weight:600;}
+.bkit-evidence-entry button {
+  min-height:44px; display:inline-flex; align-items:center; gap:7px;
+  background:transparent; color:inherit; font:inherit; font-weight:700;
+  border:0; cursor:pointer; padding:10px 2px;
+}
+.bkit-evidence-week {
+  padding:clamp(15px,3vw,25px); margin-bottom:22px; border-radius:22px;
+  background:var(--mat-card,rgba(255,255,255,.06));
+  border:1px solid var(--mat-line,rgba(127,127,127,.25));
+  color:var(--mat-ink,inherit);
+}
+.bkit-evidence-header {display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:14px;}
+.bkit-evidence-overline {
+  color:var(--mat-accent,#587baf); font-size:10px; font-weight:800; letter-spacing:.1em;
+}
+.bkit-evidence-header h2 {font-size:clamp(17px,2.6vw,22px); line-height:1.3; margin:5px 0 6px;}
+.bkit-evidence-header p {opacity:.76; font-size:12px; line-height:1.55; margin:0;}
+.bkit-evidence-honest {
+  border-radius:999px; border:1px solid var(--mat-line,rgba(127,127,127,.2));
+  background:var(--mat-soft,rgba(127,127,127,.08));
+  padding:8px 11px; font-size:12px; font-weight:750;
+}
+.bkit-evidence-figures {
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin:17px 0 14px;
+}
+.bkit-evidence-figures>div {
+  padding:12px 13px; border-radius:13px;
+  border:1px solid var(--mat-line,rgba(127,127,127,.15));
+}
+.bkit-evidence-figures strong {display:block;font-size:clamp(18px,4vw,25px);line-height:1.3;}
+.bkit-evidence-figures strong small {font-size:12px; font-weight:650; margin-left:2px;}
+.bkit-evidence-figures span {display:block; opacity:.76; font-size:11px; line-height:1.5;}
+.bkit-evidence-days {
+  display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px;
+  margin-bottom:15px;
+}
+.bkit-evidence-day {
+  padding:10px 7px; min-width:0; border-radius:12px;
+  border:1px solid var(--mat-line,rgba(127,127,127,.15));
+  font-size:11px; display:flex; flex-direction:column; gap:5px;
+  overflow-wrap:anywhere;
+}
+.bkit-evidence-day.is-today {
+  border-color:var(--mat-accent,#648bbb);
+  background:var(--mat-soft,rgba(127,127,127,.08));
+}
+.bkit-evidence-day time {opacity:.65; font-size:10px;}
+.bkit-evidence-day strong {font-size:13px; font-weight:750;}
+.bkit-evidence-day small {opacity:.76; font-size:10px; line-height:1.4;}
+.bkit-evidence-today {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; padding:14px; border-radius:14px;
+  background:var(--mat-soft,rgba(127,127,127,.07));
+}
+.bkit-evidence-today strong {font-size:13px;}
+.bkit-evidence-today p {font-size:12px; opacity:.8; margin:4px 0 0; line-height:1.55;}
+.bkit-evidence-today button {
+  min-height:45px; border-radius:11px; border:1px solid var(--mat-line,rgba(127,127,127,.3));
+  padding:10px 15px; background:var(--mat-card,rgba(127,127,127,.12));
+  color:inherit; font-size:12px; font-weight:750; cursor:pointer;
+  flex:0 0 auto;
+}
+.bkit-evidence-week button:focus-visible,.bkit-evidence-entry button:focus-visible {
+  outline:3px solid var(--mat-accent,#648bbb); outline-offset:3px;
+}
+.bkit-evidence-disclaimer {
+  font-size:11px; line-height:1.7; opacity:.7;
+  padding:0 3px; margin:13px 0 0;
+}
+@media(max-width:760px) {
+  .bkit-evidence-days {display:flex; overflow-x:auto; padding:0 0 9px; scroll-snap-type:x proximity;}
+  .bkit-evidence-day {flex:0 0 116px; scroll-snap-align:start;}
+}
+@media(max-width:520px) {
+  .bkit-evidence-figures {gap:5px;}
+  .bkit-evidence-figures>div {padding:10px 7px;}
+  .bkit-evidence-today {align-items:stretch; flex-direction:column;}
+  .bkit-evidence-today button {width:100%;}
+  .bkit-evidence-entry button {justify-content:flex-start;}
+}
