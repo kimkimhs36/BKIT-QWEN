@@ -71,6 +71,44 @@ test('mobile home -> 10-minute focus -> pause -> reload -> resume -> one durable
   expect(persisted.quickTimer).toBeNull();
 });
 
+test('saved quick focus offers an immediate independent five-minute problem retry without changing old records', async ({ page }) => {
+  await openFreshHome(page, newState());
+  await page.getByRole('region', { name: '지금 할 일 한 가지' })
+    .getByRole('button', { name: '10분 집중 시작', exact: true }).click();
+  const quick = page.getByRole('region', { name: '바로 시작 타이머' });
+  await page.clock.fastForward(61_000);
+  await quick.getByRole('button', { name: '끝내고 시간 저장' }).click();
+  const before = await read(page);
+  expect(before.sessions).toHaveLength(1);
+  expect(before.sessions[0].seconds).toBeGreaterThanOrEqual(60);
+  const retry = quick.getByRole('button', { name: '혼자 다시 풀기 · 5분' });
+  await expect(retry).toBeVisible();
+  await retry.click();
+  const practicing = await read(page);
+  expect(practicing.sessions).toEqual(before.sessions);
+  expect(practicing.quickTimer).toBeNull();
+  expect(practicing.active).toMatchObject({
+    quick: true, subject: '자율 학습', taskId: null, target: 5,
+  });
+  expect(practicing.active.id).not.toBe(before.sessions[0].id);
+  // The new five-minute problem session is a fresh voluntary action, not
+  // retroactive mastery, submission, or another label on the saved record.
+  expect(practicing.tasks).toEqual(before.tasks);
+  await page.clock.fastForward(20_000);
+  await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+  const paused = (await read(page)).active;
+  expect(paused.id).toBe(practicing.active.id);
+  expect(paused.segmentStart).toBeNull();
+  expect(paused.elapsed).toBeGreaterThanOrEqual(19);
+  await page.clock.fastForward(10 * 60_000);
+  await page.reload();
+  const recovered = await read(page);
+  expect(recovered.active.id).toBe(paused.id);
+  expect(recovered.active.segmentStart).toBeNull();
+  expect(Math.abs(recovered.active.elapsed - paused.elapsed)).toBeLessThanOrEqual(1);
+  expect(recovered.sessions).toEqual(before.sessions);
+});
+
 test('mobile home recommendation begins the exact existing task and never claims submission', async ({ page }) => {
   const s = newState();
   s.tasks = [taskSchema.parse({
