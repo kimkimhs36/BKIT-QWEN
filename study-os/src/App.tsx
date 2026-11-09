@@ -989,11 +989,26 @@ export default function App() {
   const quickToday = quickDaySeconds(s, now);
   function beginQuick(mode: 'stopwatch' | 'countdown', target: number) {
     if (!flushLearning(() => beginQuick(mode, target))) return;
-    if (s.active || s.quickTimer) {
+    if (memory.current.active || memory.current.quickTimer) {
       setNotice('기존 타이머가 진행 중입니다. 먼저 마무리해 주세요.');
       return;
     }
     const started = Date.now();
+    // All entry points (home, focus, records) must honor the same Sleep Guard
+    // and school/academy boundaries as a task-linked focus session.
+    const fixedWindows = studyFixedNow(memory.current, sleep.state, started);
+    const currentBlock = fixedWindows.find((f) => f.start <= started && f.end > started);
+    if (currentBlock) {
+      setNotice(`${currentBlock.title} 시간입니다. 공부를 새로 시작하지 않고 일정을 먼저 지켜요.`);
+      return;
+    }
+    const neededMinutes = mode === 'countdown' ? target : 5;
+    const upcoming = fixedWindows.filter((f) => f.start > started)
+      .sort((a, b) => a.start - b.start)[0];
+    if (upcoming && upcoming.start < started + neededMinutes * MIN) {
+      setNotice(`${clock(upcoming.start)} ${upcoming.title} 전에 끝나는 짧은 공부를 선택하세요.`);
+      return;
+    }
     if (commit((v) => startQuick(v, mode, target, started, uid())))
       setNotice('기록 없이 바로 시작! 공부가 끝나면 시간을 먼저 저장할게요.');
   }
@@ -1005,7 +1020,14 @@ export default function App() {
       setNotice('이 세션의 구간 한도에 도달했어요. 시간을 저장한 뒤 새 공부를 시작하세요.');
       return;
     }
-    commit((v) => resumeQuick(v, Date.now()));
+    const timestamp = Date.now();
+    const blockedBy = studyFixedNow(memory.current, sleep.state, timestamp)
+      .find((f) => f.start <= timestamp && f.end > timestamp);
+    if (blockedBy) {
+      setNotice(`${blockedBy.title} 시간입니다. 일시정지된 기록은 보존하며 지금 재개하지 않아요.`);
+      return;
+    }
+    commit((v) => resumeQuick(v, timestamp));
   }
   function finishQuickNow() {
     if (!flushLearning(finishQuickNow)) return;
