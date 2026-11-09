@@ -29,9 +29,10 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
       - name: School notice ZIP regressions
-        run: npm test -- --run tests/schoolNoticeBackupCoverage.test.ts
+        run: npm test -- tests/schoolNoticeBackupCoverage.test.ts
       - name: Full Vitest regression
-        run: npm test -- --run
+        if: success() || failure()
+        run: npm test --
       - name: TypeScript check
         if: success() || failure()
         run: npm run typecheck
