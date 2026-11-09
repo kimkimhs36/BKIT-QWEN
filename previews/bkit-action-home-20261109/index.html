@@ -133,6 +133,14 @@
     q('studyMode').setAttribute('aria-pressed',String(mode==='study'));q('sleepMode').setAttribute('aria-pressed',String(mode==='sleep'));
     q('checks').hidden=mode!=='sleep';
     if(mode==='sleep'){
+      const today=new Date().toLocaleDateString('sv-SE');
+      const done=read().find(e=>e.kind==='sleep'&&e.localDate===today);
+      q('saveBedtime').disabled=Boolean(done);
+      q('saveBedtime').textContent=done?'✓ 오늘 준비 확인됨':'✓ 취침 준비만 확인·기록';
+      q('checks').querySelectorAll('input[type=checkbox]').forEach(input=>{input.checked=false;input.disabled=Boolean(done)});
+      q('hint').textContent=done?'오늘 취침 준비 '+done.checked+'개 항목을 직접 확인한 기록이 있어. 다시 저장하지 않아. 실제 취침 시각은 기록하지 않았어.':'완료한 항목만 체크해. 기록은 이 브라우저에만 남고 실제 수면으로 간주하지 않아.';
+    }
+    if(mode==='sleep'){
       q('state').textContent='휴식 우선';q('headline').textContent='오늘은 여기까지. 이제 취침 준비.';
       q('description').textContent='새 숙제를 더하는 대신 몸과 생각을 정리하자. 실제 취침은 자동으로 판단하지 않아.';
       q('primary').textContent='✓ 취침 준비 단계 확인';q('secondary').textContent='공부 화면으로';
@@ -181,7 +189,7 @@
     if(checked<1){q('hint').textContent='먼저 실제로 한 준비 항목을 하나 이상 체크해 줘.';return}
     const today=new Date().toLocaleDateString('sv-SE');
     if(read().some(e=>e.kind==='sleep' && e.localDate===today)){q('hint').textContent='오늘 취침 준비는 이미 확인했어. 중복 기록하지 않았어. 실제 취침 여부는 별도로 확인해야 해.';return;}
-    if(record({kind:'sleep',checked,localDate:new Date().toLocaleDateString('sv-SE')})){q('hint').textContent=checked+'개 준비를 직접 확인했어. 취침 시간이나 수면 여부는 기록하지 않았어. 다시 기록하려면 항목을 새로 선택해 줘.';q('checks').querySelectorAll('input[type=checkbox]').forEach(input=>{input.checked=false});q('saveBedtime').disabled=true;setTimeout(()=>{q('saveBedtime').disabled=false},800)}
+    if(record({kind:'sleep',checked,localDate:new Date().toLocaleDateString('sv-SE')})){q('hint').textContent=checked+'개 준비를 직접 확인했어. 취침 시간이나 수면 여부는 기록하지 않았어. 다시 기록하려면 항목을 새로 선택해 줘.';q('checks').querySelectorAll('input[type=checkbox]').forEach(input=>{input.checked=false});q('saveBedtime').disabled=true;q('saveBedtime').textContent='✓ 오늘 준비 확인됨';q('checks').querySelectorAll('input[type=checkbox]').forEach(input=>{input.disabled=true})}
   };
   renderHistory();
   restoreActive();
