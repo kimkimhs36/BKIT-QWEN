@@ -27,7 +27,8 @@ test('mobile home -> 10-minute focus -> pause -> reload -> resume -> one durable
   const go = action.getByRole('button', { name: '10분 집중 시작', exact: true });
   await expect(go).toBeVisible();
   const tapArea = await go.boundingBox();
-  expect(tapArea && tapArea.height).toBeGreaterThanOrEqual(44);
+  // Fractional CSS pixels can render 44px as 43.999... on mobile emulation.
+  expect(Math.round(tapArea?.height ?? 0)).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
 
   await go.click();
