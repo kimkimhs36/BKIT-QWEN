@@ -115,6 +115,58 @@ test('saved quick focus offers an immediate independent five-minute problem retr
   expect(recovered.sessions).toEqual(before.sessions);
 });
 
+test('learner-labelled retry keeps the exact problem, answer and self-check through save and reload', async ({ page }) => {
+  await openFreshHome(page, newState());
+  await page.getByRole('region', { name: '지금 할 일 한 가지' })
+    .getByRole('button', { name: '10분 집중 시작', exact: true }).click();
+  const quick = page.getByRole('region', { name: '바로 시작 타이머' });
+  await page.clock.fastForward(61_000);
+  await quick.getByRole('button', { name: '끝내고 시간 저장' }).click();
+  const before = await read(page);
+  expect(before.sessions).toHaveLength(1);
+  const recordedProblem = '수학 학습지 3쪽 4번: 좌극한과 우극한 비교';
+  await quick.getByRole('textbox', { name: '다시 풀 문제 (선택)' }).fill(recordedProblem);
+  await quick.getByRole('button', { name: '혼자 다시 풀기 · 5분' }).click();
+
+  let state = await read(page);
+  expect(state.sessions).toEqual(before.sessions);
+  expect(state.active).toMatchObject({
+    quick: true, target: 5, taskId: null,
+    workspace: {
+      problem: recordedProblem, source: '직접 입력', sourceType: 'user-note', attempts: [],
+    },
+  });
+  const workspace = page.getByRole('region', { name: '실제 문제 풀이' });
+  await expect(workspace.getByText(recordedProblem)).toBeVisible();
+  await workspace.getByRole('textbox', { name: '내 답을 먼저 써보기' })
+    .fill('좌극한과 우극한이 일치하면 극한이 존재한다');
+  await workspace.getByRole('button', { name: '내 답 저장' }).click();
+  state = await read(page);
+  expect(state.active.workspace.attempts[0]).toMatchObject({
+    answer: '좌극한과 우극한이 일치하면 극한이 존재한다',
+    selfCheck: 'unreviewed',
+  });
+
+  // Only the student's own check decides what needs another attempt.
+  await workspace.getByRole('button', { name: '다시 풀어야 해' }).click();
+  expect((await read(page)).active.workspace.attempts[0].selfCheck).toBe('retry');
+  await page.clock.fastForward(32_000);
+  await page.getByRole('button', { name: '학습량 기록 · 종료', exact: true }).click();
+
+  const saved = await read(page);
+  expect(saved.active).toBeNull();
+  expect(saved.sessions).toHaveLength(2);
+  expect(saved.sessions[0]).toEqual(before.sessions[0]);
+  expect(saved.sessions[1].workspace).toMatchObject({
+    problem: recordedProblem, attempts: [{ selfCheck: 'retry' }],
+  });
+  expect(saved.sessions[1].seconds).toBeGreaterThanOrEqual(31);
+  expect(saved.sessions[1].seconds).toBeLessThan(40);
+  expect(saved.tasks).toEqual(before.tasks);
+  await page.reload();
+  expect((await read(page)).sessions).toEqual(saved.sessions);
+});
+
 test('mobile home recommendation begins the exact existing task and never claims submission', async ({ page }) => {
   const s = newState();
   s.tasks = [taskSchema.parse({
