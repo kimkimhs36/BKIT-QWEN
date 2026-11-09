@@ -1000,18 +1000,18 @@ export default function App() {
   const [historyEditingId, setHistoryEditingId] = useState<string | null>(null);
   const [deletedStudyRecords, setDeletedStudyRecords] = useState<Session[] | null>(null);
   const quickToday = quickDaySeconds(s, now);
-  function beginQuick(mode: 'stopwatch' | 'countdown', target: number) {
-    if (!flushLearning(() => beginQuick(mode, target))) return;
+  function beginQuick(mode: 'stopwatch' | 'countdown', target: number, independentRetry = false) {
+    if (!flushLearning(() => beginQuick(mode, target, independentRetry))) return false;
     if (memory.current.active || memory.current.quickTimer) {
       setNotice('기존 타이머가 진행 중입니다. 먼저 마무리해 주세요.');
-      return;
+      return false;
     }
     const started = Date.now();
     const bedtimeStatus = sleepStatus(started, sleep.state);
     if (bedtimeStatus.available &&
       (bedtimeStatus.phase === 'prepare' || bedtimeStatus.phase === 'night')) {
       setNotice('Sleep Guard 취침 준비 시간입니다. 공부를 새로 시작하지 않고 수면 루틴을 지켜요.');
-      return;
+      return false;
     }
     // All entry points (home, focus, records) must honor the same Sleep Guard
     // and school/academy boundaries as a task-linked focus session.
@@ -1019,17 +1019,33 @@ export default function App() {
     const currentBlock = fixedWindows.find((f) => f.start <= started && f.end > started);
     if (currentBlock) {
       setNotice(`${currentBlock.title} 시간입니다. 공부를 새로 시작하지 않고 일정을 먼저 지켜요.`);
-      return;
+      return false;
     }
     const neededMinutes = mode === 'countdown' ? target : 5;
     const upcoming = fixedWindows.filter((f) => f.start > started)
       .sort((a, b) => a.start - b.start)[0];
     if (upcoming && upcoming.start < started + neededMinutes * MIN) {
       setNotice(`${clock(upcoming.start)} ${upcoming.title} 전에 끝나는 짧은 공부를 선택하세요.`);
-      return;
+      return false;
     }
-    if (commit((v) => startQuick(v, mode, target, started, uid())))
-      setNotice('기록 없이 바로 시작! 공부가 끝나면 시간을 먼저 저장할게요.');
+    const sessionId = uid();
+    const saved = commit((v) => {
+      const next = startQuick(v, mode, target, started, sessionId);
+      // One atomic state write: the retry opens the existing problem workspace,
+      // rather than creating an unlinked demo clock or a second running session.
+      return independentRetry ? attachQuickStudy(next) : next;
+    });
+    if (saved) {
+      if (independentRetry) {
+        setProblemToolsSession(sessionId);
+        setQuickEditingId(null);
+        setTab('study');
+        setNotice('새 5분 공부를 시작했어요. 해설을 가리고 문제를 직접 풀어 보세요.');
+      } else {
+        setNotice('기록 없이 바로 시작! 공부가 끝나면 시간을 먼저 저장할게요.');
+      }
+    }
+    return saved;
   }
   function pauseQuickNow() {
     commit((v) => pauseQuick(v, Date.now()));
@@ -1132,6 +1148,7 @@ export default function App() {
     editingId: quickEditingId,
     focusBusy: !!s.active,
     onStart: beginQuick,
+    onIndependentRetry: () => beginQuick('countdown', 5, true),
     onPause: pauseQuickNow,
     onResume: resumeQuickNow,
     onFinish: finishQuickNow,
