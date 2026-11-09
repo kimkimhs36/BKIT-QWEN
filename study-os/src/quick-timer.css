@@ -65,3 +65,7 @@ html[data-material] .app-shell.premium-os.is-focusing .focus-instrument { aspect
 .quick-timer-retry small{font-size:11px;line-height:1.55;color:var(--muted,#66736d)}
 .quick-timer-retry button{min-height:48px;width:100%;border-radius:13px;display:flex;justify-content:center;align-items:center;gap:8px;cursor:pointer}
 @media(min-width:580px){.quick-timer-retry button{width:auto;min-width:230px}}
+
+.quick-timer-retry-problem{display:grid;gap:7px;width:100%;font-size:12px;font-weight:650;color:inherit}
+.quick-timer-retry-problem input{width:100%;min-width:0;min-height:46px;border:1px solid var(--line,rgba(85,110,92,.24));border-radius:12px;background:var(--surface,rgba(255,255,255,.9));color:inherit;font:inherit;font-size:14px;padding:12px}
+.quick-timer-retry-problem input:focus-visible{outline:2px solid currentColor;outline-offset:2px}
