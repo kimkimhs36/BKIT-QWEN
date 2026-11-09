@@ -179,7 +179,9 @@
   q('saveBedtime').onclick=()=>{
     const checked=[...q('checks').querySelectorAll('input[type=checkbox]')].filter(x=>x.checked).length;
     if(checked<1){q('hint').textContent='먼저 실제로 한 준비 항목을 하나 이상 체크해 줘.';return}
-    if(record({kind:'sleep',checked})){q('hint').textContent=checked+'개 준비를 직접 확인했어. 취침 시간이나 수면 여부는 기록하지 않았어. 다시 기록하려면 항목을 새로 선택해 줘.';q('checks').querySelectorAll('input[type=checkbox]').forEach(input=>{input.checked=false});q('saveBedtime').disabled=true;setTimeout(()=>{q('saveBedtime').disabled=false},800)}
+    const today=new Date().toLocaleDateString('sv-SE');
+    if(read().some(e=>e.kind==='sleep' && e.localDate===today)){q('hint').textContent='오늘 취침 준비는 이미 확인했어. 중복 기록하지 않았어. 실제 취침 여부는 별도로 확인해야 해.';return;}
+    if(record({kind:'sleep',checked,localDate:new Date().toLocaleDateString('sv-SE')})){q('hint').textContent=checked+'개 준비를 직접 확인했어. 취침 시간이나 수면 여부는 기록하지 않았어. 다시 기록하려면 항목을 새로 선택해 줘.';q('checks').querySelectorAll('input[type=checkbox]').forEach(input=>{input.checked=false});q('saveBedtime').disabled=true;setTimeout(()=>{q('saveBedtime').disabled=false},800)}
   };
   renderHistory();
   restoreActive();
