@@ -1,15 +1,18 @@
 import type { State } from './model';
 import type { SleepState } from './sleep';
 import { formatRecordedFocus, summarizeEvidenceWeek } from './evidenceWeek';
+import { chooseEvidenceNextAction } from './evidenceNextAction';
 
 type Props = {
   state: State;
   sleep: SleepState;
   today: string;
+  now: number;
   studying: boolean;
   sleepProtected: boolean;
   onStartOrResume: () => void;
   onSleep: () => void;
+  onHome: () => void;
 };
 
 /**
@@ -17,10 +20,28 @@ type Props = {
  * It never writes synthetic outcomes or declares that habits improved.
  */
 export function EvidenceWeek({
-  state, sleep, today, studying, sleepProtected, onStartOrResume, onSleep,
+  state, sleep, today, now, studying, sleepProtected, onStartOrResume, onSleep, onHome,
 }: Props) {
   const evidence = summarizeEvidenceWeek(state, sleep, today);
   const todayRecord = evidence.days[6];
+  const next = chooseEvidenceNextAction(state, sleep, now, studying, sleepProtected);
+  const description = next.kind === 'finish'
+    ? '진행 중인 공부를 직접 마무리한 뒤 기록을 저장해 주세요.'
+    : next.kind === 'sleep'
+      ? '지금은 취침 준비를 먼저 확인해 주세요. 실제 잠든 시각은 자동 계산하지 않아요.'
+      : next.kind === 'schedule'
+        ? next.upcoming
+          ? `${next.title} 시간이 곧 시작돼요. 새로운 5분 공부 대신 일정을 먼저 확인해요.`
+          : `${next.title} 시간이에요. 공부를 새로 시작하지 않고 기존 일정을 지켜요.`
+        : todayRecord.studyRecorded
+          ? '오늘 실제로 저장한 공부가 있어요. 여유가 있다면 다음 5분도 직접 선택할 수 있어요.'
+          : '오늘 완료된 공부 기록은 아직 없어요. 첫 5분부터 시작해 보세요.';
+  const label = next.kind === 'finish' ? '공부 마무리 및 기록'
+    : next.kind === 'sleep' ? '취침 준비 확인'
+      : next.kind === 'schedule' ? '오늘 일정 확인'
+        : '자율 학습 5분 시작';
+  const onAction = next.kind === 'sleep' ? onSleep
+    : next.kind === 'schedule' ? onHome : onStartOrResume;
   return (
     <section className="bkit-evidence-week" aria-label="최근 7일 실제 행동 확인">
       <header className="bkit-evidence-header">
@@ -53,19 +74,9 @@ export function EvidenceWeek({
       <div className="bkit-evidence-today">
         <div>
           <strong>오늘의 다음 한 가지</strong>
-          <p>
-            {sleepProtected
-              ? '지금은 취침 준비를 먼저 확인해 주세요. 실제 잠든 시각은 자동 계산하지 않아요.'
-              : studying
-                ? '진행 중인 공부를 직접 마무리하고 기록을 저장해 주세요.'
-                : todayRecord.studyRecorded
-                  ? '이미 저장한 시간이 있어요. 부담 없이 다음 5분을 선택할 수 있어요.'
-                  : '오늘 완료된 공부 기록은 아직 없어요. 첫 5분부터 시작해 보세요.'}
-          </p>
+          <p>{description}</p>
         </div>
-        <button type="button" onClick={sleepProtected ? onSleep : onStartOrResume}>
-          {sleepProtected ? '취침 준비 확인' : studying ? '공부 이어가기' : '자율 학습 5분 시작'}
-        </button>
+        <button type="button" onClick={onAction}>{label}</button>
       </div>
       <p className="bkit-evidence-disclaimer">
         ‘미기록’은 실패를 뜻하지 않아요. 취침 준비 체크는 실제 수면이 아니며,
