@@ -97,4 +97,43 @@ describe('school notice ZIP coverage', () => {
     await restoreCompleteBackup(checked, 'merge', target);
     expect(JSON.parse(target.getItem(INBOX_KEY)!)).toEqual(originalNotice);
   });
+
+  it('restores a linked assessment with its original notice without inventing submission', async () => {
+    const assessment = {
+      id: 'assessment-1',
+      subject: '물질과 에너지',
+      title: '실험 보고서',
+      kind: '수행평가' as const,
+      due: null,
+      priority: 2,
+      minutes: 20,
+      remaining: 20,
+      status: 'done' as const,
+      submitted: false,
+      optional: false,
+      notes: '',
+      link: '',
+    };
+    const sourceState = newState();
+    sourceState.tasks.push(assessment);
+    const linkedNotice = {
+      ...originalNotice,
+      notices: [{ ...originalNotice.notices[0], taskIds: [assessment.id] }],
+    };
+    const source = storage({
+      [KEY]: JSON.stringify(sourceState),
+      [INBOX_KEY]: JSON.stringify(linkedNotice),
+    });
+    const zip = await exportCompleteBackup(source);
+    globalThis.indexedDB = new IDBFactory();
+    const target = storage();
+    const checked = await inspectCompleteBackup(zip, target);
+    await restoreCompleteBackup(checked, 'merge', target);
+    const restoredState = JSON.parse(target.getItem(KEY)!);
+    const restoredInbox = JSON.parse(target.getItem(INBOX_KEY)!);
+    expect(restoredState.tasks.find((task: { id: string }) => task.id === assessment.id))
+      .toMatchObject({ status: 'done', submitted: false });
+    expect(restoredInbox.notices[0].taskIds).toContain(assessment.id);
+    expect(restoredInbox.notices[0].text).toBe('수행평가 공지 원본');
+  });
 });
