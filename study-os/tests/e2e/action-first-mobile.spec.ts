@@ -50,6 +50,9 @@ test('mobile home -> 10-minute focus -> pause -> reload -> resume -> one durable
   const reloaded = (await read(page)).quickTimer;
   expect(reloaded.id).toBe(paused.id);
   expect(Math.abs(reloaded.elapsed - paused.elapsed)).toBeLessThanOrEqual(1);
+  // Reload returns to Home: recover through the visible one-tap resume action.
+  await page.getByRole('region', { name: '지금 할 일 한 가지' })
+    .getByRole('button', { name: '공부 이어가기', exact: true }).click();
   await timer.getByRole('button', { name: '이어하기' }).click();
   await page.clock.fastForward(50000);
   await timer.getByRole('button', { name: '끝내고 시간 저장' }).click();
