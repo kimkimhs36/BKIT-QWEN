@@ -2808,6 +2808,7 @@ export default function App() {
                   state={s}
                   sleep={sleep.state}
                   today={today}
+                  now={now}
                   studying={!!s.active || !!s.quickTimer}
                   sleepProtected={sleep.status.available &&
                     (sleep.status.phase === 'prepare' || sleep.status.phase === 'night')}
@@ -2816,6 +2817,7 @@ export default function App() {
                     else start(5, '__free__');
                   }}
                   onSleep={() => setTab('sleep')}
+                  onHome={() => setTab('today')}
                 />
                 {(hasDueProblemReview || hasDueSessionReview) && (
                   <section className="bkit-review-now" aria-label="지금 독립 재풀이">
