@@ -63,6 +63,18 @@ export function chooseHomeNextAction(
       minutes: null,
     };
 
+  // Never promise a five-minute session when a confirmed appointment begins sooner.
+  // Keep the user's task untouched; guide them to the existing plan recovery flow.
+  if (next && next.start > now && next.start - now < 5 * 60_000) {
+    return {
+      kind: 'blocked',
+      title: '곧 다음 일정이 시작돼요',
+      detail: '5분도 남지 않아 새 집중을 시작하지 않아요. 등록된 과제는 그대로 유지돼요.',
+      label: '남은 계획 재조정',
+      minutes: null,
+    };
+  }
+
   const minutes: 5 | 10 = next && next.start - now < 10 * 60_000 ? 5 : 10;
   return {
     kind: 'study',
