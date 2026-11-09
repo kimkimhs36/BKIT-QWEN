@@ -78,6 +78,7 @@ jobs:
           name: bkit-mobile-evidence-screens-${{ github.sha }}
           path: |
             study-os/test-results/**/home-*-synthetic.png
+            study-os/test-results/**/post-focus-retry-synthetic.png
             study-os/test-results/**/evidence-*-synthetic.png
             study-os/test-results/**/evidence-with-synthetic-records.png
           if-no-files-found: warn
