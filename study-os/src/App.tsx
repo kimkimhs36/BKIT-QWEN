@@ -177,6 +177,7 @@ import {
   type Recovery,
 } from './engine';
 import { elapsed, studySeconds, todayOutput, closeSegment } from './session';
+import { pausedStudySnapshot } from './quickTimer';
 import { needsSubmission, needsAttention, filteredTasks } from './tasks';
 import { inputError } from './input-error';
 import { requestAI } from './ai';
@@ -626,12 +627,8 @@ export default function App() {
       const current = memory.current;
       if (!current.active?.segmentStart && !current.quickTimer?.segmentStart) return;
       const stoppedAt = Date.now();
-      commit((state) => ({
-        ...pauseQuick(state, stoppedAt),
-        active: state.active?.segmentStart
-          ? closeSegment(state.active, stoppedAt)
-          : state.active,
-      }));
+      // Reuse the same persisted pause logic as backup/export; no second timer.
+      commit((state) => pausedStudySnapshot(state, stoppedAt));
     };
     const visible = () => {
       if (document.visibilityState === 'hidden') pauseForBackground();
