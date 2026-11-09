@@ -213,6 +213,14 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
           <p>백업 생성: {new Date(inspected.manifest.createdAt).toLocaleString()}</p>
           {archiveCoverage && (
             <p role="status">
+              {archiveCoverage.schoolNotices
+                ? '학교 공지 원본: 선택한 ZIP에 검사 시점의 이 기기 공지 보관함이 포함되어 있습니다.'
+                : '학교 공지 원본 주의: 이 ZIP의 공지 보관함은 현재 기기와 다릅니다. 새로 받은 공지를 잃지 않도록 최신 ZIP을 다시 만들어 검사하세요.'}
+              {' '}연결된 수행평가 기록은 아래 학습 기록 일치 여부도 함께 확인하세요.
+            </p>
+          )}
+          {archiveCoverage && (
+            <p role="status">
               {archiveCoverage.study && archiveCoverage.sleep && archiveCoverage.paper
                 ? '선택한 ZIP은 검사 시점의 학습·수면·PDF/필기 저장 내용과 일치합니다. 파일을 외부에 보관했는지 확인하세요.'
                 : '선택한 ZIP은 손상되지 않았지만 현재 기기의 모든 최신 기록과 일치하지는 않습니다. 이 파일만으로 지금의 기록 전체를 되찾을 수 있다고 가정하지 마세요.'}
