@@ -57,3 +57,11 @@ html[data-material] .app-shell.premium-os.is-focusing .focus-instrument { aspect
 .study-timer-chip-copy strong { font-size:15px;letter-spacing:.02em;font-variant-numeric:tabular-nums; }
 .study-recommendation-reason { display:block;margin-top:8px;color:var(--mat-muted);font-size:11px;line-height:1.5; }
 [data-touch-icon] { transform-origin:50% 65%; }
+
+/* After saving real time, offer one deliberate independent question retry. */
+.quick-timer-retry{display:grid;justify-items:start;gap:9px;margin-top:12px;padding:17px;border:1px solid var(--line,rgba(85,110,92,.2));border-radius:17px;background:var(--surface,rgba(255,255,255,.65));text-align:left}
+.quick-timer-retry-step{font-size:10px;letter-spacing:.16em;font-weight:700;opacity:.7}
+.quick-timer-retry p{margin:0;font-size:14px;font-weight:600;line-height:1.5}
+.quick-timer-retry small{font-size:11px;line-height:1.55;color:var(--muted,#66736d)}
+.quick-timer-retry button{min-height:48px;width:100%;border-radius:13px;display:flex;justify-content:center;align-items:center;gap:8px;cursor:pointer}
+@media(min-width:580px){.quick-timer-retry button{width:auto;min-width:230px}}
