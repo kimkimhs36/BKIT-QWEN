@@ -65,6 +65,7 @@ import {
 } from './learningEngine';
 import { expireMockExam } from './mockExam';
 import { sleepConstraints, studyFixedNow } from './sleepConstraints';
+import { sleepStatus } from './sleep';
 import {
   addProblemRetest,
   buildProblemReviews,
@@ -994,6 +995,12 @@ export default function App() {
       return;
     }
     const started = Date.now();
+    const bedtimeStatus = sleepStatus(started, sleep.state);
+    if (bedtimeStatus.available &&
+      (bedtimeStatus.phase === 'prepare' || bedtimeStatus.phase === 'night')) {
+      setNotice('Sleep Guard 취침 준비 시간입니다. 공부를 새로 시작하지 않고 수면 루틴을 지켜요.');
+      return;
+    }
     // All entry points (home, focus, records) must honor the same Sleep Guard
     // and school/academy boundaries as a task-linked focus session.
     const fixedWindows = studyFixedNow(memory.current, sleep.state, started);
@@ -1021,6 +1028,12 @@ export default function App() {
       return;
     }
     const timestamp = Date.now();
+    const bedtimeStatus = sleepStatus(timestamp, sleep.state);
+    if (bedtimeStatus.available &&
+      (bedtimeStatus.phase === 'prepare' || bedtimeStatus.phase === 'night')) {
+      setNotice('Sleep Guard 취침 준비 시간입니다. 일시정지된 공부는 그대로 보존합니다.');
+      return;
+    }
     const blockedBy = studyFixedNow(memory.current, sleep.state, timestamp)
       .find((f) => f.start <= timestamp && f.end > timestamp);
     if (blockedBy) {
