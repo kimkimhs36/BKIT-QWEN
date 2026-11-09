@@ -53,9 +53,17 @@ jobs:
           const html = readFileSync('dist/index.html', 'utf8');
           const assets = [...html.matchAll(/(?:src|href)=["']([^"']*assets\/[^"']+)["']/g)].map(m => m[1]);
           if (!assets.length) throw new Error('No app assets referenced by index.html');
+          // The public Vite base (/study-os/) is a URL prefix, not a folder in dist/.
+          const appBase = (process.env.APP_BASE || '/study-os/').replace(/\/?$/, '/');
           for (const url of assets) {
-            const relative = url.replace(/^\/+/, '');
-            if (!statSync(join('dist', relative)).isFile()) throw new Error('Missing asset: ' + relative);
+            const pathname = url.split(/[?#]/, 1)[0];
+            const relative = pathname.startsWith(appBase)
+              ? pathname.slice(appBase.length)
+              : pathname.replace(/^\.?\//, '');
+            if (!relative.startsWith('assets/') || relative.includes('..'))
+              throw new Error('Unexpected compiled asset URL: ' + url);
+            if (!statSync(join('dist', relative)).isFile())
+              throw new Error('Missing asset: ' + relative);
           }
           const js = readdirSync('dist/assets').filter(n => n.endsWith('.js'));
           if (!js.length) throw new Error('No compiled application JS found');
