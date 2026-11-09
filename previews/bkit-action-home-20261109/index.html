@@ -50,6 +50,7 @@
 <label for="retryProblem">다시 풀 문제 (선택)
 <input id="retryProblem" type="text" maxlength="90" autocomplete="off" placeholder="예: 수학 학습지 3쪽 4번"></label>
 <button type="button" id="retryStart">▶ 혼자 다시 풀기 · 5분</button>
+<div id="selfCheck" role="group" aria-label="독립 풀이 자기점검" hidden><p>해설을 보지 않고 혼자 풀었어?</p><button type="button" id="solvedAlone">✓ 혼자 해결했어</button><button type="button" id="needReview">↻ 아직 도움 필요</button></div>
 <small>기존 기록은 유지해. 새 5분 집중이 시작되며 정답·완료 여부는 스스로 확인해야 해.</small>
 </div>
 <div id="history" class="hint" role="status" aria-live="polite"></div>
@@ -82,7 +83,7 @@
   const STORE='bkit-action-preview-local-v1';
   const read=()=>{try{const x=JSON.parse(localStorage.getItem(STORE)||'[]');return Array.isArray(x)?x.filter(e=>e&&typeof e==='object').slice(-30):[]}catch{return []}};
   function record(entry){try{const list=read();list.push({...entry,at:new Date().toISOString()});localStorage.setItem(STORE,JSON.stringify(list.slice(-30)));renderHistory();return true}catch{q('history').textContent='이 브라우저는 기록 저장이 제한되어 있어. 기록은 저장되지 않았어.';return false}}
-  function renderHistory(){const list=read();if(!list.length){q('history').textContent='이 브라우저에 저장된 행동 기록이 아직 없어.';return}const last=list[list.length-1];q('history').textContent='이 기기에만 기록 '+list.length+'개 · 최근 '+(last.kind==='sleep'?'취침 준비 확인':'집중 '+Math.floor(last.seconds/60)+'분 '+last.seconds%60+'초')+' · 실제 수면·과제 제출을 의미하지 않아.'}
+  function renderHistory(){const list=read();if(!list.length){q('history').textContent='이 브라우저에 저장된 행동 기록이 아직 없어.';return}const last=list[list.length-1];q('history').textContent='이 기기에만 기록 '+list.length+'개 · 최근 '+(last.kind==='sleep'?'취침 준비 확인':last.kind==='selfcheck'?(last.solved?'독립 풀이 성공 자기확인':'복습 필요 자기확인'):'집중 '+Math.floor(last.seconds/60)+'분 '+last.seconds%60+'초')+' · 실제 수면·과제 제출을 의미하지 않아.'}
 
   const ACTIVE='bkit-action-preview-active-v1';
   // A hidden tab cannot prove active study. Pause it instead of crediting wall-clock time.
@@ -172,6 +173,7 @@
     q('description').textContent='집중 '+format(confirmedSeconds)+'이 이 브라우저에 저장됐어. 실제 앱의 과제·제출 기록은 건드리지 않았어.';
     q('state').textContent='집중 시간 저장됨';
     q('retryPrompt').hidden=false;
+    q('selfCheck').hidden=goalSeconds!==300;
   };
   q('resetSession').onclick=()=>{setMode('study',true);q('history').textContent='타이머를 초기화했어. 기록은 남기지 않았어.'};
   q('retryStart').onclick=()=>{
@@ -179,11 +181,19 @@
     const selected=q('retryProblem').value.trim().slice(0,90);
     goalSeconds=300;choice=selected||'선택한 문제 독립 재풀이';
     q('retryPrompt').hidden=true;
+    q('selfCheck').hidden=true;
     q('headline').textContent=selected?selected+' · 직접 재풀이':'문제 하나, 해설 없이 다시.';
     q('description').textContent='이전 시간은 저장돼 있어. 직접 고른 문제로 새 5분 동안 공부하고 스스로 확인하자. 이 미리보기는 실제 BKIT 계정과 연결되지 않아.';
     q('primary').textContent='▶ 5분 집중 시작';
     q('primary').click();
   };
+  function saveSelfCheck(solved){
+    if(!record({kind:'selfcheck',solved,topic:choice})){q('hint').textContent='자기점검을 저장하지 못했어. 다시 눌러 줘.';return;}
+    q('selfCheck').hidden=true;
+    q('retryPrompt').querySelector('p').textContent=solved?'혼자 해결했다고 기록했어. 내일 한 번 더 확인해 봐.':'도움이 필요하다고 기록했어. 해설을 읽고 다시 가린 뒤 한 문제만 재도전해 봐.';
+  }
+  q('solvedAlone').onclick=()=>saveSelfCheck(true);
+  q('needReview').onclick=()=>saveSelfCheck(false);
   q('saveBedtime').onclick=()=>{
     const checked=[...q('checks').querySelectorAll('input[type=checkbox]')].filter(x=>x.checked).length;
     if(checked<1){q('hint').textContent='먼저 실제로 한 준비 항목을 하나 이상 체크해 줘.';return}
