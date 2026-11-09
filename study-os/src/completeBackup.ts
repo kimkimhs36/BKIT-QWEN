@@ -218,6 +218,7 @@ export function backupMatchesCurrent(archive: InspectedBackup) {
       (archive.keys[EXAM_KEY] ?? null) === (archive.baseline[EXAM_KEY] ?? null) &&
       (archive.keys[EXAM_EXT_KEY] ?? null) === (archive.baseline[EXAM_EXT_KEY] ?? null) &&
       (archive.keys[INBOX_KEY] ?? null) === (archive.baseline[INBOX_KEY] ?? null),
+    schoolNotices: (archive.keys[INBOX_KEY] ?? null) === (archive.baseline[INBOX_KEY] ?? null),
     sleep: archive.keys[SLEEP_KEY] === archive.baseline[SLEEP_KEY],
     paper: JSON.stringify(archive.paper.documents) === JSON.stringify(archive.paper.baseline),
   };
