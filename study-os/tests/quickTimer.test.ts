@@ -120,6 +120,34 @@ describe('durable quick-study boundaries', () => {
   });
 });
 
+describe('Safari background focus recovery', () => {
+  it('pauses a real quick session once, survives reload and resumes only on explicit action', async () => {
+    const { pausedStudySnapshot } = await import('../src/quickTimer');
+    const started = Date.parse('2026-11-09T12:00:00+09:00');
+    let state = startQuick(newState(), 'countdown', 10, started, 'safari-quick');
+    state = pausedStudySnapshot(state, started + 90_000);
+    state = pausedStudySnapshot(state, started + 91_000); // visibilitychange then pagehide
+    state = stateSchema.parse(JSON.parse(JSON.stringify(state)));
+    expect(state.quickTimer?.segmentStart).toBeNull();
+    expect(quickSeconds(state.quickTimer!, started + 30 * 60_000)).toBe(90);
+    expect(state.quickTimer?.segments).toHaveLength(1);
+    state = resumeQuick(state, started + 30 * 60_000); // explicit learner action
+    state = finishQuick(state, started + 31 * 60_000);
+    expect(state.sessions[0].seconds).toBe(150);
+    expect(state.sessions[0].segments).toHaveLength(2);
+    expect(stateSchema.safeParse(state).success).toBe(true);
+  });
+  it('keeps previously saved sessions unchanged when Safari backgrounds a new timer', async () => {
+    const { pausedStudySnapshot } = await import('../src/quickTimer');
+    let state = finishQuick(startQuick(newState(), 'stopwatch', 480, 1000, 'saved'), 61000);
+    const previous = JSON.stringify(state.sessions);
+    state = startQuick(state, 'countdown', 5, 100000, 'new');
+    state = pausedStudySnapshot(state, 110000);
+    expect(JSON.stringify(state.sessions)).toBe(previous);
+    expect(state.quickTimer?.elapsed).toBe(10);
+  });
+});
+
 describe('live task attachment without material', () => {
   it('preserves paused segments across reload, linking, resume and finish', async () => {
     const { attachQuickTask, finishQuickResource } = await import('../src/quickTimer');
