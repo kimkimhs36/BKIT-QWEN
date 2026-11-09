@@ -25,9 +25,11 @@ async function openEvidence(page: Page) {
   await expect(evidence(page)).toBeVisible();
 }
 
-test('new learner: no fabricated progress, start five minutes, save, and see durable daily evidence', async ({ page }) => {
+test('new learner: no fabricated progress, start five minutes, save, and see durable daily evidence', async ({ page }, testInfo) => {
   await seed(page, newState());
+  await page.screenshot({ path: testInfo.outputPath('home-empty-synthetic.png'), fullPage: true });
   await openEvidence(page);
+  await page.screenshot({ path: testInfo.outputPath('evidence-empty-synthetic.png'), fullPage: true });
   const section = evidence(page);
   await expect(section).toContainText('0/7일 기록 확인');
   await expect(section).toContainText('미기록');
@@ -58,7 +60,7 @@ test('new learner: no fabricated progress, start five minutes, save, and see dur
     .toMatchObject({ records: [] });
 });
 
-test('real checked sleep steps and hint-free retest count separately from actual bedtime', async ({ page }) => {
+test('real checked sleep steps and hint-free retest count separately from actual bedtime', async ({ page }, testInfo) => {
   const state = newState();
   state.sessions = [{
     id:'s1', taskId:null, subject:'수학', action:'내 오답 재풀이',
@@ -80,6 +82,7 @@ test('real checked sleep steps and hint-free retest count separately from actual
   }];
   await seed(page, state, sleep);
   await openEvidence(page);
+  await page.screenshot({ path: testInfo.outputPath('evidence-with-synthetic-records.png'), fullPage: true });
   const section = evidence(page);
   await expect(section).toContainText('1/7일 기록 확인');
   const last = section.getByRole('listitem').last();
