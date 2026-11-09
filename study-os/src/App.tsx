@@ -177,7 +177,6 @@ import {
   type Recovery,
 } from './engine';
 import { elapsed, studySeconds, todayOutput, closeSegment } from './session';
-import { pausedStudySnapshot } from './quickTimer';
 import { needsSubmission, needsAttention, filteredTasks } from './tasks';
 import { inputError } from './input-error';
 import { requestAI } from './ai';
