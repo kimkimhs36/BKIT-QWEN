@@ -766,3 +766,13 @@
   .bkit-assessment-rescue-row { gap: 0.35rem; }
   .bkit-assessment-rescue-start { padding: 0.45rem 0.5rem; }
 }
+
+.bkit-assessment-rescue-error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent);
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.bkit-assessment-rescue-actions button:disabled { cursor: wait; opacity: .68; }
