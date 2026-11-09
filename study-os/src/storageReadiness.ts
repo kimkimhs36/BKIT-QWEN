@@ -1,3 +1,4 @@
+import { randomLocalId } from './randomLocalId';
 import { INBOX_KEY, inboxSchema } from './schoolInbox';
 import { sha256 } from './localZip';
 import { listPaperDocuments, readPaperFile } from './paperStorage';
@@ -31,7 +32,7 @@ export async function auditStudyStorage(
   const warning = (message: string) => findings.push({ level: 'warning', message });
 
   // Probe only a disposable key; a success does not guarantee all future saves.
-  const probeKey = 'bkit-storage-write-probe-' + crypto.randomUUID();
+  const probeKey = 'bkit-storage-write-probe-' + randomLocalId();
   try {
     storage.setItem(probeKey, probeKey);
     if (storage.getItem(probeKey) !== probeKey)

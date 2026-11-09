@@ -1,3 +1,4 @@
+import { randomLocalId } from './randomLocalId';
 // Local-only photo vault. No network client, public URL or image bytes in localStorage.
 export type PrivatePhoto = { id: string; blob: Blob; name: string; size: number; digest: string };
 async function database(): Promise<IDBDatabase> {
@@ -61,7 +62,7 @@ export async function storePhoto(file: File, existingIds: string[]): Promise<str
   // ArrayBuffer avoids WebKit File/Blob structured-clone failures and detached
   // picker-backed files. Reconstruct a typed Blob only while viewing a photo.
   const photo: PhotoRecord = {
-    id: crypto.randomUUID(),
+    id: randomLocalId(),
     bytes,
     mime: file.type || 'image/heic',
     name: file.name,

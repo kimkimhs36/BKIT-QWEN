@@ -1,3 +1,4 @@
+import { randomLocalId } from '../randomLocalId';
 import { z } from 'zod';
 import { concepts as legacyConcepts, questionById, score, type Concept } from './content.js';
 import {
@@ -177,7 +178,7 @@ export function startSession(
       ? legacyConcepts.find((c) => !evidence(d, c.id, now).count)?.id || 'balance'
       : recommendation(d, now).concept);
   return {
-    id: crypto.randomUUID(),
+    id: randomLocalId(),
     kind,
     questionId: chooseQuestion(d, target).id,
     answer: '',

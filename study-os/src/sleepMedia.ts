@@ -1,3 +1,4 @@
+import { randomLocalId } from './randomLocalId';
 // Independent Sleep Guard photo vault; study photos cannot be removed by sleep-record deletion.
 // Local-only photo vault. No network client, public URL or image bytes in localStorage.
 export type PrivatePhoto = { id: string; blob: Blob; name: string; size: number; digest: string };
@@ -62,7 +63,7 @@ export async function storeSleepPhoto(file: File, existingIds: string[]): Promis
   // ArrayBuffer avoids WebKit File/Blob structured-clone failures and detached
   // picker-backed files. Reconstruct a typed Blob only while viewing a photo.
   const photo: PhotoRecord = {
-    id: crypto.randomUUID(),
+    id: randomLocalId(),
     bytes,
     mime: file.type || 'image/heic',
     name: file.name,

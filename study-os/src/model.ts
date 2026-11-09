@@ -1,3 +1,4 @@
+import { randomLocalId } from './randomLocalId';
 import { z } from 'zod';
 import { learningSchema } from './learningModel';
 const id = z.string().min(1).max(100),
@@ -332,4 +333,4 @@ export const newState = (): State => ({
     goal: '오늘의 작은 학습을 차분히 완성하기',
   },
 });
-export const uid = () => crypto.randomUUID();
+export const uid = () => randomLocalId();
