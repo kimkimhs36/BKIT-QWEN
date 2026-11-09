@@ -150,6 +150,7 @@ test('learner-labelled retry keeps the exact problem, answer and self-check thro
   // Only the student's own check decides what needs another attempt.
   await workspace.getByRole('button', { name: '다시 풀어야 해' }).click();
   expect((await read(page)).active.workspace.attempts[0].selfCheck).toBe('retry');
+  await expect(workspace.locator('.problem-next-review')).toContainText('2026-11-10');
   await page.clock.fastForward(32_000);
   await page.getByRole('button', { name: '학습량 기록 · 종료', exact: true }).click();
 
