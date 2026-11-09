@@ -11,6 +11,7 @@ on:
       - 'study-os/src/homeDueReview.ts'
       - 'study-os/tests/actionFirst.test.ts'
       - 'study-os/tests/homeDueReview.test.ts'
+      - 'study-os/tests/e2e/action-first-mobile.spec.ts'
       - 'study-os/tests/homeSleepSteps.test.ts'
       - 'study-os/src/App.tsx'
       - 'study-os/src/daily-driver.css'
@@ -44,6 +45,10 @@ jobs:
         run: npx vitest run tests/actionFirst.test.ts tests/homeSleepSteps.test.ts tests/homeDueReview.test.ts
       - name: TypeScript and production build
         run: npm run build
+      - name: Install Chromium for mobile scenario
+        run: npx playwright install --with-deps chromium
+      - name: Real-app mobile action-first start and save
+        run: npx playwright test tests/e2e/action-first-mobile.spec.ts --project=iphone --reporter=list
       - name: Verify real-app static bundle integrity
         run: |
           set -euo pipefail
