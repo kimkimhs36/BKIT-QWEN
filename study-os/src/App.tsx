@@ -2286,6 +2286,10 @@ export default function App() {
                   setInboxNoticeId(undefined);
                   setTab('inbox');
                 }}
+                onOpenNotice={(noticeId) => {
+                  setInboxNoticeId(noticeId);
+                  setTab('inbox');
+                }}
                 onAssessment={addAssessmentNow}
                 onExportCalendar={exportCalendar}
                 onAssistant={() => open('assistant')}

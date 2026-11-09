@@ -19,7 +19,7 @@ function home(state: State, now: number) {
     inboxPending: 0, accountConnected: false, onStart: noop, onQuick: noop,
     onQuickPause: noop, onQuickResume: noop, onQuickFinish: noop, onIndependentRetry: noop,
     onOpenDueProblem: noop,
-    onNavigate: noop, onAdd: noop, onRecover: noop, onInbox: noop,
+    onNavigate: noop, onAdd: noop, onRecover: noop, onInbox: noop, onOpenNotice: noop,
     onAssessment: noop, onExportCalendar: noop, onAssistant: noop,
     onEdit: noop, onAssessments: noop, onSubmissions: noop,
     onResource: noop, onHelp: noop, onAccount: noop,

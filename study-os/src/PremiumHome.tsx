@@ -1,5 +1,5 @@
 import { ArrowRight, ArrowUpRight, BookOpen, ChevronRight, Clock3, Play, Plus } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { State, Task } from './model';
 import { fixedForDay, type Fixed } from './engine';
 import { entriesForDay } from './calendar';
@@ -8,6 +8,7 @@ import { clock, dayKey, addDays } from './time';
 import { dailyTriage, taskUrgencyLabel } from './dailyTriage';
 import { needsAttention, needsSubmission, unsubmittedAssessment } from './tasks';
 import { assessmentRescue } from './assessmentRescue';
+import { saveCopiedSchoolNotice } from './homeNoticeCapture';
 import { quickClock, quickSeconds } from './quickTimer';
 import { chooseHomeNextAction, resolveHomeStudyStart } from './actionFirst';
 import { firstDueReview } from './homeDueReview';
@@ -40,6 +41,7 @@ type Props = {
   unavailable: string;
   inboxPending: number | null;
   onInbox: () => void;
+  onOpenNotice: (noticeId: string) => void;
   onAssessment: () => void;
   onExportCalendar: () => void;
   onAssistant: () => void;
@@ -73,6 +75,7 @@ export function PremiumHome({
   unavailable,
   inboxPending,
   onInbox,
+  onOpenNotice,
   onAssessment,
   onExportCalendar,
   onAssistant,
@@ -84,6 +87,30 @@ export function PremiumHome({
   onAccount,
   accountConnected,
 }: Props) {
+  const [noticeBusy, setNoticeBusy] = useState(false);
+  const [noticeError, setNoticeError] = useState('');
+  async function copyNoticeToInbox() {
+    if (noticeBusy) return;
+    setNoticeBusy(true);
+    setNoticeError('');
+    try {
+      if (!navigator.clipboard?.readText) {
+        throw new Error('클립보드 사용 불가');
+      }
+      const text = await navigator.clipboard.readText();
+      const result = saveCopiedSchoolNotice(text, window.localStorage);
+      if (result.kind === 'error') {
+        setNoticeError(result.message);
+      } else {
+        if (result.kind === 'saved') window.dispatchEvent(new Event('bkit:inbox'));
+        onOpenNotice(result.noticeId);
+      }
+    } catch {
+      setNoticeError('클립보드 권한을 사용할 수 없어요. 공지함에서 직접 붙여넣거나 사진을 추가할 수 있어요.');
+    } finally {
+      setNoticeBusy(false);
+    }
+  }
   const triage = dailyTriage(tasks, now);
   const rescue = assessmentRescue(state.tasks, now);
   const pending = triage.spotlight;
@@ -274,15 +301,26 @@ export function PremiumHome({
                   <span><strong>{task.subject} · {task.title}</strong><small>{status}</small></span>
                   <ChevronRight size={18} aria-hidden="true" />
                 </button>
-                <button
-                  type="button"
-                  className="bkit-assessment-rescue-start"
-                  disabled={busy}
-                  aria-label={`${task.title} 5분 공부 시작`}
-                  onClick={() => onStart(task.id, 5)}
-                >
-                  5분 시작
-                </button>
+                {needsSubmission(task) ? (
+                  <button
+                    type="button"
+                    className="bkit-assessment-rescue-start"
+                    aria-label={`${task.title} 실제 제출 확인`}
+                    onClick={() => onEdit(task)}
+                  >
+                    제출 확인
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="bkit-assessment-rescue-start"
+                    disabled={busy}
+                    aria-label={`${task.title} 5분 공부 시작`}
+                    onClick={() => onStart(task.id, 5)}
+                  >
+                    5분 시작
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -294,14 +332,16 @@ export function PremiumHome({
           </p>
         )}
         <div className="bkit-assessment-rescue-actions">
-          <button type="button" className="bkit-assessment-rescue-main" onClick={onInbox}>
-            학교 공지 확인 <ArrowRight size={16} aria-hidden="true" />
+          <button type="button" className="bkit-assessment-rescue-main" onClick={() => void copyNoticeToInbox()} disabled={noticeBusy}>
+            {noticeBusy ? '공지 확인 중…' : '복사한 공지 한 번에 보관'} <ArrowRight size={16} aria-hidden="true" />
           </button>
+          <button type="button" onClick={onInbox}>공지함 · 직접 붙여넣기</button>
           <button type="button" onClick={onAssessment}>빠진 수행평가 등록</button>
           <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
         </div>
+        {noticeError && <p className="bkit-assessment-rescue-error" role="alert">{noticeError}</p>}
         <small className="bkit-assessment-rescue-disclaimer">
-          학교 시스템 자동 조회 아님 · 제출/성적/완료 여부를 임의로 기록하지 않아요.
+          복사한 글은 이 기기 공지함에만 저장 · 학교 시스템 자동 조회 아님 · 마감/성적/제출 여부 자동 확정 없음
         </small>
       </section>
       <div className="bkit-evidence-entry">
