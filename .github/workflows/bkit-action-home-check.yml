@@ -23,6 +23,7 @@ on:
       - 'study-os/tests/homeSleepSteps.test.ts'
       - 'study-os/src/App.tsx'
       - 'study-os/src/QuickStudyTimer.tsx'
+      - 'study-os/src/ProblemWorkspace.tsx'
       - 'study-os/src/quick-timer.css'
       - 'study-os/src/daily-driver.css'
       - '.github/workflows/bkit-action-home-check.yml'
