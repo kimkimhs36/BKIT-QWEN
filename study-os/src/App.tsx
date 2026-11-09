@@ -620,6 +620,20 @@ export default function App() {
   const shownRecommendations = useRef(new Set<string>());
   useEffect(() => {
     const visible = () => {
+      if (document.visibilityState === 'hidden') {
+        // A backgrounded browser cannot prove continued attention. Preserve
+        // elapsed foreground segments and require an explicit resume tap.
+        const current = memory.current;
+        if (current.active?.segmentStart || current.quickTimer?.segmentStart) {
+          const stoppedAt = Date.now();
+          commit((state) => ({
+            ...pauseQuick(state, stoppedAt),
+            active: state.active?.segmentStart
+              ? closeSegment(state.active, stoppedAt)
+              : state.active,
+          }));
+        }
+      }
       if (document.visibilityState === 'visible') {
         foregroundAt.current = iso(Date.now());
         shownRecommendations.current.clear();
