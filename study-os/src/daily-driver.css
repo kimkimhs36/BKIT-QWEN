@@ -637,3 +637,18 @@
   outline: 3px solid var(--mat-accent, currentColor);
   outline-offset: 3px;
 }
+
+
+/* Direct Home -> exact due question, preserving all existing material themes. */
+.problem-review-card.bkit-review-card-selected {
+  border: 1px solid var(--mat-line, rgba(127,127,127,.27));
+  background: var(--mat-soft, rgba(127,127,127,.06));
+  border-radius: var(--mat-radius, 16px);
+  padding: clamp(14px, 2.5vw, 21px);
+  margin: 12px 0;
+  scroll-margin-top: 96px;
+}
+.problem-review-card.bkit-review-card-selected :is(textarea, button):focus-visible {
+  outline: 3px solid var(--mat-accent, currentColor);
+  outline-offset: 3px;
+}

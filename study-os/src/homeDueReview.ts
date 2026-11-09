@@ -8,6 +8,8 @@ import { buildReviewQueue } from './review';
  */
 export type HomeDueReview = {
   kind: 'problem' | 'session';
+  sessionId?: string;
+  needsCheck?: boolean;
   subject: string;
   title: string;
   due: string;
@@ -23,6 +25,8 @@ export function firstDueReview(state: State, today: string): HomeDueReview | nul
   if (problem && (!session || problem.due <= session.due)) {
     return {
       kind: 'problem',
+      sessionId: problem.sessionId,
+      needsCheck: problem.last.selfCheck === 'unreviewed',
       subject: problem.subject,
       title: problem.problem.slice(0, 90),
       due: problem.due,

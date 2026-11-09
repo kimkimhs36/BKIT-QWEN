@@ -49,12 +49,12 @@ export function buildProblemReviews(s: State, today: string) {
           .filter(
             (a) => a.selfCheck === 'remembered' && a.hintUsed === false && a.confidence !== 'low',
           )
-          .map((a) => dayKey(a.submittedAt)),
+          .map((a) => dayKey(a.checkedAt ?? a.submittedAt)),
       ).size;
       const step = Math.max(0, independentSuccesses - (lastReset >= 0 ? 1 : 0));
       const interval = !retests.length && lastReset >= 0 ? 1 : reviewInterval(last, step);
       const due =
-        last.selfCheck === 'unreviewed' ? today : addDays(dayKey(last.submittedAt), interval);
+        last.selfCheck === 'unreviewed' ? today : addDays(dayKey(last.checkedAt ?? last.submittedAt), interval);
       return [
         {
           sessionId: session.id,

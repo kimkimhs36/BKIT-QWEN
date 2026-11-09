@@ -29,6 +29,19 @@ describe('one truthful home review action', () => {
     const state = { ...newState(), sessions: [sample], reviewsDone: ['s1'] };
     expect(firstDueReview(state, '2026-11-09')).toBeNull();
   });
+  it('does not call an unchecked saved answer a mistake or skip its self-check', () => {
+    const s = { ...newState(), sessions: [{
+      ...sample, mistake: '', reviewDate: null,
+      workspace: { problem: '직접 확인하지 않은 풀이', source: '',
+        attempts: [{ id: 'saved-answer', answer: '미확인 답안', submittedAt: ended,
+          selfCheck: 'unreviewed' as const }] },
+    }] };
+    expect(firstDueReview(s, '2026-11-09')).toMatchObject({
+      kind: 'problem', sessionId: 's1', needsCheck: true,
+      title: '직접 확인하지 않은 풀이',
+    });
+    expect(JSON.stringify(firstDueReview(s, '2026-11-09'))).not.toContain('미확인 답안');
+  });
   it('picks a due problem retest rather than a session prompt on the same day', () => {
     const state = { ...newState(), sessions: [
       sample,
@@ -41,7 +54,7 @@ describe('one truthful home review action', () => {
       },
     ] };
     expect(firstDueReview(state, '2026-11-09')).toEqual({
-      kind: 'problem', subject: '수학', title: '다음 함수를 미분해 봐', due: '2026-11-09',
+      kind: 'problem', sessionId: 's2', needsCheck: false, subject: '수학', title: '다음 함수를 미분해 봐', due: '2026-11-09',
     });
   });
 });

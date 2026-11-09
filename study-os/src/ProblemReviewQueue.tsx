@@ -1,20 +1,39 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import type { State } from './model';
 import { buildProblemReviews, type AttemptMeta } from './problemReview';
 
 export function ProblemReviewQueue({
   state,
   today,
+  focusSessionId,
   onAttempt,
   onCheck,
 }: {
   state: State;
   today: string;
+  focusSessionId?: string | null;
   onAttempt: (sessionId: string, answer: string, meta: AttemptMeta) => boolean;
   onCheck: (id: string, outcome: 'remembered' | 'retry') => void;
 }) {
   const queue = useMemo(() => buildProblemReviews(state, today), [state, today]);
-  const cards = [...queue.overdue, ...queue.today];
+  const dueCards = [...queue.overdue, ...queue.today];
+  // The Home recommendation targets a real saved session; never pick an arbitrary card.
+  // Put the chosen entry first even when the due list is longer than four items.
+  const chosen = focusSessionId ? dueCards.find((card) => card.sessionId === focusSessionId) : undefined;
+  const cards = chosen
+    ? [chosen, ...dueCards.filter((card) => card.sessionId !== chosen.sessionId)]
+    : dueCards;
+  const focusCardRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const card = focusCardRef.current;
+    if (!focusSessionId || !chosen || !card) return;
+    const answer = card.querySelector<HTMLTextAreaElement>('textarea');
+    // If an answer is awaiting the student's own check, do not offer another attempt.
+    const control = answer ?? card.querySelector<HTMLButtonElement>('.sleep-actions button');
+    if (!control) return;
+    control.focus({ preventScroll: true });
+    if (card.contains(document.activeElement)) card.scrollIntoView({ block: 'center', behavior: 'auto' });
+  }, [focusSessionId, chosen?.sessionId, chosen?.last.id, chosen?.last.selfCheck]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [hints, setHints] = useState<Record<string, boolean>>({});
   if (!cards.length && !queue.upcoming.length) return null;
@@ -28,7 +47,12 @@ export function ProblemReviewQueue({
         기한 지남 {queue.overdue.length} · 오늘 {queue.today.length} · 예정 {queue.upcoming.length}
       </p>
       {cards.slice(0, 4).map((card) => (
-        <article className="problem-review-card" key={card.sessionId}>
+        <article
+          className={'problem-review-card' + (focusSessionId === card.sessionId ? ' bkit-review-card-selected' : '')}
+          key={card.sessionId}
+          ref={focusSessionId === card.sessionId ? focusCardRef : undefined}
+          data-review-session={card.sessionId}
+        >
           <small>
             {card.subject} · {card.due < today ? '기한 지남' : '오늘'} · {card.due}
           </small>

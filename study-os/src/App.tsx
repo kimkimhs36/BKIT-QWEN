@@ -396,6 +396,7 @@ export default function App() {
       | 'block'
       | 'import'
     >(null);
+  const [homeReviewTarget, setHomeReviewTarget] = useState<string | null>(null);
   const [studyBookOrigin, setStudyBookOrigin] = useState(() => readBookStudyOrigin());
   useEffect(() => {
     if (tab !== 'books' || !studyBookOrigin) return;
@@ -409,6 +410,7 @@ export default function App() {
     if (flushLearning(() => setTab(route, remember))) {
       if (remember) routeTrail.current = [...routeTrail.current.slice(-39), tab];
       setTabState(route);
+      if (route !== 'progress') setHomeReviewTarget(null);
     }
   }
   function goBack() {
@@ -1449,6 +1451,7 @@ export default function App() {
                   ? {
                       ...a,
                       selfCheck: outcome,
+                      checkedAt: iso(Date.now()),
                       errorTag: outcome === 'retry' ? (errorTag ?? 'unknown') : undefined,
                     }
                   : a,
@@ -1480,10 +1483,11 @@ export default function App() {
     );
   }
   function checkProblemRetest(id: string, outcome: 'remembered' | 'retry') {
+    const checkedAt = iso(Date.now());
     commit((v) => ({
       ...v,
       problemRetests: (v.problemRetests ?? []).map((a) =>
-        a.id === id && a.selfCheck === 'unreviewed' ? { ...a, selfCheck: outcome } : a,
+        a.id === id && a.selfCheck === 'unreviewed' ? { ...a, selfCheck: outcome, checkedAt } : a,
       ),
       sessions: v.sessions.map((session) =>
         session.workspace
@@ -1492,7 +1496,7 @@ export default function App() {
               workspace: {
                 ...session.workspace,
                 attempts: session.workspace.attempts.map((a) =>
-                  a.id === id && a.selfCheck === 'unreviewed' ? { ...a, selfCheck: outcome } : a,
+                  a.id === id && a.selfCheck === 'unreviewed' ? { ...a, selfCheck: outcome, checkedAt } : a,
                 ),
               },
             }
@@ -2269,6 +2273,10 @@ export default function App() {
                 onQuickResume={resumeQuickNow}
                 onQuickFinish={finishQuickNow}
                 onIndependentRetry={(problem) => { beginQuick('countdown', 5, true, problem); }}
+                onOpenDueProblem={(sessionId) => {
+                  setHomeReviewTarget(sessionId);
+                  setTab('progress');
+                }}
                 onNavigate={(route) => {
                   if (route === 'school') setDay(today);
                   setTab(route);
@@ -2876,6 +2884,7 @@ export default function App() {
                         <ProblemReviewQueue
                           state={s}
                           today={today}
+                          focusSessionId={homeReviewTarget}
                           onAttempt={recordProblemRetest}
                           onCheck={checkProblemRetest}
                         />

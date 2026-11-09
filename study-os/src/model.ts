@@ -90,6 +90,8 @@ export const learningAttemptSchema = z.object({
   id,
   answer: note.min(1),
   submittedAt: instant,
+  // Optional, explicit learner self-check timestamp; legacy saved answers stay unchanged.
+  checkedAt: instant.optional(),
   selfCheck: z.enum(['unreviewed', 'remembered', 'retry']),
   hintUsed: z.boolean().optional(),
   confidence: z.enum(['low', 'medium', 'high']).optional(),

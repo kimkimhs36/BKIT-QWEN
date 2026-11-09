@@ -32,6 +32,7 @@ type Props = {
   onQuickResume: () => void;
   onQuickFinish: () => void;
   onIndependentRetry: (problem?: string) => void;
+  onOpenDueProblem: (sessionId: string) => void;
   onNavigate: (route: string) => void;
   onAdd: () => void;
   onRecover: () => void;
@@ -64,6 +65,7 @@ export function PremiumHome({
   onQuickResume,
   onQuickFinish,
   onIndependentRetry,
+  onOpenDueProblem,
   onNavigate,
   onAdd,
   onRecover,
@@ -276,12 +278,22 @@ export function PremiumHome({
           <span className="bkit-due-review-eyebrow">REAL REVIEW · {dueReview.due}</span>
           <div className="bkit-due-review-row">
             <div>
-              <h2>지난번 막힌 문제, 오늘 한 번만 다시.</h2>
+              <h2>{dueReview.needsCheck ? '저장한 답부터 직접 확인해요.' : '지난번 문제, 오늘 다시 풀어보자.'}</h2>
               <p><strong>{dueReview.subject}</strong> · {dueReview.title}</p>
-              <small>직접 기록한 복습 대상만 추천해요. 해설을 보기 전 직접 풀고, 결과는 스스로 확인하세요.</small>
+              <small>
+                {dueReview.needsCheck
+                  ? '내 답은 저장했지만 정답 여부는 확인하지 않았어요. 자료와 대조해 스스로 결정하세요.'
+                  : '직접 기록한 복습 대상이에요. 해설을 보기 전 혼자 다시 풀고 결과를 확인하세요.'}
+              </small>
             </div>
-            <button type="button" onClick={() => onNavigate('progress')}>
-              독립 재풀이 시작 <ArrowRight size={17} aria-hidden="true" />
+            <button
+              type="button"
+              onClick={() => dueReview.kind === 'problem' && dueReview.sessionId
+                ? onOpenDueProblem(dueReview.sessionId)
+                : onNavigate('progress')}
+            >
+              {dueReview.kind === 'problem' ? (dueReview.needsCheck ? '내 답 확인하기' : '이 문제 다시 풀기') : '복습 기록 확인'}
+              <ArrowRight size={17} aria-hidden="true" />
             </button>
           </div>
         </section>

@@ -18,6 +18,7 @@ function home(state: State, now: number) {
     state, now, tasks: state.tasks, sleepGuard: guard, unavailable: '',
     inboxPending: 0, accountConnected: false, onStart: noop, onQuick: noop,
     onQuickPause: noop, onQuickResume: noop, onQuickFinish: noop, onIndependentRetry: noop,
+    onOpenDueProblem: noop,
     onNavigate: noop, onAdd: noop, onRecover: noop, onInbox: noop,
     onAssessment: noop, onExportCalendar: noop, onAssistant: noop,
     onEdit: noop, onAssessments: noop, onSubmissions: noop,

@@ -26,6 +26,7 @@ test('saved independent answer -> explicit check -> home review date -> visible 
   await expect(workspace.locator('.problem-next-review')).toContainText('2026-11-10');
   let saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1') || '{}'));
   expect(saved.active.workspace.attempts[0].selfCheck).toBe('retry');
+  expect(saved.active.workspace.attempts[0].checkedAt).toBeDefined();
 
   await page.getByRole('button', { name: '학습량 기록 · 종료', exact: true }).click();
   // A linked five-minute quick session saves immediately; task sessions use the finish form.
@@ -59,4 +60,34 @@ test('saved independent answer -> explicit check -> home review date -> visible 
   await page.getByRole('region', { name: '지금 할 일 한 가지' }).waitFor();
   await expect(page.getByRole('region', { name: '오늘 독립 재풀이' })).toContainText('미적분 학습지 3쪽 4번');
   await expect(page.getByRole('region', { name: '다음 독립 복습 일정' })).toHaveCount(0);
+
+  // One deliberate tap from Home opens the EXACT due problem, not a generic record list.
+  await page.getByRole('region', { name: '오늘 독립 재풀이' })
+    .getByRole('button', { name: '이 문제 다시 풀기' }).click();
+  const dueQueue = page.getByRole('region', { name: '문제별 지연 재시험' });
+  await expect(dueQueue).toBeVisible();
+  const selected = dueQueue.locator('.bkit-review-card-selected');
+  await expect(selected).toHaveCount(1);
+  await expect(selected).toContainText('미적분 학습지 3쪽 4번');
+  const input = selected.getByRole('textbox', { name: '다시 푼 내 답' });
+  await expect(input).toBeFocused();
+  await expect(input).toBeInViewport();
+  await input.fill('다음날 해설을 가리고 직접 다시 푼 답');
+  await selected.getByRole('button', { name: '재시험 답 저장' }).click();
+
+  const afterAttempt = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1') || '{}'));
+  expect(afterAttempt.sessions).toEqual(saved.sessions);
+  expect(afterAttempt.problemRetests).toHaveLength(1);
+  expect(afterAttempt.problemRetests[0]).toMatchObject({
+    sessionId: saved.sessions.at(-1).id,
+    answer: '다음날 해설을 가리고 직접 다시 푼 답',
+    selfCheck: 'unreviewed',
+  });
+  await expect(selected).toContainText('저장한 내 답: 다음날 해설을 가리고 직접 다시 푼 답');
+  // A recorded answer is not a grade: only a separate human self-check settles its status.
+  await selected.getByRole('button', { name: '다시 연습 필요' }).click();
+  const checked = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1') || '{}'));
+  expect(checked.problemRetests[0].selfCheck).toBe('retry');
+  expect(checked.problemRetests[0].checkedAt).toBeDefined();
+  expect(checked.sessions).toEqual(saved.sessions);
 });
