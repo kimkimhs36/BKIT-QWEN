@@ -1,4 +1,5 @@
 import { ArrowRight, ArrowUpRight, BookOpen, ChevronRight, Clock3, Play, Plus } from 'lucide-react';
+import { useMemo } from 'react';
 import type { State, Task } from './model';
 import { fixedForDay, type Fixed } from './engine';
 import { entriesForDay } from './calendar';
@@ -9,6 +10,7 @@ import { needsAttention, needsSubmission, unsubmittedAssessment } from './tasks'
 import { quickClock, quickSeconds } from './quickTimer';
 import { chooseHomeNextAction, resolveHomeStudyStart } from './actionFirst';
 import { firstDueReview } from './homeDueReview';
+import { summarizeEvidenceWeek } from './evidenceWeek';
 import type { SleepController } from './useSleepGuard';
 import { SleepHomeActions } from './SleepHomeActions';
 import { studySeconds, elapsed } from './session';
@@ -137,6 +139,11 @@ export function PremiumHome({
   });
   const startTarget = resolveHomeStudyStart(nextAction, pending[0]?.id);
   const dueReview = firstDueReview(state, dayKey(now));
+  const currentDay = dayKey(now);
+  const activityWeek = useMemo(
+    () => summarizeEvidenceWeek(state, sleepGuard.state, currentDay),
+    [state.sessions, state.problemRetests, sleepGuard.state.records, currentDay],
+  );
   return (
     <div className="study-home">
       <section className="bkit-action-first" aria-label="지금 할 일 한 가지">
@@ -175,6 +182,12 @@ export function PremiumHome({
         )}
         <small>실제 완료·취침 여부는 자동으로 확정하지 않아요. 기록은 기존 BKIT에 남습니다.</small>
       </section>
+      <div className="bkit-evidence-entry">
+        <span>지난 7일 · 직접 기록한 날 {activityWeek.evidenceDays}일</span>
+        <button type="button" onClick={() => onNavigate('progress')}>
+          실제 학습·재풀이·취침 준비 확인 <ArrowRight size={15} aria-hidden="true" />
+        </button>
+      </div>
       {nextAction.kind === 'study' && dueReview && (
         <section className="bkit-due-review" aria-label="오늘 독립 재풀이">
           <span className="bkit-due-review-eyebrow">REAL REVIEW · {dueReview.due}</span>
