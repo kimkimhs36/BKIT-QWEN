@@ -10,6 +10,7 @@ import { needsAttention, needsSubmission, unsubmittedAssessment } from './tasks'
 import { quickClock, quickSeconds } from './quickTimer';
 import { chooseHomeNextAction, resolveHomeStudyStart } from './actionFirst';
 import { firstDueReview } from './homeDueReview';
+import { firstUpcomingCheckedReview } from './homeUpcomingReview';
 import { summarizeEvidenceWeek } from './evidenceWeek';
 import type { SleepController } from './useSleepGuard';
 import { SleepHomeActions } from './SleepHomeActions';
@@ -148,6 +149,7 @@ export function PremiumHome({
   });
   const startTarget = resolveHomeStudyStart(nextAction, pending[0]?.id);
   const dueReview = firstDueReview(state, dayKey(now));
+  const upcomingReview = firstUpcomingCheckedReview(state, dayKey(now));
   const currentDay = dayKey(now);
   const activityWeek = useMemo(
     () => summarizeEvidenceWeek(state, sleepGuard.state, currentDay),
@@ -171,7 +173,14 @@ export function PremiumHome({
           BKIT AI 비서에게 물어보기 <ArrowRight size={15} aria-hidden="true" />
         </button>
         {!busy && recent?.quick && now >= Date.parse(recent.ended) && now - Date.parse(recent.ended) < 30 * 60_000 && (
-          nextAction.kind === 'study' ? (
+          recent.workspace?.attempts.length ? (
+            <div className="bkit-home-quick-receipt" role="status">
+              <strong>최근 문제 풀이 저장됨</strong>
+              <button type="button" onClick={() => onNavigate('progress')}>
+                풀이 확인 · 다음 복습 <ArrowRight size={15} aria-hidden="true" />
+              </button>
+            </div>
+          ) : nextAction.kind === 'study' ? (
             <QuickRetryPrompt
               key={recent.id}
               className="bkit-home-retry"
@@ -242,6 +251,26 @@ export function PremiumHome({
           실제 학습·재풀이·취침 준비 확인 <ArrowRight size={15} aria-hidden="true" />
         </button>
       </div>
+      {nextAction.kind === 'study' && !dueReview && upcomingReview && (
+        <section className="bkit-upcoming-review" aria-label="다음 독립 복습 일정">
+          <span className="bkit-due-review-eyebrow">BKIT · RETRY LATER</span>
+          <div className="bkit-due-review-row">
+            <div>
+              <h2>다음에 다시 풀 문제</h2>
+              <p><strong>{upcomingReview.subject}</strong> · {upcomingReview.problem}</p>
+              <small>
+                {upcomingReview.selfCheck === 'retry'
+                  ? '다시 풀어야 한다고 직접 표시했어요.'
+                  : '내가 답을 확인했다고 직접 기록했어요.'}
+                {' '}다음 복습 권장일 {upcomingReview.due} · 자동 알림이나 정답 판정은 아니에요.
+              </small>
+            </div>
+            <button type="button" onClick={() => onNavigate('progress')}>
+              복습 일정 보기 <ArrowRight size={16} aria-hidden="true" />
+            </button>
+          </div>
+        </section>
+      )}
       {nextAction.kind === 'study' && dueReview && (
         <section className="bkit-due-review" aria-label="오늘 독립 재풀이">
           <span className="bkit-due-review-eyebrow">REAL REVIEW · {dueReview.due}</span>
@@ -249,7 +278,7 @@ export function PremiumHome({
             <div>
               <h2>지난번 막힌 문제, 오늘 한 번만 다시.</h2>
               <p><strong>{dueReview.subject}</strong> · {dueReview.title}</p>
-              <small>기록된 오답만 추천해요. 해설을 보기 전 직접 풀고, 결과는 스스로 확인하세요.</small>
+              <small>직접 기록한 복습 대상만 추천해요. 해설을 보기 전 직접 풀고, 결과는 스스로 확인하세요.</small>
             </div>
             <button type="button" onClick={() => onNavigate('progress')}>
               독립 재풀이 시작 <ArrowRight size={17} aria-hidden="true" />

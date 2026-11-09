@@ -610,3 +610,30 @@
 @media (max-width: 520px) {
   .study-home .bkit-home-retry button.primary { width: 100%; }
 }
+
+
+/* Post-answer handoff: the real saved self-check has one visible review date.
+   Use the current material system, not a new dashboard or a forced reminder. */
+.study-home .bkit-upcoming-review {
+  margin: 0 0 18px;
+  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid var(--mat-line, rgba(127,127,127,.22));
+  border-radius: var(--mat-radius, 20px);
+  background: var(--mat-card, rgba(127,127,127,.07));
+  color: var(--mat-ink, inherit);
+}
+.study-home .bkit-upcoming-review h2 {
+  font-size: clamp(17px, 2.7vw, 22px);
+  color: inherit;
+}
+.study-home .bkit-upcoming-review p, .study-home .bkit-upcoming-review small {
+  color: var(--mat-muted, inherit);
+}
+.study-home .bkit-upcoming-review button {
+  background: var(--mat-primary, #244d66);
+  color: var(--mat-on-accent, #fff);
+}
+.study-home .bkit-upcoming-review button:focus-visible {
+  outline: 3px solid var(--mat-accent, currentColor);
+  outline-offset: 3px;
+}

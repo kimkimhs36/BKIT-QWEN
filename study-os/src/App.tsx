@@ -2886,6 +2886,16 @@ export default function App() {
                     )}
                   </section>
                 )}
+                {!hasDueProblemReview && problemQueue.upcoming.length > 0 && (
+                  <Suspense fallback={<p role="status">다음 복습 일정을 여는 중…</p>}>
+                    <ProblemReviewQueue
+                      state={s}
+                      today={today}
+                      onAttempt={recordProblemRetest}
+                      onCheck={checkProblemRetest}
+                    />
+                  </Suspense>
+                )}
                 <RecordOverview
                   sessions={s.sessions}
                   today={today}
@@ -2914,16 +2924,6 @@ export default function App() {
                     <Suspense fallback={<p role="status">학습 증거를 여는 중…</p>}>
                       <LearningEvidence state={s} today={today} />
                     </Suspense>
-                    {!hasDueProblemReview && (
-                      <Suspense fallback={<p role="status">복습 문제를 여는 중…</p>}>
-                        <ProblemReviewQueue
-                          state={s}
-                          today={today}
-                          onAttempt={recordProblemRetest}
-                          onCheck={checkProblemRetest}
-                        />
-                      </Suspense>
-                    )}
                     {s.sessions.some((entry) => entry.workspace?.attempts.length) && (
                       <section className="panel problem-history">
                         <div className="section-head">
