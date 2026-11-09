@@ -42,6 +42,35 @@ jobs:
         run: npx vitest run tests/actionFirst.test.ts tests/homeSleepSteps.test.ts
       - name: TypeScript and production build
         run: npm run build
+      - name: Verify real-app static bundle integrity
+        run: |
+          set -euo pipefail
+          test -s dist/index.html
+          test -d dist/assets
+          node --input-type=module <<'NODE'
+          import { readFileSync, readdirSync, statSync } from 'node:fs';
+          import { join } from 'node:path';
+          const html = readFileSync('dist/index.html', 'utf8');
+          const assets = [...html.matchAll(/(?:src|href)=["']([^"']*assets\/[^"']+)["']/g)].map(m => m[1]);
+          if (!assets.length) throw new Error('No app assets referenced by index.html');
+          for (const url of assets) {
+            const relative = url.replace(/^\/+/, '');
+            if (!statSync(join('dist', relative)).isFile()) throw new Error('Missing asset: ' + relative);
+          }
+          const js = readdirSync('dist/assets').filter(n => n.endsWith('.js'));
+          if (!js.length) throw new Error('No compiled application JS found');
+          console.log('Real app bundle:', js.length, 'JS chunks,', assets.length, 'entry assets');
+          NODE
+      - name: Explain non-production artifact
+        run: |
+          {
+            echo '### BKIT actual-app build (not a live deployment)'
+            echo 'This build includes the real study-os app, not the standalone action-first demo.'
+            echo 'Download the build artifact below after this workflow succeeds.'
+            echo 'Static bundles may require HTTP hosting; opening index.html from a file URL is not guaranteed.'
+            echo 'Production branch, domain, and existing user data remain unchanged.'
+            echo "Source commit: $GITHUB_SHA"
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Publish actual-app build for review (not production)
         uses: actions/upload-artifact@v4
         with:
