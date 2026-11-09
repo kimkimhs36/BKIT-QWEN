@@ -76,6 +76,11 @@ describe('home next action', () => {
     const a = chooseHomeNextAction(now, { ...basic, task: { subject: '미적분Ⅰ', title: '마플 시너지' } });
     expect(resolveHomeStudyStart(a, 'math-1')).toEqual({ kind: 'task', taskId: 'math-1', minutes: 10 });
   });
+  it('falls back to quick focus for blank task identifiers instead of creating orphan sessions', () => {
+    const action = chooseHomeNextAction(now, basic);
+    expect(resolveHomeStudyStart(action, '   ')).toEqual({ kind: 'quick', minutes: 10 });
+    expect(resolveHomeStudyStart(action, ' math-1 ')).toEqual({ kind: 'task', taskId: 'math-1', minutes: 10 });
+  });
   it('keeps a one-tap quick timer for an empty task list', () => {
     expect(resolveHomeStudyStart(chooseHomeNextAction(now, basic))).toEqual({ kind: 'quick', minutes: 10 });
   });
