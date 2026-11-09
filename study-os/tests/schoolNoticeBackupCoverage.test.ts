@@ -1,0 +1,75 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+import { IDBFactory } from 'fake-indexeddb';
+import { newState } from '../src/model';
+import { KEY } from '../src/storage';
+import { INBOX_KEY } from '../src/schoolInbox';
+import {
+  backupMatchesCurrent,
+  exportCompleteBackup,
+  inspectCompleteBackup,
+  restoreCompleteBackup,
+} from '../src/completeBackup';
+
+function storage(initial: Record<string, string> = {}) {
+  const values = new Map(Object.entries(initial));
+  return {
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => { values.set(key, value); },
+    removeItem: (key: string) => { values.delete(key); },
+    key: (index: number) => [...values.keys()][index] ?? null,
+    get length() { return values.size; },
+  } as Storage;
+}
+
+const originalNotice = {
+  version: 1,
+  notices: [{
+    id: 'notice-1',
+    createdAt: '2026-11-10T00:00:00.000Z',
+    text: '수행평가 공지 원본',
+    ocrText: '',
+    materials: { photoIds: [], papers: [] },
+    reviewed: false,
+    archived: false,
+    taskIds: [],
+  }],
+};
+
+describe('school notice ZIP coverage', () => {
+  beforeEach(() => { globalThis.indexedDB = new IDBFactory(); });
+
+  it('detects newer local notices without calling an older ZIP complete', async () => {
+    const source = storage({
+      [KEY]: JSON.stringify(newState()),
+      [INBOX_KEY]: JSON.stringify(originalNotice),
+    });
+    const zip = await exportCompleteBackup(source);
+    const checked = await inspectCompleteBackup(zip, source);
+    expect(backupMatchesCurrent(checked).schoolNotices).toBe(true);
+
+    source.setItem(INBOX_KEY, JSON.stringify({
+      ...originalNotice,
+      notices: [...originalNotice.notices, {
+        ...originalNotice.notices[0],
+        id: 'notice-2',
+        text: '나중에 받은 새로운 공지',
+      }],
+    }));
+    const outdated = await inspectCompleteBackup(zip, source);
+    expect(backupMatchesCurrent(outdated).schoolNotices).toBe(false);
+    expect(backupMatchesCurrent(outdated).study).toBe(false);
+  });
+
+  it('restores the original school notice from the ZIP on a fresh device', async () => {
+    const source = storage({
+      [KEY]: JSON.stringify(newState()),
+      [INBOX_KEY]: JSON.stringify(originalNotice),
+    });
+    const zip = await exportCompleteBackup(source);
+    globalThis.indexedDB = new IDBFactory();
+    const target = storage();
+    const checked = await inspectCompleteBackup(zip, target);
+    await restoreCompleteBackup(checked, 'merge', target);
+    expect(JSON.parse(target.getItem(INBOX_KEY)!)).toEqual(originalNotice);
+  });
+});
