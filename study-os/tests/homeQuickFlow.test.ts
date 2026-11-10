@@ -19,7 +19,7 @@ function home(state: State, now: number) {
     inboxPending: 0, accountConnected: false, onStart: noop, onQuick: noop,
     onQuickPause: noop, onQuickResume: noop, onQuickFinish: noop, onIndependentRetry: noop,
     onOpenDueProblem: noop,
-    onNavigate: noop, onAdd: noop, onRecover: noop, onInbox: noop, onOpenNotice: noop,
+    onNavigate: noop, onAdd: noop, onRecover: noop, onInbox: noop, onBackup: noop, onOpenNotice: noop,
     onAssessment: noop, onExportCalendar: noop, onAssistant: noop,
     onEdit: noop, onAssessments: noop, onSubmissions: noop,
     onResource: noop, onHelp: noop, onAccount: noop,
@@ -52,6 +52,13 @@ describe('actual home quick focus lifecycle', () => {
     expect(finished).toContain('다시 풀 문제 (선택)');
     expect(finished).not.toContain('진행 중인 빠른 집중 관리');
     expect(state.tasks).toHaveLength(0);
+  });
+
+  it('links notices to the complete ZIP backup without claiming a file was already saved', () => {
+    const html = home(newState(), began);
+    expect(html).toContain('공지·수행평가 ZIP 백업으로 이동');
+    expect(html).toContain('기기 변경·브라우저 삭제 전에는');
+    expect(html).not.toContain('ZIP 백업 완료');
   });
 
   it('does not claim a saved receipt for an unsaved or old session', () => {
