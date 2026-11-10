@@ -7,6 +7,14 @@ on:
     paths:
       - 'study-os/**'
       - '.github/workflows/bkit-school-notice-zip.yml'
+  # Validate this isolated ZIP feature as a stacked review against its actual parent.
+  # An explicit PR event produces per-job run evidence; it never deploys production.
+  pull_request:
+    branches:
+      - preview/bkit-notice-capture-20261110
+    paths:
+      - 'study-os/**'
+      - '.github/workflows/bkit-school-notice-zip.yml'
   workflow_dispatch:
 
 permissions:
