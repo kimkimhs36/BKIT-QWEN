@@ -149,6 +149,54 @@ test('iPhone: corrected OCR text reopens review and preserves the unsubmitted ta
   expect(saved.task).toMatchObject({ status: 'done', submitted: false });
 });
 
+test('iPhone: attaching a new notice photo reopens review without marking work submitted', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-11-10T10:00:00+09:00') });
+  const state = newState();
+  state.tasks = [{
+    id: 'photo-recheck-task', subject: '물질과 에너지', title: '실험 보고서',
+    kind: '수행평가', due: null, priority: 2, minutes: 25, remaining: 25,
+    status: 'done', submitted: false, submissionRequired: true,
+    optional: false, notes: '', link: '',
+  }];
+  const inboxData = {
+    version: 1, notices: [{
+      id: 'photo-recheck', createdAt: '2026-11-10T00:00:00.000Z',
+      text: '실험 보고서 제출', ocrText: '',
+      materials: { photoIds: [], papers: [] }, reviewed: true,
+      fullyRegistered: true, archived: false, taskIds: ['photo-recheck-task'],
+    }],
+  };
+  await page.addInitScript(({ state, inboxData }) => {
+    if (!localStorage.getItem('bkit.study-os.v1'))
+      localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
+    if (!localStorage.getItem('bkit.school-inbox.v1'))
+      localStorage.setItem('bkit.school-inbox.v1', JSON.stringify(inboxData));
+    localStorage.setItem('bkit.atelier.visited.v1', '1');
+  }, { state, inboxData });
+  await page.goto('./');
+  await page.getByRole('region', { name: '수행평가 긴급 점검' })
+    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+  const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
+  await expect(inbox.getByText('과제 등록 완료', { exact: true }).first()).toBeVisible();
+  await inbox.getByRole('region', { name: '과제 사진 및 PDF 첨부' })
+    .getByLabel('갤러리 사진 첨부')
+    .setInputFiles({
+      name: 'new-school-notice.png', mimeType: 'image/png',
+      buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l1cAAAAASUVORK5CYII=', 'base64'),
+    });
+  await expect(inbox.getByText('정리 확인 필요', { exact: true }).first()).toBeVisible();
+  await page.reload();
+  const saved = await page.evaluate(() => ({
+    notice: JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices[0],
+    task: JSON.parse(localStorage.getItem('bkit.study-os.v1')!).tasks[0],
+  }));
+  expect(saved.notice).toMatchObject({
+    reviewed: false, fullyRegistered: false, taskIds: ['photo-recheck-task'],
+  });
+  expect(saved.notice.materials.photoIds).toHaveLength(1);
+  expect(saved.task).toMatchObject({ status: 'done', submitted: false });
+});
+
 test('iPhone: denied clipboard keeps records untouched and offers manual inbox access', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-11-10T10:00:00+09:00') });
   await page.addInitScript((state) => {
