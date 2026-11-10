@@ -76,8 +76,12 @@ test('iPhone: editing a checked notice original reopens assessment review withou
     }],
   };
   await page.addInitScript(({ state, inboxData }) => {
-    localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
-    localStorage.setItem('bkit.school-inbox.v1', JSON.stringify(inboxData));
+    // Init scripts run again on reload: seed only the first visit so a
+    // successful notice edit cannot be silently replaced by test fixtures.
+    if (!localStorage.getItem('bkit.study-os.v1'))
+      localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
+    if (!localStorage.getItem('bkit.school-inbox.v1'))
+      localStorage.setItem('bkit.school-inbox.v1', JSON.stringify(inboxData));
     localStorage.setItem('bkit.atelier.visited.v1', '1');
   }, { state, inboxData });
   await page.goto('./');
