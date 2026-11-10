@@ -41,6 +41,7 @@ type Props = {
   unavailable: string;
   inboxPending: number | null;
   onInbox: () => void;
+  onBackup: () => void;
   onOpenNotice: (noticeId: string) => void;
   onAssessment: () => void;
   onExportCalendar: () => void;
@@ -75,6 +76,7 @@ export function PremiumHome({
   unavailable,
   inboxPending,
   onInbox,
+  onBackup,
   onOpenNotice,
   onAssessment,
   onExportCalendar,
@@ -343,6 +345,12 @@ export function PremiumHome({
         <small className="bkit-assessment-rescue-disclaimer">
           복사한 글은 이 기기 공지함에만 저장 · 학교 시스템 자동 조회 아님 · 마감/성적/제출 여부 자동 확정 없음
         </small>
+        <div className="bkit-assessment-backup-reminder">
+          <span>기기 변경·브라우저 삭제 전에는 공지 원본과 과제 기록을 ZIP으로 보관해 주세요.</span>
+          <button type="button" onClick={onBackup}>
+            공지·수행평가 ZIP 백업으로 이동 <ArrowRight size={14} aria-hidden="true" />
+          </button>
+        </div>
       </section>
       <div className="bkit-evidence-entry">
         <span>지난 7일 · 직접 기록한 날 {activityWeek.evidenceDays}일</span>
