@@ -410,8 +410,13 @@ export function SchoolInbox({
                   return;
                 }
                 if (onRegister(notice, task)) {
-                  update({ reviewed: true, taskIds: [...notice.taskIds, task.id] });
+                  const linkedSaved = update({ reviewed: true, taskIds: [...notice.taskIds, task.id] });
                   setConfirmed(false);
+                  if (!linkedSaved) {
+                    setError(
+                      '과제는 등록됐지만 공지 연결 저장에 실패했어요. 같은 과제를 다시 등록하지 마세요. 저장 재시도를 누르거나, 새로고침 후 아래 ‘이미 등록한 과제와 연결’에서 원문·마감을 대조해 연결하세요.',
+                    );
+                  }
                 } else
                   setError('과제를 저장하지 못했어요. 공지 원본은 유지됩니다. 다시 시도하세요.');
               } catch {
