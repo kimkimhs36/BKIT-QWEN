@@ -85,6 +85,98 @@ describe('school notice ZIP coverage', () => {
     expect(restored.notices.find((notice: { id: string }) => notice.id === 'notice-1')).toEqual(originalNotice.notices[0]);
   });
 
+  it('keeps local edited notice text but restores same-ID task links and review evidence', async () => {
+    const assessment = {
+      id: 'archived-assessment', subject: '역학과 에너지', title: '열기관 실험',
+      kind: '수행평가' as const, due: null, priority: 2, minutes: 25,
+      remaining: 25, status: 'done' as const, submitted: false,
+      submissionRequired: true, optional: false, notes: '', link: '',
+    };
+    const archived = newState();
+    archived.tasks.push(assessment);
+    const source = storage({
+      [KEY]: JSON.stringify(archived),
+      [INBOX_KEY]: JSON.stringify({
+        version: 1, notices: [{
+          ...originalNotice.notices[0], reviewed: true,
+          fullyRegistered: true, taskIds: [assessment.id],
+        }],
+      }),
+    });
+    const zip = await exportCompleteBackup(source);
+    globalThis.indexedDB = new IDBFactory();
+    const localNotice = {
+      ...originalNotice.notices[0],
+      text: '기기에서 수정한 최신 공지 원문',
+      reviewed: false,
+      taskIds: [] as string[],
+    };
+    const target = storage({
+      [KEY]: JSON.stringify(newState()),
+      [INBOX_KEY]: JSON.stringify({ version: 1, notices: [localNotice] }),
+    });
+    const inspected = await inspectCompleteBackup(zip, target);
+    await restoreCompleteBackup(inspected, 'merge', target);
+    const saved = JSON.parse(target.getItem(INBOX_KEY)!).notices[0];
+    expect(saved).toMatchObject({
+      text: localNotice.text, reviewed: true, fullyRegistered: true,
+      taskIds: [assessment.id],
+    });
+    const state = JSON.parse(target.getItem(KEY)!);
+    expect(state.tasks.find((task: { id: string }) => task.id === assessment.id))
+      .toMatchObject({ status: 'done', submitted: false });
+  });
+
+  it('keeps local and archived assessment links when the notice ID matches', async () => {
+    const source = storage({
+      [KEY]: JSON.stringify(newState()),
+      [INBOX_KEY]: JSON.stringify({
+        version: 1, notices: [{
+          ...originalNotice.notices[0], reviewed: true, taskIds: ['archived-task'],
+        }],
+      }),
+    });
+    const zip = await exportCompleteBackup(source);
+    globalThis.indexedDB = new IDBFactory();
+    const localNotice = {
+      ...originalNotice.notices[0],
+      text: '로컬 공지 내용', taskIds: ['local-task'],
+    };
+    const target = storage({
+      [KEY]: JSON.stringify(newState()),
+      [INBOX_KEY]: JSON.stringify({ version: 1, notices: [localNotice] }),
+    });
+    await restoreCompleteBackup(await inspectCompleteBackup(zip, target), 'merge', target);
+    const saved = JSON.parse(target.getItem(INBOX_KEY)!).notices[0];
+    expect(saved.taskIds).toEqual(['local-task', 'archived-task']);
+    expect(saved.text).toBe(localNotice.text);
+  });
+
+  it('fails closed rather than truncate when same-ID notice links exceed schema capacity', async () => {
+    const source = storage({
+      [KEY]: JSON.stringify(newState()),
+      [INBOX_KEY]: JSON.stringify({
+        version: 1, notices: [{
+          ...originalNotice.notices[0], taskIds: ['extra-task'],
+        }],
+      }),
+    });
+    const zip = await exportCompleteBackup(source);
+    globalThis.indexedDB = new IDBFactory();
+    const localNotice = {
+      ...originalNotice.notices[0],
+      taskIds: Array.from({ length: 100 }, (_, i) => 'local-task-' + i),
+    };
+    const target = storage({
+      [KEY]: JSON.stringify(newState()),
+      [INBOX_KEY]: JSON.stringify({ version: 1, notices: [localNotice] }),
+    });
+    const before = target.getItem(INBOX_KEY);
+    const inspected = await inspectCompleteBackup(zip, target);
+    await expect(restoreCompleteBackup(inspected, 'merge', target)).rejects.toThrow();
+    expect(target.getItem(INBOX_KEY)).toBe(before);
+  });
+
   it('restores the original school notice from the ZIP on a fresh device', async () => {
     const source = storage({
       [KEY]: JSON.stringify(newState()),

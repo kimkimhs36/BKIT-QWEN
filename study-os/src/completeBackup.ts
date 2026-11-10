@@ -440,9 +440,35 @@ export async function restoreCompleteBackup(
     } else if (key === INBOX_KEY && mode === 'merge' && next[key]) {
       const old = inboxSchema.parse(JSON.parse(next[key]!)),
         value = inboxSchema.parse(JSON.parse(incoming[key]!));
-      next[key] = JSON.stringify(
-        inboxSchema.parse({ ...old, notices: union(old.notices, value.notices, (x) => x.id) }),
-      );
+      // Keep local edits, but recover backed-up links and attachments for the
+      // same notice ID. A plain ID union discarded the restored assessment link.
+      const archivedById = new Map(value.notices.map((notice) => [notice.id, notice]));
+      const mergedLocal = old.notices.map((notice) => {
+        const archived = archivedById.get(notice.id);
+        if (!archived) return notice;
+        return {
+          ...notice,
+          reviewed: notice.reviewed || archived.reviewed,
+          fullyRegistered: Boolean(notice.fullyRegistered || archived.fullyRegistered),
+          taskIds: [...new Set([...notice.taskIds, ...archived.taskIds])],
+          materials: {
+            photoIds: [...new Set([
+              ...notice.materials.photoIds,
+              ...archived.materials.photoIds,
+            ])],
+            papers: union(
+              notice.materials.papers,
+              archived.materials.papers,
+              (paper) => paper.resource.id,
+            ),
+          },
+        };
+      });
+      // Check schema limits before any live storage write, never truncate links.
+      next[key] = JSON.stringify(inboxSchema.parse({
+        ...old,
+        notices: union(mergedLocal, value.notices, (notice) => notice.id),
+      }));
     } else if (key === SLEEP_KEY && mode === 'merge' && next[key]) {
       const old = sleepSchema.parse(JSON.parse(next[key]!)),
         value = sleepSchema.parse(JSON.parse(incoming[key]!));
