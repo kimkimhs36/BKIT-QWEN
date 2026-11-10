@@ -47,3 +47,14 @@ jobs:
       - name: Production-style build
         if: success() || failure()
         run: npm run build
+      # Public repository's standard GitHub-hosted runner; run only after successful build.
+      # Browser emulation, not a physical iPhone/Safari certification.
+      - name: Install Chromium for iPhone-sized end-to-end smoke
+        if: success()
+        run: npx playwright install --with-deps chromium
+      - name: iPhone school notice and backup navigation
+        if: success()
+        run: npm run test:e2e -- tests/e2e/home-notice-capture.spec.ts --project=iphone
+        env:
+          BKIT_PREVIEW_PORT: '4173'
+          BKIT_TEST_BASE_URL: 'http://127.0.0.1:4173/study-os/'
