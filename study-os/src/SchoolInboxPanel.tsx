@@ -70,6 +70,7 @@ export function SchoolInbox({
   const notice = data.notices.find((n) => n.id === selected);
   const linked = notice ? noticeTasks(notice, state.tasks) : [];
   const [confirmed, setConfirmed] = useState(false);
+  const [linkCandidate, setLinkCandidate] = useState<string | null>(null);
   const [pasteBusy, setPasteBusy] = useState(false);
   const [pasteFeedback, setPasteFeedback] = useState('');
   const [openedPaper, setOpenedPaper] = useState<PaperDocument | null>(null);
@@ -93,6 +94,7 @@ export function SchoolInbox({
     setQuery('');
     setFilter(item.archived ? 'archived' : 'inbox');
     setConfirmed(false);
+    setLinkCandidate(null);
   }
   function persist(next: SchoolInboxData) {
     dataRef.current = next;
@@ -264,6 +266,7 @@ export function SchoolInbox({
             onClick={() => {
               setSelected(n.id);
               setConfirmed(false);
+              setLinkCandidate(null);
             }}
           >
             <span>{noticeStatus(n, state.tasks)}</span>
@@ -476,16 +479,31 @@ export function SchoolInbox({
           </form>
           <details>
             <summary>이미 등록한 과제와 연결</summary>
+            <p className="hint">공지 원문과 기존 과제·마감을 대조한 뒤 연결을 확정하세요. 연결만으로 제출 완료가 되지 않아요.</p>
             {state.tasks
               .filter((t) => !linked.some((x) => x.id === t.id))
               .map((t) => (
                 <button
                   key={t.id}
-                  onClick={() => update({ reviewed: true, taskIds: [...notice.taskIds, t.id] })}
+                  type="button"
+                  disabled={busy || !!initial.error}
+                  onClick={() => {
+                    if (linkCandidate !== t.id) {
+                      setLinkCandidate(t.id);
+                      return;
+                    }
+                    if (update({ reviewed: true, taskIds: [...notice.taskIds, t.id] }))
+                      setLinkCandidate(null);
+                  }}
                 >
-                  {t.subject} · {t.title} 연결
+                  {linkCandidate === t.id
+                    ? `${t.subject} · ${t.title} 원문·마감 확인 후 연결 확정`
+                    : `${t.subject} · ${t.title} 연결 검토`}
                 </button>
               ))}
+            {linkCandidate && (
+              <button type="button" onClick={() => setLinkCandidate(null)}>연결 취소</button>
+            )}
           </details>
           {linked.length > 0 && (
             <section aria-label="공지에서 등록한 과제">
