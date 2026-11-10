@@ -84,7 +84,7 @@ test('iPhone: editing a checked notice original reopens assessment review withou
   await page.getByRole('region', { name: '수행평가 긴급 점검' })
     .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
-  await expect(inbox.getByText('과제 등록 완료')).toBeVisible();
+  await expect(inbox.getByText('과제 등록 완료', { exact: true }).first()).toBeVisible();
   await inbox.getByRole('textbox', { name: '원본 공지' })
     .fill('실험 보고서와 추가 발표 자료 제출');
   await expect(inbox.getByText('정리 확인 필요', { exact: true }).first()).toBeVisible();
