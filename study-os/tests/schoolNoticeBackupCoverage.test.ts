@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
 import { newState } from '../src/model';
 import { KEY } from '../src/storage';
-import { INBOX_KEY } from '../src/schoolInbox';
+import { INBOX_KEY, noticeStatus } from '../src/schoolInbox';
 import {
   backupMatchesCurrent,
   exportCompleteBackup,
@@ -150,6 +150,51 @@ describe('school notice ZIP coverage', () => {
     const saved = JSON.parse(target.getItem(INBOX_KEY)!).notices[0];
     expect(saved.taskIds).toEqual(['local-task', 'archived-task']);
     expect(saved.text).toBe(localNotice.text);
+  });
+
+  it('does not undo a local request to recheck a notice when an old ZIP says complete', async () => {
+    const originalTask = {
+      id: 'old-zip-assessment', subject: '역학과 에너지', title: '발표 준비',
+      kind: '수행평가' as const, due: null, priority: 2, minutes: 25,
+      remaining: 25, status: 'done' as const, submitted: false,
+      submissionRequired: true, optional: false, notes: '', link: '',
+    };
+    const archived = newState();
+    archived.tasks.push(originalTask);
+    const source = storage({
+      [KEY]: JSON.stringify(archived),
+      [INBOX_KEY]: JSON.stringify({
+        version: 1, notices: [{
+          ...originalNotice.notices[0], reviewed: true,
+          fullyRegistered: true, taskIds: [originalTask.id],
+        }],
+      }),
+    });
+    const zip = await exportCompleteBackup(source);
+    globalThis.indexedDB = new IDBFactory();
+
+    // The user explicitly reopened this notice on the receiving device.
+    // Importing an older "all checked" record must not close it again.
+    const current = {
+      ...originalNotice.notices[0],
+      text: '현재 기기에서 추가 제출물을 확인 중',
+      reviewed: true, fullyRegistered: false, taskIds: [] as string[],
+    };
+    const target = storage({
+      [KEY]: JSON.stringify(newState()),
+      [INBOX_KEY]: JSON.stringify({ version: 1, notices: [current] }),
+    });
+    const checked = await inspectCompleteBackup(zip, target);
+    await restoreCompleteBackup(checked, 'merge', target);
+
+    const merged = JSON.parse(target.getItem(INBOX_KEY)!).notices[0];
+    const restored = JSON.parse(target.getItem(KEY)!);
+    expect(merged.text).toBe(current.text);
+    expect(merged.taskIds).toContain(originalTask.id);
+    expect(merged.fullyRegistered).toBe(false);
+    expect(restored.tasks.find((task: { id: string }) => task.id === originalTask.id))
+      .toMatchObject({ status: 'done', submitted: false });
+    expect(noticeStatus(merged, restored.tasks)).toBe('정리 확인 필요');
   });
 
   it('fails closed rather than truncate when same-ID notice links exceed schema capacity', async () => {
