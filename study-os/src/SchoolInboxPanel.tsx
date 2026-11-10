@@ -327,7 +327,7 @@ export function SchoolInbox({
               photoIds={notice.materials.photoIds}
               disabled={busy}
               onUse={(text) => {
-                if (update({ ocrText: text, reviewed: true })) setConfirmed(false);
+                if (update({ ocrText: text, reviewed: false, fullyRegistered: false })) setConfirmed(false);
               }}
             />
           )}
@@ -339,7 +339,10 @@ export function SchoolInbox({
                 rows={5}
                 maxLength={3000}
                 value={notice.ocrText}
-                onChange={(e) => update({ ocrText: e.target.value, reviewed: true })}
+                onChange={(e) => {
+                  if (update({ ocrText: e.target.value, reviewed: false, fullyRegistered: false }))
+                    setConfirmed(false);
+                }}
               />
             </label>
           )}
