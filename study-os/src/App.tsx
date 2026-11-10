@@ -432,6 +432,10 @@ export default function App() {
     if (tab !== 'settings' || !helpDestination) return;
     const panel = document.getElementById(helpDestination);
     if (panel) {
+      // A destination can be nested inside the existing collapsed backup section.
+      // Reveal its ancestor before scrolling, otherwise mobile users see no ZIP tools.
+      const parentDetails = panel.closest('details');
+      if (parentDetails instanceof HTMLDetailsElement) parentDetails.open = true;
       if (panel instanceof HTMLDetailsElement) panel.open = true;
       panel.scrollIntoView({ block: 'start' });
     }
