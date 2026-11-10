@@ -156,12 +156,12 @@ describe('complete local archive preservation', () => {
     const live = await fixture();
     const zip = await exportCompleteBackup(live);
     let preview = await inspectCompleteBackup(zip, live);
-    expect(backupMatchesCurrent(preview)).toEqual({ study: true, sleep: true, paper: true });
+    expect(backupMatchesCurrent(preview)).toEqual({ study: true, schoolNotices: true, sleep: true, paper: true });
     const next = JSON.parse(live.getItem(KEY)!);
     next.revision += 1;
     live.setItem(KEY, JSON.stringify(next));
     preview = await inspectCompleteBackup(zip, live);
-    expect(backupMatchesCurrent(preview)).toEqual({ study: false, sleep: true, paper: true });
+    expect(backupMatchesCurrent(preview)).toEqual({ study: false, schoolNotices: true, sleep: true, paper: true });
   });
 
   it('rejects missing referenced photos without producing a success archive', async () => {
