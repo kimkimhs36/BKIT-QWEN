@@ -310,7 +310,10 @@ export function SchoolInbox({
               rows={5}
               maxLength={12000}
               value={notice.text}
-              onChange={(e) => update({ text: e.target.value })}
+              onChange={(e) => {
+                if (update({ text: e.target.value, reviewed: false, fullyRegistered: false }))
+                  setConfirmed(false);
+              }}
             />
           </label>
           <TaskMaterials
