@@ -449,7 +449,11 @@ export async function restoreCompleteBackup(
         return {
           ...notice,
           reviewed: notice.reviewed || archived.reviewed,
-          fullyRegistered: Boolean(notice.fullyRegistered || archived.fullyRegistered),
+          // An explicit local "needs recheck" must not be silently reversed by
+          // an older ZIP claiming this notice was fully registered.
+          fullyRegistered: notice.fullyRegistered === false
+            ? false
+            : Boolean(notice.fullyRegistered || archived.fullyRegistered),
           taskIds: [...new Set([...notice.taskIds, ...archived.taskIds])],
           materials: {
             photoIds: [...new Set([
