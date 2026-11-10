@@ -58,6 +58,65 @@ test('iPhone: copied school notice is saved, opened, explicitly converted to a t
   await expect(page.getByRole('region', { name: '공지에서 등록한 과제' })).toContainText('산염기 실험 보고서');
 });
 
+test('iPhone: notice link write failure warns without duplicating or submitting the saved assessment', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-11-10T10:00:00+09:00') });
+  const state = newState();
+  const inboxData = {
+    version: 1, notices: [{
+      id: 'link-write-failure', createdAt: '2026-11-10T00:00:00.000Z',
+      text: '수행평가 원문. 실제 마감은 직접 확인.', ocrText: '',
+      materials: { photoIds: [], papers: [] }, reviewed: false,
+      archived: false, taskIds: [],
+    }],
+  };
+  await page.addInitScript(({ state, inboxData }) => {
+    if (!localStorage.getItem('bkit.study-os.v1'))
+      localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
+    if (!localStorage.getItem('bkit.school-inbox.v1'))
+      localStorage.setItem('bkit.school-inbox.v1', JSON.stringify(inboxData));
+    localStorage.setItem('bkit.atelier.visited.v1', '1');
+  }, { state, inboxData });
+  await page.goto('./');
+  await page.getByRole('region', { name: '수행평가 긴급 점검' })
+    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+  const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
+  const form = inbox.locator('form.daily-confirm');
+  await form.locator('input[name="title"]').fill('연결 저장 실패 실험');
+  await form.locator('input[name="subject"]').fill('역학과 에너지');
+  await form.getByLabel('원본의 이 과제와 마감을 대조했어요').check();
+
+  // Allow the preliminary notice write, then simulate only the linking write
+  // failing. The study record itself must remain safely persisted.
+  await page.evaluate(() => {
+    const original = Storage.prototype.setItem;
+    let noticeWrites = 0;
+    Storage.prototype.setItem = function (key, value) {
+      if (this === localStorage && key === 'bkit.school-inbox.v1' && ++noticeWrites === 2)
+        throw new DOMException('Quota exceeded', 'QuotaExceededError');
+      return original.call(this, key, value);
+    };
+  });
+  await form.getByRole('button', { name: '확인한 과제 등록' }).click();
+  await expect(inbox.getByText('과제는 등록됐지만 공지 연결 저장에 실패했어요', { exact: false }))
+    .toBeVisible();
+  const saved = await page.evaluate(() => ({
+    tasks: JSON.parse(localStorage.getItem('bkit.study-os.v1')!).tasks,
+    notice: JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices[0],
+  }));
+  expect(saved.tasks).toHaveLength(1);
+  expect(saved.tasks[0]).toMatchObject({ title: '연결 저장 실패 실험', submitted: false });
+  expect(saved.notice.taskIds).toEqual([]);
+  expect(saved.notice.text).toBe('수행평가 원문. 실제 마감은 직접 확인.');
+
+  await page.reload();
+  const restored = await page.evaluate(() => ({
+    tasks: JSON.parse(localStorage.getItem('bkit.study-os.v1')!).tasks,
+    notice: JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices[0],
+  }));
+  expect(restored.tasks).toHaveLength(1);
+  expect(restored.notice.taskIds).toEqual([]);
+});
+
 test('iPhone: editing a checked notice original reopens assessment review without changing submission', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-11-10T10:00:00+09:00') });
   const state = newState();
