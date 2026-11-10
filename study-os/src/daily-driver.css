@@ -730,6 +730,37 @@
   border-color: transparent;
 }
 .bkit-assessment-rescue-disclaimer { font-size: 11px; opacity: .65; line-height: 1.5; }
+.bkit-assessment-backup-reminder {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.35rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--mat-border, #8885);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.bkit-assessment-backup-reminder > span { flex: 1 1 220px; opacity: .78; }
+.bkit-assessment-backup-reminder > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--mat-border, #8885);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+@media (max-width: 530px) {
+  .bkit-assessment-backup-reminder > button { width: 100%; }
+}
 .bkit-assessment-rescue button:focus-visible { outline: 3px solid #648fe8; outline-offset: 3px; }
 @media (max-width: 530px) {
   .bkit-assessment-rescue-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
