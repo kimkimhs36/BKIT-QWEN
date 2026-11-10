@@ -197,6 +197,54 @@ test('iPhone: attaching a new notice photo reopens review without marking work s
   expect(saved.task).toMatchObject({ status: 'done', submitted: false });
 });
 
+test('iPhone: existing assessment linking needs a second explicit confirmation and can be cancelled', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-11-10T10:00:00+09:00') });
+  const state = newState();
+  state.tasks = [{
+    id: 'existing-assessment', subject: '물질과 에너지', title: '실험 보고서',
+    kind: '수행평가', due: null, priority: 2, minutes: 25, remaining: 25,
+    status: 'done', submitted: false, submissionRequired: true,
+    optional: false, notes: '', link: '',
+  }];
+  const inboxData = {
+    version: 1, notices: [{
+      id: 'existing-link-notice', createdAt: '2026-11-10T00:00:00.000Z',
+      text: '실험 보고서 공지. 마감은 원문에서 직접 확인.',
+      ocrText: '', materials: { photoIds: [], papers: [] },
+      reviewed: false, archived: false, taskIds: [],
+    }],
+  };
+  await page.addInitScript(({ state, inboxData }) => {
+    if (!localStorage.getItem('bkit.study-os.v1'))
+      localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
+    if (!localStorage.getItem('bkit.school-inbox.v1'))
+      localStorage.setItem('bkit.school-inbox.v1', JSON.stringify(inboxData));
+    localStorage.setItem('bkit.atelier.visited.v1', '1');
+  }, { state, inboxData });
+  await page.goto('./');
+  await page.getByRole('region', { name: '수행평가 긴급 점검' })
+    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+  const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
+  await inbox.getByText('이미 등록한 과제와 연결').click();
+  await inbox.getByRole('button', { name: '물질과 에너지 · 실험 보고서 연결 검토' }).click();
+  let saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices[0]);
+  expect(saved.taskIds).toEqual([]);
+  expect(saved.reviewed).toBe(false);
+  await inbox.getByRole('button', { name: '연결 취소' }).click();
+  saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices[0]);
+  expect(saved.taskIds).toEqual([]);
+  await inbox.getByRole('button', { name: '물질과 에너지 · 실험 보고서 연결 검토' }).click();
+  await inbox.getByRole('button', { name: '물질과 에너지 · 실험 보고서 원문·마감 확인 후 연결 확정' }).click();
+  await expect(inbox.getByRole('region', { name: '공지에서 등록한 과제' })).toContainText('실험 보고서');
+  await page.reload();
+  const restored = await page.evaluate(() => ({
+    notice: JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices[0],
+    task: JSON.parse(localStorage.getItem('bkit.study-os.v1')!).tasks[0],
+  }));
+  expect(restored.notice.taskIds).toContain('existing-assessment');
+  expect(restored.task).toMatchObject({ status: 'done', submitted: false });
+});
+
 test('iPhone: denied clipboard keeps records untouched and offers manual inbox access', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-11-10T10:00:00+09:00') });
   await page.addInitScript((state) => {
