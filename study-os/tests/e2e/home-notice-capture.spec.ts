@@ -120,3 +120,73 @@ test('iPhone: school notice backup route opens the actual complete ZIP panel wit
   expect(await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'))).toBe(original);
   expect(await page.evaluate(() => localStorage.getItem('bkit.backup.last-file-checked.v1'))).toBeNull();
 });
+
+
+// The end-to-end receipt: a ZIP must actually leave the page as a download,
+// be accepted by the same UI, and recover a finished-but-unsubmitted task.
+// This uses a cleared device-local store, not a production account.
+test('iPhone: downloaded ZIP restores an original notice and an unsubmitted assessment', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-11-10T10:00:00+09:00') });
+  const state = newState();
+  state.tasks = [{
+    id: 'zip-task-1', subject: '역학과 에너지', title: '열기관 실험 보고서',
+    kind: '수행평가', due: null, priority: 2, minutes: 25, remaining: 25,
+    status: 'done', submitted: false, submissionRequired: true,
+    optional: false, notes: '', link: '',
+  }];
+  const inbox = {
+    version: 1,
+    notices: [{
+      id: 'zip-notice-1', createdAt: '2026-11-10T00:00:00.000Z',
+      text: '물리 수행평가 공지 원본입니다. 실제 마감은 선생님께 확인.',
+      ocrText: '', materials: { photoIds: [], papers: [] },
+      reviewed: true, fullyRegistered: true, archived: false, taskIds: ['zip-task-1'],
+    }],
+  };
+  await page.addInitScript(({ state, inbox }) => {
+    if (sessionStorage.getItem('bkit:zip-e2e-seeded')) return;
+    sessionStorage.setItem('bkit:zip-e2e-seeded', '1');
+    localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
+    localStorage.setItem('bkit.school-inbox.v1', JSON.stringify(inbox));
+    localStorage.setItem('bkit.atelier.visited.v1', '1');
+  }, { state, inbox });
+  await page.goto('./');
+  const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
+  await rescue.getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
+  const backup = page.getByRole('region', { name: '사진 포함 전체 백업' });
+  await expect(backup).toBeVisible();
+
+  const downloadEvent = page.waitForEvent('download');
+  await backup.getByRole('button', { name: '사진 포함 전체 ZIP 내보내기' }).click();
+  const downloaded = await downloadEvent;
+  expect(downloaded.suggestedFilename()).toMatch(/^bkit-complete-.*\.zip$/);
+  const savedZip = await downloaded.path();
+  expect(savedZip).toBeTruthy();
+  await expect(backup.getByText('ZIP 생성 및 다운로드 요청 완료', { exact: false })).toBeVisible();
+
+  // Simulate a different empty browser profile, while retaining its downloaded file.
+  await page.evaluate(() => {
+    localStorage.removeItem('bkit.study-os.v1');
+    localStorage.removeItem('bkit.school-inbox.v1');
+  });
+  await page.reload();
+  const freshRescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
+  await freshRescue.getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
+  const freshBackup = page.getByRole('region', { name: '사진 포함 전체 백업' });
+  await freshBackup.locator('input[type="file"][accept*="zip"]').setInputFiles(savedZip!);
+  await expect(freshBackup.getByText('선택한 ZIP 파일의 무결성을 확인했습니다.', { exact: false })).toBeVisible();
+  await freshBackup.getByRole('button', { name: '검사한 백업 병합' }).click();
+  await expect(freshBackup.getByText('복원 완료.', { exact: false })).toBeVisible();
+
+  await page.reload();
+  const restored = await page.evaluate(() => ({
+    state: JSON.parse(localStorage.getItem('bkit.study-os.v1') || 'null'),
+    inbox: JSON.parse(localStorage.getItem('bkit.school-inbox.v1') || 'null'),
+  }));
+  expect(restored.state.tasks.find((item: { id: string }) => item.id === 'zip-task-1'))
+    .toMatchObject({ status: 'done', submitted: false });
+  expect(restored.inbox.notices[0]).toMatchObject({
+    id: 'zip-notice-1', taskIds: ['zip-task-1'],
+    text: '물리 수행평가 공지 원본입니다. 실제 마감은 선생님께 확인.',
+  });
+});
