@@ -430,9 +430,9 @@ export default function App() {
   const [helpDestination, setHelpDestination] = useState('');
   useEffect(() => {
     if (tab !== 'settings' || !helpDestination) return;
-    const panel = document.getElementById(helpDestination) as HTMLDetailsElement | null;
+    const panel = document.getElementById(helpDestination);
     if (panel) {
-      panel.open = true;
+      if (panel instanceof HTMLDetailsElement) panel.open = true;
       panel.scrollIntoView({ block: 'start' });
     }
     setHelpDestination('');
@@ -2286,6 +2286,10 @@ export default function App() {
                   setInboxNoticeId(undefined);
                   setTab('inbox');
                 }}
+                onBackup={() => {
+                  setHelpDestination('bkit-complete-backup');
+                  setTab('settings');
+                }}
                 onOpenNotice={(noticeId) => {
                   setInboxNoticeId(noticeId);
                   setTab('inbox');
@@ -3133,9 +3137,11 @@ export default function App() {
                         </button>
                       )}
                     </div>
-                    <Suspense fallback={<p role="status">전체 백업을 여는 중…</p>}>
-                      <CompleteBackupPanel studying={!!s.active || !!s.quickTimer} />
-                    </Suspense>
+                    <div id="bkit-complete-backup">
+                      <Suspense fallback={<p role="status">전체 백업을 여는 중…</p>}>
+                        <CompleteBackupPanel studying={!!s.active || !!s.quickTimer} />
+                      </Suspense>
+                    </div>
                     <section className="panel">
                       <div className="section-head">
                         <h2>내 데이터</h2>
