@@ -96,3 +96,27 @@ test('iPhone: finished but unsubmitted assessments offer submission checking, no
   const after = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
   expect(after.tasks[0].submitted).toBe(false);
 });
+
+test('iPhone: school notice backup route opens the actual complete ZIP panel without altering study data', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-11-10T10:00:00+09:00') });
+  const state = newState();
+  state.tasks = [{
+    id: 'assessment-zip', subject: '물질과 에너지', title: '실험 보고서',
+    kind: '수행평가', due: null, priority: 2, minutes: 20, remaining: 1,
+    status: 'done', submitted: false, optional: false, notes: '', link: '',
+  }];
+  await page.addInitScript((saved) => {
+    localStorage.setItem('bkit.study-os.v1', JSON.stringify(saved));
+    localStorage.setItem('bkit.atelier.visited.v1', '1');
+  }, state);
+  await page.goto('./');
+  const original = await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'));
+  const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
+  await rescue.getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
+  const backup = page.getByRole('region', { name: '사진 포함 전체 백업' });
+  await expect(backup).toBeVisible();
+  await expect(backup.getByRole('button', { name: '사진 포함 전체 ZIP 내보내기' })).toBeVisible();
+  await expect(backup.getByText('다운로드 요청만으로 파일 저장이 확인되는 것은 아니니', { exact: false })).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'))).toBe(original);
+  expect(await page.evaluate(() => localStorage.getItem('bkit.backup.last-file-checked.v1'))).toBeNull();
+});
