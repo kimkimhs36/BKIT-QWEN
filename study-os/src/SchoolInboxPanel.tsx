@@ -319,7 +319,12 @@ export function SchoolInbox({
           <TaskMaterials
             taskId={notice.id}
             value={notice.materials}
-            onChange={(materials) => update({ materials })}
+            onChange={(materials) => {
+              // New attachments may contain an additional assignment or deadline.
+              // Preserve linked tasks, but require explicit review of the new source.
+              if (update({ materials, reviewed: false, fullyRegistered: false }))
+                setConfirmed(false);
+            }}
             onBusy={setBusy}
           />
           {!!notice.materials.photoIds.length && (
