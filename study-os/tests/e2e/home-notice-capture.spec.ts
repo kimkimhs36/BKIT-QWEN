@@ -148,8 +148,13 @@ test('iPhone: editing a checked notice original reopens assessment review withou
     .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   await expect(inbox.getByText('과제 등록 완료', { exact: true }).first()).toBeVisible();
-  await inbox.getByRole('textbox', { name: '원본 공지' })
-    .fill('실험 보고서와 추가 발표 자료 제출');
+  const original = inbox.getByRole('textbox', { name: '원본 공지' });
+  await expect(original).toHaveJSProperty('readOnly', true);
+  await inbox.getByRole('button', { name: '저장한 원문 수정 허용' }).click();
+  await expect(original).toHaveJSProperty('readOnly', false);
+  await original.fill('실험 보고서와 추가 발표 자료 제출');
+  await inbox.getByRole('button', { name: '원문 편집 마치기' }).click();
+  await expect(original).toHaveJSProperty('readOnly', true);
   await expect(inbox.getByText('정리 확인 필요', { exact: true }).first()).toBeVisible();
   await page.reload();
   const saved = await page.evaluate(() => ({
@@ -343,7 +348,7 @@ test('iPhone: finished but unsubmitted assessments offer submission checking, no
   expect(after.tasks[0].submitted).toBe(false);
 });
 
-test('iPhone: school notice backup route opens the actual complete ZIP panel without altering study data', async ({ page }) => {
+test('iPhone: school notice backup route preserves academic records while opening complete ZIP panel', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-11-10T10:00:00+09:00') });
   const state = newState();
   state.tasks = [{
@@ -356,14 +361,18 @@ test('iPhone: school notice backup route opens the actual complete ZIP panel wit
     localStorage.setItem('bkit.atelier.visited.v1', '1');
   }, state);
   await page.goto('./');
-  const original = await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'));
+  const original = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
   await rescue.getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
   const backup = page.getByRole('region', { name: '사진 포함 전체 백업' });
   await expect(backup).toBeVisible();
   await expect(backup.getByRole('button', { name: '사진 포함 전체 ZIP 내보내기' })).toBeVisible();
   await expect(backup.getByText('다운로드 요청만으로 파일 저장이 확인되는 것은 아니니', { exact: false })).toBeVisible();
-  expect(await page.evaluate(() => localStorage.getItem('bkit.study-os.v1'))).toBe(original);
+  const after = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
+  // Home may record a RecommendationShown impression/revision independently.
+  // Backup navigation must not alter actual assessment, submission or learning records.
+  for (const key of ['tasks', 'schedules', 'sessions', 'active', 'quickTimer', 'plan', 'grades', 'reviewsDone', 'reviewProgress'] as const)
+    expect(after[key], key).toEqual(original[key]);
   expect(await page.evaluate(() => localStorage.getItem('bkit.backup.last-file-checked.v1'))).toBeNull();
 });
 

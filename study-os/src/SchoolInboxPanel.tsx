@@ -68,6 +68,9 @@ export function SchoolInbox({
   const [error, setError] = useState(initial.error),
     [busy, setBusy] = useState(false);
   const notice = data.notices.find((n) => n.id === selected);
+  // A stored school notice must not be editable from an accidental tap.
+  // New blank notices stay writable until the user finishes entering them.
+  const [originalEditable, setOriginalEditable] = useState(() => !notice?.text.trim());
   const linked = notice ? noticeTasks(notice, state.tasks) : [];
   const [confirmed, setConfirmed] = useState(false);
   const [linkCandidate, setLinkCandidate] = useState<string | null>(null);
@@ -95,6 +98,7 @@ export function SchoolInbox({
     setFilter(item.archived ? 'archived' : 'inbox');
     setConfirmed(false);
     setLinkCandidate(null);
+    setOriginalEditable(!item.text.trim());
   }
   function persist(next: SchoolInboxData) {
     dataRef.current = next;
@@ -267,6 +271,7 @@ export function SchoolInbox({
               setSelected(n.id);
               setConfirmed(false);
               setLinkCandidate(null);
+              setOriginalEditable(!n.text.trim());
             }}
           >
             <span>{noticeStatus(n, state.tasks)}</span>
@@ -313,12 +318,27 @@ export function SchoolInbox({
               rows={5}
               maxLength={12000}
               value={notice.text}
+              readOnly={!originalEditable}
               onChange={(e) => {
+                if (!originalEditable) return;
                 if (update({ text: e.target.value, reviewed: false, fullyRegistered: false }))
                   setConfirmed(false);
               }}
             />
           </label>
+          {originalEditable ? (
+            <button type="button" onClick={() => setOriginalEditable(false)}>
+              원문 편집 마치기
+            </button>
+          ) : (
+            <button type="button" onClick={() => setOriginalEditable(true)}>
+              저장한 원문 수정 허용
+            </button>
+          )}
+          <small className="hint">
+            보관된 공지는 기본 읽기 전용이에요. 실수로 원문을 바꾸지 않도록 보호합니다.
+            수정을 허용하면 입력 내용이 이 기기에 저장되므로, 원본 보존이 필요하면 먼저 ZIP 백업을 만드세요.
+          </small>
           <TaskMaterials
             taskId={notice.id}
             value={notice.materials}
