@@ -13,8 +13,15 @@ function saveBlob(blob: Blob, name: string) {
     a = document.createElement('a');
   a.href = url;
   a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  // Safari may ignore a programmatic download from a detached <a> element.
+  // Use a connected anchor and always remove it after the click.
+  document.body.appendChild(a);
+  try {
+    a.click();
+  } finally {
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
 }
 export function CompleteBackupPanel({ studying }: { studying: boolean }) {
   const [busy, setBusy] = useState(false),
@@ -24,6 +31,9 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
     [mode, setMode] = useState<'merge' | 'replace'>('merge'),
     [restored, setRestored] = useState(false);
   const working = useRef(false);
+  // Hold the generated ZIP only until the user performs a direct download tap on iOS.
+  // Exporting can be asynchronous, which may outlive Safari's user-activation window.
+  const [preparedDownload, setPreparedDownload] = useState<{ blob: Blob; name: string } | null>(null);
   const [verifiedBackupAt, setVerifiedBackupAt] = useState(() => {
     try { return localStorage.getItem('bkit.backup.last-file-checked.v1') ?? ''; }
     catch { return ''; }
@@ -109,22 +119,54 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
         disabled={busy || restored}
         onClick={() =>
           void work(async () => {
+            setPreparedDownload(null);
             const blob = await exportCompleteBackup(localStorage, setMessage);
-            saveBlob(blob, `bkit-complete-${new Date().toISOString().slice(0, 10)}.zip`);
-            setMessage(
-              `ZIP 생성 및 다운로드 요청 완료 · ${(blob.size / 1024 / 1024).toFixed(1)}MB. 브라우저의 다운로드/파일 앱에서 실제 파일 저장을 확인한 뒤, 아래 '전체 ZIP 백업 검사'로 다시 열어 무결성을 확인하세요.`,
-            );
+            const name = `bkit-complete-${new Date().toISOString().slice(0, 10)}.zip`;
+            const isIOS =
+              /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            if (isIOS) {
+              setPreparedDownload({ blob, name });
+              setMessage(
+                `ZIP 생성 완료 · ${(blob.size / 1024 / 1024).toFixed(1)}MB. iPhone/iPad에서는 아래 '준비한 ZIP 다운로드'를 직접 한 번 더 눌러야 다운로드가 시작됩니다. 생성만으로 파일이 저장된 것은 아닙니다.`,
+              );
+            } else {
+              saveBlob(blob, name);
+              setMessage(
+                `ZIP 생성 및 다운로드 요청 완료 · ${(blob.size / 1024 / 1024).toFixed(1)}MB. 다운로드/파일 앱에서 실제 파일 저장을 확인한 뒤 '전체 ZIP 백업 검사'로 다시 열어 무결성을 확인하세요.`,
+              );
+            }
           })
         }
       >
         사진 포함 전체 ZIP 내보내기
       </button>
+      {preparedDownload && (
+        <button
+          type="button"
+          className="primary"
+          disabled={busy || restored}
+          onClick={() => {
+            try {
+              // Called directly by a fresh user tap, not after an asynchronous export.
+              saveBlob(preparedDownload.blob, preparedDownload.name);
+              setMessage('ZIP 다운로드 요청 완료. Safari 다운로드 목록과 파일 앱에서 실제 저장을 확인하고, 방금 저장한 파일을 다시 선택해 무결성을 검사하세요.');
+              setPreparedDownload(null);
+              setError('');
+            } catch (e) {
+              setError(e instanceof Error ? e.message : 'ZIP 다운로드를 시작하지 못했습니다. 다시 눌러 주세요.');
+            }
+          }}
+        >
+          준비한 ZIP 다운로드
+        </button>
+      )}
       <details className="resource-editor">
         <summary>iPhone · ZIP을 파일 앱에 보관하고 다시 검사하는 방법</summary>
         <ol>
-          <li>위의 ‘사진 포함 전체 ZIP 내보내기’를 누릅니다. 이 단계는 파일 보관 완료가 아닙니다.</li>
-          <li>Safari의 다운로드 목록에서 ZIP을 찾고 공유 메뉴의 ‘파일에 저장’을 선택합니다. iCloud Drive 또는 ‘나의 iPhone’의 저장 위치를 직접 확인하세요.</li>
-          <li>‘파일’ 앱에서 ZIP 이름과 크기가 표시되는지 확인합니다. 파일이 없다면 백업 완료로 간주하지 마세요.</li>
+          <li>‘사진 포함 전체 ZIP 내보내기’를 누릅니다. iPhone/iPad에서는 ZIP이 준비되면 ‘준비한 ZIP 다운로드’를 한 번 더 눌러야 합니다. 생성만으로 파일이 보관되지는 않습니다.</li>
+          <li>Safari 주소창 옆 다운로드 버튼에서 ZIP 다운로드가 끝났는지 확인하세요. 별도의 ‘파일에 저장’ 동작 없이도 Safari는 설정된 다운로드 폴더에 파일을 저장할 수 있습니다.</li>
+          <li>‘파일’ 앱 → ‘둘러보기’에서 iCloud Drive → 다운로드 항목 또는 ‘나의 iPhone’ → 다운로드 항목을 찾아 ZIP 이름과 크기를 확인하세요. 없으면 ‘설정’ → ‘앱’ → ‘Safari’ → ‘다운로드’의 실제 저장 위치를 확인하세요.</li>
           <li>이 화면의 ‘전체 ZIP 백업 검사’에서 방금 저장한 ZIP을 다시 선택하고, 학교 공지 원본과 학습 기록의 일치 여부를 확인합니다.</li>
           <li>검사만 할 때는 ‘기존 기록 유지 · 닫기’를 누르세요. 실제 기록이 있는 기기에서 ‘교체’를 누르지 마세요.</li>
         </ol>

@@ -410,14 +410,45 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
   await rescue.getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
   const backup = page.getByRole('region', { name: '사진 포함 전체 백업' });
   await expect(backup).toBeVisible();
+  await backup.getByText('iPhone · ZIP을 파일 앱에 보관하고 다시 검사하는 방법').click();
+  await expect(backup.getByText('설정된 다운로드 폴더에 파일을 저장할 수 있습니다.', { exact: false })).toBeVisible();
+  await expect(backup.getByText('실제 저장 위치를 확인하세요.', { exact: false })).toBeVisible();
 
+  // Safari compatibility: the synthetic ZIP download link must be connected
+  // when clicked, not a detached anchor that some browsers silently ignore.
+  await page.evaluate(() => {
+    const nativeClick = HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click = function (this: HTMLAnchorElement) {
+      (window as Window & { __bkitZipAnchorConnected?: boolean }).__bkitZipAnchorConnected =
+        this.isConnected;
+      return nativeClick.call(this);
+    };
+  });
+  const isIOS = await page.evaluate(() =>
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1),
+  );
   const downloadEvent = page.waitForEvent('download');
   await backup.getByRole('button', { name: '사진 포함 전체 ZIP 내보내기' }).click();
+  if (isIOS) {
+    await expect(backup.getByText('ZIP 생성 완료 ·', { exact: false })).toBeVisible();
+    // Asynchronous archive generation must never claim that a file was saved.
+    expect(await page.evaluate(
+      () => (window as Window & { __bkitZipAnchorConnected?: boolean }).__bkitZipAnchorConnected,
+    )).toBeUndefined();
+    await backup.getByRole('button', { name: '준비한 ZIP 다운로드' }).click();
+  }
   const downloaded = await downloadEvent;
   expect(downloaded.suggestedFilename()).toMatch(/^bkit-complete-.*\.zip$/);
   const savedZip = await downloaded.path();
   expect(savedZip).toBeTruthy();
-  await expect(backup.getByText('ZIP 생성 및 다운로드 요청 완료', { exact: false })).toBeVisible();
+  expect(await page.evaluate(
+    () => (window as Window & { __bkitZipAnchorConnected?: boolean }).__bkitZipAnchorConnected,
+  )).toBe(true);
+  await expect(backup.getByText(
+    isIOS ? 'ZIP 다운로드 요청 완료.' : 'ZIP 생성 및 다운로드 요청 완료',
+    { exact: false },
+  )).toBeVisible();
 
   // Simulate a different empty browser profile, while retaining its downloaded file.
   await page.evaluate(() => {

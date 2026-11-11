@@ -314,6 +314,12 @@ test('worksheet problem 8 ink and answer survive finish, resume 9, review and co
   const backup = page.getByRole('region', { name: '사진 포함 전체 백업' }),
     dl = page.waitForEvent('download', { timeout: 20000 });
   await backup.getByRole('button', { name: '사진 포함 전체 ZIP 내보내기', exact: true }).click();
+  if (await page.evaluate(() =>
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1),
+  )) {
+    await backup.getByRole('button', { name: '준비한 ZIP 다운로드', exact: true }).click();
+  }
   const zip = await dl,
     path = (await zip.path())!;
   const context = await browser.newContext({ viewport: { width: 1200, height: 900 } }),
