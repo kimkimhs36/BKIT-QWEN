@@ -530,3 +530,130 @@ test('iPhone: changed school notice invalidates a prepared ZIP without blocking 
     JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices[0]);
   expect(notice).toMatchObject({ text: 'ZIP 생성 이후 새로 받은 수행평가 공지', reviewed: false });
 });
+
+test('iPhone: failed school notice save preserves a copyable unsaved original until successful retry', async ({ page }) => {
+  const state = newState();
+  const inboxData = {
+    version: 1,
+    notices: [{
+      id: 'recovery-notice', createdAt: '2026-11-10T00:00:00.000Z',
+      text: '기존 수행평가 안내', ocrText: '',
+      materials: { photoIds: [], papers: [] }, reviewed: false,
+      archived: false, taskIds: [],
+    }],
+  };
+  await page.addInitScript(({ state, inboxData }) => {
+    if (!localStorage.getItem('bkit.study-os.v1'))
+      localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
+    if (!localStorage.getItem('bkit.school-inbox.v1'))
+      localStorage.setItem('bkit.school-inbox.v1', JSON.stringify(inboxData));
+    localStorage.setItem('bkit.atelier.visited.v1', '1');
+  }, { state, inboxData });
+  await page.goto('./');
+  await page.getByRole('region', { name: '수행평가 긴급 점검' })
+    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+  const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
+  const original = inbox.getByRole('textbox', { name: '원본 공지' });
+
+  await page.evaluate(() => {
+    const nativeWrite = Storage.prototype.setItem;
+    (window as Window & { __restoreNoticeWrite?: () => void }).__restoreNoticeWrite =
+      () => { Storage.prototype.setItem = nativeWrite; };
+    Storage.prototype.setItem = function (key, value) {
+      if (this === localStorage && key === 'bkit.school-inbox.v1' &&
+        value.includes('추가 발표 자료'))
+        throw new DOMException('Quota exceeded', 'QuotaExceededError');
+      return nativeWrite.call(this, key, value);
+    };
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: async () => { throw new Error('Permission denied'); } },
+    });
+  });
+  await inbox.getByRole('button', { name: '저장한 원문 수정 허용' }).click();
+  await original.fill('실험 보고서와 추가 발표 자료 제출');
+
+  const recovery = inbox.getByRole('textbox', { name: '미저장 공지 원문 복구' });
+  await expect(recovery).toHaveValue('실험 보고서와 추가 발표 자료 제출');
+  await expect(inbox.getByRole('alert')).toContainText('저장 확인 필요');
+  await expect(inbox.getByRole('alert')).toContainText('사진·PDF 원본은 텍스트 복사에 포함되지 않습니다');
+  const persisted = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices[0].text);
+  expect(persisted).toBe('기존 수행평가 안내');
+
+  await inbox.getByRole('button', { name: '미저장 원문 복사' }).click();
+  await expect(inbox.getByText('자동 복사가 차단됐어요.', { exact: false })).toBeVisible();
+  await expect(recovery).toHaveValue('실험 보고서와 추가 발표 자료 제출');
+
+  await page.evaluate(() => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: async (value: string) => {
+        (window as Window & { __copiedNotice?: string }).__copiedNotice = value;
+      } },
+    });
+  });
+  await inbox.getByRole('button', { name: '미저장 원문 복사' }).click();
+  await expect(inbox.getByText('클립보드에 복사했어요.', { exact: false })).toBeVisible();
+  expect(await page.evaluate(() =>
+    (window as Window & { __copiedNotice?: string }).__copiedNotice))
+    .toBe('실험 보고서와 추가 발표 자료 제출');
+
+  await page.evaluate(() => (window as Window & { __restoreNoticeWrite?: () => void })
+    .__restoreNoticeWrite?.());
+  await inbox.getByRole('button', { name: '공지 저장 재시도' }).click();
+  await expect(recovery).toHaveCount(0);
+  await expect(inbox.getByText('이 기기에 저장됨', { exact: false })).toBeVisible();
+  const stored = await page.evaluate(() => ({
+    notice: JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices[0],
+    tasks: JSON.parse(localStorage.getItem('bkit.study-os.v1')!).tasks,
+  }));
+  expect(stored.notice.text).toBe('실험 보고서와 추가 발표 자료 제출');
+  expect(stored.notice.reviewed).toBe(false);
+  expect(stored.tasks).toHaveLength(0);
+});
+
+test('iPhone: first save failure of a new pasted notice offers the new original, not an older selected notice', async ({ page }) => {
+  const state = newState();
+  const inboxData = {
+    version: 1,
+    notices: [{
+      id: 'previous-notice', createdAt: '2026-11-10T00:00:00.000Z',
+      text: '이전 공지 내용', ocrText: '',
+      materials: { photoIds: [], papers: [] }, reviewed: false,
+      archived: false, taskIds: [],
+    }],
+  };
+  await page.addInitScript(({ state, inboxData }) => {
+    if (!localStorage.getItem('bkit.study-os.v1'))
+      localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
+    if (!localStorage.getItem('bkit.school-inbox.v1'))
+      localStorage.setItem('bkit.school-inbox.v1', JSON.stringify(inboxData));
+    localStorage.setItem('bkit.atelier.visited.v1', '1');
+  }, { state, inboxData });
+  await page.goto('./');
+  await page.getByRole('region', { name: '수행평가 긴급 점검' })
+    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+  const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
+  await page.evaluate(() => {
+    const original = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(key, value) {
+      if (this === localStorage && key === 'bkit.school-inbox.v1' &&
+        value.includes('신규 공지 원문 수행평가 확인'))
+        throw new DOMException('Quota exceeded', 'QuotaExceededError');
+      return original.call(this, key, value);
+    };
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { readText: async () => '신규 공지 원문 수행평가 확인' },
+    });
+  });
+  await inbox.getByRole('button', { name: '복사한 공지 바로 보관' }).click();
+  const recovery = inbox.getByRole('textbox', { name: '미저장 공지 원문 복구' });
+  await expect(recovery).toHaveValue('신규 공지 원문 수행평가 확인');
+  await expect(inbox.getByRole('alert')).toContainText('저장 확인 필요');
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices);
+  expect(saved).toHaveLength(1);
+  expect(saved[0].text).toBe('이전 공지 내용');
+});

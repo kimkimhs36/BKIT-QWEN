@@ -67,6 +67,10 @@ export function SchoolInbox({
   );
   const [error, setError] = useState(initial.error),
     [busy, setBusy] = useState(false);
+  // Keep the unsaved source text visible for manual recovery after a write failure.
+  // This is session-only and never claims a successful persistence or attachment backup.
+  const [unsavedSource, setUnsavedSource] = useState('');
+  const [copyFeedback, setCopyFeedback] = useState('');
   const notice = data.notices.find((n) => n.id === selected);
   // A stored school notice must not be editable from an accidental tap.
   // New blank notices stay writable until the user finishes entering them.
@@ -101,6 +105,7 @@ export function SchoolInbox({
     setOriginalEditable(!item.text.trim());
   }
   function persist(next: SchoolInboxData) {
+    const previous = dataRef.current;
     dataRef.current = next;
     setData(next); // Keep typed content available for retry when storage fails.
     try {
@@ -111,10 +116,23 @@ export function SchoolInbox({
       localStorage.setItem(INBOX_KEY, raw);
       savedRaw.current = raw;
       setError('');
+      setUnsavedSource('');
+      setCopyFeedback('');
       window.dispatchEvent(new Event('bkit:inbox'));
       return true;
     } catch (e) {
       activation('storageFailure');
+      // A newly pasted notice is not yet selected when its very first save fails.
+      // Prefer the changed/new source over an older selected notice.
+      const attemptedNotice = next.notices.find((item) => {
+        const prior = previous.notices.find((saved) => saved.id === item.id);
+        return !prior || prior.text !== item.text || prior.ocrText !== item.ocrText;
+      }) ?? next.notices.find((item) => item.id === selected) ?? next.notices[0];
+      setUnsavedSource(
+        [attemptedNotice?.text || '', attemptedNotice?.ocrText ? `사진에서 읽은 글 (원본 대조 필요):\n${attemptedNotice.ocrText}` : '']
+          .filter(Boolean).join('\n\n'),
+      );
+      setCopyFeedback('');
       setError(
         e instanceof Error ? e.message : '공지 저장 실패 · 현재 글을 복사하고 다시 시도해 주세요.',
       );
@@ -230,8 +248,39 @@ export function SchoolInbox({
       )}
       {error && (
         <div role="alert" className="warning">
-          저장 확인 필요: {error}
-          <button onClick={() => persist(data)}>공지 저장 재시도</button>
+          <p>저장 확인 필요: {error}</p>
+          <button type="button" onClick={() => persist(dataRef.current)}>공지 저장 재시도</button>
+          {unsavedSource && (
+            <div>
+              <p>
+                저장되지 않은 공지 글을 임시로 보관하고 있어요. 아래 글을 복사해 메모 등에 보관하세요.
+                화면을 닫거나 새로고침하면 사라질 수 있습니다. 사진·PDF 원본은 텍스트 복사에 포함되지 않습니다.
+              </p>
+              <textarea
+                aria-label="미저장 공지 원문 복구"
+                readOnly
+                rows={5}
+                value={unsavedSource}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  void (async () => {
+                    try {
+                      if (!navigator.clipboard?.writeText) throw new Error('clipboard unsupported');
+                      await navigator.clipboard.writeText(unsavedSource);
+                      setCopyFeedback('클립보드에 복사했어요. 메모 앱 등에 붙여넣어 보관하세요.');
+                    } catch {
+                      setCopyFeedback('자동 복사가 차단됐어요. 위 복구 입력칸을 길게 눌러 직접 선택·복사하세요.');
+                    }
+                  })();
+                }}
+              >
+                미저장 원문 복사
+              </button>
+              {copyFeedback && <p role="status">{copyFeedback}</p>}
+            </div>
+          )}
         </div>
       )}
       <div className="inbox-find" role="search" aria-label="학교 공지 찾기">
