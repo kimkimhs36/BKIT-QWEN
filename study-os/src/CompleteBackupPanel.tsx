@@ -119,6 +119,17 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
       >
         사진 포함 전체 ZIP 내보내기
       </button>
+      <details className="resource-editor">
+        <summary>iPhone · ZIP을 파일 앱에 보관하고 다시 검사하는 방법</summary>
+        <ol>
+          <li>위의 ‘사진 포함 전체 ZIP 내보내기’를 누릅니다. 이 단계는 파일 보관 완료가 아닙니다.</li>
+          <li>Safari의 다운로드 목록에서 ZIP을 찾고 공유 메뉴의 ‘파일에 저장’을 선택합니다. iCloud Drive 또는 ‘나의 iPhone’의 저장 위치를 직접 확인하세요.</li>
+          <li>‘파일’ 앱에서 ZIP 이름과 크기가 표시되는지 확인합니다. 파일이 없다면 백업 완료로 간주하지 마세요.</li>
+          <li>이 화면의 ‘전체 ZIP 백업 검사’에서 방금 저장한 ZIP을 다시 선택하고, 학교 공지 원본과 학습 기록의 일치 여부를 확인합니다.</li>
+          <li>검사만 할 때는 ‘기존 기록 유지 · 닫기’를 누르세요. 실제 기록이 있는 기기에서 ‘교체’를 누르지 마세요.</li>
+        </ol>
+        <p className="muted">iOS 버전과 Safari 설정에 따라 다운로드/공유 메뉴 위치가 다를 수 있습니다. ZIP을 다른 서비스에 업로드할 필요는 없습니다.</p>
+      </details>
       <p className="muted">
         {verifiedBackupAt
           ? '이 브라우저에서 마지막으로 외부 ZIP 파일을 직접 검사한 시각: ' + new Date(verifiedBackupAt).toLocaleString('ko-KR')
