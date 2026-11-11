@@ -5,6 +5,8 @@ import { KEY } from '../src/storage';
 import { INBOX_KEY, noticeStatus } from '../src/schoolInbox';
 import {
   backupMatchesCurrent,
+  backupKeysUnchanged,
+  snapshotKeys,
   exportCompleteBackup,
   inspectCompleteBackup,
   restoreCompleteBackup,
@@ -37,6 +39,41 @@ const originalNotice = {
 
 describe('school notice ZIP coverage', () => {
   beforeEach(() => { globalThis.indexedDB = new IDBFactory(); });
+
+  it('allows a prepared ZIP retry only while school notices and assessments remain unchanged', () => {
+    const study = newState();
+    const original = JSON.stringify(originalNotice);
+    const source = storage({ [KEY]: JSON.stringify(study), [INBOX_KEY]: original });
+    const captured = snapshotKeys(source);
+    expect(backupKeysUnchanged(captured, source)).toBe(true);
+    expect(backupKeysUnchanged(captured, source)).toBe(true); // download retry
+
+    source.setItem(INBOX_KEY, JSON.stringify({ ...originalNotice, notices: [
+      ...originalNotice.notices,
+      { ...originalNotice.notices[0], id: 'later-notice', text: '새 수행평가 공지' },
+    ] }));
+    expect(backupKeysUnchanged(captured, source)).toBe(false);
+
+    source.setItem(INBOX_KEY, original);
+    study.tasks.push({
+      id: 'new-assessment', subject: '역학과 에너지', title: '추가 발표',
+      kind: '수행평가', due: null, priority: 2, minutes: 25, remaining: 25,
+      status: 'todo', submitted: false, submissionRequired: true, optional: false,
+      notes: '', link: '',
+    });
+    source.setItem(KEY, JSON.stringify(study));
+    expect(backupKeysUnchanged(captured, source)).toBe(false);
+  });
+
+  it('fails closed when another backed-up record changes or storage cannot be read', () => {
+    const source = storage();
+    const captured = snapshotKeys(source);
+    source.setItem('bkit.material.v1', 'updated');
+    expect(backupKeysUnchanged(captured, source)).toBe(false);
+    expect(() => backupKeysUnchanged(captured, {
+      getItem: () => { throw new Error('storage blocked'); },
+    } as unknown as Storage)).toThrow('storage blocked');
+  });
 
   it('detects newer local notices without calling an older ZIP complete', async () => {
     const source = storage({

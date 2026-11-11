@@ -4,6 +4,8 @@ import {
   exportCompleteBackup,
   inspectCompleteBackup,
   backupMatchesCurrent,
+  snapshotKeys,
+  backupKeysUnchanged,
   restoreCompleteBackup,
   latestRecovery,
   type InspectedBackup,
@@ -31,9 +33,13 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
     [mode, setMode] = useState<'merge' | 'replace'>('merge'),
     [restored, setRestored] = useState(false);
   const working = useRef(false);
-  // Hold the generated ZIP only until the user performs a direct download tap on iOS.
+  // Keep the prepared ZIP for retry, but never offer stale localStorage-backed records.
   // Exporting can be asynchronous, which may outlive Safari's user-activation window.
-  const [preparedDownload, setPreparedDownload] = useState<{ blob: Blob; name: string } | null>(null);
+  const [preparedDownload, setPreparedDownload] = useState<{
+    blob: Blob;
+    name: string;
+    sourceKeys: ReturnType<typeof snapshotKeys>;
+  } | null>(null);
   const [verifiedBackupAt, setVerifiedBackupAt] = useState(() => {
     try { return localStorage.getItem('bkit.backup.last-file-checked.v1') ?? ''; }
     catch { return ''; }
@@ -120,13 +126,17 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
         onClick={() =>
           void work(async () => {
             setPreparedDownload(null);
+            const sourceKeys = snapshotKeys(localStorage);
             const blob = await exportCompleteBackup(localStorage, setMessage);
+            if (!backupKeysUnchanged(sourceKeys, localStorage)) {
+              throw new Error('ZIP 생성 중 기록이 바뀌었습니다. 최신 기록으로 다시 내보내 주세요.');
+            }
             const name = `bkit-complete-${new Date().toISOString().slice(0, 10)}.zip`;
             const isIOS =
               /iPad|iPhone|iPod/.test(navigator.userAgent) ||
               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
             if (isIOS) {
-              setPreparedDownload({ blob, name });
+              setPreparedDownload({ blob, name, sourceKeys });
               setMessage(
                 `ZIP 생성 완료 · ${(blob.size / 1024 / 1024).toFixed(1)}MB. iPhone/iPad에서는 아래 '준비한 ZIP 다운로드'를 직접 한 번 더 눌러야 다운로드가 시작됩니다. 생성만으로 파일이 저장된 것은 아닙니다.`,
               );
@@ -147,6 +157,20 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
           className="primary"
           disabled={busy || restored}
           onClick={() => {
+            // Must remain synchronous: awaiting here loses iOS Safari's user activation.
+            let unchanged = false;
+            try {
+              unchanged = backupKeysUnchanged(preparedDownload.sourceKeys, localStorage);
+            } catch {
+              setError('현재 저장 기록을 확인할 수 없어 다운로드하지 않았습니다. 저장소 접근을 확인한 뒤 ZIP을 다시 준비하세요.');
+              return;
+            }
+            if (!unchanged) {
+              setPreparedDownload(null);
+              setMessage('');
+              setError('ZIP을 만든 뒤 학교 공지·수행평가 또는 다른 학습 기록이 변경되었습니다. 오래된 ZIP 대신 위의 전체 ZIP 내보내기를 다시 실행하세요.');
+              return;
+            }
             try {
               // Called directly by a fresh user tap, not after an asynchronous export.
               saveBlob(preparedDownload.blob, preparedDownload.name);

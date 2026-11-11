@@ -476,3 +476,57 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
     text: '물리 수행평가 공지 원본입니다. 실제 마감은 선생님께 확인.',
   });
 });
+
+test('iPhone: changed school notice invalidates a prepared ZIP without blocking a fresh download', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-11-10T10:00:00+09:00') });
+  await page.addInitScript((saved) => {
+    if (!localStorage.getItem('bkit.study-os.v1'))
+      localStorage.setItem('bkit.study-os.v1', JSON.stringify(saved));
+    localStorage.setItem('bkit.atelier.visited.v1', '1');
+  }, newState());
+  await page.goto('./');
+  await page.getByRole('region', { name: '수행평가 긴급 점검' })
+    .getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
+  const backup = page.getByRole('region', { name: '사진 포함 전체 백업' });
+
+  // The iPhone project uses a mobile user-agent and must wait for a second direct tap.
+  await backup.getByRole('button', { name: '사진 포함 전체 ZIP 내보내기' }).click();
+  const prepared = backup.getByRole('button', { name: '준비한 ZIP 다운로드' });
+  await expect(prepared).toBeVisible();
+
+  await page.evaluate(() => {
+    const originalClick = HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click = function (this: HTMLAnchorElement) {
+      (window as Window & { __zipTaps?: number }).__zipTaps =
+        ((window as Window & { __zipTaps?: number }).__zipTaps ?? 0) + 1;
+      return originalClick.call(this);
+    };
+    localStorage.setItem('bkit.school-inbox.v1', JSON.stringify({
+      version: 1, notices: [{
+        id: 'new-school-notice', createdAt: '2026-11-10T00:00:00.000Z',
+        text: 'ZIP 생성 이후 새로 받은 수행평가 공지', ocrText: '',
+        materials: { photoIds: [], papers: [] },
+        reviewed: false, archived: false, taskIds: [],
+      }],
+    }));
+  });
+  await prepared.click();
+  await expect(backup.getByText('오래된 ZIP 대신 위의 전체 ZIP 내보내기를 다시 실행하세요.', { exact: false }))
+    .toBeVisible();
+  await expect(prepared).toHaveCount(0);
+  expect(await page.evaluate(() => (window as Window & { __zipTaps?: number }).__zipTaps ?? 0))
+    .toBe(0);
+
+  // Rebuild from the newer source, then a direct tap must still initiate a real download.
+  await backup.getByRole('button', { name: '사진 포함 전체 ZIP 내보내기' }).click();
+  await expect(prepared).toBeVisible();
+  const downloadEvent = page.waitForEvent('download');
+  await prepared.click();
+  const downloaded = await downloadEvent;
+  expect(downloaded.suggestedFilename()).toMatch(/^bkit-complete-.*\.zip$/);
+  expect(await page.evaluate(() => (window as Window & { __zipTaps?: number }).__zipTaps ?? 0))
+    .toBe(1);
+  const notice = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices[0]);
+  expect(notice).toMatchObject({ text: 'ZIP 생성 이후 새로 받은 수행평가 공지', reviewed: false });
+});

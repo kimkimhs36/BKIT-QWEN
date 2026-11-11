@@ -66,6 +66,12 @@ type StoredKeys = Record<string, string | null>;
 export function snapshotKeys(storage: Storage): StoredKeys {
   return Object.fromEntries(BACKUP_KEYS.map((key) => [key, storage.getItem(key)]));
 }
+/** Synchronous so iOS download remains inside the user's direct tap.
+ * This covers localStorage-backed records; ZIP re-inspection is still needed for photos/PDFs.
+ */
+export function backupKeysUnchanged(snapshot: Readonly<StoredKeys>, storage: Storage): boolean {
+  return BACKUP_KEYS.every((key) => snapshot[key] === storage.getItem(key));
+}
 function localStudy(raw: string | null | undefined) {
   try {
     return raw ? stateSchema.parse(JSON.parse(raw)) : newState();
