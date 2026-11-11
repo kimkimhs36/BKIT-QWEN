@@ -150,8 +150,9 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             try {
               // Called directly by a fresh user tap, not after an asynchronous export.
               saveBlob(preparedDownload.blob, preparedDownload.name);
-              setMessage('ZIP 다운로드 요청 완료. Safari 다운로드 목록과 파일 앱에서 실제 저장을 확인하고, 방금 저장한 파일을 다시 선택해 무결성을 검사하세요.');
-              setPreparedDownload(null);
+              setMessage('ZIP 다운로드 요청 완료. Safari 다운로드 목록과 파일 앱에서 실제 저장을 확인하세요. 파일이 없다면 위 ‘준비한 ZIP 다운로드’를 다시 누를 수 있습니다. 저장된 ZIP을 다시 선택해 무결성을 검사하세요.');
+              // Keep the prepared ZIP for another direct tap if Safari blocks or loses the download.
+              // A download request is not evidence that a file was saved.
               setError('');
             } catch (e) {
               setError(e instanceof Error ? e.message : 'ZIP 다운로드를 시작하지 못했습니다. 다시 눌러 주세요.');
