@@ -22,7 +22,8 @@ permissions:
 
 jobs:
   notice-zip-regression:
-    runs-on: ubuntu-latest
+    # Keep the runner's preinstalled Chrome stable; avoid OS package network downloads.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     defaults:
       run:
@@ -47,11 +48,19 @@ jobs:
       - name: Production-style build
         if: success() || failure()
         run: npm run build
-      # Public repository's standard GitHub-hosted runner; run only after successful build.
+      # Ubuntu 24.04 GitHub-hosted runners provide Chrome; using it avoids
+      # Playwright --with-deps apt downloads that failed when Ubuntu mirrors had DNS errors.
       # Browser emulation, not a physical iPhone/Safari certification.
-      - name: Install Chromium for iPhone-sized end-to-end smoke
+      - name: Select preinstalled Chrome for iPhone-sized end-to-end smoke
         if: success()
-        run: npx playwright install --with-deps chromium
+        run: |
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          if [ -z "$CHROME" ]; then
+            echo '::error::No installed Chrome/Chromium on the pinned ubuntu-24.04 runner.'
+            exit 1
+          fi
+          "$CHROME" --version
+          echo "PLAYWRIGHT_CHROMIUM_EXECUTABLE=$CHROME" >> "$GITHUB_ENV"
       - name: iPhone school notice and backup navigation
         if: success()
         run: npm run test:e2e -- tests/e2e/home-notice-capture.spec.ts --project=iphone
