@@ -135,8 +135,9 @@ export function captureDeadline(
 export function formatTaskDeadline(task: Task) {
   // Inferred dates are planning candidates, not confirmed school deadlines.
   if (task.deadline?.provenance === 'inferred')
-    return task.deadline.date + ' · 추정 날짜, 원문 재확인' +
-      (task.deadline.precision === 'date-only' ? ' · 시각 미확인' : ' · 시각도 재확인');
+    return task.deadline.date +
+      (task.deadline.precision === 'date-only' ? ' · 시각 미확인' : ' · 시각도 재확인') +
+      ' · 추정 날짜, 원문 재확인';
   // A date-only source value is meaningful even when the legacy timestamp is absent.
   if (task.deadline?.precision === 'date-only') return task.deadline.date + ' · 시각 미확인';
   if (!task.due) return '마감 확인 필요';
