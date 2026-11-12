@@ -485,8 +485,13 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
   }));
   expect(restored.state.tasks.find((item: { id: string }) => item.id === 'zip-task-1'))
     .toMatchObject({ status: 'done', submitted: false });
+  expect(restored.state.tasks.find((item: { id: string }) => item.id === 'zip-task-2'))
+    .toMatchObject({
+      status: 'todo', submitted: false,
+      deadline: { date: '2026-11-15', precision: 'date-only', provenance: 'user-confirmed' },
+    });
   expect(restored.inbox.notices[0]).toMatchObject({
-    id: 'zip-notice-1', taskIds: ['zip-task-1'],
+    id: 'zip-notice-1', taskIds: ['zip-task-1', 'zip-task-2'],
     text: '물리 수행평가 공지 원본입니다. 실제 마감은 선생님께 확인.',
   });
 });
