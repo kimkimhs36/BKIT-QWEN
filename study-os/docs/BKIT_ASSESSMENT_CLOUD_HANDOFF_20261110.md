@@ -183,3 +183,10 @@ User reported multiple severely unsuccessful school performance assessments and,
 - Files: `src/noticeIndex.ts`, `src/SchoolInboxPanel.tsx`, `tests/noticeIndex.test.ts`, `tests/e2e/home-notice-capture.spec.ts`, this document. Tests: pure filter avoids archived, submitted, unlinked and date-only false positives; iPhone-sized Chrome E2E button verifies one matching notice, no mutation and due unknown. 3 success criteria: exact count from stored data, direct tap opens the underlying notice, no mutation to academic evidence.
 - Await exact-SHA CI, TypeScript, build, iPhone Chromium E2E and Preview-only READY/HTTP confirmation before declaring success. This code and handoff are for PR #57 only. Do not touch parent PR #56, main, teambkit.com or BKIT HOUSE; physical iPhone Safari remains unverified.
 - Next one actual user task: compare one real unconfirmed performance-assessment due date against the school original on iPhone, register only the confirmed date, then ZIP backup into Files and reselect for read-only verification.
+
+
+### 2026-11-12 KST — Direct deadline confirmation CTA follow-up
+
+- Starting HEAD `72f4821f12c07b3ed5866d1569625814aede1137` on Draft PR #57. Earlier shortcut passed CI 480/480 and 14/14 iPhone-size Chromium E2E; preview SHA matched. However, linked task action still used the generic label `과제 확인`, leaving the intended next step unclear.
+- This patch changes the existing `onEdit(task)` button label only for an unsubmitted performance assessment with no known due day to `공식 마감 확인 후 과제 수정`. Clicking it invokes the **existing** editor; does not prefill, infer, confirm, save or submit anything. Other tasks keep the original label. The existing mobile E2E verifies the CTA is clickable and opening the editor does not mutate notices/tasks.
+- Changed: `src/SchoolInboxPanel.tsx`, `tests/e2e/home-notice-capture.spec.ts`, this handoff. No storage keys, archive format, model or production changes. Recheck exact SHA CI and preview before claiming verified. Next ONE user goal remains official source verification on physical iPhone, then a real Files ZIP saved-file read-only check.

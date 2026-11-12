@@ -612,7 +612,11 @@ export function SchoolInbox({
                     {formatTaskDeadline(t)} · 학습 {t.status === 'done' ? '완료' : '미완료'} · 제출{' '}
                     {t.submitted ? '완료' : t.submissionRequired === false ? '불필요' : '미확인'}
                   </p>
-                  <button onClick={() => onEdit(t)}>과제 확인</button>
+                  <button onClick={() => onEdit(t)}>
+                     {t.kind === '수행평가' && !t.submitted && !t.deadline?.date && !t.due
+                       ? '공식 마감 확인 후 과제 수정'
+                       : '과제 확인'}
+                   </button>
                   <button onClick={() => onCalendar(t)}>달력에서 보기</button>
                   {t.status !== 'done' && (
                     <button onClick={() => onStart(t.id)}>이 과제 5분 시작</button>

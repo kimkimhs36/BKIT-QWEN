@@ -118,6 +118,8 @@ test('iPhone: one-tap missing-deadline notice filter opens an actual linked asse
     .toHaveValue('실험 결과 보고서. 제출 마감은 원문에서 재확인하세요.');
   await expect(inbox.getByRole('region', { name: '공지에서 등록한 과제' }))
     .toContainText('마감 확인 필요');
+  await inbox.getByRole('button', { name: '공식 마감 확인 후 과제 수정' }).click();
+  // Opening the existing editor is not itself a confirmation or submission.
   const after = await page.evaluate(() => ({
     tasks: JSON.parse(localStorage.getItem('bkit.study-os.v1')!).tasks,
     notices: JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices,
