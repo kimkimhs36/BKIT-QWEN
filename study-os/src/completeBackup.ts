@@ -253,8 +253,7 @@ export function schoolNoticeBackupContents(archive: InspectedBackup) {
       subject: task.subject,
       due: task.due,
       // A date-only 23:59 is a planning boundary, never a confirmed time.
-      deadlineLabel: formatTaskDeadline(task) +
-        (task.deadline?.provenance === 'inferred' ? ' · 추정 날짜, 원문 재확인' : ''),
+      deadlineLabel: formatTaskDeadline(task),
       status: task.status,
       submitted: task.submitted,
       submissionRequired: task.submissionRequired,
