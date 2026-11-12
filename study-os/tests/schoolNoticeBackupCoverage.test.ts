@@ -137,6 +137,41 @@ describe('school notice ZIP coverage', () => {
     expect(target.getItem(KEY)).toBeNull();
   });
 
+
+  it('does not turn date-only ZIP deadlines into falsely confirmed 23:59 times', async () => {
+    const state = newState();
+    const common = {
+      subject: '물질과 에너지', title: '보고서 제출', kind: '수행평가' as const,
+      priority: 2, minutes: 25, remaining: 25,
+      status: 'todo' as const, submitted: false, submissionRequired: true,
+      optional: false, notes: '', link: '',
+    };
+    state.tasks.push(
+      {
+        ...common, id: 'confirmed-day-only', due: '2026-11-15T14:59:00.000Z',
+        deadline: { date: '2026-11-15', precision: 'date-only', provenance: 'user-confirmed' },
+      },
+      {
+        ...common, id: 'inferred-day-only', due: '2026-11-16T14:59:00.000Z',
+        deadline: { date: '2026-11-16', precision: 'date-only', provenance: 'inferred' },
+      },
+    );
+    const source = storage({
+      [KEY]: JSON.stringify(state),
+      [INBOX_KEY]: JSON.stringify({
+        ...originalNotice,
+        notices: [{ ...originalNotice.notices[0], taskIds: ['confirmed-day-only', 'inferred-day-only'] }],
+      }),
+    });
+    const zip = await exportCompleteBackup(source);
+    const inspected = await inspectCompleteBackup(zip, storage());
+    const [confirmed, inferred] = schoolNoticeBackupContents(inspected)[0].tasks;
+    expect(confirmed.deadlineLabel).toBe('2026-11-15 · 시각 미확인');
+    expect(inferred.deadlineLabel).toBe('2026-11-16 · 시각 미확인 · 추정 날짜, 원문 재확인');
+    expect(confirmed.deadlineLabel).not.toContain('23:59');
+    expect(inferred.deadlineLabel).not.toContain('23:59');
+  });
+
   it('does not confuse a live notice with the contents of an unrelated ZIP', async () => {
     const zip = await exportCompleteBackup(storage({ [KEY]: JSON.stringify(newState()) }));
     const target = storage({ [INBOX_KEY]: JSON.stringify(originalNotice) });

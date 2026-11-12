@@ -388,6 +388,13 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
     kind: '수행평가', due: null, priority: 2, minutes: 25, remaining: 25,
     status: 'done', submitted: false, submissionRequired: true,
     optional: false, notes: '', link: '',
+  }, {
+    id: 'zip-task-2', subject: '물질과 에너지', title: '날짜만 확인된 수행평가',
+    kind: '수행평가', due: '2026-11-15T14:59:00.000Z',
+    deadline: { date: '2026-11-15', precision: 'date-only', provenance: 'user-confirmed' },
+    priority: 2, minutes: 25, remaining: 25,
+    status: 'todo', submitted: false, submissionRequired: true,
+    optional: false, notes: '', link: '',
   }];
   const inbox = {
     version: 1,
@@ -395,7 +402,7 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
       id: 'zip-notice-1', createdAt: '2026-11-10T00:00:00.000Z',
       text: '물리 수행평가 공지 원본입니다. 실제 마감은 선생님께 확인.',
       ocrText: '', materials: { photoIds: [], papers: [] },
-      reviewed: true, fullyRegistered: true, archived: false, taskIds: ['zip-task-1'],
+      reviewed: true, fullyRegistered: true, archived: false, taskIds: ['zip-task-1', 'zip-task-2'],
     }],
   };
   await page.addInitScript(({ state, inbox }) => {
@@ -464,6 +471,9 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
   await freshBackup.getByText('ZIP에 기록된 학교 공지 1건 · 연결된 과제 확인').click();
   await expect(freshBackup.getByText('공지 원문 첫 줄: 물리 수행평가 공지 원본입니다. 실제 마감은 선생님께 확인.')).toBeVisible();
   await expect(freshBackup.getByText('열기관 실험 보고서', { exact: false }).last()).toContainText('제출 미확인');
+  // The legacy 23:59 planning boundary must not look like an official submission cutoff.
+  await expect(freshBackup.getByText('날짜만 확인된 수행평가', { exact: false }).last())
+    .toContainText('2026-11-15 · 시각 미확인');
 
   await freshBackup.getByRole('button', { name: '검사한 백업 병합' }).click();
   await expect(freshBackup.getByText('복원 완료.', { exact: false })).toBeVisible();

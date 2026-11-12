@@ -1,4 +1,5 @@
 import { INBOX_KEY, inboxSchema, noticeTasks } from './schoolInbox';
+import { formatTaskDeadline } from './capture';
 import { BOOKS_KEY, booksSchema, mergeBooks } from './books';
 import { KEY as EXAM_KEY, EXT_KEY as EXAM_EXT_KEY, readDocument as readExamDocument,
   mergeDocuments as mergeExamDocuments, partitionDocument as partitionExamDocument } from './juggernaut/engine';
@@ -251,6 +252,9 @@ export function schoolNoticeBackupContents(archive: InspectedBackup) {
       title: task.title,
       subject: task.subject,
       due: task.due,
+      // A date-only 23:59 is a planning boundary, never a confirmed time.
+      deadlineLabel: formatTaskDeadline(task) +
+        (task.deadline?.provenance === 'inferred' ? ' · 추정 날짜, 원문 재확인' : ''),
       status: task.status,
       submitted: task.submitted,
       submissionRequired: task.submissionRequired,

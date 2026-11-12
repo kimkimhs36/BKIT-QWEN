@@ -334,7 +334,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
                         {notice.tasks.map((task) => (
                           <li key={task.id}>
                             {task.subject} · {task.title} ·
-                            {task.due ? new Date(task.due).toLocaleString('ko-KR') : '마감 미확인'} ·
+                            {task.deadlineLabel} ·
                             {task.status === 'done' ? '학습 완료 기록' : '학습 미완료 기록'} ·
                             {task.submitted
                               ? '앱 기록상 제출됨'
