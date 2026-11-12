@@ -4,11 +4,13 @@ import { needsSubmission } from './tasks';
 
 export type NoticeFilter = 'inbox' | 'review' | 'deadline' | 'submission' | 'archived' | 'all';
 
-/** A recorded, still-unsubmitted performance assessment with no known due day.
- * A date-only deadline is known even when the exact hour is unknown.
+/** A stored, unsubmitted assessment needs source confirmation if its date is
+ * missing OR was inferred (e.g. a month/day assigned to a guessed year).
+ * Date-only with explicit/user-confirmed provenance is not missing.
  */
 export function needsDeadlineConfirmation(task: Task): boolean {
-  return task.kind === '수행평가' && !task.submitted && !task.deadline?.date && !task.due;
+  return task.kind === '수행평가' && !task.submitted &&
+    (task.deadline?.provenance === 'inferred' || (!task.deadline?.date && !task.due));
 }
 
 /** Read-only index over the original notices and committed tasks. No inferred deadlines. */

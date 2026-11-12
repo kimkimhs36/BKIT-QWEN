@@ -1,7 +1,7 @@
 import { activation } from './activation';
 import { NoticePdf } from './NoticePdf';
 import { prepareNoticePaste } from './noticePaste';
-import { findNotices, type NoticeFilter } from './noticeIndex';
+import { findNotices, needsDeadlineConfirmation, type NoticeFilter } from './noticeIndex';
 import { fullDate } from './time';
 import { useRef, useState, lazy, Suspense } from 'react';
 import type { PaperDocument } from './paperModel';
@@ -320,10 +320,10 @@ export function SchoolInbox({
               setFilter('deadline');
             }}
           >
-            마감 미확인 수행평가 공지 {missingDeadlineNotices.length}건 확인
+            마감 미확인·추정 수행평가 공지 {missingDeadlineNotices.length}건 확인
           </button>
           <p className="hint">
-            이 기기에 등록된 미제출 수행평가 중 마감 날짜가 없는 공지만 찾았습니다.
+            이 기기에 등록된 미제출 수행평가 중 마감 날짜가 없거나 추정 날짜만 있는 공지를 찾았습니다.
             공식 공지에서 날짜를 확인해 과제를 수정하세요. 학교 공지를 자동 수집한 결과는 아닙니다.
           </p>
         </div>
@@ -613,7 +613,7 @@ export function SchoolInbox({
                     {t.submitted ? '완료' : t.submissionRequired === false ? '불필요' : '미확인'}
                   </p>
                   <button onClick={() => onEdit(t)}>
-                     {t.kind === '수행평가' && !t.submitted && !t.deadline?.date && !t.due
+                     {needsDeadlineConfirmation(t)
                        ? '공식 마감 확인 후 과제 수정'
                        : '과제 확인'}
                    </button>

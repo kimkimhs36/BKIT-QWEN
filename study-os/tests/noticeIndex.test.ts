@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { findNotices } from '../src/noticeIndex';
+import { findNotices, needsDeadlineConfirmation } from '../src/noticeIndex';
+import { formatTaskDeadline } from '../src/capture';
 import { newNotice } from '../src/schoolInbox';
 import { taskSchema } from '../src/model';
 
@@ -68,6 +69,26 @@ describe('source-backed notice retrieval', () => {
     expect(found).toEqual([undated]);
     expect(JSON.stringify(all)).toBe(before);
     expect(findNotices([unlinked], [task], '', 'deadline')).toEqual([]);
+  });
+
+  it('does not treat inferred year or date as a confirmed school deadline', () => {
+    const inferred = { ...task, id: 'inferred', due: '2026-11-20T14:59:00.000Z',
+      deadline: { date: '2026-11-20', precision: 'date-only' as const, provenance: 'inferred' as const } };
+    const exactInferred = { ...inferred, id: 'inferred-time',
+      deadline: { date: '2026-11-20', precision: 'exact-time' as const, provenance: 'inferred' as const } };
+    const confirmed = { ...inferred, id: 'confirmed',
+      deadline: { ...inferred.deadline, provenance: 'user-confirmed' as const } };
+    const notices = [
+      { ...newNotice(), id: 'inferred-notice', taskIds: ['inferred'] },
+      { ...newNotice(), id: 'inferred-time-notice', taskIds: ['inferred-time'] },
+      { ...newNotice(), id: 'confirmed-notice', taskIds: ['confirmed'] },
+    ];
+    expect(findNotices(notices, [inferred, exactInferred, confirmed], '', 'deadline').map(n => n.id).sort())
+      .toEqual(['inferred-notice', 'inferred-time-notice']);
+    expect(needsDeadlineConfirmation(confirmed)).toBe(false);
+    expect(formatTaskDeadline(inferred)).toContain('추정 날짜, 원문 재확인');
+    expect(formatTaskDeadline(exactInferred)).toContain('시각도 재확인');
+    expect(formatTaskDeadline(confirmed)).toBe('2026-11-20 · 시각 미확인');
   });
   it('sorts a copy by newest source time and keeps similar notices separate', () => {
     const old = { ...newNotice(), text: '학습지', createdAt: '2026-10-27T23:59:00Z' };
