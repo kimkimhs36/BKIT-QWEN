@@ -51,6 +51,24 @@ describe('source-backed notice retrieval', () => {
     expect(findNotices([archived], [], '', 'archived')).toEqual([archived]);
     expect(findNotices([archived], [], '', 'all')).toEqual([archived]);
   });
+
+  it('surfaces only linked, unsubmitted performance assessments with unknown deadline dates', () => {
+    const undated = { ...newNotice(), id: 'undated', createdAt: '2026-11-11T10:00:00.000Z', text: '날짜 확인 필요', taskIds: [task.id] };
+    const dayOnlyTask = {
+      ...task, id: 'day-only', due: '2026-11-15T14:59:00.000Z',
+      deadline: { date: '2026-11-15', precision: 'date-only' as const, provenance: 'user-confirmed' as const },
+    };
+    const dated = { ...newNotice(), id: 'dated', text: '날짜만 확인됨', taskIds: ['day-only'] };
+    const submitted = { ...newNotice(), id: 'submitted', text: '이미 제출 확인', taskIds: ['submitted-task'] };
+    const archived = { ...newNotice(), id: 'archived', text: '보관함', archived: true, taskIds: [task.id] };
+    const unlinked = { ...newNotice(), id: 'unlinked', text: '아직 과제 미등록' };
+    const all = [dated, unlinked, submitted, undated, archived];
+    const before = JSON.stringify(all);
+    const found = findNotices(all, [task, dayOnlyTask, { ...task, id: 'submitted-task', submitted: true }], '', 'deadline');
+    expect(found).toEqual([undated]);
+    expect(JSON.stringify(all)).toBe(before);
+    expect(findNotices([unlinked], [task], '', 'deadline')).toEqual([]);
+  });
   it('sorts a copy by newest source time and keeps similar notices separate', () => {
     const old = { ...newNotice(), text: '학습지', createdAt: '2026-10-27T23:59:00Z' };
     const recent = { ...newNotice(), text: '학습지 2', createdAt: '2026-10-28T00:00:00Z' };

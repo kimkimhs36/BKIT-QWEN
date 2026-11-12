@@ -96,6 +96,7 @@ export function SchoolInbox({
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<NoticeFilter>('inbox');
   const visible = findNotices(data.notices, state.tasks, query, filter);
+  const missingDeadlineNotices = findNotices(data.notices, state.tasks, '', 'deadline');
   function reveal(item: SchoolNotice) {
     setSelected(item.id);
     setQuery('');
@@ -301,12 +302,32 @@ export function SchoolInbox({
           >
             <option value="inbox">받은함</option>
             <option value="review">정리할 공지</option>
+            <option value="deadline">수행평가 마감 날짜 확인</option>
             <option value="submission">완료 후 제출 확인</option>
             <option value="archived">보관 처리한 공지</option>
             <option value="all">모든 공지</option>
           </select>
         </label>
       </div>
+      {missingDeadlineNotices.length > 0 && (
+        <div className="inbox-deadline-rescue">
+          <button
+            type="button"
+            disabled={busy || pasteBusy || !!initial.error}
+            onClick={() => {
+              // Jump to an actually linked task; no estimated school deadline is generated.
+              reveal(missingDeadlineNotices[0]);
+              setFilter('deadline');
+            }}
+          >
+            마감 미확인 수행평가 공지 {missingDeadlineNotices.length}건 확인
+          </button>
+          <p className="hint">
+            이 기기에 등록된 미제출 수행평가 중 마감 날짜가 없는 공지만 찾았습니다.
+            공식 공지에서 날짜를 확인해 과제를 수정하세요. 학교 공지를 자동 수집한 결과는 아닙니다.
+          </p>
+        </div>
+      )}
       <p className="hint" role="status">
         공지 {visible.length}개 · 최근 받은 순서
       </p>

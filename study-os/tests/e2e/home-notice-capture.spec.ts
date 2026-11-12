@@ -58,6 +58,73 @@ test('iPhone: copied school notice is saved, opened, explicitly converted to a t
   await expect(page.getByRole('region', { name: '공지에서 등록한 과제' })).toContainText('산염기 실험 보고서');
 });
 
+
+test('iPhone: one-tap missing-deadline notice filter opens an actual linked assessment without changing records', async ({ page }) => {
+  const state = newState();
+  const baseTask = {
+    subject: '역학과 에너지', title: '실험 결과 보고서',
+    kind: '수행평가' as const, priority: 2, minutes: 25, remaining: 25,
+    status: 'todo' as const, submitted: false, submissionRequired: true,
+    optional: false, notes: '', link: '',
+  };
+  state.tasks = [
+    { ...baseTask, id: 'deadline-missing', due: null },
+    {
+      ...baseTask, id: 'deadline-known', due: '2026-11-15T14:59:00.000Z',
+      deadline: { date: '2026-11-15', precision: 'date-only', provenance: 'user-confirmed' },
+    },
+    { ...baseTask, id: 'already-submitted', due: null, status: 'done', submitted: true },
+  ];
+  const inboxData = {
+    version: 1,
+    notices: [
+      {
+        id: 'notice-dated', createdAt: '2026-11-12T05:00:00.000Z',
+        text: '날짜만 확인된 수행평가', ocrText: '',
+        reviewed: true, fullyRegistered: true, archived: false,
+        taskIds: ['deadline-known'], materials: { photoIds: [], papers: [] },
+      },
+      {
+        id: 'notice-missing', createdAt: '2026-11-11T05:00:00.000Z',
+        text: '실험 결과 보고서. 제출 마감은 원문에서 재확인하세요.', ocrText: '',
+        reviewed: true, fullyRegistered: true, archived: false,
+        taskIds: ['deadline-missing'], materials: { photoIds: [], papers: [] },
+      },
+      {
+        id: 'notice-submitted', createdAt: '2026-11-10T05:00:00.000Z',
+        text: '이미 제출 기록된 수행평가', ocrText: '',
+        reviewed: true, fullyRegistered: true, archived: false,
+        taskIds: ['already-submitted'], materials: { photoIds: [], papers: [] },
+      },
+    ],
+  };
+  await page.addInitScript(({ state, inboxData }) => {
+    localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
+    localStorage.setItem('bkit.school-inbox.v1', JSON.stringify(inboxData));
+    localStorage.setItem('bkit.atelier.visited.v1', '1');
+  }, { state, inboxData });
+  await page.goto('./');
+  await page.getByRole('region', { name: '수행평가 긴급 점검' })
+    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+  const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
+  const before = await page.evaluate(() => ({
+    tasks: JSON.parse(localStorage.getItem('bkit.study-os.v1')!).tasks,
+    notices: JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices,
+  }));
+  await inbox.getByRole('button', { name: '마감 미확인 수행평가 공지 1건 확인' }).click();
+  await expect(inbox.getByLabel('공지 보기')).toHaveValue('deadline');
+  await expect(inbox.locator('.inbox-list button')).toHaveCount(1);
+  await expect(inbox.getByRole('textbox', { name: '원본 공지' }))
+    .toHaveValue('실험 결과 보고서. 제출 마감은 원문에서 재확인하세요.');
+  await expect(inbox.getByRole('region', { name: '공지에서 등록한 과제' }))
+    .toContainText('마감 확인 필요');
+  const after = await page.evaluate(() => ({
+    tasks: JSON.parse(localStorage.getItem('bkit.study-os.v1')!).tasks,
+    notices: JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices,
+  }));
+  expect(after).toEqual(before);
+});
+
 test('iPhone: notice link write failure warns without duplicating or submitting the saved assessment', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-11-10T10:00:00+09:00') });
   const state = newState();
