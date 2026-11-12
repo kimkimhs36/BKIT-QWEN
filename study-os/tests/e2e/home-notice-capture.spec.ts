@@ -111,7 +111,7 @@ test('iPhone: one-tap missing-deadline notice filter opens an actual linked asse
     tasks: JSON.parse(localStorage.getItem('bkit.study-os.v1')!).tasks,
     notices: JSON.parse(localStorage.getItem('bkit.school-inbox.v1')!).notices,
   }));
-  await inbox.getByRole('button', { name: '마감 미확인 수행평가 공지 1건 확인' }).click();
+  await inbox.getByRole('button', { name: '마감 미확인·추정 수행평가 공지 1건 확인' }).click();
   await expect(inbox.getByLabel('공지 보기')).toHaveValue('deadline');
   await expect(inbox.locator('.inbox-list button')).toHaveCount(1);
   await expect(inbox.getByRole('textbox', { name: '원본 공지' }))
