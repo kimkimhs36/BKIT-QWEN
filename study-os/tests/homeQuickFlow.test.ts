@@ -61,6 +61,14 @@ describe('actual home quick focus lifecycle', () => {
     expect(html).not.toContain('ZIP 백업 완료');
   });
 
+  it('links the learner to a read-only development verification page', () => {
+    const html = home(newState(), began);
+    expect(html).toContain('개발 현황 · 커밋·테스트 보기');
+    expect(html).toContain('dev-status.html');
+    expect(html).toContain('rel="noopener noreferrer"');
+    expect(html).toContain('target="_blank"');
+  });
+
   it('does not claim a saved receipt for an unsaved or old session', () => {
     let state = startQuick(newState(), 'countdown', 10, began, 'old-quick');
     state = finishQuick(state, began + 5 * 60_000);

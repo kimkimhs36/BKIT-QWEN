@@ -710,6 +710,14 @@ export function PremiumHome({
         <button className="study-help-link" onClick={onAccount}>
           {accountConnected ? 'Google 연결됨' : 'Google로 이어가기'}
         </button>
+        <a
+          className="study-help-link"
+          href={`${import.meta.env.BASE_URL}dev-status.html`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          개발 현황 · 커밋·테스트 보기 <ArrowUpRight size={15} aria-hidden="true" />
+        </a>
       </div>
     </div>
   );
