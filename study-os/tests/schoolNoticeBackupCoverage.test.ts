@@ -5,6 +5,7 @@ import { KEY } from '../src/storage';
 import { INBOX_KEY, noticeStatus } from '../src/schoolInbox';
 import {
   backupMatchesCurrent,
+  schoolNoticeBackupContents,
   backupKeysUnchanged,
   snapshotKeys,
   exportCompleteBackup,
@@ -95,6 +96,51 @@ describe('school notice ZIP coverage', () => {
     const outdated = await inspectCompleteBackup(zip, source);
     expect(backupMatchesCurrent(outdated).schoolNotices).toBe(false);
     expect(backupMatchesCurrent(outdated).study).toBe(false);
+  });
+
+
+  it('lists ZIP notice and submission without reading or changing live records', async () => {
+    const study = newState();
+    study.tasks.push({
+      id: 'zip-assessment', subject: '역학과 에너지', title: '열기관 실험',
+      kind: '수행평가', due: null, priority: 2, minutes: 25, remaining: 25,
+      status: 'done', submitted: false, submissionRequired: true, optional: false,
+      notes: '', link: '',
+    });
+    const archivedNotice = {
+      ...originalNotice,
+      notices: [{
+        ...originalNotice.notices[0],
+        text: '원본 수행평가 공지\n추가 정보',
+        taskIds: ['zip-assessment', 'missing-assessment'],
+      }],
+    };
+    const source = storage({ [KEY]: JSON.stringify(study), [INBOX_KEY]: JSON.stringify(archivedNotice) });
+    const zip = await exportCompleteBackup(source);
+    const target = storage({
+      [INBOX_KEY]: JSON.stringify({
+        ...originalNotice,
+        notices: [{ ...originalNotice.notices[0], id: 'local-only', text: '새 기기의 공지' }],
+      }),
+    });
+    const before = target.getItem(INBOX_KEY);
+    const rows = schoolNoticeBackupContents(await inspectCompleteBackup(zip, target));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      preview: '원본 수행평가 공지', missingTaskCount: 1, photoCount: 0, paperCount: 0,
+    });
+    expect(rows[0].tasks).toEqual([expect.objectContaining({
+      id: 'zip-assessment', title: '열기관 실험', due: null,
+      status: 'done', submitted: false, submissionRequired: true,
+    })]);
+    expect(target.getItem(INBOX_KEY)).toBe(before);
+    expect(target.getItem(KEY)).toBeNull();
+  });
+
+  it('does not confuse a live notice with the contents of an unrelated ZIP', async () => {
+    const zip = await exportCompleteBackup(storage({ [KEY]: JSON.stringify(newState()) }));
+    const target = storage({ [INBOX_KEY]: JSON.stringify(originalNotice) });
+    expect(schoolNoticeBackupContents(await inspectCompleteBackup(zip, target))).toEqual([]);
   });
 
   it('merges an archived notice without deleting a newer local notice', async () => {

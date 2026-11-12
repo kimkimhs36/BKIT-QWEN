@@ -461,6 +461,10 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
   const freshBackup = page.getByRole('region', { name: '사진 포함 전체 백업' });
   await freshBackup.locator('input[type="file"][accept*="zip"]').setInputFiles(savedZip!);
   await expect(freshBackup.getByText('선택한 ZIP 파일의 무결성을 확인했습니다.', { exact: false })).toBeVisible();
+  await freshBackup.getByText('ZIP에 기록된 학교 공지 1건 · 연결된 과제 확인').click();
+  await expect(freshBackup.getByText('공지 원문 첫 줄: 물리 수행평가 공지 원본입니다. 실제 마감은 선생님께 확인.')).toBeVisible();
+  await expect(freshBackup.getByText('열기관 실험 보고서', { exact: false }).last()).toContainText('제출 미확인');
+
   await freshBackup.getByRole('button', { name: '검사한 백업 병합' }).click();
   await expect(freshBackup.getByText('복원 완료.', { exact: false })).toBeVisible();
 

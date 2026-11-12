@@ -1,4 +1,4 @@
-import { INBOX_KEY, inboxSchema } from './schoolInbox';
+import { INBOX_KEY, inboxSchema, noticeTasks } from './schoolInbox';
 import { BOOKS_KEY, booksSchema, mergeBooks } from './books';
 import { KEY as EXAM_KEY, EXT_KEY as EXAM_EXT_KEY, readDocument as readExamDocument,
   mergeDocuments as mergeExamDocuments, partitionDocument as partitionExamDocument } from './juggernaut/engine';
@@ -228,6 +228,34 @@ export function backupMatchesCurrent(archive: InspectedBackup) {
     sleep: archive.keys[SLEEP_KEY] === archive.baseline[SLEEP_KEY],
     paper: JSON.stringify(archive.paper.documents) === JSON.stringify(archive.paper.baseline),
   };
+}
+
+/** Read-only contents of the chosen ZIP, not the live browser store. */
+export function schoolNoticeBackupContents(archive: InspectedBackup) {
+  const notices = archive.keys[INBOX_KEY]
+    ? inboxSchema.parse(JSON.parse(archive.keys[INBOX_KEY]!)).notices
+    : [];
+  const tasks = archive.keys[KEY]
+    ? stateSchema.parse(JSON.parse(archive.keys[KEY]!)).tasks
+    : [];
+  const taskIds = new Set(tasks.map((task) => task.id));
+  return notices.map((notice) => ({
+    id: notice.id,
+    preview: notice.text.trim().split(/\r?\n/).find(Boolean)?.slice(0, 120) ||
+      (notice.ocrText.trim() ? '사진에서 읽은 글 있음 (원본 대조 필요)' : '텍스트 없는 공지 · 첨부 원본 확인'),
+    photoCount: notice.materials.photoIds.length,
+    paperCount: notice.materials.papers.length,
+    missingTaskCount: notice.taskIds.filter((id) => !taskIds.has(id)).length,
+    tasks: noticeTasks(notice, tasks).map((task) => ({
+      id: task.id,
+      title: task.title,
+      subject: task.subject,
+      due: task.due,
+      status: task.status,
+      submitted: task.submitted,
+      submissionRequired: task.submissionRequired,
+    })),
+  }));
 }
 
 export async function inspectCompleteBackup(

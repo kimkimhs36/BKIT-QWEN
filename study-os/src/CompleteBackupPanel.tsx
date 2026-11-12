@@ -7,6 +7,7 @@ import {
   snapshotKeys,
   backupKeysUnchanged,
   restoreCompleteBackup,
+  schoolNoticeBackupContents,
   latestRecovery,
   type InspectedBackup,
 } from './completeBackup';
@@ -48,6 +49,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
   const [checkingStorage, setCheckingStorage] = useState(false);
   const [audit, setAudit] = useState<StorageAudit | null>(null);
   const [archiveCoverage, setArchiveCoverage] = useState<ReturnType<typeof backupMatchesCurrent> | null>(null);
+  const archivedSchoolNotices = inspected ? schoolNoticeBackupContents(inspected) : [];
   async function inspectLocalStorageHealth() {
     setCheckingStorage(true);
     try {
@@ -309,6 +311,54 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             {inspected.manifest.photos.length}장 · 겹치는 기록 ID {inspected.conflicts.length}개 ·
             내용이 다른 사진 ID {inspected.photoConflicts.length}개
           </p>
+          <details className="resource-editor">
+            <summary>ZIP에 기록된 학교 공지 {archivedSchoolNotices.length}건 · 연결된 과제 확인</summary>
+            <p className="muted">
+              선택한 ZIP 파일 안의 기록만 표시합니다. 현재 기기의 공지나 실제 학교 제출 내역을
+              조회하지 않습니다. '제출됨'은 백업 당시 앱에 사용자가 기록한 상태일 뿐입니다.
+              내용을 대조해도 복원 버튼을 누르기 전에는 현재 기록이 바뀌지 않습니다.
+            </p>
+            {archivedSchoolNotices.length === 0 ? (
+              <p>이 ZIP에는 학교 공지 받은함 기록이 없습니다. 다른 기기의 공지까지 보관됐다고 가정하지 마세요.</p>
+            ) : (
+              <ul>
+                {archivedSchoolNotices.slice(0, 20).map((notice) => (
+                  <li key={notice.id}>
+                    <strong>공지 원문 첫 줄: {notice.preview}</strong>
+                    <p>
+                      ZIP 내 사진 {notice.photoCount}개 · PDF {notice.paperCount}개 ·
+                      연결된 과제 {notice.tasks.length}개
+                    </p>
+                    {notice.tasks.length > 0 && (
+                      <ul>
+                        {notice.tasks.map((task) => (
+                          <li key={task.id}>
+                            {task.subject} · {task.title} ·
+                            {task.due ? new Date(task.due).toLocaleString('ko-KR') : '마감 미확인'} ·
+                            {task.status === 'done' ? '학습 완료 기록' : '학습 미완료 기록'} ·
+                            {task.submitted
+                              ? '앱 기록상 제출됨'
+                              : task.submissionRequired === false
+                                ? '제출 불필요'
+                                : '제출 미확인'}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {notice.missingTaskCount > 0 && (
+                      <p className="warning" role="alert">
+                        공지의 연결 과제 ID {notice.missingTaskCount}개가 이 ZIP의 학습 기록에 없습니다.
+                        원문과 과제 목록을 직접 대조하세요.
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {archivedSchoolNotices.length > 20 && (
+              <p className="muted">처음 20건만 표시했습니다. ZIP에는 총 {archivedSchoolNotices.length}건이 있습니다.</p>
+            )}
+          </details>
           {(inspected.conflicts.length > 0 || inspected.photoConflicts.length > 0) && (
             <details>
               <summary>충돌 항목 보기</summary>
