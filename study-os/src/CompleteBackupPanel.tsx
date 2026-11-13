@@ -275,6 +275,8 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             setInspected(null);
             setArchiveCoverage(null);
             setArchiveNoticeLimit(20);
+            // Never inherit the destructive replace choice from an earlier ZIP.
+            setMode('merge');
             if (file)
               void work(async () => {
                 const result = await inspectCompleteBackup(file, localStorage, setMessage);
@@ -460,6 +462,8 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
               disabled={busy}
               onClick={() => {
                 setInspected(null);
+                setArchiveCoverage(null);
+                setMode('merge');
                 setMessage('현재 기록을 유지합니다.');
               }}
             >

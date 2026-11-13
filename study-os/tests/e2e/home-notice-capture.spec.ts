@@ -565,6 +565,22 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
   await expect(freshBackup.getByText('날짜만 확인된 수행평가', { exact: false }).last())
     .toContainText('2026-11-15 · 시각 미확인');
 
+  // A destructive choice for one inspected ZIP must not carry into the next file.
+  // Reselecting a saved ZIP only inspects it; it must never mutate local records.
+  const beforeZipReselect = await page.evaluate(() => ({
+    study: localStorage.getItem('bkit.study-os.v1'),
+    inbox: localStorage.getItem('bkit.school-inbox.v1'),
+  }));
+  await freshBackup.getByLabel('복원 방식').selectOption('replace');
+  await expect(freshBackup.getByRole('button', { name: '검사한 백업 교체' })).toBeVisible();
+  await freshBackup.locator('input[type="file"][accept*="zip"]').setInputFiles(savedZip!);
+  await expect(freshBackup.getByLabel('복원 방식')).toHaveValue('merge');
+  await expect(freshBackup.getByRole('button', { name: '검사한 백업 병합' })).toBeVisible();
+  expect(await page.evaluate(() => ({
+    study: localStorage.getItem('bkit.study-os.v1'),
+    inbox: localStorage.getItem('bkit.school-inbox.v1'),
+  }))).toEqual(beforeZipReselect);
+
   await freshBackup.getByRole('button', { name: '검사한 백업 병합' }).click();
   await expect(freshBackup.getByText('복원 완료.', { exact: false })).toBeVisible();
 

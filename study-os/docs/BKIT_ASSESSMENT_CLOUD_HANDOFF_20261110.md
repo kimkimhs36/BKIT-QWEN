@@ -218,3 +218,11 @@ User reported multiple severely unsuccessful school performance assessments and,
 - Files: `src/completeBackup.ts`, `src/CompleteBackupPanel.tsx`, `tests/schoolNoticeBackupCoverage.test.ts`, this handoff. Added unit assertions for ZIP text/OCR, 21st entry, and preservation of live study/inbox data. Previously first-line preview only and 20+ invisible.
 - Preserve existing ZIP format, key names, import and restore implementation, deadlines, submitted flags, grades, nine themes, BOOKS, timer/sleep. Exact new code SHA CI/typecheck/build and Preview-only READY/HTTP need independent verification; physical iPhone Safari still unverified.
 - Next ONE real-world check: compare an actual user-confirmed official school notice with a ZIP physically saved in iPhone Files and reselected for read-only inspection without restoring; no fabricated submissions or academic outcomes. No main/production/BKIT HOUSE changes.
+
+
+### 2026-11-13 KST — 새 ZIP 선택 시 안전한 복원 방식 초기화
+- 기존 Draft PR #57 / 부모 Draft PR #56 계보 유지. 작업 전 PR57 source HEAD `ddf855b714153add43bde9edb52f32111753ac61` 확인. 해당 SHA는 지난 `e85356a`보다 두 커밋 앞서며 ZIP 공지 전체 텍스트·OCR·20건씩 더 보기 구현을 이미 포함함.
+- 사용자 행동: 사용자가 기존 ZIP을 검사하며 위험한 '교체'를 선택했다가 다른 ZIP을 선택하면, 새 파일에서 복원 방식이 안전한 '병합'으로 자동 돌아옴. '기존 기록 유지 · 닫기' 이후에도 '병합' 기본값 복귀. 별도 확인 없이 복원하지 않음.
+- 코드 `src/CompleteBackupPanel.tsx`, iPhone 크기 Chromium ZIP 재선택·기록 불변 E2E `tests/e2e/home-notice-capture.spec.ts` 및 본 인계 문서 수정. 원문·기존 storage keys/schema·테마·BOOKS·수능관·수면·자료를 변경하지 않음.
+- 검증은 새 커밋의 실제 CI/Preview에서 확인하기 전 **미실행·미확인**. 물리 Safari 및 공식 학교 공지 원문은 사용자 자료 없이는 미검증. main/teambkit.com/별도 BKIT HOUSE는 수정 금지.
+- 다음 단 한 가지 실생활 목표: 실제 iPhone에서 공식 학교 공지 한 건 확인 후 ZIP을 파일 앱에 내려받고 같은 파일을 다시 선택해 읽기 전용으로 원문·마감 근거·미제출 상태 검사. 복원 실행이나 제출 확정 금지.
