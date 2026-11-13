@@ -328,6 +328,12 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             {inspected.manifest.photos.length}장 · 겹치는 기록 ID {inspected.conflicts.length}개 ·
             내용이 다른 사진 ID {inspected.photoConflicts.length}개
           </p>
+          {missingArchivedTaskLinks > 0 && (
+            <p className="warning" role="alert">
+              주의: 이 ZIP의 학교 공지에 연결된 과제 ${missingArchivedTaskLinks}건을 백업 학습 기록에서 찾지 못했습니다.
+              복원만으로 해당 수행평가가 돌아온다고 가정하지 말고 아래 공지 원문과 학교 과제 목록을 직접 대조하세요.
+            </p>
+          )}
           <details className="resource-editor">
             <summary>ZIP 학교 공지 {archivedSchoolNotices.length}건 · 제출 미확인 과제 {archivedUnsubmittedTasks}건 · 누락 연결 {missingArchivedTaskLinks}건</summary>
             <p className="muted">
