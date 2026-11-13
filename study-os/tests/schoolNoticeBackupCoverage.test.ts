@@ -112,6 +112,7 @@ describe('school notice ZIP coverage', () => {
       notices: [{
         ...originalNotice.notices[0],
         text: '원본 수행평가 공지\n추가 정보',
+        ocrText: 'OCR 인식 글\n정확도 확인 필요',
         taskIds: ['zip-assessment', 'missing-assessment'],
       }],
     };
@@ -127,7 +128,9 @@ describe('school notice ZIP coverage', () => {
     const rows = schoolNoticeBackupContents(await inspectCompleteBackup(zip, target));
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({
-      preview: '원본 수행평가 공지', missingTaskCount: 1, photoCount: 0, paperCount: 0,
+      preview: '원본 수행평가 공지', savedText: '원본 수행평가 공지\n추가 정보',
+      savedOcrText: 'OCR 인식 글\n정확도 확인 필요',
+      missingTaskCount: 1, photoCount: 0, paperCount: 0,
     });
     expect(rows[0].tasks).toEqual([expect.objectContaining({
       id: 'zip-assessment', title: '열기관 실험', due: null,
@@ -138,6 +141,21 @@ describe('school notice ZIP coverage', () => {
   });
 
 
+  it('keeps the entire 21st ZIP notice available without changing current records', async () => {
+    const notices = Array.from({ length: 21 }, (_, i) => ({
+      ...originalNotice.notices[0], id: 'notice-' + i,
+      text: '공지 ' + i + '\n전체 원문 ' + i, ocrText: i === 20 ? 'OCR 내용' : '',
+    }));
+    const source = storage({ [KEY]: JSON.stringify(newState()), [INBOX_KEY]: JSON.stringify({ version: 1, notices }) });
+    const zip = await exportCompleteBackup(source);
+    const target = storage({ [INBOX_KEY]: JSON.stringify(originalNotice) });
+    const before = target.getItem(INBOX_KEY);
+    const rows = schoolNoticeBackupContents(await inspectCompleteBackup(zip, target));
+    expect(rows).toHaveLength(21);
+    expect(rows[20]).toMatchObject({ preview: '공지 20', savedText: '공지 20\n전체 원문 20', savedOcrText: 'OCR 내용' });
+    expect(target.getItem(INBOX_KEY)).toBe(before);
+    expect(target.getItem(KEY)).toBeNull();
+  });
   it('does not turn date-only ZIP deadlines into falsely confirmed 23:59 times', async () => {
     const state = newState();
     const common = {

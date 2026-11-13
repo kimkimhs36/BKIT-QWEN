@@ -242,6 +242,8 @@ export function schoolNoticeBackupContents(archive: InspectedBackup) {
   const taskIds = new Set(tasks.map((task) => task.id));
   return notices.map((notice) => ({
     id: notice.id,
+    savedText: notice.text,
+    savedOcrText: notice.ocrText,
     preview: notice.text.trim().split(/\r?\n/).find(Boolean)?.slice(0, 120) ||
       (notice.ocrText.trim() ? '사진에서 읽은 글 있음 (원본 대조 필요)' : '텍스트 없는 공지 · 첨부 원본 확인'),
     photoCount: notice.materials.photoIds.length,

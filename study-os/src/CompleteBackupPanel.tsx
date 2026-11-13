@@ -34,6 +34,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
     [mode, setMode] = useState<'merge' | 'replace'>('merge'),
     [restored, setRestored] = useState(false);
   const working = useRef(false);
+  const [archiveNoticeLimit, setArchiveNoticeLimit] = useState(20);
   // Keep the prepared ZIP for retry, but never offer stale localStorage-backed records.
   // Exporting can be asynchronous, which may outlive Safari's user-activation window.
   const [preparedDownload, setPreparedDownload] = useState<{
@@ -273,6 +274,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             e.target.value = '';
             setInspected(null);
             setArchiveCoverage(null);
+            setArchiveNoticeLimit(20);
             if (file)
               void work(async () => {
                 const result = await inspectCompleteBackup(file, localStorage, setMessage);
@@ -322,9 +324,26 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
               <p>이 ZIP에는 학교 공지 받은함 기록이 없습니다. 다른 기기의 공지까지 보관됐다고 가정하지 마세요.</p>
             ) : (
               <ul>
-                {archivedSchoolNotices.slice(0, 20).map((notice) => (
+                {archivedSchoolNotices.slice(0, archiveNoticeLimit).map((notice) => (
                   <li key={notice.id}>
                     <strong>공지 원문 첫 줄: {notice.preview}</strong>
+                     <details>
+                       <summary>ZIP에 저장된 공지 텍스트 전체 보기 (공식 원문 별도 확인)</summary>
+                       {notice.savedText.trim() ? (
+                         <pre style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', fontFamily: 'inherit' }}>{notice.savedText}</pre>
+                       ) : (
+                         <p>ZIP에 저장된 공지 텍스트가 없습니다. 첨부 사진·PDF를 별도로 확인하세요.</p>
+                       )}
+                     </details>
+                     {notice.savedOcrText.trim() && (
+                       <details>
+                         <summary>ZIP에 저장된 OCR 텍스트 보기 · 오인식 가능</summary>
+                         <pre style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', fontFamily: 'inherit' }}>{notice.savedOcrText}</pre>
+                       </details>
+                     )}
+                     {(notice.photoCount > 0 || notice.paperCount > 0) && (
+                       <p className="muted">첨부 사진·PDF 내용은 여기서 표시하지 않습니다. 별도로 원본을 확인하세요.</p>
+                     )}
                     <p>
                       ZIP 내 사진 {notice.photoCount}개 · PDF {notice.paperCount}개 ·
                       연결된 과제 {notice.tasks.length}개
@@ -355,9 +374,11 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
                 ))}
               </ul>
             )}
-            {archivedSchoolNotices.length > 20 && (
-              <p className="muted">처음 20건만 표시했습니다. ZIP에는 총 {archivedSchoolNotices.length}건이 있습니다.</p>
-            )}
+            {archivedSchoolNotices.length > archiveNoticeLimit && (
+               <button type="button" onClick={() => setArchiveNoticeLimit((limit) => limit + 20)}>
+                 ZIP 공지 20건 더 보기 · {Math.min(archiveNoticeLimit, archivedSchoolNotices.length)}/{archivedSchoolNotices.length}건 표시
+               </button>
+             )}
           </details>
           {(inspected.conflicts.length > 0 || inspected.photoConflicts.length > 0) && (
             <details>
