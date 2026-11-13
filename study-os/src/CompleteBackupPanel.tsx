@@ -52,6 +52,12 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
   const [audit, setAudit] = useState<StorageAudit | null>(null);
   const [archiveCoverage, setArchiveCoverage] = useState<ReturnType<typeof backupMatchesCurrent> | null>(null);
   const archivedSchoolNotices = inspected ? schoolNoticeBackupContents(inspected) : [];
+  const archivedUnsubmittedTasks = new Set(
+    archivedSchoolNotices.flatMap((notice) => notice.tasks)
+      .filter((task) => task.submissionRequired !== false && !task.submitted)
+      .map((task) => task.id),
+  ).size;
+  const missingArchivedTaskLinks = archivedSchoolNotices.reduce((total, notice) => total + notice.missingTaskCount, 0);
   async function inspectLocalStorageHealth() {
     setCheckingStorage(true);
     try {
@@ -323,7 +329,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             내용이 다른 사진 ID {inspected.photoConflicts.length}개
           </p>
           <details className="resource-editor">
-            <summary>ZIP에 기록된 학교 공지 {archivedSchoolNotices.length}건 · 연결된 과제 확인</summary>
+            <summary>ZIP 학교 공지 {archivedSchoolNotices.length}건 · 제출 미확인 과제 {archivedUnsubmittedTasks}건 · 누락 연결 {missingArchivedTaskLinks}건</summary>
             <p className="muted">
               선택한 ZIP 파일 안의 기록만 표시합니다. 현재 기기의 공지나 실제 학교 제출 내역을
               조회하지 않습니다. '제출됨'은 백업 당시 앱에 사용자가 기록한 상태일 뿐입니다.
