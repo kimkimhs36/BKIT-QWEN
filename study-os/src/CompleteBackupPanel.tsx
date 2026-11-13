@@ -35,6 +35,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
     [restored, setRestored] = useState(false);
   const working = useRef(false);
   const [archiveNoticeLimit, setArchiveNoticeLimit] = useState(20);
+  const [inspectedFile, setInspectedFile] = useState<{ name: string; bytes: number } | null>(null);
   // Keep the prepared ZIP for retry, but never offer stale localStorage-backed records.
   // Exporting can be asynchronous, which may outlive Safari's user-activation window.
   const [preparedDownload, setPreparedDownload] = useState<{
@@ -273,6 +274,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             const file = e.target.files?.[0];
             e.target.value = '';
             setInspected(null);
+            setInspectedFile(null);
             setArchiveCoverage(null);
             setArchiveNoticeLimit(20);
             // Never inherit the destructive replace choice from an earlier ZIP.
@@ -281,6 +283,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
               void work(async () => {
                 const result = await inspectCompleteBackup(file, localStorage, setMessage);
                 setInspected(result);
+                setInspectedFile({ name: file.name, bytes: file.size });
                 setArchiveCoverage(backupMatchesCurrent(result));
                 const checked = new Date().toISOString();
                 setVerifiedBackupAt(checked);
@@ -294,6 +297,9 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
       {inspected && (
         <div className="resource-editor">
           <h3>가져오기 전 확인</h3>
+          {inspectedFile && (
+            <p role="status">직접 선택해 검사한 ZIP: <strong>{inspectedFile.name}</strong> · {(inspectedFile.bytes / 1024 / 1024).toFixed(2)}MB. 파일명만으로 백업 내용이나 현재 기기와의 일치를 보장하지 않습니다.</p>
+          )}
           <p>백업 생성: {new Date(inspected.manifest.createdAt).toLocaleString()}</p>
           {archiveCoverage && (
             <p role="status">
@@ -462,6 +468,7 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
               disabled={busy}
               onClick={() => {
                 setInspected(null);
+                setInspectedFile(null);
                 setArchiveCoverage(null);
                 setMode('merge');
                 setMessage('현재 기록을 유지합니다.');
