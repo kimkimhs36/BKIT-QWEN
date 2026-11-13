@@ -135,7 +135,8 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             if (!backupKeysUnchanged(sourceKeys, localStorage)) {
               throw new Error('ZIP 생성 중 기록이 바뀌었습니다. 최신 기록으로 다시 내보내 주세요.');
             }
-            const name = `bkit-complete-${new Date().toISOString().slice(0, 10)}.zip`;
+            // Include the backup time so repeated exports on one day remain distinguishable in Files.
+            const name = `bkit-complete-${new Date().toISOString().replace(/[:.]/g, '-')}.zip`;
             const isIOS =
               /iPad|iPhone|iPod/.test(navigator.userAgent) ||
               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
