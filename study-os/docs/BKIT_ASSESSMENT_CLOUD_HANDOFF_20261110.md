@@ -226,3 +226,12 @@ User reported multiple severely unsuccessful school performance assessments and,
 - 코드 `src/CompleteBackupPanel.tsx`, iPhone 크기 Chromium ZIP 재선택·기록 불변 E2E `tests/e2e/home-notice-capture.spec.ts` 및 본 인계 문서 수정. 원문·기존 storage keys/schema·테마·BOOKS·수능관·수면·자료를 변경하지 않음.
 - 검증은 새 커밋의 실제 CI/Preview에서 확인하기 전 **미실행·미확인**. 물리 Safari 및 공식 학교 공지 원문은 사용자 자료 없이는 미검증. main/teambkit.com/별도 BKIT HOUSE는 수정 금지.
 - 다음 단 한 가지 실생활 목표: 실제 iPhone에서 공식 학교 공지 한 건 확인 후 ZIP을 파일 앱에 내려받고 같은 파일을 다시 선택해 읽기 전용으로 원문·마감 근거·미제출 상태 검사. 복원 실행이나 제출 확정 금지.
+
+
+## 2026-11-13 17:52 KST — ZIP identity at review (automation continuation)
+- Source PR #57: Draft, base PR #56 branch `preview/bkit-notice-capture-20261110`; prior HEAD `6da8d9376d28c7b612a2512a77a99b9be93efc64`.
+- Code commit `aefed8388d2bedd6e7d2065143abcc56205682d2`: `study-os/src/CompleteBackupPanel.tsx` now displays the **actual user-selected ZIP filename and size after successful inspection**, before the merge/replace decision. Failed or cancelled selection clears the identity; closing the review clears it. No backup schema or storage key changes, no automatic restore.
+- User-visible before → after: Previously a user could see the archive timestamp but not which local ZIP they had selected. Now the inspected filename/size are shown explicitly, reducing confusion when several similarly dated school backups exist. Filename alone is not an integrity proof.
+- Validation at commit time: GitHub file update succeeded, PR #57 HEAD matched code commit; latest prior `6da8d93` CI succeeded (483/483 Vitest, 17/17 Chromium iPhone E2E), Vercel READY. **New code commit tests/typecheck/build/E2E not yet completed or claimed**; Vercel new code deployment observed INITIALIZING, not READY. Physical iPhone Safari and real user outcome remain unverified.
+- Next single goal: confirm new HEAD CI and Vercel preview READY/HTTP, then physically compare a saved school notice and linked unsubmitted task in an actual iPhone ZIP reinspection; do not infer school submission.
+- Never merge to main or production without user approval. BKIT HOUSE deferred.
