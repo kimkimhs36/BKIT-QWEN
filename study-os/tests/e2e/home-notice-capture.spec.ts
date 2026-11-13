@@ -469,11 +469,17 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
     version: 1,
     notices: [{
       id: 'zip-notice-1', createdAt: '2026-11-10T00:00:00.000Z',
-      text: '물리 수행평가 공지 원본입니다. 실제 마감은 선생님께 확인.',
-      ocrText: '', materials: { photoIds: [], papers: [] },
+      text: '물리 수행평가 공지 원본입니다.\n실제 마감은 선생님께 확인.',
+      ocrText: 'OCR로 인식한 글\n첨부 사진 확인 필요', materials: { photoIds: [], papers: [] },
       reviewed: true, fullyRegistered: true, archived: false, taskIds: ['zip-task-1', 'zip-task-2'],
     }],
   };
+  inbox.notices.push(...Array.from({ length: 20 }, (_, i) => ({
+    id: 'zip-extra-' + i, createdAt: '2026-11-10T00:00:00.000Z',
+    text: '추가 공지 ' + (i + 1) + '\n두 번째 줄 ' + (i + 1),
+    ocrText: '', materials: { photoIds: [], papers: [] },
+    reviewed: false, fullyRegistered: false, archived: false, taskIds: [],
+  })));
   await page.addInitScript(({ state, inbox }) => {
     if (sessionStorage.getItem('bkit:zip-e2e-seeded')) return;
     sessionStorage.setItem('bkit:zip-e2e-seeded', '1');
@@ -537,8 +543,23 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
   const freshBackup = page.getByRole('region', { name: '사진 포함 전체 백업' });
   await freshBackup.locator('input[type="file"][accept*="zip"]').setInputFiles(savedZip!);
   await expect(freshBackup.getByText('선택한 ZIP 파일의 무결성을 확인했습니다.', { exact: false })).toBeVisible();
-  await freshBackup.getByText('ZIP에 기록된 학교 공지 1건 · 연결된 과제 확인').click();
-  await expect(freshBackup.getByText('공지 원문 첫 줄: 물리 수행평가 공지 원본입니다. 실제 마감은 선생님께 확인.')).toBeVisible();
+  await freshBackup.getByText('ZIP에 기록된 학교 공지 21건 · 연결된 과제 확인').click();
+   const beforeRead = await page.evaluate(() => ({
+     study: localStorage.getItem('bkit.study-os.v1'),
+     inbox: localStorage.getItem('bkit.school-inbox.v1'),
+   }));
+   await freshBackup.getByText('ZIP에 저장된 공지 텍스트 전체 보기 (공식 원문 별도 확인)').first().click();
+   await expect(freshBackup.getByText('물리 수행평가 공지 원본입니다. 실제 마감은 선생님께 확인.')).toBeVisible();
+   await freshBackup.getByText('ZIP에 저장된 OCR 텍스트 보기 · 오인식 가능').click();
+   await expect(freshBackup.getByText('OCR로 인식한 글 첨부 사진 확인 필요')).toBeVisible();
+   await expect(freshBackup.getByText('공지 원문 첫 줄: 추가 공지 20')).toHaveCount(0);
+   await freshBackup.getByRole('button', { name: /ZIP 공지 20건 더 보기/ }).click();
+   await expect(freshBackup.getByText('공지 원문 첫 줄: 추가 공지 20')).toBeVisible();
+   expect(await page.evaluate(() => ({
+     study: localStorage.getItem('bkit.study-os.v1'),
+     inbox: localStorage.getItem('bkit.school-inbox.v1'),
+   }))).toEqual(beforeRead);
+  await expect(freshBackup.getByText('공지 원문 첫 줄: 물리 수행평가 공지 원본입니다.')).toBeVisible();
   await expect(freshBackup.getByText('열기관 실험 보고서', { exact: false }).last()).toContainText('제출 미확인');
   // The legacy 23:59 planning boundary must not look like an official submission cutoff.
   await expect(freshBackup.getByText('날짜만 확인된 수행평가', { exact: false }).last())
@@ -561,7 +582,7 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
     });
   expect(restored.inbox.notices[0]).toMatchObject({
     id: 'zip-notice-1', taskIds: ['zip-task-1', 'zip-task-2'],
-    text: '물리 수행평가 공지 원본입니다. 실제 마감은 선생님께 확인.',
+    text: '물리 수행평가 공지 원본입니다.\n실제 마감은 선생님께 확인.',
   });
 });
 
