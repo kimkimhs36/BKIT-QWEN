@@ -235,3 +235,10 @@ User reported multiple severely unsuccessful school performance assessments and,
 - Validation at commit time: GitHub file update succeeded, PR #57 HEAD matched code commit; latest prior `6da8d93` CI succeeded (483/483 Vitest, 17/17 Chromium iPhone E2E), Vercel READY. **New code commit tests/typecheck/build/E2E not yet completed or claimed**; Vercel new code deployment observed INITIALIZING, not READY. Physical iPhone Safari and real user outcome remain unverified.
 - Next single goal: confirm new HEAD CI and Vercel preview READY/HTTP, then physically compare a saved school notice and linked unsubmitted task in an actual iPhone ZIP reinspection; do not infer school submission.
 - Never merge to main or production without user approval. BKIT HOUSE deferred.
+
+
+### 2026-11-13 20:40 KST — distinguish same-day downloaded ZIP backups
+- PR #57 verified HEAD before edit `12206f05a369ed0b380069b9e50acec4e13b1c8e`; PR #56 base remains `c92462a45d5c9e8745fcc4806ade7d673dc4b36f`. No main merge or production deploy.
+- Code commit `798c3fd250b92bb28121908d4e8d966f4fd03994` changes only `study-os/src/CompleteBackupPanel.tsx`: ZIP filename uses UTC ISO timestamp (colon/dot replaced with hyphens) rather than only the calendar day. Two backups on the same date are now distinguishable in Safari Files; no archive format, content, storage key, deadline, or submission state changes. Existing E2E filename matcher `^bkit-complete-.*\\.zip$` remains compatible; that is static review, not an executed test.
+- GitHub commit persisted and PR57 HEAD rechecked as `798c3fd250b92bb28121908d4e8d966f4fd03994`. Exact-code CI, typecheck, build, browser E2E and preview deployment were not yet observed at handoff; do not call green. Latest previous preview READY for `12206f05a` was `https://bkit-study-os-36-preview-4l5imcfru-teambkit.vercel.app/`, not this code.
+- NEXT ONE goal: verify CI and preview for the latest HEAD, then on a physical iPhone select a user-confirmed official notice, download the ZIP into Files, and reselect that saved file for read-only comparison. Physical Safari, HTTP, and academic outcome unverified. BKIT HOUSE deferred.
