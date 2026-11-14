@@ -819,3 +819,25 @@
   outline: 2px solid var(--mat-accent, currentColor); outline-offset: 3px;
 }
 .bkit-assessment-more-actions { display: flex; flex-wrap: wrap; gap: 9px; padding-top: 9px; }
+
+
+/* Native disclosure for a previously registered school notice:
+   preserve theme colors, 44px tap target, and visible keyboard focus. */
+.inbox-task-entry > summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, currentColor 17%, transparent);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+.inbox-task-entry > summary:focus-visible {
+  outline: 2px solid var(--mat-accent, currentColor);
+  outline-offset: 3px;
+}
+.inbox-task-entry[open] > form {
+  margin-top: 12px;
+}
