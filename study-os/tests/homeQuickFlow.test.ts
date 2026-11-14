@@ -58,6 +58,17 @@ describe('actual home quick focus lifecycle', () => {
     expect(state.tasks).toHaveLength(0);
   });
 
+  it('keeps school notice capture visible and progressive secondary actions accessible', () => {
+    const html = home(newState(), began);
+    expect(html).toContain('복사한 공지 한 번에 보관');
+    expect(html).toContain('공지함 · 직접 붙여넣기');
+    expect(html).toContain('<details class="bkit-assessment-more"');
+    expect(html).toContain('<summary>수행평가 추가 작업</summary>');
+    expect(html).toContain('빠진 수행평가 등록');
+    expect(html).toContain('제출 미확인 수행평가 보기');
+    expect(html).not.toContain('제출 미확인 0건 확인');
+  });
+
   it('links notices to the complete ZIP backup without claiming a file was already saved', () => {
     const html = home(newState(), began);
     expect(html).toContain('공지·수행평가 ZIP 백업으로 이동');
