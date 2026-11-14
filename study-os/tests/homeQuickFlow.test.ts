@@ -30,6 +30,10 @@ describe('actual home quick focus lifecycle', () => {
   it('shows only real controls and a saved receipt after start, pause, reload, resume, finish', () => {
     let state = newState();
     expect(home(state, began)).not.toContain('진행 중인 빠른 집중 관리');
+    // Study state keeps one primary start and the optional five-minute alternative;
+    // the sleep routine remains reachable through the global navigation.
+    expect(home(state, began)).toContain('5분만 시작하기');
+    expect(home(state, began)).not.toContain('수면 루틴</button>');
 
     state = startQuick(state, 'countdown', 10, began, 'home-quick');
     expect(home(state, began + 90_000)).toContain('잠깐 멈추기');
