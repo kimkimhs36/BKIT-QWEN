@@ -807,3 +807,15 @@
   line-height: 1.6;
 }
 .bkit-assessment-rescue-actions button:disabled { cursor: wait; opacity: .68; }
+
+/* Progressive disclosure: preserve the primary school notice action on narrow screens. */
+.bkit-assessment-more { flex: 1 1 100%; min-width: 0; }
+.bkit-assessment-more summary {
+  cursor: pointer; min-height: 44px; display: flex; align-items: center;
+  padding: 10px 14px; border: 1px solid color-mix(in srgb, currentColor 17%, transparent);
+  border-radius: 12px; font-size: 12px; font-weight: 750;
+}
+.bkit-assessment-more summary:focus-visible {
+  outline: 2px solid var(--mat-accent, currentColor); outline-offset: 3px;
+}
+.bkit-assessment-more-actions { display: flex; flex-wrap: wrap; gap: 9px; padding-top: 9px; }
