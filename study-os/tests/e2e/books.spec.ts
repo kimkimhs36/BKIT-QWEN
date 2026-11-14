@@ -182,3 +182,73 @@ test('new user quick-start subject never saves until user confirms book details'
   expect(after.books).toHaveLength(1);
   expect(after.books[0].subject).toBe('미적분Ⅰ');
 });
+
+
+test('BOOKS linked PDF exposes practice only for an authored question and preserves its original', async ({ page }) => {
+  test.setTimeout(90000);
+  await prepare(page);
+  await add(page);
+  const pdf = await PDFDocument.create();
+  pdf.addPage([300, 400]);
+  await page.getByLabel('새 PDF·학습지 사진 가져오기', { exact: true }).setInputFiles({
+    name: 'fixture-worksheet.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from(await pdf.save()),
+  });
+  const book = page.getByRole('region', { name: 'BKIT BOOKS' });
+  await expect(book.getByRole('button', { name: '자료 열기 · 필기', exact: true })).toBeVisible();
+  // A PDF import is not a solved or authored question; the link must not promise retrieval.
+  await expect(book.getByRole('button', { name: '문제 풀이 · 오답 복습', exact: true })).toHaveCount(0);
+  const before = await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem('bkit.study-os.v1')!);
+    const resource = state.learning.resources.find((r: { title: string }) => r.title === 'fixture-worksheet.pdf');
+    if (!resource) throw new Error('Imported PDF resource not saved');
+    if (state.learning.problems.some((p: { resourceId: string }) => p.resourceId === resource.id))
+      throw new Error('PDF unexpectedly authored a question');
+    return { resourceId: resource.id, attempts: state.learning.attempts.length };
+  });
+  // Explicit test-only authoring: simulate one real manually entered question in the existing
+  // learning model; never invent one from PDF pages or change production storage contracts.
+  await page.evaluate((resourceId) => {
+    const state = JSON.parse(localStorage.getItem('bkit.study-os.v1')!);
+    const template = state.learning.problems.find((p: { body: string }) => p.body.trim());
+    if (!template) throw new Error('Missing existing authored-question fixture');
+    state.learning.problems.push({
+      ...template, id: 'fixture-pdf-authored-question', resourceId,
+      body: '테스트용: 1 + 1의 값을 구하세요.', mediaId: null,
+    });
+    localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
+  }, before.resourceId);
+  await page.reload();
+  await page.getByRole('button', { name: /최근 공부한 책/ }).click();
+  await expect(book.getByRole('button', { name: '자료 열기 · 필기', exact: true })).toBeVisible();
+  const practice = book.getByRole('button', { name: '문제 풀이 · 오답 복습', exact: true });
+  await expect(practice).toBeVisible();
+  await practice.click();
+  const room = page.getByRole('region', { name: '다중 문제 학습실' });
+  await expect(room).toBeVisible();
+  await expect(room).toContainText('테스트용: 1 + 1의 값을 구하세요.');
+  await page.clock.fastForward(65000);
+  await room.locator('.main-answer textarea').fill('2');
+  await room.getByRole('button', { name: '내 답 저장 · 직접 확인하기', exact: true }).click();
+  await room.getByRole('button', { name: '오답 · 다시 연습', exact: true }).click();
+  await room.getByRole('button', { name: '저장하고 학습 종료', exact: true }).click();
+  await page.getByRole('button', { name: '학습 기록 저장 · 종료', exact: true }).click();
+  await page.getByRole('region', { name: 'BOOKS 학습 이어가기' })
+    .getByRole('button', { name: 'BOOKS로 돌아가기' }).click();
+  await expect(book.getByRole('button', { name: '자료 열기 · 필기', exact: true })).toBeVisible();
+  const after = await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem('bkit.study-os.v1')!);
+    const books = JSON.parse(localStorage.getItem('bkit.books.v1')!);
+    return {
+      attempts: state.learning.attempts.length,
+      resourceExists: state.learning.resources.some((r: { id: string }) => r.id ===
+        state.learning.problems.find((p: { id: string }) => p.id === 'fixture-pdf-authored-question')?.resourceId),
+      pdfLinkExists: books.books.some((b: { materials: { kind: string }[] }) =>
+        b.materials.some((m) => m.kind === 'document')),
+    };
+  });
+  expect(after.attempts).toBe(before.attempts + 1);
+  expect(after.resourceExists).toBe(true);
+  expect(after.pdfLinkExists).toBe(true);
+});
