@@ -243,14 +243,16 @@ export function PremiumHome({
             {nextAction.kind === 'study' ? <Play size={18} fill="currentColor" aria-hidden="true" /> : <ArrowRight size={18} aria-hidden="true" />}
             {nextAction.kind === 'sleep' && busy ? '진행 중인 공부 마무리' : nextAction.label}
           </button>
-          <button
-            type="button"
-            className="study-start-five bkit-action-first-secondary"
-            onClick={() => onNavigate('sleep')}
-          >
-            {nextAction.kind === 'sleep' ? '수면 기록 확인' : '수면 루틴'}
-            <ChevronRight size={16} aria-hidden="true" />
-          </button>
+          {nextAction.kind !== 'study' && (
+            <button
+              type="button"
+              className="study-start-five bkit-action-first-secondary"
+              onClick={() => onNavigate('sleep')}
+            >
+              {nextAction.kind === 'sleep' ? '수면 기록 확인' : '수면 루틴'}
+              <ChevronRight size={16} aria-hidden="true" />
+            </button>
+          )}
           {nextAction.kind === 'study' && (
             <button type="button" className="study-start-five bkit-action-five" onClick={() => onQuick(5)}>
               5분만 시작하기
