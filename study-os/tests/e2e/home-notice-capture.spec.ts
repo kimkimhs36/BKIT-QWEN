@@ -825,6 +825,7 @@ test('iPhone: completed notice focuses on linked task, and new task form stays a
   const summary = extra.locator('summary');
   const target = await summary.boundingBox();
   expect(target?.height).toBeGreaterThanOrEqual(44);
+  await page.keyboard.press('Tab'); // establish keyboard modality for :focus-visible
   await summary.focus();
   await expect(summary).toBeFocused();
   await expect(summary).toHaveCSS('outline-style', 'solid');
