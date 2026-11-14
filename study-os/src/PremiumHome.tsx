@@ -41,6 +41,7 @@ type Props = {
   unavailable: string;
   inboxPending: number | null;
   onInbox: () => void;
+  onBackup: () => void;
   onOpenNotice: (noticeId: string) => void;
   onAssessment: () => void;
   onExportCalendar: () => void;
@@ -75,6 +76,7 @@ export function PremiumHome({
   unavailable,
   inboxPending,
   onInbox,
+  onBackup,
   onOpenNotice,
   onAssessment,
   onExportCalendar,
@@ -241,14 +243,16 @@ export function PremiumHome({
             {nextAction.kind === 'study' ? <Play size={18} fill="currentColor" aria-hidden="true" /> : <ArrowRight size={18} aria-hidden="true" />}
             {nextAction.kind === 'sleep' && busy ? '진행 중인 공부 마무리' : nextAction.label}
           </button>
-          <button
-            type="button"
-            className="study-start-five bkit-action-first-secondary"
-            onClick={() => onNavigate('sleep')}
-          >
-            {nextAction.kind === 'sleep' ? '수면 기록 확인' : '수면 루틴'}
-            <ChevronRight size={16} aria-hidden="true" />
-          </button>
+          {nextAction.kind !== 'study' && (
+            <button
+              type="button"
+              className="study-start-five bkit-action-first-secondary"
+              onClick={() => onNavigate('sleep')}
+            >
+              {nextAction.kind === 'sleep' ? '수면 기록 확인' : '수면 루틴'}
+              <ChevronRight size={16} aria-hidden="true" />
+            </button>
+          )}
           {nextAction.kind === 'study' && (
             <button type="button" className="study-start-five bkit-action-five" onClick={() => onQuick(5)}>
               5분만 시작하기
@@ -336,13 +340,27 @@ export function PremiumHome({
             {noticeBusy ? '공지 확인 중…' : '복사한 공지 한 번에 보관'} <ArrowRight size={16} aria-hidden="true" />
           </button>
           <button type="button" onClick={onInbox}>공지함 · 직접 붙여넣기</button>
-          <button type="button" onClick={onAssessment}>빠진 수행평가 등록</button>
-          <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
+          {rescue.submissionChecks > 0 && (
+            <button type="button" onClick={onAssessments}>제출 미확인 {rescue.submissionChecks}건 확인</button>
+          )}
+          <details className="bkit-assessment-more">
+            <summary>수행평가 추가 작업</summary>
+            <div className="bkit-assessment-more-actions">
+              <button type="button" onClick={onAssessment}>빠진 수행평가 등록</button>
+              <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
+            </div>
+          </details>
         </div>
         {noticeError && <p className="bkit-assessment-rescue-error" role="alert">{noticeError}</p>}
         <small className="bkit-assessment-rescue-disclaimer">
           복사한 글은 이 기기 공지함에만 저장 · 학교 시스템 자동 조회 아님 · 마감/성적/제출 여부 자동 확정 없음
         </small>
+        <div className="bkit-assessment-backup-reminder">
+          <span>기기 변경·브라우저 삭제 전에는 공지 원본과 과제 기록을 ZIP으로 보관해 주세요.</span>
+          <button type="button" onClick={onBackup}>
+            공지·수행평가 ZIP 백업으로 이동 <ArrowRight size={14} aria-hidden="true" />
+          </button>
+        </div>
       </section>
       <div className="bkit-evidence-entry">
         <span>지난 7일 · 직접 기록한 날 {activityWeek.evidenceDays}일</span>
@@ -406,8 +424,6 @@ export function PremiumHome({
         </button>
       </section>
       <div className="daily-activation" aria-label="첫 60초에 할 수 있는 일">
-        <button onClick={onInbox}>학교 공지 보관</button>
-        <button onClick={onAssessment}>수행평가 등록</button>
         <button onClick={() => onNavigate('school')}>학교 시간표</button>
         <button onClick={() => onNavigate('books')}>BOOKS · 학습지</button>
         <button onClick={() => onNavigate('exam-lab')}>수능관 · 기초 훈련</button>
@@ -702,6 +718,14 @@ export function PremiumHome({
         <button className="study-help-link" onClick={onAccount}>
           {accountConnected ? 'Google 연결됨' : 'Google로 이어가기'}
         </button>
+        <a
+          className="study-help-link"
+          href={`${import.meta.env.BASE_URL}dev-status.html`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          개발 현황 · 커밋·테스트 보기 <ArrowUpRight size={15} aria-hidden="true" />
+        </a>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { activation } from './activation';
 import { NoticePdf } from './NoticePdf';
 import { prepareNoticePaste } from './noticePaste';
-import { findNotices, type NoticeFilter } from './noticeIndex';
+import { findNotices, needsDeadlineConfirmation, type NoticeFilter } from './noticeIndex';
 import { fullDate } from './time';
 import { useRef, useState, lazy, Suspense } from 'react';
 import type { PaperDocument } from './paperModel';
@@ -67,9 +67,17 @@ export function SchoolInbox({
   );
   const [error, setError] = useState(initial.error),
     [busy, setBusy] = useState(false);
+  // Keep the unsaved source text visible for manual recovery after a write failure.
+  // This is session-only and never claims a successful persistence or attachment backup.
+  const [unsavedSource, setUnsavedSource] = useState('');
+  const [copyFeedback, setCopyFeedback] = useState('');
   const notice = data.notices.find((n) => n.id === selected);
+  // A stored school notice must not be editable from an accidental tap.
+  // New blank notices stay writable until the user finishes entering them.
+  const [originalEditable, setOriginalEditable] = useState(() => !notice?.text.trim());
   const linked = notice ? noticeTasks(notice, state.tasks) : [];
   const [confirmed, setConfirmed] = useState(false);
+  const [linkCandidate, setLinkCandidate] = useState<string | null>(null);
   const [pasteBusy, setPasteBusy] = useState(false);
   const [pasteFeedback, setPasteFeedback] = useState('');
   const [openedPaper, setOpenedPaper] = useState<PaperDocument | null>(null);
@@ -88,13 +96,17 @@ export function SchoolInbox({
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<NoticeFilter>('inbox');
   const visible = findNotices(data.notices, state.tasks, query, filter);
+  const missingDeadlineNotices = findNotices(data.notices, state.tasks, '', 'deadline');
   function reveal(item: SchoolNotice) {
     setSelected(item.id);
     setQuery('');
     setFilter(item.archived ? 'archived' : 'inbox');
     setConfirmed(false);
+    setLinkCandidate(null);
+    setOriginalEditable(!item.text.trim());
   }
   function persist(next: SchoolInboxData) {
+    const previous = dataRef.current;
     dataRef.current = next;
     setData(next); // Keep typed content available for retry when storage fails.
     try {
@@ -105,10 +117,23 @@ export function SchoolInbox({
       localStorage.setItem(INBOX_KEY, raw);
       savedRaw.current = raw;
       setError('');
+      setUnsavedSource('');
+      setCopyFeedback('');
       window.dispatchEvent(new Event('bkit:inbox'));
       return true;
     } catch (e) {
       activation('storageFailure');
+      // A newly pasted notice is not yet selected when its very first save fails.
+      // Prefer the changed/new source over an older selected notice.
+      const attemptedNotice = next.notices.find((item) => {
+        const prior = previous.notices.find((saved) => saved.id === item.id);
+        return !prior || prior.text !== item.text || prior.ocrText !== item.ocrText;
+      }) ?? next.notices.find((item) => item.id === selected) ?? next.notices[0];
+      setUnsavedSource(
+        [attemptedNotice?.text || '', attemptedNotice?.ocrText ? `사진에서 읽은 글 (원본 대조 필요):\n${attemptedNotice.ocrText}` : '']
+          .filter(Boolean).join('\n\n'),
+      );
+      setCopyFeedback('');
       setError(
         e instanceof Error ? e.message : '공지 저장 실패 · 현재 글을 복사하고 다시 시도해 주세요.',
       );
@@ -224,8 +249,39 @@ export function SchoolInbox({
       )}
       {error && (
         <div role="alert" className="warning">
-          저장 확인 필요: {error}
-          <button onClick={() => persist(data)}>공지 저장 재시도</button>
+          <p>저장 확인 필요: {error}</p>
+          <button type="button" onClick={() => persist(dataRef.current)}>공지 저장 재시도</button>
+          {unsavedSource && (
+            <div>
+              <p>
+                저장되지 않은 공지 글을 임시로 보관하고 있어요. 아래 글을 복사해 메모 등에 보관하세요.
+                화면을 닫거나 새로고침하면 사라질 수 있습니다. 사진·PDF 원본은 텍스트 복사에 포함되지 않습니다.
+              </p>
+              <textarea
+                aria-label="미저장 공지 원문 복구"
+                readOnly
+                rows={5}
+                value={unsavedSource}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  void (async () => {
+                    try {
+                      if (!navigator.clipboard?.writeText) throw new Error('clipboard unsupported');
+                      await navigator.clipboard.writeText(unsavedSource);
+                      setCopyFeedback('클립보드에 복사했어요. 메모 앱 등에 붙여넣어 보관하세요.');
+                    } catch {
+                      setCopyFeedback('자동 복사가 차단됐어요. 위 복구 입력칸을 길게 눌러 직접 선택·복사하세요.');
+                    }
+                  })();
+                }}
+              >
+                미저장 원문 복사
+              </button>
+              {copyFeedback && <p role="status">{copyFeedback}</p>}
+            </div>
+          )}
         </div>
       )}
       <div className="inbox-find" role="search" aria-label="학교 공지 찾기">
@@ -246,12 +302,32 @@ export function SchoolInbox({
           >
             <option value="inbox">받은함</option>
             <option value="review">정리할 공지</option>
+            <option value="deadline">수행평가 마감 날짜 확인</option>
             <option value="submission">완료 후 제출 확인</option>
             <option value="archived">보관 처리한 공지</option>
             <option value="all">모든 공지</option>
           </select>
         </label>
       </div>
+      {missingDeadlineNotices.length > 0 && (
+        <div className="inbox-deadline-rescue">
+          <button
+            type="button"
+            disabled={busy || pasteBusy || !!initial.error}
+            onClick={() => {
+              // Jump to an actually linked task; no estimated school deadline is generated.
+              reveal(missingDeadlineNotices[0]);
+              setFilter('deadline');
+            }}
+          >
+            마감 미확인·추정 수행평가 공지 {missingDeadlineNotices.length}건 확인
+          </button>
+          <p className="hint">
+            이 기기에 등록된 미제출 수행평가 중 마감 날짜가 없거나 추정 날짜만 있는 공지를 찾았습니다.
+            공식 공지에서 날짜를 확인해 과제를 수정하세요. 학교 공지를 자동 수집한 결과는 아닙니다.
+          </p>
+        </div>
+      )}
       <p className="hint" role="status">
         공지 {visible.length}개 · 최근 받은 순서
       </p>
@@ -264,6 +340,8 @@ export function SchoolInbox({
             onClick={() => {
               setSelected(n.id);
               setConfirmed(false);
+              setLinkCandidate(null);
+              setOriginalEditable(!n.text.trim());
             }}
           >
             <span>{noticeStatus(n, state.tasks)}</span>
@@ -310,13 +388,36 @@ export function SchoolInbox({
               rows={5}
               maxLength={12000}
               value={notice.text}
-              onChange={(e) => update({ text: e.target.value })}
+              readOnly={!originalEditable}
+              onChange={(e) => {
+                if (!originalEditable) return;
+                if (update({ text: e.target.value, reviewed: false, fullyRegistered: false }))
+                  setConfirmed(false);
+              }}
             />
           </label>
+          {originalEditable ? (
+            <button type="button" onClick={() => setOriginalEditable(false)}>
+              원문 편집 마치기
+            </button>
+          ) : (
+            <button type="button" onClick={() => setOriginalEditable(true)}>
+              저장한 원문 수정 허용
+            </button>
+          )}
+          <small className="hint">
+            보관된 공지는 기본 읽기 전용이에요. 실수로 원문을 바꾸지 않도록 보호합니다.
+            수정을 허용하면 입력 내용이 이 기기에 저장되므로, 원본 보존이 필요하면 먼저 ZIP 백업을 만드세요.
+          </small>
           <TaskMaterials
             taskId={notice.id}
             value={notice.materials}
-            onChange={(materials) => update({ materials })}
+            onChange={(materials) => {
+              // New attachments may contain an additional assignment or deadline.
+              // Preserve linked tasks, but require explicit review of the new source.
+              if (update({ materials, reviewed: false, fullyRegistered: false }))
+                setConfirmed(false);
+            }}
             onBusy={setBusy}
           />
           {!!notice.materials.photoIds.length && (
@@ -324,7 +425,7 @@ export function SchoolInbox({
               photoIds={notice.materials.photoIds}
               disabled={busy}
               onUse={(text) => {
-                if (update({ ocrText: text, reviewed: true })) setConfirmed(false);
+                if (update({ ocrText: text, reviewed: false, fullyRegistered: false })) setConfirmed(false);
               }}
             />
           )}
@@ -336,7 +437,10 @@ export function SchoolInbox({
                 rows={5}
                 maxLength={3000}
                 value={notice.ocrText}
-                onChange={(e) => update({ ocrText: e.target.value, reviewed: true })}
+                onChange={(e) => {
+                  if (update({ ocrText: e.target.value, reviewed: false, fullyRegistered: false }))
+                    setConfirmed(false);
+                }}
               />
             </label>
           )}
@@ -353,6 +457,12 @@ export function SchoolInbox({
             {error ? '현재 변경은 저장되지 않았을 수 있어요.' : '이 기기에 저장됨'} ·{' '}
             {noticeStatus(notice, state.tasks)}
           </p>
+          <details className="inbox-task-entry" open={!notice.fullyRegistered || linked.length === 0}>
+            <summary>
+              {notice.fullyRegistered && linked.length > 0
+                ? '다른 과제 추가 등록'
+                : '원본을 보며 과제 하나씩 확인'}
+            </summary>
           <form
             className="daily-confirm"
             onSubmit={(e) => {
@@ -396,8 +506,13 @@ export function SchoolInbox({
                   return;
                 }
                 if (onRegister(notice, task)) {
-                  update({ reviewed: true, taskIds: [...notice.taskIds, task.id] });
+                  const linkedSaved = update({ reviewed: true, taskIds: [...notice.taskIds, task.id] });
                   setConfirmed(false);
+                  if (!linkedSaved) {
+                    setError(
+                      '과제는 등록됐지만 공지 연결 저장에 실패했어요. 같은 과제를 다시 등록하지 마세요. 저장 재시도를 누르거나, 새로고침 후 아래 ‘이미 등록한 과제와 연결’에서 원문·마감을 대조해 연결하세요.',
+                    );
+                  }
                 } else
                   setError('과제를 저장하지 못했어요. 공지 원본은 유지됩니다. 다시 시도하세요.');
               } catch {
@@ -405,7 +520,7 @@ export function SchoolInbox({
               }
             }}
           >
-            <h3>원본을 보며 과제 하나씩 확인</h3>
+            <h3>과제 이름과 마감 확인</h3>
             <p>
               여러 과제가 있으면 항목별로 등록하세요. OCR은 틀릴 수 있고, 날짜·과목·분량을 자동
               확정하지 않아요. 사진 인식은 기기 OCR이며 서버 AI가 아닙니다.
@@ -463,18 +578,34 @@ export function SchoolInbox({
               확인한 과제 등록
             </button>
           </form>
+          </details>
           <details>
             <summary>이미 등록한 과제와 연결</summary>
+            <p className="hint">공지 원문과 기존 과제·마감을 대조한 뒤 연결을 확정하세요. 연결만으로 제출 완료가 되지 않아요.</p>
             {state.tasks
               .filter((t) => !linked.some((x) => x.id === t.id))
               .map((t) => (
                 <button
                   key={t.id}
-                  onClick={() => update({ reviewed: true, taskIds: [...notice.taskIds, t.id] })}
+                  type="button"
+                  disabled={busy || !!initial.error}
+                  onClick={() => {
+                    if (linkCandidate !== t.id) {
+                      setLinkCandidate(t.id);
+                      return;
+                    }
+                    if (update({ reviewed: true, taskIds: [...notice.taskIds, t.id] }))
+                      setLinkCandidate(null);
+                  }}
                 >
-                  {t.subject} · {t.title} 연결
+                  {linkCandidate === t.id
+                    ? `${t.subject} · ${t.title} 원문·마감 확인 후 연결 확정`
+                    : `${t.subject} · ${t.title} 연결 검토`}
                 </button>
               ))}
+            {linkCandidate && (
+              <button type="button" onClick={() => setLinkCandidate(null)}>연결 취소</button>
+            )}
           </details>
           {linked.length > 0 && (
             <section aria-label="공지에서 등록한 과제">
@@ -488,7 +619,11 @@ export function SchoolInbox({
                     {formatTaskDeadline(t)} · 학습 {t.status === 'done' ? '완료' : '미완료'} · 제출{' '}
                     {t.submitted ? '완료' : t.submissionRequired === false ? '불필요' : '미확인'}
                   </p>
-                  <button onClick={() => onEdit(t)}>과제 확인</button>
+                  <button onClick={() => onEdit(t)}>
+                     {needsDeadlineConfirmation(t)
+                       ? '공식 마감 확인 후 과제 수정'
+                       : '과제 확인'}
+                   </button>
                   <button onClick={() => onCalendar(t)}>달력에서 보기</button>
                   {t.status !== 'done' && (
                     <button onClick={() => onStart(t.id)}>이 과제 5분 시작</button>

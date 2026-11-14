@@ -19,7 +19,7 @@ function home(state: State, now: number) {
     inboxPending: 0, accountConnected: false, onStart: noop, onQuick: noop,
     onQuickPause: noop, onQuickResume: noop, onQuickFinish: noop, onIndependentRetry: noop,
     onOpenDueProblem: noop,
-    onNavigate: noop, onAdd: noop, onRecover: noop, onInbox: noop, onOpenNotice: noop,
+    onNavigate: noop, onAdd: noop, onRecover: noop, onInbox: noop, onBackup: noop, onOpenNotice: noop,
     onAssessment: noop, onExportCalendar: noop, onAssistant: noop,
     onEdit: noop, onAssessments: noop, onSubmissions: noop,
     onResource: noop, onHelp: noop, onAccount: noop,
@@ -30,6 +30,10 @@ describe('actual home quick focus lifecycle', () => {
   it('shows only real controls and a saved receipt after start, pause, reload, resume, finish', () => {
     let state = newState();
     expect(home(state, began)).not.toContain('진행 중인 빠른 집중 관리');
+    // Study state keeps one primary start and the optional five-minute alternative;
+    // the sleep routine remains reachable through the global navigation.
+    expect(home(state, began)).toContain('5분만 시작하기');
+    expect(home(state, began)).not.toContain('수면 루틴</button>');
 
     state = startQuick(state, 'countdown', 10, began, 'home-quick');
     expect(home(state, began + 90_000)).toContain('잠깐 멈추기');
@@ -52,6 +56,40 @@ describe('actual home quick focus lifecycle', () => {
     expect(finished).toContain('다시 풀 문제 (선택)');
     expect(finished).not.toContain('진행 중인 빠른 집중 관리');
     expect(state.tasks).toHaveLength(0);
+  });
+
+  it('keeps school notice capture visible and progressive secondary actions accessible', () => {
+    const html = home(newState(), began);
+    expect(html).toContain('복사한 공지 한 번에 보관');
+    expect(html).toContain('공지함 · 직접 붙여넣기');
+    expect(html).toContain('<details class="bkit-assessment-more"');
+    expect(html).toContain('<summary>수행평가 추가 작업</summary>');
+    expect(html).toContain('빠진 수행평가 등록');
+    expect(html).toContain('제출 미확인 수행평가 보기');
+    expect(html).not.toContain('제출 미확인 0건 확인');
+    // The secondary quick-link strip must not duplicate notice/assessment
+    // entry points already available in the assessment rescue card.
+    const quickStrip = html.match(/<div class="daily-activation"[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '';
+    expect(quickStrip).not.toContain('학교 공지 보관');
+    expect(quickStrip).not.toContain('수행평가 등록');
+    expect(quickStrip).toContain('학교 시간표');
+    expect(quickStrip).toContain('BOOKS · 학습지');
+    expect(quickStrip).toContain('수능관 · 기초 훈련');
+  });
+
+  it('links notices to the complete ZIP backup without claiming a file was already saved', () => {
+    const html = home(newState(), began);
+    expect(html).toContain('공지·수행평가 ZIP 백업으로 이동');
+    expect(html).toContain('기기 변경·브라우저 삭제 전에는');
+    expect(html).not.toContain('ZIP 백업 완료');
+  });
+
+  it('links the learner to a read-only development verification page', () => {
+    const html = home(newState(), began);
+    expect(html).toContain('개발 현황 · 커밋·테스트 보기');
+    expect(html).toContain('dev-status.html');
+    expect(html).toContain('rel="noopener noreferrer"');
+    expect(html).toContain('target="_blank"');
   });
 
   it('does not claim a saved receipt for an unsaved or old session', () => {

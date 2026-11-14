@@ -4,7 +4,10 @@ import {
   exportCompleteBackup,
   inspectCompleteBackup,
   backupMatchesCurrent,
+  snapshotKeys,
+  backupKeysUnchanged,
   restoreCompleteBackup,
+  schoolNoticeBackupContents,
   latestRecovery,
   type InspectedBackup,
 } from './completeBackup';
@@ -13,8 +16,15 @@ function saveBlob(blob: Blob, name: string) {
     a = document.createElement('a');
   a.href = url;
   a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  // Safari may ignore a programmatic download from a detached <a> element.
+  // Use a connected anchor and always remove it after the click.
+  document.body.appendChild(a);
+  try {
+    a.click();
+  } finally {
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
 }
 export function CompleteBackupPanel({ studying }: { studying: boolean }) {
   const [busy, setBusy] = useState(false),
@@ -24,6 +34,15 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
     [mode, setMode] = useState<'merge' | 'replace'>('merge'),
     [restored, setRestored] = useState(false);
   const working = useRef(false);
+  const [archiveNoticeLimit, setArchiveNoticeLimit] = useState(20);
+  const [inspectedFile, setInspectedFile] = useState<{ name: string; bytes: number } | null>(null);
+  // Keep the prepared ZIP for retry, but never offer stale localStorage-backed records.
+  // Exporting can be asynchronous, which may outlive Safari's user-activation window.
+  const [preparedDownload, setPreparedDownload] = useState<{
+    blob: Blob;
+    name: string;
+    sourceKeys: ReturnType<typeof snapshotKeys>;
+  } | null>(null);
   const [verifiedBackupAt, setVerifiedBackupAt] = useState(() => {
     try { return localStorage.getItem('bkit.backup.last-file-checked.v1') ?? ''; }
     catch { return ''; }
@@ -32,6 +51,13 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
   const [checkingStorage, setCheckingStorage] = useState(false);
   const [audit, setAudit] = useState<StorageAudit | null>(null);
   const [archiveCoverage, setArchiveCoverage] = useState<ReturnType<typeof backupMatchesCurrent> | null>(null);
+  const archivedSchoolNotices = inspected ? schoolNoticeBackupContents(inspected) : [];
+  const archivedUnsubmittedTasks = new Set(
+    archivedSchoolNotices.flatMap((notice) => notice.tasks)
+      .filter((task) => task.submissionRequired !== false && !task.submitted)
+      .map((task) => task.id),
+  ).size;
+  const missingArchivedTaskLinks = archivedSchoolNotices.reduce((total, notice) => total + notice.missingTaskCount, 0);
   async function inspectLocalStorageHealth() {
     setCheckingStorage(true);
     try {
@@ -109,16 +135,79 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
         disabled={busy || restored}
         onClick={() =>
           void work(async () => {
+            setPreparedDownload(null);
+            const sourceKeys = snapshotKeys(localStorage);
             const blob = await exportCompleteBackup(localStorage, setMessage);
-            saveBlob(blob, `bkit-complete-${new Date().toISOString().slice(0, 10)}.zip`);
-            setMessage(
-              `ZIP 생성 및 다운로드 요청 완료 · ${(blob.size / 1024 / 1024).toFixed(1)}MB. 브라우저의 다운로드/파일 앱에서 실제 파일 저장을 확인한 뒤, 아래 '전체 ZIP 백업 검사'로 다시 열어 무결성을 확인하세요.`,
-            );
+            if (!backupKeysUnchanged(sourceKeys, localStorage)) {
+              throw new Error('ZIP 생성 중 기록이 바뀌었습니다. 최신 기록으로 다시 내보내 주세요.');
+            }
+            // Include the backup time so repeated exports on one day remain distinguishable in Files.
+            const name = `bkit-complete-${new Date().toISOString().replace(/[:.]/g, '-')}.zip`;
+            const isIOS =
+              /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            if (isIOS) {
+              setPreparedDownload({ blob, name, sourceKeys });
+              setMessage(
+                `ZIP 생성 완료 · ${(blob.size / 1024 / 1024).toFixed(1)}MB. iPhone/iPad에서는 아래 '준비한 ZIP 다운로드'를 직접 한 번 더 눌러야 다운로드가 시작됩니다. 생성만으로 파일이 저장된 것은 아닙니다.`,
+              );
+            } else {
+              saveBlob(blob, name);
+              setMessage(
+                `ZIP 생성 및 다운로드 요청 완료 · ${(blob.size / 1024 / 1024).toFixed(1)}MB. 다운로드/파일 앱에서 실제 파일 저장을 확인한 뒤 '전체 ZIP 백업 검사'로 다시 열어 무결성을 확인하세요.`,
+              );
+            }
           })
         }
       >
         사진 포함 전체 ZIP 내보내기
       </button>
+      {preparedDownload && (
+        <button
+          type="button"
+          className="primary"
+          disabled={busy || restored}
+          onClick={() => {
+            // Must remain synchronous: awaiting here loses iOS Safari's user activation.
+            let unchanged = false;
+            try {
+              unchanged = backupKeysUnchanged(preparedDownload.sourceKeys, localStorage);
+            } catch {
+              setError('현재 저장 기록을 확인할 수 없어 다운로드하지 않았습니다. 저장소 접근을 확인한 뒤 ZIP을 다시 준비하세요.');
+              return;
+            }
+            if (!unchanged) {
+              setPreparedDownload(null);
+              setMessage('');
+              setError('ZIP을 만든 뒤 학교 공지·수행평가 또는 다른 학습 기록이 변경되었습니다. 오래된 ZIP 대신 위의 전체 ZIP 내보내기를 다시 실행하세요.');
+              return;
+            }
+            try {
+              // Called directly by a fresh user tap, not after an asynchronous export.
+              saveBlob(preparedDownload.blob, preparedDownload.name);
+              setMessage('ZIP 다운로드 요청 완료. Safari 다운로드 목록과 파일 앱에서 실제 저장을 확인하세요. 파일이 없다면 위 ‘준비한 ZIP 다운로드’를 다시 누를 수 있습니다. 저장된 ZIP을 다시 선택해 무결성을 검사하세요.');
+              // Keep the prepared ZIP for another direct tap if Safari blocks or loses the download.
+              // A download request is not evidence that a file was saved.
+              setError('');
+            } catch (e) {
+              setError(e instanceof Error ? e.message : 'ZIP 다운로드를 시작하지 못했습니다. 다시 눌러 주세요.');
+            }
+          }}
+        >
+          준비한 ZIP 다운로드
+        </button>
+      )}
+      <details className="resource-editor">
+        <summary>iPhone · ZIP을 파일 앱에 보관하고 다시 검사하는 방법</summary>
+        <ol>
+          <li>‘사진 포함 전체 ZIP 내보내기’를 누릅니다. iPhone/iPad에서는 ZIP이 준비되면 ‘준비한 ZIP 다운로드’를 한 번 더 눌러야 합니다. 생성만으로 파일이 보관되지는 않습니다.</li>
+          <li>Safari 주소창 옆 다운로드 버튼에서 ZIP 다운로드가 끝났는지 확인하세요. 별도의 ‘파일에 저장’ 동작 없이도 Safari는 설정된 다운로드 폴더에 파일을 저장할 수 있습니다.</li>
+          <li>‘파일’ 앱 → ‘둘러보기’에서 iCloud Drive → 다운로드 항목 또는 ‘나의 iPhone’ → 다운로드 항목을 찾아 ZIP 이름과 크기를 확인하세요. 없으면 ‘설정’ → ‘앱’ → ‘Safari’ → ‘다운로드’의 실제 저장 위치를 확인하세요.</li>
+          <li>이 화면의 ‘전체 ZIP 백업 검사’에서 방금 저장한 ZIP을 다시 선택하고, 학교 공지 원본과 학습 기록의 일치 여부를 확인합니다.</li>
+          <li>검사만 할 때는 ‘기존 기록 유지 · 닫기’를 누르세요. 실제 기록이 있는 기기에서 ‘교체’를 누르지 마세요.</li>
+        </ol>
+        <p className="muted">iOS 버전과 Safari 설정에 따라 다운로드/공유 메뉴 위치가 다를 수 있습니다. ZIP을 다른 서비스에 업로드할 필요는 없습니다.</p>
+      </details>
       <p className="muted">
         {verifiedBackupAt
           ? '이 브라우저에서 마지막으로 외부 ZIP 파일을 직접 검사한 시각: ' + new Date(verifiedBackupAt).toLocaleString('ko-KR')
@@ -192,11 +281,16 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             const file = e.target.files?.[0];
             e.target.value = '';
             setInspected(null);
+            setInspectedFile(null);
             setArchiveCoverage(null);
+            setArchiveNoticeLimit(20);
+            // Never inherit the destructive replace choice from an earlier ZIP.
+            setMode('merge');
             if (file)
               void work(async () => {
                 const result = await inspectCompleteBackup(file, localStorage, setMessage);
                 setInspected(result);
+                setInspectedFile({ name: file.name, bytes: file.size });
                 setArchiveCoverage(backupMatchesCurrent(result));
                 const checked = new Date().toISOString();
                 setVerifiedBackupAt(checked);
@@ -210,7 +304,18 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
       {inspected && (
         <div className="resource-editor">
           <h3>가져오기 전 확인</h3>
+          {inspectedFile && (
+            <p role="status">직접 선택해 검사한 ZIP: <strong>{inspectedFile.name}</strong> · {(inspectedFile.bytes / 1024 / 1024).toFixed(2)}MB. 파일명만으로 백업 내용이나 현재 기기와의 일치를 보장하지 않습니다.</p>
+          )}
           <p>백업 생성: {new Date(inspected.manifest.createdAt).toLocaleString()}</p>
+          {archiveCoverage && (
+            <p role="status">
+              {archiveCoverage.schoolNotices
+                ? '학교 공지 원본: 선택한 ZIP에 검사 시점의 이 기기 공지 보관함이 포함되어 있습니다.'
+                : '학교 공지 원본 주의: 이 ZIP의 공지 보관함은 현재 기기와 다릅니다. 새로 받은 공지를 잃지 않도록 최신 ZIP을 다시 만들어 검사하세요.'}
+              {' '}연결된 수행평가 기록은 아래 학습 기록 일치 여부도 함께 확인하세요.
+            </p>
+          )}
           {archiveCoverage && (
             <p role="status">
               {archiveCoverage.study && archiveCoverage.sleep && archiveCoverage.paper
@@ -223,6 +328,79 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
             {inspected.manifest.photos.length}장 · 겹치는 기록 ID {inspected.conflicts.length}개 ·
             내용이 다른 사진 ID {inspected.photoConflicts.length}개
           </p>
+          {missingArchivedTaskLinks > 0 && (
+            <p className="warning" role="alert">
+              주의: 이 ZIP의 학교 공지에 연결된 과제 {missingArchivedTaskLinks}건을 백업 학습 기록에서 찾지 못했습니다.
+              복원만으로 해당 수행평가가 돌아온다고 가정하지 말고 아래 공지 원문과 학교 과제 목록을 직접 대조하세요.
+            </p>
+          )}
+          <details className="resource-editor">
+            <summary>ZIP 학교 공지 {archivedSchoolNotices.length}건 · 제출 미확인 과제 {archivedUnsubmittedTasks}건 · 누락 연결 {missingArchivedTaskLinks}건</summary>
+            <p className="muted">
+              선택한 ZIP 파일 안의 기록만 표시합니다. 현재 기기의 공지나 실제 학교 제출 내역을
+              조회하지 않습니다. '제출됨'은 백업 당시 앱에 사용자가 기록한 상태일 뿐입니다.
+              내용을 대조해도 복원 버튼을 누르기 전에는 현재 기록이 바뀌지 않습니다.
+            </p>
+            {archivedSchoolNotices.length === 0 ? (
+              <p>이 ZIP에는 학교 공지 받은함 기록이 없습니다. 다른 기기의 공지까지 보관됐다고 가정하지 마세요.</p>
+            ) : (
+              <ul>
+                {archivedSchoolNotices.slice(0, archiveNoticeLimit).map((notice) => (
+                  <li key={notice.id}>
+                    <strong>공지 원문 첫 줄: {notice.preview}</strong>
+                     <details>
+                       <summary>ZIP에 저장된 공지 텍스트 전체 보기 (공식 원문 별도 확인)</summary>
+                       {notice.savedText.trim() ? (
+                         <pre style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', fontFamily: 'inherit' }}>{notice.savedText}</pre>
+                       ) : (
+                         <p>ZIP에 저장된 공지 텍스트가 없습니다. 첨부 사진·PDF를 별도로 확인하세요.</p>
+                       )}
+                     </details>
+                     {notice.savedOcrText.trim() && (
+                       <details>
+                         <summary>ZIP에 저장된 OCR 텍스트 보기 · 오인식 가능</summary>
+                         <pre style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', fontFamily: 'inherit' }}>{notice.savedOcrText}</pre>
+                       </details>
+                     )}
+                     {(notice.photoCount > 0 || notice.paperCount > 0) && (
+                       <p className="muted">첨부 사진·PDF 내용은 여기서 표시하지 않습니다. 별도로 원본을 확인하세요.</p>
+                     )}
+                    <p>
+                      ZIP 내 사진 {notice.photoCount}개 · PDF {notice.paperCount}개 ·
+                      연결된 과제 {notice.tasks.length}개
+                    </p>
+                    {notice.tasks.length > 0 && (
+                      <ul>
+                        {notice.tasks.map((task) => (
+                          <li key={task.id}>
+                            {task.subject} · {task.title} ·
+                            {task.deadlineLabel} ·
+                            {task.status === 'done' ? '학습 완료 기록' : '학습 미완료 기록'} ·
+                            {task.submitted
+                              ? '앱 기록상 제출됨'
+                              : task.submissionRequired === false
+                                ? '제출 불필요'
+                                : '제출 미확인'}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {notice.missingTaskCount > 0 && (
+                      <p className="warning" role="alert">
+                        공지의 연결 과제 ID {notice.missingTaskCount}개가 이 ZIP의 학습 기록에 없습니다.
+                        원문과 과제 목록을 직접 대조하세요.
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {archivedSchoolNotices.length > archiveNoticeLimit && (
+               <button type="button" onClick={() => setArchiveNoticeLimit((limit) => limit + 20)}>
+                 ZIP 공지 20건 더 보기 · {Math.min(archiveNoticeLimit, archivedSchoolNotices.length)}/{archivedSchoolNotices.length}건 표시
+               </button>
+             )}
+          </details>
           {(inspected.conflicts.length > 0 || inspected.photoConflicts.length > 0) && (
             <details>
               <summary>충돌 항목 보기</summary>
@@ -303,6 +481,9 @@ export function CompleteBackupPanel({ studying }: { studying: boolean }) {
               disabled={busy}
               onClick={() => {
                 setInspected(null);
+                setInspectedFile(null);
+                setArchiveCoverage(null);
+                setMode('merge');
                 setMessage('현재 기록을 유지합니다.');
               }}
             >

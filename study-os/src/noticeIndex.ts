@@ -2,7 +2,16 @@ import type { Task } from './model';
 import { noticeStatus, noticeTasks, type SchoolNotice } from './schoolInbox';
 import { needsSubmission } from './tasks';
 
-export type NoticeFilter = 'inbox' | 'review' | 'submission' | 'archived' | 'all';
+export type NoticeFilter = 'inbox' | 'review' | 'deadline' | 'submission' | 'archived' | 'all';
+
+/** A stored, unsubmitted assessment needs source confirmation if its date is
+ * missing OR was inferred (e.g. a month/day assigned to a guessed year).
+ * Date-only with explicit/user-confirmed provenance is not missing.
+ */
+export function needsDeadlineConfirmation(task: Task): boolean {
+  return task.kind === '수행평가' && !task.submitted &&
+    (task.deadline?.provenance === 'inferred' || (!task.deadline?.date && !task.due));
+}
 
 /** Read-only index over the original notices and committed tasks. No inferred deadlines. */
 export function findNotices(
@@ -23,6 +32,7 @@ export function findNotices(
       if (filter === 'archived' ? !notice.archived : filter !== 'all' && notice.archived)
         return false;
       if (filter === 'review' && noticeStatus(notice, tasks) === '과제 등록 완료') return false;
+      if (filter === 'deadline' && !linked.some(needsDeadlineConfirmation)) return false;
       if (filter === 'submission' && !linked.some(needsSubmission)) return false;
       const text = [
         notice.text,

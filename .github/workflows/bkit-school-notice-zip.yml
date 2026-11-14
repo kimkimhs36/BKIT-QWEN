@@ -1,0 +1,69 @@
+name: BKIT school notice ZIP regression (isolated)
+
+on:
+  push:
+    branches:
+      - preview/bkit-school-notice-backup-20261110
+    paths:
+      - 'study-os/**'
+      - '.github/workflows/bkit-school-notice-zip.yml'
+  # Validate this isolated ZIP feature as a stacked review against its actual parent.
+  # An explicit PR event produces per-job run evidence; it never deploys production.
+  pull_request:
+    branches:
+      - preview/bkit-notice-capture-20261110
+    paths:
+      - 'study-os/**'
+      - '.github/workflows/bkit-school-notice-zip.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notice-zip-regression:
+    # Keep the runner's preinstalled Chrome stable; avoid OS package network downloads.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: study-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-os/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: School notice ZIP regressions
+        run: npm test -- tests/schoolNoticeBackupCoverage.test.ts
+      - name: Full Vitest regression
+        if: success() || failure()
+        run: npm test --
+      - name: TypeScript check
+        if: success() || failure()
+        run: npm run typecheck
+      - name: Production-style build
+        if: success() || failure()
+        run: npm run build
+      # Ubuntu 24.04 GitHub-hosted runners provide Chrome; using it avoids
+      # Playwright --with-deps apt downloads that failed when Ubuntu mirrors had DNS errors.
+      # Browser emulation, not a physical iPhone/Safari certification.
+      - name: Select preinstalled Chrome for iPhone-sized end-to-end smoke
+        if: success()
+        run: |
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          if [ -z "$CHROME" ]; then
+            echo '::error::No installed Chrome/Chromium on the pinned ubuntu-24.04 runner.'
+            exit 1
+          fi
+          "$CHROME" --version
+          echo "PLAYWRIGHT_CHROMIUM_EXECUTABLE=$CHROME" >> "$GITHUB_ENV"
+      - name: iPhone school notice and backup navigation
+        if: success()
+        run: npm run test:e2e -- tests/e2e/home-notice-capture.spec.ts tests/e2e/dev-status.spec.ts --project=iphone
+        env:
+          BKIT_PREVIEW_PORT: '4173'
+          BKIT_TEST_BASE_URL: 'http://127.0.0.1:4173/study-os/'
