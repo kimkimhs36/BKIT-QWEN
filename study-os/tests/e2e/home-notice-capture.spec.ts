@@ -782,3 +782,55 @@ test('iPhone: first save failure of a new pasted notice offers the new original,
   expect(saved).toHaveLength(1);
   expect(saved[0].text).toBe('이전 공지 내용');
 });
+
+
+test('iPhone: completed notice focuses on linked task, and new task form stays accessible', async ({ page }) => {
+  const state = newState();
+  state.tasks = [{
+    id: 'fixture-linked-assessment', subject: '물질과 에너지', title: '실험 보고서',
+    kind: '수행평가', due: null, priority: 2, minutes: 25, remaining: 25,
+    status: 'todo', submitted: false, submissionRequired: true,
+    optional: false, notes: '[학교공지:fixture-completed-notice]', link: '',
+  }];
+  const inboxData = {
+    version: 1, notices: [{
+      id: 'fixture-completed-notice', createdAt: '2026-11-10T00:00:00.000Z',
+      text: '테스트 전용 수행평가 공지. 실제 학교 마감 아님.', ocrText: '',
+      reviewed: true, fullyRegistered: true, archived: false,
+      taskIds: ['fixture-linked-assessment'], materials: { photoIds: [], papers: [] },
+    }],
+  };
+  await page.addInitScript(({ state, inboxData }) => {
+    if (!localStorage.getItem('bkit.study-os.v1'))
+      localStorage.setItem('bkit.study-os.v1', JSON.stringify(state));
+    if (!localStorage.getItem('bkit.school-inbox.v1'))
+      localStorage.setItem('bkit.school-inbox.v1', JSON.stringify(inboxData));
+    localStorage.setItem('bkit.atelier.visited.v1', '1');
+  }, { state, inboxData });
+  await page.goto('./');
+  await page.getByRole('region', { name: '수행평가 긴급 점검' })
+    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+  const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
+  const extra = inbox.locator('details.inbox-task-entry');
+  const form = inbox.locator('form.daily-confirm');
+  const linked = inbox.getByRole('region', { name: '공지에서 등록한 과제' });
+  const before = await page.evaluate(() => ({
+    tasks: localStorage.getItem('bkit.study-os.v1'),
+    inbox: localStorage.getItem('bkit.school-inbox.v1'),
+  }));
+  await expect(linked).toBeVisible();
+  await expect(linked).toContainText('실험 보고서');
+  await expect(extra.locator('summary')).toHaveText('다른 과제 추가 등록');
+  await expect(form).toBeHidden();
+  await extra.locator('summary').click();
+  await expect(form).toBeVisible();
+  await expect(form.locator('input[name="title"]')).toBeEnabled();
+  const after = await page.evaluate(() => ({
+    tasks: localStorage.getItem('bkit.study-os.v1'),
+    inbox: localStorage.getItem('bkit.school-inbox.v1'),
+  }));
+  expect(after).toEqual(before);
+  await inbox.getByRole('button', { name: '사진·PDF 공지 추가' }).click();
+  await expect(form).toBeVisible();
+  await expect(extra.locator('summary')).toHaveText('원본을 보며 과제 하나씩 확인');
+});
