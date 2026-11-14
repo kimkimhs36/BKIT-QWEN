@@ -269,3 +269,18 @@ User reported multiple severely unsuccessful school performance assessments and,
 - `npm run typecheck` and `npm run build`: **PASS**, combined process exit 0 at code SHA `be04269`; build warned one JS chunk >500 kB (nonfatal). Test-only later change did not alter source.
 - Full `npx vitest run`: **482/483 PASS, 1 FAIL**, exit 1 at code SHA `a73b070`; the failure is the previously documented `examsSleepIntegration.test.ts:67` protected sleep boundary 19:55 vs 20:00, not changed by this home-button-only patch. Do not label full suite green or suppress the failure.
 - Exact post-doc HEAD must be fetched; **new Vercel preview, new-head HTTP, iPhone browser E2E, and physical Safari remain NOT RUN**. Existing older preview remains 579c397 and must not be passed off as updated. Next task remains preview-only mobile UI/interaction verification on exact new HEAD, with explicit accessibility check.
+
+## 2026-11-14 KST — school assessment action hierarchy, no new dashboard
+- Latest code HEAD before this handoff: `64fae27c7e193b07fb013d38a8b02000ad3e65f7` on existing Draft PR #57 `preview/bkit-school-notice-backup-20261110`, base Draft PR #56 `preview/bkit-notice-capture-20261110`. Remote TEAM-BKIT clean worktree fast-forwarded 0 ahead/3 behind to the same SHA. No main/production change.
+- Real user journey before: assessment card presented four simultaneous primary-looking buttons (clipboard save, direct paste, register missing assessment, view unsubmitted). After: clipboard save and permission-denied direct paste remain visible; submission-check action appears visibly only when checks exist; less-frequent registration/submission list lives in native keyboard-accessible `<details><summary>수행평가 추가 작업</summary>` with >=44px summary target. Existing `onInbox`, `onAssessment`, `onAssessments`, `onBackup` handlers reused. No new storage keys, external integrations, auto submission or school records.
+- Files: `src/PremiumHome.tsx`, `src/daily-driver.css`, `tests/homeQuickFlow.test.ts`. Focused Vitest **5/5 PASS, exit 0** on remote Windows. `npm run typecheck` **exit 0**; `npm run build` **exit 0**, with pre-existing >500kB chunk warning. Full Vitest and new deployed-URL browser E2E **NOT RUN in this execution**; physical Safari and actual school behavior **NOT VERIFIED**. Vercel READY for older SHA 4f8b2ab does not validate this change; check a new deployment's exact SHA and HTTP before reporting it.
+- Feature evidence inventory (existing code is not equivalent to user outcome):
+  | Feature | Code exists | Focused test this run | Deployed browser this SHA | Physical phone | Actual regular use |
+  |---|---|---|---|---|---|
+  | Assessment action hierarchy | Yes | 5/5 home suite | Not run | Unknown | Unknown |
+  | School notice→linked task→ZIP | Yes | Not run this time (prior CI exists) | Not run this SHA | Unknown | Unknown |
+  | BOOKS and PDF digital paper | Yes | Not run | Not run this SHA | Unknown | Unknown |
+  | ExamLab 36 original math questions | Yes | Not run | Not run this SHA | Unknown | Unknown |
+  | EBSi/Megastudy site directory | Yes (external links only) | Not run | Not run this SHA | Unknown | Unknown |
+  | Seven-day LearningEvidence | Yes (device events only) | Not run | Not run this SHA | Unknown | Unknown |
+- Next ONE task: inspect latest PR #57 SHA and confirm the new assessment actions on an exact-SHA nonproduction 390×844 Chrome session, including details expansion and clipboard fallback; avoid claiming real iPhone or learning gains. Preserve main, teambkit.com and all user records.
