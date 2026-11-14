@@ -340,8 +340,16 @@ export function PremiumHome({
             {noticeBusy ? '공지 확인 중…' : '복사한 공지 한 번에 보관'} <ArrowRight size={16} aria-hidden="true" />
           </button>
           <button type="button" onClick={onInbox}>공지함 · 직접 붙여넣기</button>
-          <button type="button" onClick={onAssessment}>빠진 수행평가 등록</button>
-          <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
+          {rescue.submissionChecks > 0 && (
+            <button type="button" onClick={onAssessments}>제출 미확인 {rescue.submissionChecks}건 확인</button>
+          )}
+          <details className="bkit-assessment-more">
+            <summary>수행평가 추가 작업</summary>
+            <div className="bkit-assessment-more-actions">
+              <button type="button" onClick={onAssessment}>빠진 수행평가 등록</button>
+              <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
+            </div>
+          </details>
         </div>
         {noticeError && <p className="bkit-assessment-rescue-error" role="alert">{noticeError}</p>}
         <small className="bkit-assessment-rescue-disclaimer">
