@@ -61,9 +61,9 @@ jobs:
           fi
           "$CHROME" --version
           echo "PLAYWRIGHT_CHROMIUM_EXECUTABLE=$CHROME" >> "$GITHUB_ENV"
-      - name: iPhone school notice and backup navigation
+      - name: iPhone school notice, BOOKS PDF study and backup navigation
         if: success()
-        run: npm run test:e2e -- tests/e2e/home-notice-capture.spec.ts tests/e2e/dev-status.spec.ts --project=iphone
+        run: npm run test:e2e -- tests/e2e/home-notice-capture.spec.ts tests/e2e/dev-status.spec.ts tests/e2e/books.spec.ts --project=iphone
         env:
           BKIT_PREVIEW_PORT: '4173'
           BKIT_TEST_BASE_URL: 'http://127.0.0.1:4173/study-os/'
