@@ -457,6 +457,12 @@ export function SchoolInbox({
             {error ? '현재 변경은 저장되지 않았을 수 있어요.' : '이 기기에 저장됨'} ·{' '}
             {noticeStatus(notice, state.tasks)}
           </p>
+          <details className="inbox-task-entry" open={!notice.fullyRegistered || linked.length === 0}>
+            <summary>
+              {notice.fullyRegistered && linked.length > 0
+                ? '다른 과제 추가 등록'
+                : '원본을 보며 과제 하나씩 확인'}
+            </summary>
           <form
             className="daily-confirm"
             onSubmit={(e) => {
@@ -514,7 +520,7 @@ export function SchoolInbox({
               }
             }}
           >
-            <h3>원본을 보며 과제 하나씩 확인</h3>
+            <h3>과제 이름과 마감 확인</h3>
             <p>
               여러 과제가 있으면 항목별로 등록하세요. OCR은 틀릴 수 있고, 날짜·과목·분량을 자동
               확정하지 않아요. 사진 인식은 기기 OCR이며 서버 AI가 아닙니다.
@@ -572,6 +578,7 @@ export function SchoolInbox({
               확인한 과제 등록
             </button>
           </form>
+          </details>
           <details>
             <summary>이미 등록한 과제와 연결</summary>
             <p className="hint">공지 원문과 기존 과제·마감을 대조한 뒤 연결을 확정하세요. 연결만으로 제출 완료가 되지 않아요.</p>
