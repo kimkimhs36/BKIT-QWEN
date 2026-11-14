@@ -67,6 +67,14 @@ describe('actual home quick focus lifecycle', () => {
     expect(html).toContain('빠진 수행평가 등록');
     expect(html).toContain('제출 미확인 수행평가 보기');
     expect(html).not.toContain('제출 미확인 0건 확인');
+    // The secondary quick-link strip must not duplicate notice/assessment
+    // entry points already available in the assessment rescue card.
+    const quickStrip = html.match(/<div class="daily-activation"[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '';
+    expect(quickStrip).not.toContain('학교 공지 보관');
+    expect(quickStrip).not.toContain('수행평가 등록');
+    expect(quickStrip).toContain('학교 시간표');
+    expect(quickStrip).toContain('BOOKS · 학습지');
+    expect(quickStrip).toContain('수능관 · 기초 훈련');
   });
 
   it('links notices to the complete ZIP backup without claiming a file was already saved', () => {
