@@ -822,7 +822,13 @@ test('iPhone: completed notice focuses on linked task, and new task form stays a
   await expect(linked).toContainText('실험 보고서');
   await expect(extra.locator('summary')).toHaveText('다른 과제 추가 등록');
   await expect(form).toBeHidden();
-  await extra.locator('summary').click();
+  const summary = extra.locator('summary');
+  const target = await summary.boundingBox();
+  expect(target?.height).toBeGreaterThanOrEqual(44);
+  await summary.focus();
+  await expect(summary).toBeFocused();
+  await expect(summary).toHaveCSS('outline-style', 'solid');
+  await page.keyboard.press('Enter');
   await expect(form).toBeVisible();
   await expect(form.locator('input[name="title"]')).toBeEnabled();
   const after = await page.evaluate(() => ({
