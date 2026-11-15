@@ -60,8 +60,11 @@ describe('actual home quick focus lifecycle', () => {
 
   it('keeps school notice capture visible and progressive secondary actions accessible', () => {
     const html = home(newState(), began);
-    expect(html).toContain('복사한 공지 한 번에 보관');
-    expect(html).toContain('공지함 · 직접 붙여넣기');
+    // Manual paste must be the primary path: clipboard reads may be denied on Safari.
+    expect(html).toContain('class="bkit-assessment-rescue-main"');
+    expect(html).toContain('공지함 열기 · 직접 붙여넣기');
+    expect(html).toContain('클립보드에서 바로 보관');
+    expect(html).not.toContain('복사한 공지 한 번에 보관');
     expect(html).toContain('<details class="bkit-assessment-more"');
     expect(html).toContain('<summary>수행평가 추가 작업</summary>');
     expect(html).toContain('빠진 수행평가 등록');
