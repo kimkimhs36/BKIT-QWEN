@@ -15,7 +15,7 @@ test('iPhone: copied school notice is saved, opened, explicitly converted to a t
   }, newState());
   await page.goto('./');
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
-  await rescue.getByRole('button', { name: '복사한 공지 한 번에 보관' }).click();
+  await rescue.getByRole('button', { name: '클립보드에서 바로 보관' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   await expect(inbox).toBeVisible();
   await expect(inbox.getByRole('textbox', { name: '원본 공지' })).toHaveValue(
@@ -51,7 +51,7 @@ test('iPhone: copied school notice is saved, opened, explicitly converted to a t
   await page.reload();
   const returnedHome = page.getByRole('region', { name: '수행평가 긴급 점검' });
   await expect(returnedHome).toContainText('산염기 실험 보고서');
-  await returnedHome.getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+  await returnedHome.getByRole('button', { name: '공지함 열기 · 직접 붙여넣기' }).click();
   await expect(page.getByRole('textbox', { name: '원본 공지' })).toHaveValue(
     '물질과 에너지 수행평가: 산염기 실험 보고서. 마감은 확인 필요.',
   );
@@ -105,7 +105,7 @@ test('iPhone: one-tap missing-deadline notice filter opens an actual linked asse
   }, { state, inboxData });
   await page.goto('./');
   await page.getByRole('region', { name: '수행평가 긴급 점검' })
-    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+    .getByRole('button', { name: '공지함 열기 · 직접 붙여넣기' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   const before = await page.evaluate(() => ({
     tasks: JSON.parse(localStorage.getItem('bkit.study-os.v1')!).tasks,
@@ -147,7 +147,7 @@ test('iPhone: notice link write failure warns without duplicating or submitting 
   }, { state, inboxData });
   await page.goto('./');
   await page.getByRole('region', { name: '수행평가 긴급 점검' })
-    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+    .getByRole('button', { name: '공지함 열기 · 직접 붙여넣기' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   const form = inbox.locator('form.daily-confirm');
   await form.locator('input[name="title"]').fill('연결 저장 실패 실험');
@@ -214,7 +214,7 @@ test('iPhone: editing a checked notice original reopens assessment review withou
   }, { state, inboxData });
   await page.goto('./');
   await page.getByRole('region', { name: '수행평가 긴급 점검' })
-    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+    .getByRole('button', { name: '공지함 열기 · 직접 붙여넣기' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   await expect(inbox.getByText('과제 등록 완료', { exact: true }).first()).toBeVisible();
   const original = inbox.getByRole('textbox', { name: '원본 공지' });
@@ -263,7 +263,7 @@ test('iPhone: corrected OCR text reopens review and preserves the unsubmitted ta
   }, { state, inboxData });
   await page.goto('./');
   await page.getByRole('region', { name: '수행평가 긴급 점검' })
-    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+    .getByRole('button', { name: '공지함 열기 · 직접 붙여넣기' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   await expect(inbox.getByText('과제 등록 완료', { exact: true }).first()).toBeVisible();
   await inbox.getByRole('textbox', { name: '공지에서 읽은 글' })
@@ -308,7 +308,7 @@ test('iPhone: attaching a new notice photo reopens review without marking work s
   }, { state, inboxData });
   await page.goto('./');
   await page.getByRole('region', { name: '수행평가 긴급 점검' })
-    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+    .getByRole('button', { name: '공지함 열기 · 직접 붙여넣기' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   await expect(inbox.getByText('과제 등록 완료', { exact: true }).first()).toBeVisible();
   await inbox.getByRole('region', { name: '과제 사진 및 PDF 첨부' })
@@ -356,7 +356,7 @@ test('iPhone: existing assessment linking needs a second explicit confirmation a
   }, { state, inboxData });
   await page.goto('./');
   await page.getByRole('region', { name: '수행평가 긴급 점검' })
-    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+    .getByRole('button', { name: '공지함 열기 · 직접 붙여넣기' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   await inbox.getByText('이미 등록한 과제와 연결').click();
   await inbox.getByRole('button', { name: '물질과 에너지 · 실험 보고서 연결 검토' }).click();
@@ -389,10 +389,10 @@ test('iPhone: denied clipboard keeps records untouched and offers manual inbox a
   }, newState());
   await page.goto('./');
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
-  await rescue.getByRole('button', { name: '복사한 공지 한 번에 보관' }).click();
+  await rescue.getByRole('button', { name: '클립보드에서 바로 보관' }).click();
   await expect(rescue.getByRole('alert')).toContainText('공지함에서 직접');
   expect(await page.evaluate(() => localStorage.getItem('bkit.school-inbox.v1'))).toBeNull();
-  await rescue.getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+  await rescue.getByRole('button', { name: '공지함 열기 · 직접 붙여넣기' }).click();
   await expect(page.getByRole('region', { name: '학교 공지 받은함' })).toBeVisible();
 });
 
@@ -676,7 +676,7 @@ test('iPhone: failed school notice save preserves a copyable unsaved original un
   }, { state, inboxData });
   await page.goto('./');
   await page.getByRole('region', { name: '수행평가 긴급 점검' })
-    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+    .getByRole('button', { name: '공지함 열기 · 직접 붙여넣기' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   const original = inbox.getByRole('textbox', { name: '원본 공지' });
 
@@ -758,7 +758,7 @@ test('iPhone: first save failure of a new pasted notice offers the new original,
   }, { state, inboxData });
   await page.goto('./');
   await page.getByRole('region', { name: '수행평가 긴급 점검' })
-    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+    .getByRole('button', { name: '공지함 열기 · 직접 붙여넣기' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   await page.evaluate(() => {
     const original = Storage.prototype.setItem;
@@ -809,7 +809,7 @@ test('iPhone: completed notice focuses on linked task, and new task form stays a
   }, { state, inboxData });
   await page.goto('./');
   await page.getByRole('region', { name: '수행평가 긴급 점검' })
-    .getByRole('button', { name: '공지함 · 직접 붙여넣기' }).click();
+    .getByRole('button', { name: '공지함 열기 · 직접 붙여넣기' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   const extra = inbox.locator('details.inbox-task-entry');
   const form = inbox.locator('form.daily-confirm');
