@@ -336,15 +336,15 @@ export function PremiumHome({
           <button type="button" className="bkit-assessment-rescue-main" onClick={onInbox}>
             공지함 열기 · 직접 붙여넣기 <ArrowRight size={16} aria-hidden="true" />
           </button>
-          <button type="button" onClick={() => void copyNoticeToInbox()} disabled={noticeBusy}>
-            {noticeBusy ? '공지 확인 중…' : '클립보드에서 바로 보관'}
-          </button>
           {rescue.submissionChecks > 0 && (
             <button type="button" onClick={onAssessments}>제출 미확인 {rescue.submissionChecks}건 확인</button>
           )}
           <details className="bkit-assessment-more">
             <summary>수행평가 추가 작업</summary>
             <div className="bkit-assessment-more-actions">
+              <button type="button" onClick={() => void copyNoticeToInbox()} disabled={noticeBusy}>
+                {noticeBusy ? '공지 확인 중…' : '클립보드에서 바로 보관'}
+              </button>
               <button type="button" onClick={onAssessment}>빠진 수행평가 등록</button>
               {rescue.submissionChecks === 0 && (
                 <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
