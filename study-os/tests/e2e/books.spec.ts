@@ -268,4 +268,11 @@ test('BOOKS linked PDF exposes practice only for an authored question and preser
     };
   });
   expect(persisted).toEqual(after);
+  // A surviving localStorage link is not proof that the original PDF bytes still open.
+  // Re-enter the book after reload and open the real paper viewer, not a generated quiz.
+  await page.getByRole('button', { name: /최근 공부한 책/ }).click();
+  await expect(book.getByRole('button', { name: '자료 열기 · 필기', exact: true })).toBeVisible();
+  await book.getByRole('button', { name: '자료 열기 · 필기', exact: true }).click();
+  await expect(page.getByRole('button', { name: '종이 닫기', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '종이 닫기', exact: true }).click();
 });
