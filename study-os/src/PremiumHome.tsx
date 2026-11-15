@@ -344,7 +344,9 @@ export function PremiumHome({
             <summary>수행평가 추가 작업</summary>
             <div className="bkit-assessment-more-actions">
               <button type="button" onClick={onAssessment}>빠진 수행평가 등록</button>
-              <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
+              {rescue.submissionChecks === 0 && (
+                <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
+              )}
             </div>
           </details>
         </div>
