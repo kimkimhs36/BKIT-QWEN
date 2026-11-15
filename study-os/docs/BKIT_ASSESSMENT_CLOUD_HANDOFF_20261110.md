@@ -397,3 +397,11 @@ User reported multiple severely unsuccessful school performance assessments and,
 - TEAM-BKIT remote Desktop Commander device is OFFLINE (last seen ~13h earlier); local worktree divergence/dirty status and agents not inspectable, no remote actions.
 - The BOOKS original reopen and saved answer reload test is now CI-backed on the exact code SHA; it remains synthetic-fixture Chromium evidence, not actual user PDF original byte equality. No additional redundant test was added. Product G1 official notice/Files ZIP, G2 real PDF independent attempt + later retrieval, G3 first-fold usability on physical device remain **not user-verified**.
 - **ONE next product action:** at stable alias, carry out a real non-sensitive PDF→one independent problem→reload/review iPhone beta walkthrough; if founder data unavailable, next independent work should be first-fold mobile control-density reduction with before/after browser evidence, not another PDF smoke test. No main merge, production, TOHEŞAR, storage migration, or school submission.
+
+
+## 2026-11-15 18:47 KST — mobile home duplicate action correction
+- Source branch: `preview/bkit-school-notice-backup-20261110`, feature commit `d8ee8d8c5fc6302c319209b1aaa07468fdd9ba2c`; parent stack PR #56 → draft PR #57; main untouched.
+- Changed `study-os/src/PremiumHome.tsx`: removed the extra `BKIT AI 비서에게 물어보기` button inside NEXT MOVE. The primary study/resume/sleep action and contextual 5-minute alternative remain; the existing `study-chat-first` assistant entry remains accessible farther down the page. No storage/schema/routes/themes/BOOKS/ExamLab/ZIP changes.
+- Source-level acceptance: one fewer duplicate action in the hero, with existing chat entry preserved. First-fold measured control count, screenshots, keyboard/touch, Chromium E2E, unit/typecheck/build, exact-SHA Vercel and physical iPhone Safari: **NOT RUN/NOT VERIFIED** in this cloud-only edit. Do not mark G3 closed or claim improved user behavior.
+- Evidence: read live `PremiumHome.tsx` before editing and observed both assistant buttons in distinct sections. Source edit only, not a before/after visual usability test.
+- Next ONE task: run 390×844 Chromium before/after first-fold screenshot and control count on exact-SHA Preview, plus focused accessibility/regression; fix only if measured evidence warrants it.
