@@ -15,6 +15,7 @@ test('iPhone: copied school notice is saved, opened, explicitly converted to a t
   }, newState());
   await page.goto('./');
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
+  await rescue.locator('details.bkit-assessment-more > summary').click();
   await rescue.getByRole('button', { name: '클립보드에서 바로 보관' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   await expect(inbox).toBeVisible();
@@ -389,6 +390,7 @@ test('iPhone: denied clipboard keeps records untouched and offers manual inbox a
   }, newState());
   await page.goto('./');
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
+  await rescue.locator('details.bkit-assessment-more > summary').click();
   await rescue.getByRole('button', { name: '클립보드에서 바로 보관' }).click();
   await expect(rescue.getByRole('alert')).toContainText('공지함에서 직접');
   expect(await page.evaluate(() => localStorage.getItem('bkit.school-inbox.v1'))).toBeNull();
