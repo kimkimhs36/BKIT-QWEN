@@ -67,7 +67,7 @@ describe('actual home quick focus lifecycle', () => {
     expect(html).not.toContain('복사한 공지 한 번에 보관');
     expect(html).toContain('<details class="bkit-assessment-more"');
     expect(html).toContain('<summary>수행평가 추가 작업</summary>');
-    const extraActions = html.match(/<details class="bkit-assessment-more"[\\s\\S]*?<\\/details>/)?.[0] ?? '';
+    const extraActions = html.split('<details class="bkit-assessment-more"')[1]?.split('</details>')[0] ?? '';
     expect(extraActions).toContain('클립보드에서 바로 보관');
     expect(html.split('<details class="bkit-assessment-more"')[0]).not.toContain('클립보드에서 바로 보관');
     expect(html).toContain('빠진 수행평가 등록');
