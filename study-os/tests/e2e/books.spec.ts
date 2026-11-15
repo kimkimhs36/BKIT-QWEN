@@ -251,4 +251,21 @@ test('BOOKS linked PDF exposes practice only for an authored question and preser
   expect(after.attempts).toBe(before.attempts + 1);
   expect(after.resourceExists).toBe(true);
   expect(after.pdfLinkExists).toBe(true);
+  // Critical daily-use gate: a successful in-session save is not enough.
+  // A full reload must preserve the independently entered attempt and original PDF link.
+  await page.reload();
+  const persisted = await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem('bkit.study-os.v1')!);
+    const books = JSON.parse(localStorage.getItem('bkit.books.v1')!);
+    const question = state.learning.problems.find((p: { id: string }) =>
+      p.id === 'fixture-pdf-authored-question');
+    return {
+      attempts: state.learning.attempts.length,
+      resourceExists: Boolean(question && state.learning.resources.some(
+        (r: { id: string }) => r.id === question.resourceId)),
+      pdfLinkExists: books.books.some((b: { materials: { kind: string }[] }) =>
+        b.materials.some((m) => m.kind === 'document')),
+    };
+  });
+  expect(persisted).toEqual(after);
 });
