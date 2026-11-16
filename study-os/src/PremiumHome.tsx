@@ -424,8 +424,7 @@ export function PremiumHome({
           대화하기 <ArrowRight size={17} aria-hidden="true" />
         </button>
       </section>
-      <div className="daily-activation" aria-label="첫 60초에 할 수 있는 일">
-        <button onClick={() => onNavigate('school')}>학교 시간표</button>
+      <div className="daily-activation" aria-label="학습 자료 빠른 이동">
         <button onClick={() => onNavigate('books')}>BOOKS · 학습지</button>
         <button onClick={() => onNavigate('exam-lab')}>수능관 · 기초 훈련</button>
       </div>
