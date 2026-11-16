@@ -15,7 +15,7 @@ test('iPhone: copied school notice is saved, opened, explicitly converted to a t
   }, newState());
   await page.goto('./');
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
-  await rescue.locator('details.bkit-assessment-more > summary').click();
+  await rescue.getByText('수행평가 추가 작업', { exact: true }).click();
   await rescue.getByRole('button', { name: '클립보드에서 바로 보관' }).click();
   const inbox = page.getByRole('region', { name: '학교 공지 받은함' });
   await expect(inbox).toBeVisible();
@@ -390,7 +390,7 @@ test('iPhone: denied clipboard keeps records untouched and offers manual inbox a
   }, newState());
   await page.goto('./');
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
-  await rescue.locator('details.bkit-assessment-more > summary').click();
+  await rescue.getByText('수행평가 추가 작업', { exact: true }).click();
   await rescue.getByRole('button', { name: '클립보드에서 바로 보관' }).click();
   await expect(rescue.getByRole('alert')).toContainText('공지함에서 직접');
   expect(await page.evaluate(() => localStorage.getItem('bkit.school-inbox.v1'))).toBeNull();
@@ -434,7 +434,8 @@ test('iPhone: school notice backup route preserves academic records while openin
   await page.goto('./');
   const original = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
-  await rescue.getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
+  await rescue.getByText('기기 변경 전 · 공지와 수행평가 백업', { exact: true }).click();
+  await getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
   const backup = page.getByRole('region', { name: '사진 포함 전체 백업' });
   await expect(backup).toBeVisible();
   await expect(backup.getByRole('button', { name: '사진 포함 전체 ZIP 내보내기' })).toBeVisible();
@@ -491,7 +492,8 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
   }, { state, inbox });
   await page.goto('./');
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
-  await rescue.getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
+  await rescue.getByText('기기 변경 전 · 공지와 수행평가 백업', { exact: true }).click();
+  await getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
   const backup = page.getByRole('region', { name: '사진 포함 전체 백업' });
   await expect(backup).toBeVisible();
   await backup.getByText('iPhone · ZIP을 파일 앱에 보관하고 다시 검사하는 방법').click();
@@ -541,7 +543,8 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
   });
   await page.reload();
   const freshRescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
-  await freshRescue.getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
+  await freshRescue.getByText('기기 변경 전 · 공지와 수행평가 백업', { exact: true }).click();
+  await getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
   const freshBackup = page.getByRole('region', { name: '사진 포함 전체 백업' });
   await freshBackup.locator('input[type="file"][accept*="zip"]').setInputFiles(savedZip!);
   await expect(freshBackup.getByText('선택한 ZIP 파일의 무결성을 확인했습니다.', { exact: false })).toBeVisible();
@@ -613,7 +616,8 @@ test('iPhone: changed school notice invalidates a prepared ZIP without blocking 
   }, newState());
   await page.goto('./');
   await page.getByRole('region', { name: '수행평가 긴급 점검' })
-    .getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
+    .getByText('기기 변경 전 · 공지와 수행평가 백업', { exact: true }).click();
+  await getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
   const backup = page.getByRole('region', { name: '사진 포함 전체 백업' });
 
   // The iPhone project uses a mobile user-agent and must wait for a second direct tap.
