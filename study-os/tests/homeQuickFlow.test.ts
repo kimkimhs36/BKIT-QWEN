@@ -78,7 +78,9 @@ describe('actual home quick focus lifecycle', () => {
     const quickStrip = html.match(/<div class="daily-activation"[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '';
     expect(quickStrip).not.toContain('학교 공지 보관');
     expect(quickStrip).not.toContain('수행평가 등록');
-    expect(quickStrip).toContain('학교 시간표');
+    // Timetable remains reachable from the adjacent school glance card.
+    expect(quickStrip).not.toContain('학교 시간표');
+    expect(html).toContain('시간표 전체');
     expect(quickStrip).toContain('BOOKS · 학습지');
     expect(quickStrip).toContain('수능관 · 기초 훈련');
   });
