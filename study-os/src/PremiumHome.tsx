@@ -294,6 +294,26 @@ export function PremiumHome({
             {rescue.deadlinesToVerify > 0 && <span>마감 미확인·추정 {rescue.deadlinesToVerify}건</span>}
           </div>
         )}
+        <div className="bkit-assessment-rescue-actions">
+          <button type="button" className="bkit-assessment-rescue-main" onClick={onInbox}>
+            공지함 열기 · 직접 붙여넣기 <ArrowRight size={16} aria-hidden="true" />
+          </button>
+          {rescue.submissionChecks > 0 && (
+            <button type="button" onClick={onAssessments}>제출 미확인 {rescue.submissionChecks}건 확인</button>
+          )}
+          <details className="bkit-assessment-more">
+            <summary>수행평가 추가 작업</summary>
+            <div className="bkit-assessment-more-actions">
+              <button type="button" onClick={() => void copyNoticeToInbox()} disabled={noticeBusy}>
+                {noticeBusy ? '공지 확인 중…' : '클립보드에서 바로 보관'}
+              </button>
+              <button type="button" onClick={onAssessment}>빠진 수행평가 등록</button>
+              {rescue.submissionChecks === 0 && (
+                <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
+              )}
+            </div>
+          </details>
+        </div>
         {rescue.top.length > 0 ? (
           <div className="bkit-assessment-rescue-list" aria-label="먼저 점검할 수행평가 최대 세 개">
             {rescue.top.map(({ task, status }) => (
@@ -332,26 +352,6 @@ export function PremiumHome({
               : '학교 공지나 학급 안내에서 수행평가 목록을 먼저 확인해 주세요.'}
           </p>
         )}
-        <div className="bkit-assessment-rescue-actions">
-          <button type="button" className="bkit-assessment-rescue-main" onClick={onInbox}>
-            공지함 열기 · 직접 붙여넣기 <ArrowRight size={16} aria-hidden="true" />
-          </button>
-          {rescue.submissionChecks > 0 && (
-            <button type="button" onClick={onAssessments}>제출 미확인 {rescue.submissionChecks}건 확인</button>
-          )}
-          <details className="bkit-assessment-more">
-            <summary>수행평가 추가 작업</summary>
-            <div className="bkit-assessment-more-actions">
-              <button type="button" onClick={() => void copyNoticeToInbox()} disabled={noticeBusy}>
-                {noticeBusy ? '공지 확인 중…' : '클립보드에서 바로 보관'}
-              </button>
-              <button type="button" onClick={onAssessment}>빠진 수행평가 등록</button>
-              {rescue.submissionChecks === 0 && (
-                <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
-              )}
-            </div>
-          </details>
-        </div>
         {noticeError && <p className="bkit-assessment-rescue-error" role="alert">{noticeError}</p>}
         <small className="bkit-assessment-rescue-disclaimer">
           복사한 글은 이 기기 공지함에만 저장 · 학교 시스템 자동 조회 아님 · 마감/성적/제출 여부 자동 확정 없음
