@@ -435,7 +435,7 @@ test('iPhone: school notice backup route preserves academic records while openin
   const original = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
   await rescue.getByText('기기 변경 전 · 공지와 수행평가 백업', { exact: true }).click();
-  await getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
+  await page.getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
   const backup = page.getByRole('region', { name: '사진 포함 전체 백업' });
   await expect(backup).toBeVisible();
   await expect(backup.getByRole('button', { name: '사진 포함 전체 ZIP 내보내기' })).toBeVisible();
@@ -493,7 +493,7 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
   await page.goto('./');
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
   await rescue.getByText('기기 변경 전 · 공지와 수행평가 백업', { exact: true }).click();
-  await getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
+  await page.getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
   const backup = page.getByRole('region', { name: '사진 포함 전체 백업' });
   await expect(backup).toBeVisible();
   await backup.getByText('iPhone · ZIP을 파일 앱에 보관하고 다시 검사하는 방법').click();
@@ -544,7 +544,7 @@ test('iPhone: downloaded ZIP restores an original notice and an unsubmitted asse
   await page.reload();
   const freshRescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
   await freshRescue.getByText('기기 변경 전 · 공지와 수행평가 백업', { exact: true }).click();
-  await getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
+  await page.getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
   const freshBackup = page.getByRole('region', { name: '사진 포함 전체 백업' });
   await freshBackup.locator('input[type="file"][accept*="zip"]').setInputFiles(savedZip!);
   await expect(freshBackup.getByText('선택한 ZIP 파일의 무결성을 확인했습니다.', { exact: false })).toBeVisible();
@@ -617,7 +617,7 @@ test('iPhone: changed school notice invalidates a prepared ZIP without blocking 
   await page.goto('./');
   await page.getByRole('region', { name: '수행평가 긴급 점검' })
     .getByText('기기 변경 전 · 공지와 수행평가 백업', { exact: true }).click();
-  await getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
+  await page.getByRole('button', { name: '공지·수행평가 ZIP 백업으로 이동' }).click();
   const backup = page.getByRole('region', { name: '사진 포함 전체 백업' });
 
   // The iPhone project uses a mobile user-agent and must wait for a second direct tap.
