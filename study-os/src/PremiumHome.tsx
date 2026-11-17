@@ -282,18 +282,6 @@ export function PremiumHome({
           <span className="bkit-assessment-rescue-kicker">SCHOOL / ASSESSMENT CHECK</span>
           <span className="bkit-assessment-rescue-count">기록 {rescue.registered}건 · 확인 필요 {rescue.outstanding}건</span>
         </div>
-        <h2>수행평가, 빠진 것부터 확인하자.</h2>
-        <p>
-          {rescue.registered === 0
-            ? 'BKIT에 등록된 수행평가가 없어요. 실제 학교에 수행평가가 없다는 뜻은 아니에요.'
-            : 'BKIT에 직접 등록한 수행평가만 보여줘요. 없는 과제와 실제 점수는 학교 공지·선생님에게 확인해야 해요.'}
-        </p>
-        {(rescue.submissionChecks > 0 || rescue.deadlinesToVerify > 0) && (
-          <div className="bkit-assessment-rescue-signals">
-            {rescue.submissionChecks > 0 && <span>제출 확인 필요 {rescue.submissionChecks}건</span>}
-            {rescue.deadlinesToVerify > 0 && <span>마감 미확인·추정 {rescue.deadlinesToVerify}건</span>}
-          </div>
-        )}
         <div className="bkit-assessment-rescue-actions">
           <button type="button" className="bkit-assessment-rescue-main" onClick={onInbox}>
             공지함 열기 · 직접 붙여넣기 <ArrowRight size={16} aria-hidden="true" />
@@ -314,6 +302,18 @@ export function PremiumHome({
             </div>
           </details>
         </div>
+        <h2>수행평가, 빠진 것부터 확인하자.</h2>
+        <p>
+          {rescue.registered === 0
+            ? 'BKIT에 등록된 수행평가가 없어요. 실제 학교에 수행평가가 없다는 뜻은 아니에요.'
+            : 'BKIT에 직접 등록한 수행평가만 보여줘요. 없는 과제와 실제 점수는 학교 공지·선생님에게 확인해야 해요.'}
+        </p>
+        {(rescue.submissionChecks > 0 || rescue.deadlinesToVerify > 0) && (
+          <div className="bkit-assessment-rescue-signals">
+            {rescue.submissionChecks > 0 && <span>제출 확인 필요 {rescue.submissionChecks}건</span>}
+            {rescue.deadlinesToVerify > 0 && <span>마감 미확인·추정 {rescue.deadlinesToVerify}건</span>}
+          </div>
+        )}
         {rescue.top.length > 0 ? (
           <div className="bkit-assessment-rescue-list" aria-label="먼저 점검할 수행평가 최대 세 개">
             {rescue.top.map(({ task, status }) => (
