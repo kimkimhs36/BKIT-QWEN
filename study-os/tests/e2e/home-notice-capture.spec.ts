@@ -11,9 +11,8 @@ async function openSchoolInbox(rescue: import('@playwright/test').Locator) {
     await primary.click();
     return;
   }
-  const extra = rescue.locator('details').filter({ has: rescue.getByText('수행평가 추가 작업', { exact: true }) });
-  await extra.locator('summary').click();
-  await extra.getByRole('button', { name: '학교 공지함 열기' }).click();
+  await rescue.getByText('수행평가 추가 작업', { exact: true }).click();
+  await rescue.getByRole('button', { name: '학교 공지함 열기' }).click();
 }
 
 test('iPhone: copied school notice is saved, opened, explicitly converted to a task, and survives reload', async ({ page }) => {
