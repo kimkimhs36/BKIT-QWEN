@@ -41,6 +41,11 @@ for (const scenario of [
       document.documentElement.scrollWidth > document.documentElement.clientWidth
     );
     expect(horizontalOverflow).toBe(false);
+    const primary = school.locator('.bkit-assessment-rescue-main');
+    await expect(primary).toHaveCount(1);
+    await expect(primary).toContainText(scenario.urgent ? /제출 미확인/ : /공지함 열기/);
+    await expect(school.locator('.bkit-assessment-rescue-actions > button')).toHaveCount(1);
+    await expect(school.locator('.bkit-assessment-more').first()).not.toHaveAttribute('open');
     await page.screenshot({ path: test.info().outputPath('home-order-' + (scenario.urgent ? 'school' : 'study') + '.png'), fullPage: true });
   });
 }

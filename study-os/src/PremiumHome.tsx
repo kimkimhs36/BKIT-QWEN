@@ -196,15 +196,22 @@ export function PremiumHome({
           <span className="bkit-assessment-rescue-count">기록 {rescue.registered}건 · 확인 필요 {rescue.outstanding}건</span>
         </div>
         <div className="bkit-assessment-rescue-actions">
-          <button type="button" className="bkit-assessment-rescue-main" onClick={onInbox}>
-            공지함 열기 · 직접 붙여넣기 <ArrowRight size={16} aria-hidden="true" />
+          <button
+            type="button"
+            className="bkit-assessment-rescue-main"
+            onClick={schoolFirst ? onAssessments : onInbox}
+          >
+            {rescue.submissionChecks > 0
+              ? `제출 미확인 ${rescue.submissionChecks}건 확인`
+              : rescue.deadlinesToVerify > 0
+                ? `마감 확인 필요 ${rescue.deadlinesToVerify}건 점검`
+                : '공지함 열기 · 직접 붙여넣기'}
+            <ArrowRight size={16} aria-hidden="true" />
           </button>
-          {rescue.submissionChecks > 0 && (
-            <button type="button" onClick={onAssessments}>제출 미확인 {rescue.submissionChecks}건 확인</button>
-          )}
           <details className="bkit-assessment-more">
             <summary>수행평가 추가 작업</summary>
             <div className="bkit-assessment-more-actions">
+              {schoolFirst && <button type="button" onClick={onInbox}>학교 공지함 열기</button>}
               <button type="button" onClick={() => void copyNoticeToInbox()} disabled={noticeBusy}>
                 {noticeBusy ? '공지 확인 중…' : '클립보드에서 바로 보관'}
               </button>
