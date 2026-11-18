@@ -188,95 +188,8 @@ export function PremiumHome({
     () => summarizeEvidenceWeek(state, sleepGuard.state, currentDay),
     [state.sessions, state.problemRetests, sleepGuard.state.records, currentDay],
   );
-  return (
-    <div className="study-home">
-      <section className="study-start bkit-action-first" aria-label="지금 할 일 한 가지" data-home-action={nextAction.kind}>
-        <div className="bkit-action-first-top">
-          <span className="bkit-action-first-overline">BKIT · NEXT MOVE</span>
-          <span className="bkit-action-first-status">{nextAction.kind === 'sleep' ? '휴식 우선' : nextAction.kind === 'resume' ? '진행 중' : nextAction.kind === 'blocked' ? '일정 보호' : '지금 시작 가능'}</span>
-        </div>
-        <h2>{nextAction.title}</h2>
-        <p>{nextAction.detail}</p>
-        {nextAction.kind === 'study' && pending[0] && (
-          <small className="study-recommendation-reason">
-            {firstLearningAction(pending[0])} · {recommendationReason(pending[0], now)}
-          </small>
-        )}
-        {!busy && recent?.quick && now >= Date.parse(recent.ended) && now - Date.parse(recent.ended) < 30 * 60_000 && (
-          recent.workspace?.attempts.length ? (
-            <div className="bkit-home-quick-receipt" role="status">
-              <strong>최근 문제 풀이 저장됨</strong>
-              <button type="button" onClick={() => onNavigate('progress')}>
-                풀이 확인 · 다음 복습 <ArrowRight size={15} aria-hidden="true" />
-              </button>
-            </div>
-          ) : nextAction.kind === 'study' ? (
-            <QuickRetryPrompt
-              key={recent.id}
-              className="bkit-home-retry"
-              initialProblem={recent.workspace?.problem}
-              savedSeconds={recent.seconds}
-              onStart={onIndependentRetry}
-            />
-          ) : (
-            <div className="bkit-home-quick-receipt" role="status">
-              <strong>최근 집중 {quickClock(recent.seconds)} 저장됨</strong>
-              <small>지금은 수면 또는 일정이 우선이에요. 재풀이는 가능한 시간에 시작해요.</small>
-            </div>
-          )
-        )}
-        <div className="bkit-action-first-actions">
-          <button
-            type="button"
-            className="study-start-primary bkit-action-first-primary"
-            onClick={() => {
-              if (nextAction.kind === 'sleep') onNavigate(busy ? 'study' : 'sleep');
-              else if (nextAction.kind === 'resume') onNavigate('study');
-              else if (nextAction.kind === 'blocked') onRecover();
-              else if (startTarget?.kind === 'task') onStart(startTarget.taskId, startTarget.minutes);
-              else if (startTarget?.kind === 'quick') onQuick(startTarget.minutes);
-            }}
-          >
-            {nextAction.kind === 'study' ? <Play size={18} fill="currentColor" aria-hidden="true" /> : <ArrowRight size={18} aria-hidden="true" />}
-            {nextAction.kind === 'sleep' && busy ? '진행 중인 공부 마무리' : nextAction.label}
-          </button>
-          {nextAction.kind !== 'study' && (
-            <button
-              type="button"
-              className="study-start-five bkit-action-first-secondary"
-              onClick={() => onNavigate('sleep')}
-            >
-              {nextAction.kind === 'sleep' ? '수면 기록 확인' : '수면 루틴'}
-              <ChevronRight size={16} aria-hidden="true" />
-            </button>
-          )}
-          {nextAction.kind === 'study' && (
-            <button type="button" className="study-start-five bkit-action-five" onClick={() => onQuick(5)}>
-              5분만 시작하기
-            </button>
-          )}
-        </div>
-        {quick && (
-          <div className="bkit-home-quick" role="group" aria-label="진행 중인 빠른 집중 관리">
-            <div className="bkit-home-quick-status">
-              <strong>{quick.segmentStart ? '집중 중' : '일시정지 중'}</strong>
-              <span>{quickClock(quickSeconds(quick, now))} 실제 집중</span>
-            </div>
-            <div className="bkit-home-quick-actions">
-              <button type="button" onClick={quick.segmentStart ? onQuickPause : onQuickResume}>
-                {quick.segmentStart ? '잠깐 멈추기' : '계속 공부하기'}
-              </button>
-              <button type="button" onClick={onQuickFinish}>끝내고 시간 저장</button>
-            </div>
-            <small>일시정지한 시간은 공부 시간에 포함되지 않아요. 저장 후에도 과제 완료·제출은 직접 확인해요.</small>
-          </div>
-        )}
-
-        {(nextAction.kind === 'sleep' || (sleepGuard.state.enabled && sleepGuard.status.phase !== 'day')) && (
-          <SleepHomeActions guard={sleepGuard} busy={busy} onOpen={() => onNavigate(busy ? 'study' : 'sleep')} />
-        )}
-        <small>실제 완료·취침 여부는 자동으로 확정하지 않아요. 기록은 기존 BKIT에 남습니다.</small>
-      </section>
+  const schoolFirst = rescue.submissionChecks > 0 || rescue.deadlinesToVerify > 0;
+  const assessmentSection = (
       <section className="bkit-assessment-rescue" aria-label="수행평가 긴급 점검">
         <div className="bkit-assessment-rescue-head">
           <span className="bkit-assessment-rescue-kicker">SCHOOL / ASSESSMENT CHECK</span>
@@ -366,6 +279,99 @@ export function PremiumHome({
           </div>
         </details>
       </section>
+
+  );
+  return (
+    <div className="study-home">
+      {schoolFirst && assessmentSection}
+      <section className="study-start bkit-action-first" aria-label="지금 할 일 한 가지" data-home-action={nextAction.kind}>
+        <div className="bkit-action-first-top">
+          <span className="bkit-action-first-overline">BKIT · NEXT MOVE</span>
+          <span className="bkit-action-first-status">{nextAction.kind === 'sleep' ? '휴식 우선' : nextAction.kind === 'resume' ? '진행 중' : nextAction.kind === 'blocked' ? '일정 보호' : '지금 시작 가능'}</span>
+        </div>
+        <h2>{nextAction.title}</h2>
+        <p>{nextAction.detail}</p>
+        {nextAction.kind === 'study' && pending[0] && (
+          <small className="study-recommendation-reason">
+            {firstLearningAction(pending[0])} · {recommendationReason(pending[0], now)}
+          </small>
+        )}
+        {!busy && recent?.quick && now >= Date.parse(recent.ended) && now - Date.parse(recent.ended) < 30 * 60_000 && (
+          recent.workspace?.attempts.length ? (
+            <div className="bkit-home-quick-receipt" role="status">
+              <strong>최근 문제 풀이 저장됨</strong>
+              <button type="button" onClick={() => onNavigate('progress')}>
+                풀이 확인 · 다음 복습 <ArrowRight size={15} aria-hidden="true" />
+              </button>
+            </div>
+          ) : nextAction.kind === 'study' ? (
+            <QuickRetryPrompt
+              key={recent.id}
+              className="bkit-home-retry"
+              initialProblem={recent.workspace?.problem}
+              savedSeconds={recent.seconds}
+              onStart={onIndependentRetry}
+            />
+          ) : (
+            <div className="bkit-home-quick-receipt" role="status">
+              <strong>최근 집중 {quickClock(recent.seconds)} 저장됨</strong>
+              <small>지금은 수면 또는 일정이 우선이에요. 재풀이는 가능한 시간에 시작해요.</small>
+            </div>
+          )
+        )}
+        <div className="bkit-action-first-actions">
+          <button
+            type="button"
+            className="study-start-primary bkit-action-first-primary"
+            onClick={() => {
+              if (nextAction.kind === 'sleep') onNavigate(busy ? 'study' : 'sleep');
+              else if (nextAction.kind === 'resume') onNavigate('study');
+              else if (nextAction.kind === 'blocked') onRecover();
+              else if (startTarget?.kind === 'task') onStart(startTarget.taskId, startTarget.minutes);
+              else if (startTarget?.kind === 'quick') onQuick(startTarget.minutes);
+            }}
+          >
+            {nextAction.kind === 'study' ? <Play size={18} fill="currentColor" aria-hidden="true" /> : <ArrowRight size={18} aria-hidden="true" />}
+            {nextAction.kind === 'sleep' && busy ? '진행 중인 공부 마무리' : nextAction.label}
+          </button>
+          {nextAction.kind !== 'study' && (
+            <button
+              type="button"
+              className="study-start-five bkit-action-first-secondary"
+              onClick={() => onNavigate('sleep')}
+            >
+              {nextAction.kind === 'sleep' ? '수면 기록 확인' : '수면 루틴'}
+              <ChevronRight size={16} aria-hidden="true" />
+            </button>
+          )}
+          {nextAction.kind === 'study' && (
+            <button type="button" className="study-start-five bkit-action-five" onClick={() => onQuick(5)}>
+              5분만 시작하기
+            </button>
+          )}
+        </div>
+        {quick && (
+          <div className="bkit-home-quick" role="group" aria-label="진행 중인 빠른 집중 관리">
+            <div className="bkit-home-quick-status">
+              <strong>{quick.segmentStart ? '집중 중' : '일시정지 중'}</strong>
+              <span>{quickClock(quickSeconds(quick, now))} 실제 집중</span>
+            </div>
+            <div className="bkit-home-quick-actions">
+              <button type="button" onClick={quick.segmentStart ? onQuickPause : onQuickResume}>
+                {quick.segmentStart ? '잠깐 멈추기' : '계속 공부하기'}
+              </button>
+              <button type="button" onClick={onQuickFinish}>끝내고 시간 저장</button>
+            </div>
+            <small>일시정지한 시간은 공부 시간에 포함되지 않아요. 저장 후에도 과제 완료·제출은 직접 확인해요.</small>
+          </div>
+        )}
+
+        {(nextAction.kind === 'sleep' || (sleepGuard.state.enabled && sleepGuard.status.phase !== 'day')) && (
+          <SleepHomeActions guard={sleepGuard} busy={busy} onOpen={() => onNavigate(busy ? 'study' : 'sleep')} />
+        )}
+        <small>실제 완료·취침 여부는 자동으로 확정하지 않아요. 기록은 기존 BKIT에 남습니다.</small>
+      </section>
+      {!schoolFirst && assessmentSection}
       <div className="bkit-evidence-entry">
         <span>지난 7일 · 직접 기록한 날 {activityWeek.evidenceDays}일</span>
         <button type="button" onClick={() => onNavigate('progress')}>

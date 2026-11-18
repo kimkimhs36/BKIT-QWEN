@@ -25,6 +25,8 @@ test('iPhone: registered assessments are visible and an exact task opens for edi
   await page.goto('./');
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
   await expect(rescue).toBeVisible();
+  const sections = await page.locator('.study-home > section').evaluateAll((nodes) => nodes.map((node) => node.className));
+  expect(sections.indexOf('bkit-assessment-rescue')).toBeLessThan(sections.indexOf('study-start bkit-action-first'));
   await expect(rescue).toContainText('기록 3건 · 확인 필요 3건');
   await expect(rescue).toContainText('제출 확인 필요 1건');
   await expect(rescue).toContainText('마감 미확인·추정 2건');
@@ -48,7 +50,10 @@ test('iPhone: without recorded assessments the audit points to the existing capt
   }, initial);
   await page.goto('./');
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
+  const sections = await page.locator('.study-home > section').evaluateAll((nodes) => nodes.map((node) => node.className));
+  expect(sections.indexOf('study-start bkit-action-first')).toBeLessThan(sections.indexOf('bkit-assessment-rescue'));
   await expect(rescue).toContainText('등록된 수행평가가 없어요');
+  await rescue.locator('details.bkit-assessment-more > summary').first().click();
   await rescue.getByRole('button', { name: '빠진 수행평가 등록' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
