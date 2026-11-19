@@ -421,7 +421,7 @@ test('iPhone: finished but unsubmitted assessments offer submission checking, no
   await page.goto('./');
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
   await expect(rescue.getByRole('button', { name: '탐구 발표 5분 공부 시작' })).toHaveCount(0);
-  await rescue.getByRole('button', { name: '탐구 발표 실제 제출 확인' }).click();
+  await rescue.getByRole('button', { name: '탐구 발표 제출 상태 확인 및 편집' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   const after = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
   expect(after.tasks[0].submitted).toBe(false);
