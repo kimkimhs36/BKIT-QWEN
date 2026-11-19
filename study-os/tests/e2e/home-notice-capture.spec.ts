@@ -3,16 +3,18 @@ import { newState } from '../../src/model';
 
 test.use({ serviceWorkers: 'block', reducedMotion: 'reduce' });
 
-// The home has one context-sensitive primary action. Inbox remains available
-// through the named secondary disclosure when assessments need attention.
+// The primary action changes with urgent assessments, but the inbox must
+// always be reachable without expanding secondary actions.
 async function openSchoolInbox(rescue: import('@playwright/test').Locator) {
   const primary = rescue.getByRole('button', { name: '공지함 열기 · 직접 붙여넣기' });
   if (await primary.isVisible()) {
     await primary.click();
     return;
   }
-  await rescue.getByText('수행평가 추가 작업', { exact: true }).click();
-  await rescue.getByRole('button', { name: '학교 공지함 열기' }).click();
+  const secondary = rescue.getByRole('button', { name: '학교 공지함 열기' });
+  await expect(secondary).toBeVisible();
+  await expect(rescue.locator('details.bkit-assessment-more')).not.toHaveAttribute('open');
+  await secondary.click();
 }
 
 test('iPhone: copied school notice is saved, opened, explicitly converted to a task, and survives reload', async ({ page }) => {
