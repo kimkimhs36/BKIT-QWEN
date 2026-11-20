@@ -241,7 +241,9 @@ export function PremiumHome({
           </div>
         )}
         {rescue.top.length > 0 ? (
-          <div className="bkit-assessment-rescue-list" aria-label="먼저 점검할 수행평가 최대 세 개">
+          <details className="bkit-assessment-more bkit-assessment-task-details" open={!schoolFirst}>
+            <summary>먼저 점검할 수행평가 {rescue.top.length}건 보기</summary>
+            <div className="bkit-assessment-rescue-list" aria-label="먼저 점검할 수행평가 최대 세 개">
             {rescue.top.map(({ task, status }) => (
               <div key={task.id} className="bkit-assessment-rescue-row">
                 <button type="button" className="bkit-assessment-rescue-item" aria-label={needsSubmission(task) ? `${task.title} 제출 상태 확인 및 편집` : `${task.title} 과제 편집`} onClick={() => onEdit(task)}>
@@ -261,7 +263,8 @@ export function PremiumHome({
                 )}
               </div>
             ))}
-          </div>
+            </div>
+          </details>
         ) : (
           <p className="bkit-assessment-rescue-empty">
             {rescue.registered > 0
