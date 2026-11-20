@@ -224,13 +224,17 @@ export function PremiumHome({
             </div>
           </details>
         </div>
-        <h2>수행평가, 빠진 것부터 확인하자.</h2>
-        <p>
-          {rescue.registered === 0
-            ? 'BKIT에 등록된 수행평가가 없어요. 실제 학교에 수행평가가 없다는 뜻은 아니에요.'
-            : 'BKIT에 직접 등록한 수행평가만 보여줘요. 없는 과제와 실제 점수는 학교 공지·선생님에게 확인해야 해요.'}
-        </p>
-        {(rescue.submissionChecks > 0 || rescue.deadlinesToVerify > 0) && (
+        {!schoolFirst && (
+          <>
+            <h2>수행평가, 빠진 것부터 확인하자.</h2>
+            <p>
+              {rescue.registered === 0
+                ? 'BKIT에 등록된 수행평가가 없어요. 실제 학교에 수행평가가 없다는 뜻은 아니에요.'
+                : 'BKIT에 직접 등록한 수행평가만 보여줘요. 없는 과제와 실제 점수는 학교 공지·선생님에게 확인해야 해요.'}
+            </p>
+          </>
+        )}
+        {(rescue.submissionChecks > 0 || rescue.deadlinesToVerify > 0) && !schoolFirst && (
           <div className="bkit-assessment-rescue-signals">
             {rescue.submissionChecks > 0 && <span>제출 확인 필요 {rescue.submissionChecks}건</span>}
             {rescue.deadlinesToVerify > 0 && <span>마감 미확인·추정 {rescue.deadlinesToVerify}건</span>}
