@@ -67,3 +67,18 @@ jobs:
         env:
           BKIT_PREVIEW_PORT: '4173'
           BKIT_TEST_BASE_URL: 'http://127.0.0.1:4173/study-os/'
+      - name: Measure G3 first-fold usability at 390x844 (fixture only)
+        if: success()
+        run: npm run test:e2e -- tests/e2e/home-first-fold-g3.spec.ts --project=iphone --workers=1
+        env:
+          BKIT_PREVIEW_PORT: '4173'
+          BKIT_TEST_BASE_URL: 'http://127.0.0.1:4173/study-os/'
+      - name: Preserve G3 JSON, screenshots and Playwright traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bkit-g3-first-fold-${{ github.run_id }}
+          path: |
+            study-os/test-results/
+          if-no-files-found: warn
+          retention-days: 14
