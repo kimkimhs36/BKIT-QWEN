@@ -13,7 +13,7 @@ async function openSchoolInbox(rescue: import('@playwright/test').Locator) {
   }
   const secondary = rescue.getByRole('button', { name: '학교 공지함 열기' });
   await expect(secondary).toBeVisible();
-  await expect(rescue.locator('details.bkit-assessment-more:not(.bkit-assessment-backup-reminder)')).not.toHaveAttribute('open');
+  await expect(rescue.locator('details.bkit-assessment-more:not(.bkit-assessment-backup-reminder):not(.bkit-assessment-task-details)')).not.toHaveAttribute('open');
   await secondary.click();
 }
 
