@@ -421,6 +421,8 @@ test('iPhone: finished but unsubmitted assessments offer submission checking, no
   await page.goto('./');
   const rescue = page.getByRole('region', { name: '수행평가 긴급 점검' });
   await expect(rescue.getByRole('button', { name: '탐구 발표 5분 공부 시작' })).toHaveCount(0);
+  // Urgent task details are intentionally collapsed on mobile; reveal them before editing.
+  await rescue.getByText('먼저 점검할 수행평가 1건 보기', { exact: true }).click();
   await rescue.getByRole('button', { name: '탐구 발표 제출 상태 확인 및 편집' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   const after = await page.evaluate(() => JSON.parse(localStorage.getItem('bkit.study-os.v1')!));
