@@ -273,12 +273,12 @@ export function PremiumHome({
           </p>
         )}
         {noticeError && <p className="bkit-assessment-rescue-error" role="alert">{noticeError}</p>}
-        <small className="bkit-assessment-rescue-disclaimer">
-          복사한 글은 이 기기 공지함에만 저장 · 학교 시스템 자동 조회 아님 · 마감/성적/제출 여부 자동 확정 없음
-        </small>
         <details className="bkit-assessment-more bkit-assessment-backup-reminder">
           <summary>기기 변경 전 · 공지와 수행평가 백업</summary>
           <div className="bkit-assessment-more-actions">
+            <small className="bkit-assessment-rescue-disclaimer">
+              복사한 글은 이 기기 공지함에만 저장 · 학교 시스템 자동 조회 아님 · 마감/성적/제출 여부 자동 확정 없음
+            </small>
             <span>기기 변경·브라우저 삭제 전에는 공지 원본과 과제 기록을 ZIP으로 보관해 주세요.</span>
             <button type="button" onClick={onBackup}>
               공지·수행평가 ZIP 백업으로 이동 <ArrowRight size={14} aria-hidden="true" />
