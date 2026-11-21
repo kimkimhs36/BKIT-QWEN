@@ -189,6 +189,20 @@ export function PremiumHome({
     [state.sessions, state.problemRetests, sleepGuard.state.records, currentDay],
   );
   const schoolFirst = rescue.submissionChecks > 0 || rescue.deadlinesToVerify > 0;
+  const backupReminder = (
+  <details className="bkit-assessment-more bkit-assessment-backup-reminder">
+            <summary>기기 변경 전 · 공지와 수행평가 백업</summary>
+            <div className="bkit-assessment-more-actions">
+              <small className="bkit-assessment-rescue-disclaimer">
+                복사한 글은 이 기기 공지함에만 저장 · 학교 시스템 자동 조회 아님 · 마감/성적/제출 여부 자동 확정 없음
+              </small>
+              <span>기기 변경·브라우저 삭제 전에는 공지 원본과 과제 기록을 ZIP으로 보관해 주세요.</span>
+              <button type="button" onClick={onBackup}>
+                공지·수행평가 ZIP 백업으로 이동 <ArrowRight size={14} aria-hidden="true" />
+              </button>
+            </div>
+          </details>
+  );
   const assessmentSection = (
       <section className="bkit-assessment-rescue" aria-label="수행평가 긴급 점검">
         <div className="bkit-assessment-rescue-head">
@@ -273,18 +287,7 @@ export function PremiumHome({
           </p>
         )}
         {noticeError && <p className="bkit-assessment-rescue-error" role="alert">{noticeError}</p>}
-        <details className="bkit-assessment-more bkit-assessment-backup-reminder">
-          <summary>기기 변경 전 · 공지와 수행평가 백업</summary>
-          <div className="bkit-assessment-more-actions">
-            <small className="bkit-assessment-rescue-disclaimer">
-              복사한 글은 이 기기 공지함에만 저장 · 학교 시스템 자동 조회 아님 · 마감/성적/제출 여부 자동 확정 없음
-            </small>
-            <span>기기 변경·브라우저 삭제 전에는 공지 원본과 과제 기록을 ZIP으로 보관해 주세요.</span>
-            <button type="button" onClick={onBackup}>
-              공지·수행평가 ZIP 백업으로 이동 <ArrowRight size={14} aria-hidden="true" />
-            </button>
-          </div>
-        </details>
+        {!schoolFirst && backupReminder}
       </section>
 
   );
@@ -378,6 +381,7 @@ export function PremiumHome({
         )}
         <small>실제 완료·취침 여부는 자동으로 확정하지 않아요. 기록은 기존 BKIT에 남습니다.</small>
       </section>
+      {schoolFirst && backupReminder}
       {!schoolFirst && assessmentSection}
       <div className="bkit-evidence-entry">
         <span>지난 7일 · 직접 기록한 날 {activityWeek.evidenceDays}일</span>
