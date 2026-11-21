@@ -1,4 +1,5 @@
-import { INBOX_KEY, inboxSchema } from './schoolInbox';
+import { INBOX_KEY, inboxSchema, noticeTasks } from './schoolInbox';
+import { formatTaskDeadline } from './capture';
 import { BOOKS_KEY, booksSchema, mergeBooks } from './books';
 import { KEY as EXAM_KEY, EXT_KEY as EXAM_EXT_KEY, readDocument as readExamDocument,
   mergeDocuments as mergeExamDocuments, partitionDocument as partitionExamDocument } from './juggernaut/engine';
@@ -65,6 +66,12 @@ type Manifest = z.infer<typeof manifestSchema>;
 type StoredKeys = Record<string, string | null>;
 export function snapshotKeys(storage: Storage): StoredKeys {
   return Object.fromEntries(BACKUP_KEYS.map((key) => [key, storage.getItem(key)]));
+}
+/** Synchronous so iOS download remains inside the user's direct tap.
+ * This covers localStorage-backed records; ZIP re-inspection is still needed for photos/PDFs.
+ */
+export function backupKeysUnchanged(snapshot: Readonly<StoredKeys>, storage: Storage): boolean {
+  return BACKUP_KEYS.every((key) => snapshot[key] === storage.getItem(key));
 }
 function localStudy(raw: string | null | undefined) {
   try {
@@ -218,9 +225,42 @@ export function backupMatchesCurrent(archive: InspectedBackup) {
       (archive.keys[EXAM_KEY] ?? null) === (archive.baseline[EXAM_KEY] ?? null) &&
       (archive.keys[EXAM_EXT_KEY] ?? null) === (archive.baseline[EXAM_EXT_KEY] ?? null) &&
       (archive.keys[INBOX_KEY] ?? null) === (archive.baseline[INBOX_KEY] ?? null),
+    schoolNotices: (archive.keys[INBOX_KEY] ?? null) === (archive.baseline[INBOX_KEY] ?? null),
     sleep: archive.keys[SLEEP_KEY] === archive.baseline[SLEEP_KEY],
     paper: JSON.stringify(archive.paper.documents) === JSON.stringify(archive.paper.baseline),
   };
+}
+
+/** Read-only contents of the chosen ZIP, not the live browser store. */
+export function schoolNoticeBackupContents(archive: InspectedBackup) {
+  const notices = archive.keys[INBOX_KEY]
+    ? inboxSchema.parse(JSON.parse(archive.keys[INBOX_KEY]!)).notices
+    : [];
+  const tasks = archive.keys[KEY]
+    ? stateSchema.parse(JSON.parse(archive.keys[KEY]!)).tasks
+    : [];
+  const taskIds = new Set(tasks.map((task) => task.id));
+  return notices.map((notice) => ({
+    id: notice.id,
+    savedText: notice.text,
+    savedOcrText: notice.ocrText,
+    preview: notice.text.trim().split(/\r?\n/).find(Boolean)?.slice(0, 120) ||
+      (notice.ocrText.trim() ? '사진에서 읽은 글 있음 (원본 대조 필요)' : '텍스트 없는 공지 · 첨부 원본 확인'),
+    photoCount: notice.materials.photoIds.length,
+    paperCount: notice.materials.papers.length,
+    missingTaskCount: notice.taskIds.filter((id) => !taskIds.has(id)).length,
+    tasks: noticeTasks(notice, tasks).map((task) => ({
+      id: task.id,
+      title: task.title,
+      subject: task.subject,
+      due: task.due,
+      // A date-only 23:59 is a planning boundary, never a confirmed time.
+      deadlineLabel: formatTaskDeadline(task),
+      status: task.status,
+      submitted: task.submitted,
+      submissionRequired: task.submissionRequired,
+    })),
+  }));
 }
 
 export async function inspectCompleteBackup(
@@ -439,9 +479,39 @@ export async function restoreCompleteBackup(
     } else if (key === INBOX_KEY && mode === 'merge' && next[key]) {
       const old = inboxSchema.parse(JSON.parse(next[key]!)),
         value = inboxSchema.parse(JSON.parse(incoming[key]!));
-      next[key] = JSON.stringify(
-        inboxSchema.parse({ ...old, notices: union(old.notices, value.notices, (x) => x.id) }),
-      );
+      // Keep local edits, but recover backed-up links and attachments for the
+      // same notice ID. A plain ID union discarded the restored assessment link.
+      const archivedById = new Map(value.notices.map((notice) => [notice.id, notice]));
+      const mergedLocal = old.notices.map((notice) => {
+        const archived = archivedById.get(notice.id);
+        if (!archived) return notice;
+        return {
+          ...notice,
+          reviewed: notice.reviewed || archived.reviewed,
+          // An explicit local "needs recheck" must not be silently reversed by
+          // an older ZIP claiming this notice was fully registered.
+          fullyRegistered: notice.fullyRegistered === false
+            ? false
+            : Boolean(notice.fullyRegistered || archived.fullyRegistered),
+          taskIds: [...new Set([...notice.taskIds, ...archived.taskIds])],
+          materials: {
+            photoIds: [...new Set([
+              ...notice.materials.photoIds,
+              ...archived.materials.photoIds,
+            ])],
+            papers: union(
+              notice.materials.papers,
+              archived.materials.papers,
+              (paper) => paper.resource.id,
+            ),
+          },
+        };
+      });
+      // Check schema limits before any live storage write, never truncate links.
+      next[key] = JSON.stringify(inboxSchema.parse({
+        ...old,
+        notices: union(mergedLocal, value.notices, (notice) => notice.id),
+      }));
     } else if (key === SLEEP_KEY && mode === 'merge' && next[key]) {
       const old = sleepSchema.parse(JSON.parse(next[key]!)),
         value = sleepSchema.parse(JSON.parse(incoming[key]!));

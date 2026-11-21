@@ -110,6 +110,7 @@ test('inbox quota failure keeps text and photo, retry persists only confirmed ta
       old.call(this, k, v);
     };
   });
+  // A newly created notice remains editable until its author finishes entry.
   await page.getByLabel('원본 공지', { exact: true }).fill('저장 실패에도 남겨야 할 공지');
   await expect(page.getByRole('alert').first()).toContainText('저장 확인 필요');
   await register(page, '원본 보며 문제 풀기');

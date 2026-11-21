@@ -41,6 +41,7 @@ type Props = {
   unavailable: string;
   inboxPending: number | null;
   onInbox: () => void;
+  onBackup: () => void;
   onOpenNotice: (noticeId: string) => void;
   onAssessment: () => void;
   onExportCalendar: () => void;
@@ -75,6 +76,7 @@ export function PremiumHome({
   unavailable,
   inboxPending,
   onInbox,
+  onBackup,
   onOpenNotice,
   onAssessment,
   onExportCalendar,
@@ -186,8 +188,112 @@ export function PremiumHome({
     () => summarizeEvidenceWeek(state, sleepGuard.state, currentDay),
     [state.sessions, state.problemRetests, sleepGuard.state.records, currentDay],
   );
+  const schoolFirst = rescue.submissionChecks > 0 || rescue.deadlinesToVerify > 0;
+  const backupReminder = (
+  <details className="bkit-assessment-more bkit-assessment-backup-reminder">
+            <summary>기기 변경 전 · 공지와 수행평가 백업</summary>
+            <div className="bkit-assessment-more-actions">
+              <small className="bkit-assessment-rescue-disclaimer">
+                복사한 글은 이 기기 공지함에만 저장 · 학교 시스템 자동 조회 아님 · 마감/성적/제출 여부 자동 확정 없음
+              </small>
+              <span>기기 변경·브라우저 삭제 전에는 공지 원본과 과제 기록을 ZIP으로 보관해 주세요.</span>
+              <button type="button" onClick={onBackup}>
+                공지·수행평가 ZIP 백업으로 이동 <ArrowRight size={14} aria-hidden="true" />
+              </button>
+            </div>
+          </details>
+  );
+  const assessmentSection = (
+      <section className="bkit-assessment-rescue" aria-label="수행평가 긴급 점검">
+        <div className="bkit-assessment-rescue-head">
+          <span className="bkit-assessment-rescue-kicker">SCHOOL / ASSESSMENT CHECK</span>
+          <span className="bkit-assessment-rescue-count">기록 {rescue.registered}건 · 확인 필요 {rescue.outstanding}건</span>
+        </div>
+        <div className="bkit-assessment-rescue-actions">
+          <button
+            type="button"
+            className="bkit-assessment-rescue-main"
+            onClick={schoolFirst ? onAssessments : onInbox}
+          >
+            {rescue.submissionChecks > 0
+              ? `제출 미확인 ${rescue.submissionChecks}건 확인`
+              : rescue.deadlinesToVerify > 0
+                ? `마감 확인 필요 ${rescue.deadlinesToVerify}건 점검`
+                : '공지함 열기 · 직접 붙여넣기'}
+            <ArrowRight size={16} aria-hidden="true" />
+          </button>
+          {schoolFirst && (
+            <button type="button" onClick={onInbox}>학교 공지함 열기</button>
+          )}
+          <details className="bkit-assessment-more">
+            <summary>수행평가 추가 작업</summary>
+            <div className="bkit-assessment-more-actions">
+              <button type="button" onClick={() => void copyNoticeToInbox()} disabled={noticeBusy}>
+                {noticeBusy ? '공지 확인 중…' : '클립보드에서 바로 보관'}
+              </button>
+              <button type="button" onClick={onAssessment}>빠진 수행평가 등록</button>
+              {rescue.submissionChecks === 0 && (
+                <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
+              )}
+            </div>
+          </details>
+        </div>
+        {!schoolFirst && (
+          <>
+            <h2>수행평가, 빠진 것부터 확인하자.</h2>
+            <p>
+              {rescue.registered === 0
+                ? 'BKIT에 등록된 수행평가가 없어요. 실제 학교에 수행평가가 없다는 뜻은 아니에요.'
+                : 'BKIT에 직접 등록한 수행평가만 보여줘요. 없는 과제와 실제 점수는 학교 공지·선생님에게 확인해야 해요.'}
+            </p>
+          </>
+        )}
+        {(rescue.submissionChecks > 0 || rescue.deadlinesToVerify > 0) && !schoolFirst && (
+          <div className="bkit-assessment-rescue-signals">
+            {rescue.submissionChecks > 0 && <span>제출 확인 필요 {rescue.submissionChecks}건</span>}
+            {rescue.deadlinesToVerify > 0 && <span>마감 미확인·추정 {rescue.deadlinesToVerify}건</span>}
+          </div>
+        )}
+        {rescue.top.length > 0 ? (
+          <details className="bkit-assessment-more bkit-assessment-task-details" open={!schoolFirst}>
+            <summary>먼저 점검할 수행평가 {rescue.top.length}건 보기</summary>
+            <div className="bkit-assessment-rescue-list" aria-label="먼저 점검할 수행평가 최대 세 개">
+            {rescue.top.map(({ task, status }) => (
+              <div key={task.id} className="bkit-assessment-rescue-row">
+                <button type="button" className="bkit-assessment-rescue-item" aria-label={needsSubmission(task) ? `${task.title} 제출 상태 확인 및 편집` : `${task.title} 과제 편집`} onClick={() => onEdit(task)}>
+                  <span><strong>{task.subject} · {task.title}</strong><small>{status}</small></span>
+                  <ChevronRight size={18} aria-hidden="true" />
+                </button>
+                {!needsSubmission(task) && (
+                  <button
+                    type="button"
+                    className="bkit-assessment-rescue-start"
+                    disabled={busy}
+                    aria-label={`${task.title} 5분 공부 시작`}
+                    onClick={() => onStart(task.id, 5)}
+                  >
+                    5분 시작
+                  </button>
+                )}
+              </div>
+            ))}
+            </div>
+          </details>
+        ) : (
+          <p className="bkit-assessment-rescue-empty">
+            {rescue.registered > 0
+              ? '등록된 기록에서 추가 확인할 항목은 없어요. 빠진 수행평가가 없는지는 별도로 확인해요.'
+              : '학교 공지나 학급 안내에서 수행평가 목록을 먼저 확인해 주세요.'}
+          </p>
+        )}
+        {noticeError && <p className="bkit-assessment-rescue-error" role="alert">{noticeError}</p>}
+        {!schoolFirst && backupReminder}
+      </section>
+
+  );
   return (
     <div className="study-home">
+      {schoolFirst && assessmentSection}
       <section className="study-start bkit-action-first" aria-label="지금 할 일 한 가지" data-home-action={nextAction.kind}>
         <div className="bkit-action-first-top">
           <span className="bkit-action-first-overline">BKIT · NEXT MOVE</span>
@@ -200,9 +306,6 @@ export function PremiumHome({
             {firstLearningAction(pending[0])} · {recommendationReason(pending[0], now)}
           </small>
         )}
-        <button type="button" className="study-text-link bkit-action-assistant" onClick={onAssistant}>
-          BKIT AI 비서에게 물어보기 <ArrowRight size={15} aria-hidden="true" />
-        </button>
         {!busy && recent?.quick && now >= Date.parse(recent.ended) && now - Date.parse(recent.ended) < 30 * 60_000 && (
           recent.workspace?.attempts.length ? (
             <div className="bkit-home-quick-receipt" role="status">
@@ -241,14 +344,16 @@ export function PremiumHome({
             {nextAction.kind === 'study' ? <Play size={18} fill="currentColor" aria-hidden="true" /> : <ArrowRight size={18} aria-hidden="true" />}
             {nextAction.kind === 'sleep' && busy ? '진행 중인 공부 마무리' : nextAction.label}
           </button>
-          <button
-            type="button"
-            className="study-start-five bkit-action-first-secondary"
-            onClick={() => onNavigate('sleep')}
-          >
-            {nextAction.kind === 'sleep' ? '수면 기록 확인' : '수면 루틴'}
-            <ChevronRight size={16} aria-hidden="true" />
-          </button>
+          {nextAction.kind !== 'study' && (
+            <button
+              type="button"
+              className="study-start-five bkit-action-first-secondary"
+              onClick={() => onNavigate('sleep')}
+            >
+              {nextAction.kind === 'sleep' ? '수면 기록 확인' : '수면 루틴'}
+              <ChevronRight size={16} aria-hidden="true" />
+            </button>
+          )}
           {nextAction.kind === 'study' && (
             <button type="button" className="study-start-five bkit-action-five" onClick={() => onQuick(5)}>
               5분만 시작하기
@@ -276,74 +381,8 @@ export function PremiumHome({
         )}
         <small>실제 완료·취침 여부는 자동으로 확정하지 않아요. 기록은 기존 BKIT에 남습니다.</small>
       </section>
-      <section className="bkit-assessment-rescue" aria-label="수행평가 긴급 점검">
-        <div className="bkit-assessment-rescue-head">
-          <span className="bkit-assessment-rescue-kicker">SCHOOL / ASSESSMENT CHECK</span>
-          <span className="bkit-assessment-rescue-count">기록 {rescue.registered}건 · 확인 필요 {rescue.outstanding}건</span>
-        </div>
-        <h2>수행평가, 빠진 것부터 확인하자.</h2>
-        <p>
-          {rescue.registered === 0
-            ? 'BKIT에 등록된 수행평가가 없어요. 실제 학교에 수행평가가 없다는 뜻은 아니에요.'
-            : 'BKIT에 직접 등록한 수행평가만 보여줘요. 없는 과제와 실제 점수는 학교 공지·선생님에게 확인해야 해요.'}
-        </p>
-        {(rescue.submissionChecks > 0 || rescue.deadlinesToVerify > 0) && (
-          <div className="bkit-assessment-rescue-signals">
-            {rescue.submissionChecks > 0 && <span>제출 확인 필요 {rescue.submissionChecks}건</span>}
-            {rescue.deadlinesToVerify > 0 && <span>마감 미확인·추정 {rescue.deadlinesToVerify}건</span>}
-          </div>
-        )}
-        {rescue.top.length > 0 ? (
-          <div className="bkit-assessment-rescue-list" aria-label="먼저 점검할 수행평가 최대 세 개">
-            {rescue.top.map(({ task, status }) => (
-              <div key={task.id} className="bkit-assessment-rescue-row">
-                <button type="button" className="bkit-assessment-rescue-item" onClick={() => onEdit(task)}>
-                  <span><strong>{task.subject} · {task.title}</strong><small>{status}</small></span>
-                  <ChevronRight size={18} aria-hidden="true" />
-                </button>
-                {needsSubmission(task) ? (
-                  <button
-                    type="button"
-                    className="bkit-assessment-rescue-start"
-                    aria-label={`${task.title} 실제 제출 확인`}
-                    onClick={() => onEdit(task)}
-                  >
-                    제출 확인
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="bkit-assessment-rescue-start"
-                    disabled={busy}
-                    aria-label={`${task.title} 5분 공부 시작`}
-                    onClick={() => onStart(task.id, 5)}
-                  >
-                    5분 시작
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="bkit-assessment-rescue-empty">
-            {rescue.registered > 0
-              ? '등록된 기록에서 추가 확인할 항목은 없어요. 빠진 수행평가가 없는지는 별도로 확인해요.'
-              : '학교 공지나 학급 안내에서 수행평가 목록을 먼저 확인해 주세요.'}
-          </p>
-        )}
-        <div className="bkit-assessment-rescue-actions">
-          <button type="button" className="bkit-assessment-rescue-main" onClick={() => void copyNoticeToInbox()} disabled={noticeBusy}>
-            {noticeBusy ? '공지 확인 중…' : '복사한 공지 한 번에 보관'} <ArrowRight size={16} aria-hidden="true" />
-          </button>
-          <button type="button" onClick={onInbox}>공지함 · 직접 붙여넣기</button>
-          <button type="button" onClick={onAssessment}>빠진 수행평가 등록</button>
-          <button type="button" onClick={onAssessments}>제출 미확인 수행평가 보기</button>
-        </div>
-        {noticeError && <p className="bkit-assessment-rescue-error" role="alert">{noticeError}</p>}
-        <small className="bkit-assessment-rescue-disclaimer">
-          복사한 글은 이 기기 공지함에만 저장 · 학교 시스템 자동 조회 아님 · 마감/성적/제출 여부 자동 확정 없음
-        </small>
-      </section>
+      {schoolFirst && backupReminder}
+      {!schoolFirst && assessmentSection}
       <div className="bkit-evidence-entry">
         <span>지난 7일 · 직접 기록한 날 {activityWeek.evidenceDays}일</span>
         <button type="button" onClick={() => onNavigate('progress')}>
@@ -405,10 +444,7 @@ export function PremiumHome({
           대화하기 <ArrowRight size={17} aria-hidden="true" />
         </button>
       </section>
-      <div className="daily-activation" aria-label="첫 60초에 할 수 있는 일">
-        <button onClick={onInbox}>학교 공지 보관</button>
-        <button onClick={onAssessment}>수행평가 등록</button>
-        <button onClick={() => onNavigate('school')}>학교 시간표</button>
+      <div className="daily-activation" aria-label="학습 자료 빠른 이동">
         <button onClick={() => onNavigate('books')}>BOOKS · 학습지</button>
         <button onClick={() => onNavigate('exam-lab')}>수능관 · 기초 훈련</button>
       </div>
@@ -702,6 +738,14 @@ export function PremiumHome({
         <button className="study-help-link" onClick={onAccount}>
           {accountConnected ? 'Google 연결됨' : 'Google로 이어가기'}
         </button>
+        <a
+          className="study-help-link"
+          href={`${import.meta.env.BASE_URL}dev-status.html`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          개발 현황 · 커밋·테스트 보기 <ArrowUpRight size={15} aria-hidden="true" />
+        </a>
       </div>
     </div>
   );

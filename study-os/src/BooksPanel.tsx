@@ -579,7 +579,7 @@ export function Books({
                               자료 열기 · 필기
                             </button>
                           )}
-                          {r && m.kind === 'resource' && !r.archived && hasPracticeQuestions(learning(state), r.id, docs) && (
+                          {r && !r.archived && hasPracticeQuestions(learning(state), r.id, docs) && (
                             <button
                               onClick={() => {
                                 if (

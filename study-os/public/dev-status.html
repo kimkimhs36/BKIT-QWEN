@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#101820" />
+    <title>TEAM BKIT — 개발 현황 · 검증실</title>
+    <style>
+      :root {
+        font-family:
+          system-ui,
+          -apple-system,
+          'Apple SD Gothic Neo',
+          'Malgun Gothic',
+          sans-serif;
+        color: #f4f5f5;
+        background: #101820;
+        font-synthesis: none;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        line-height: 1.55;
+      }
+      a {
+        color: #c9ffa1;
+        text-underline-offset: 3px;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+      }
+      .shell {
+        width: min(960px, 100%);
+        padding: 26px 18px 60px;
+        margin: auto;
+      }
+      .eyebrow {
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        font-weight: 800;
+        color: #c9ffa1;
+      }
+      h1 {
+        font-size: clamp(26px, 5vw, 44px);
+        line-height: 1.12;
+        letter-spacing: -0.045em;
+        margin: 14px 0 12px;
+      }
+      h2 {
+        font-size: 20px;
+        margin: 0 0 10px;
+      }
+      p {
+        margin: 6px 0;
+      }
+      .lede,
+      .muted {
+        color: #bac8d0;
+      }
+      .top {
+        border-bottom: 1px solid #394954;
+        padding-bottom: 23px;
+        margin-bottom: 20px;
+      }
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .control {
+        background: #c9ffa1;
+        color: #101820;
+        padding: 10px 17px;
+        font-weight: 800;
+        border: 0;
+        border-radius: 10px;
+      }
+      .control:disabled {
+        opacity: 0.6;
+        cursor: progress;
+      }
+      .ghost {
+        border: 1px solid #59717b;
+        border-radius: 10px;
+        padding: 9px 14px;
+        color: #eef3f2;
+        text-decoration: none;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .panel {
+        padding: 20px;
+        background: #192630;
+        border: 1px solid #334651;
+        border-radius: 17px;
+        min-width: 0;
+      }
+      .wide {
+        grid-column: 1/-1;
+      }
+      .kicker {
+        font-size: 11px;
+        letter-spacing: 0.11em;
+        color: #b8c7cb;
+        font-weight: 800;
+        margin: 0 0 7px;
+      }
+      .value {
+        font-size: 17px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+      }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+      }
+      .ok {
+        color: #c9ffa1;
+      }
+      .warn {
+        color: #ffd29a;
+      }
+      .bad {
+        color: #ffb1ab;
+      }
+      .divider {
+        height: 1px;
+        background: #30434e;
+        margin: 15px 0;
+      }
+      .file {
+        padding: 9px 0;
+        border-bottom: 1px solid #31434e;
+        display: flex;
+        align-items: baseline;
+        gap: 9px;
+        justify-content: space-between;
+      }
+      .file:last-child {
+        border-bottom: none;
+      }
+      .filename {
+        overflow-wrap: anywhere;
+      }
+      .bullet {
+        color: #b7c8ce;
+        line-height: 1.8;
+        padding-left: 21px;
+      }
+      .bullet li {
+        margin-bottom: 10px;
+      }
+      .fineprint {
+        color: #b4c5cc;
+        font-size: 13px;
+      }
+      .status {
+        color: #c9ffa1;
+        min-height: 1.5em;
+        font-size: 13px;
+      }
+      .pill {
+        border: 1px solid #4e6671;
+        padding: 2px 8px;
+        border-radius: 100px;
+        font-size: 11px;
+      }
+      @media (max-width: 640px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .shell {
+          padding-top: 18px;
+        }
+        .panel {
+          padding: 17px;
+        }
+        .wide {
+          grid-column: 1;
+        }
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        button:hover {
+          filter: brightness(1.07);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="top">
+        <div class="eyebrow">TEAM BKIT / DEVELOPMENT CONTROL</div>
+        <h1>뭘 만들고 있고,<br />제대로 작동하는가.</h1>
+        <p class="lede">
+          앱에서 진행한 코드 변경과 자동 검증을 직접 확인하는 읽기 전용 공개 현황판.
+        </p>
+        <p class="fineprint">
+          현재 화면의 배포 파일과 공개 GitHub 기록을 비교합니다. 실제 학교 공지·성적·제출 자료에는
+          접근하지 않습니다.
+        </p>
+        <div class="actions">
+          <button class="control" id="refresh" type="button">최신 상태 다시 조회</button>
+          <a class="ghost" href="./">공부 앱으로 돌아가기</a>
+          <a
+            class="ghost"
+            href="https://github.com/kimkimhs36/BKIT-QWEN/pull/57"
+            target="_blank"
+            rel="noopener noreferrer"
+            >원본 PR #57 열기</a
+          >
+        </div>
+        <p id="updated" class="status" role="status" aria-live="polite">
+          현재 배포와 GitHub 상태 확인 중…
+        </p>
+      </header>
+
+      <div class="grid">
+        <section class="panel" aria-label="현재 접속한 버전">
+          <p class="kicker">01 / 이 화면의 실제 배포 버전</p>
+          <h2 id="deployed-version" class="value">조회 중…</h2>
+          <p id="deployment-environment" class="fineprint">배포 정보 확인 중</p>
+          <p class="fineprint">
+            출처: 이 웹사이트의
+            <a href="./build-info.json" target="_blank" rel="noopener noreferrer"
+              >build-info.json</a
+            >
+          </p>
+        </section>
+        <section class="panel" aria-label="GitHub 최신 코드">
+          <p class="kicker">02 / GitHub에 저장된 최신 코드</p>
+          <h2 id="github-version" class="value">조회 중…</h2>
+          <p id="pull-status" class="fineprint">Draft PR #57 조회 중</p>
+          <a
+            class="fineprint"
+            href="https://github.com/kimkimhs36/BKIT-QWEN/pull/56"
+            target="_blank"
+            rel="noopener noreferrer"
+            >부모 Draft PR #56 확인</a
+          >
+        </section>
+        <section class="panel wide" aria-label="버전 일치 여부">
+          <p class="kicker">03 / 배포 버전과 최신 코드가 같은가?</p>
+          <h2 id="version-match" class="value">두 출처 확인 중…</h2>
+          <p class="fineprint">
+            서로 다른 SHA라면 새 코드가 아직 이 사이트에 적용되지 않았을 수 있어요. 단순 READY나
+            저장 성공만으로 최신 기능이 배포됐다고 판단하지 않습니다.
+          </p>
+        </section>
+        <section class="panel" aria-label="자동 테스트">
+          <p class="kicker">04 / GitHub Actions 자동 검증</p>
+          <h2 id="ci-result" class="value">조회 중…</h2>
+          <p id="ci-meta" class="fineprint">이 SHA에 해당하는 실행만 인정합니다.</p>
+          <a
+            id="ci-link"
+            href="https://github.com/kimkimhs36/BKIT-QWEN/actions"
+            target="_blank"
+            rel="noopener noreferrer"
+            >실제 실행 로그 직접 보기</a
+          >
+        </section>
+        <section class="panel" aria-label="최근 코드 변경">
+          <p class="kicker">05 / 최신 커밋에서 무얼 바꿨나?</p>
+          <h2 id="commit-title" class="value">조회 중…</h2>
+          <p id="commit-meta" class="fineprint">최신 GitHub 커밋을 읽어옵니다.</p>
+          <a
+            id="commit-link"
+            href="https://github.com/kimkimhs36/BKIT-QWEN/pull/57/commits"
+            target="_blank"
+            rel="noopener noreferrer"
+            >커밋 변경 내용 보기</a
+          >
+        </section>
+        <section class="panel wide" aria-label="실제 수정 파일">
+          <p class="kicker">06 / 코드가 바뀐 정확한 위치</p>
+          <h2>수정된 파일과 변경량</h2>
+          <div id="files" class="fineprint">공개 GitHub 커밋의 변경 파일 목록을 조회 중입니다.</div>
+        </section>
+        <section class="panel wide" aria-label="최근 개발 커밋">
+          <p class="kicker">07 / 몇 번이나 실제 코드를 수정했나?</p>
+          <h2>최근 6개 커밋 · 코드 변경 이력</h2>
+          <div id="history" class="fineprint">GitHub에서 최근 커밋을 읽는 중입니다.</div>
+          <p class="fineprint">커밋은 코드 저장 기록이지, 실제 학업 개선의 증거가 아닙니다.</p>
+        </section>
+        <section class="panel wide" aria-label="직접 검사할 실제 행동">
+          <p class="kicker">08 / 자동 테스트와 실제 생활은 다릅니다</p>
+          <h2>아이폰에서 직접 확인할 단 하나의 흐름</h2>
+          <ol class="bullet">
+            <li>
+              학교의 <strong>실제 공식 공지</strong>를 열어 과제와 마감 날짜를 먼저 확인합니다.
+              확인되지 않은 날짜와 제출 여부는 미확인으로 둡니다.
+            </li>
+            <li>
+              BKIT에서 원문을 보존한 뒤 <strong>사진 포함 전체 ZIP</strong>을 만들어 아이폰
+              <strong>파일 앱</strong>에 실제 파일이 있는지 확인합니다.
+            </li>
+            <li>
+              그 저장된 ZIP을 다시 선택해 <strong>읽기 전용 검사</strong>에서 공지와 미제출 과제를
+              대조합니다. 기존 데이터를 확인 중이라면 <strong>복원 버튼을 누르지 않습니다.</strong>
+            </li>
+          </ol>
+          <p class="fineprint">
+            자동 E2E 통과는 물리 iPhone Safari, 학교 서버 연결, 실제 제출, 7일 성적 개선을 증명하지
+            않습니다.
+          </p>
+        </section>
+      </div>
+      <p class="fineprint" style="margin-top: 20px">
+        이 페이지는 비밀키나 학교 데이터를 전송하지 않습니다. GitHub 공개 API는 사용량 제한·네트워크
+        문제로 실패할 수 있으며, 그 경우 성공 상태를 꾸며 표시하지 않습니다.
+      </p>
+    </main>
+    <script>
+      (() => {
+        'use strict';
+        const repo = 'https://api.github.com/repos/kimkimhs36/BKIT-QWEN';
+        const link = 'https://github.com/kimkimhs36/BKIT-QWEN';
+        const byId = (id) => document.getElementById(id);
+        const write = (id, value, className) => {
+          const el = byId(id);
+          el.textContent = value;
+          if (className) el.className = className;
+        };
+        const short = (sha) => (typeof sha === 'string' ? sha.slice(0, 12) : '확인 불가');
+        const getJson = async (url) => {
+          const response = await fetch(url, {
+            cache: 'no-store',
+            headers: { Accept: 'application/vnd.github+json' },
+          });
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          return response.json();
+        };
+        const statusText = (run) => {
+          if (!run) return '해당 커밋의 CI 결과를 찾지 못함';
+          if (run.status !== 'completed') return '실행 중 · ' + run.status;
+          if (run.conclusion === 'success') return '자동 검증 통과';
+          return '자동 검증 ' + (run.conclusion || '미확정');
+        };
+        async function refresh() {
+          const button = byId('refresh');
+          button.disabled = true;
+          write('updated', '배포·GitHub 최신 정보를 확인 중…');
+          write('deployed-version', '조회 중…', 'value');
+          write('github-version', '조회 중…', 'value');
+          write('version-match', '두 출처 확인 중…', 'value');
+          write('ci-result', '조회 중…', 'value');
+          write('commit-title', '조회 중…', 'value');
+          write('files', '수정 파일 확인 중…');
+          write('history', '최근 커밋 확인 중…');
+          let deployed = null;
+          let head = null;
+          try {
+            const [build, pull] = await Promise.allSettled([
+              getJson(new URL('build-info.json', location.href).href),
+              getJson(repo + '/pulls/57'),
+            ]);
+            if (
+              build.status === 'fulfilled' &&
+              /^[a-f0-9]{40}$/.test(build.value.sourceCommit || '')
+            ) {
+              deployed = build.value.sourceCommit;
+              write('deployed-version', short(deployed), 'value mono');
+              write('deployment-environment', '환경: ' + (build.value.environment || '확인 안 됨'));
+            } else {
+              write('deployed-version', '빌드 SHA 확인 불가', 'value warn');
+              write('deployment-environment', '빌드 정보가 없거나 신뢰할 수 없는 형식입니다.');
+            }
+            if (pull.status === 'fulfilled' && /^[a-f0-9]{40}$/.test(pull.value.head?.sha || '')) {
+              head = pull.value.head.sha;
+              write('github-version', short(head), 'value mono');
+              write(
+                'pull-status',
+                '#' +
+                  pull.value.number +
+                  ' · ' +
+                  (pull.value.draft ? 'Draft 검토 중' : '리뷰 상태') +
+                  ' · base ' +
+                  (pull.value.base?.ref || '확인 불가'),
+              );
+            } else {
+              write('github-version', 'GitHub 연결 확인 실패', 'value warn');
+              write(
+                'pull-status',
+                'GitHub API 접근 제한 또는 네트워크 오류. PR 링크에서 직접 확인하세요.',
+              );
+            }
+            if (deployed && head) {
+              write(
+                'version-match',
+                deployed === head
+                  ? '같음 · 이 배포는 최신 PR HEAD와 일치합니다'
+                  : '다름 · 최신 커밋이 이 배포에 없음',
+                deployed === head ? 'value ok' : 'value warn',
+              );
+            } else {
+              write('version-match', '검증 불가 · 일치한다고 가정하지 않습니다', 'value warn');
+            }
+            if (!head) {
+              write('ci-result', '검증 상태 확인 불가', 'value warn');
+              write('commit-title', 'GitHub에서 직접 확인하세요', 'value warn');
+              write('files', 'GitHub API 연결이 필요합니다.');
+              write('history', 'GitHub API 연결이 필요합니다.');
+              return;
+            }
+            byId('commit-link').href = link + '/commit/' + head;
+            const [commit, checks, recent] = await Promise.allSettled([
+              getJson(repo + '/commits/' + head),
+              getJson(repo + '/actions/runs?head_sha=' + encodeURIComponent(head) + '&per_page=20'),
+              getJson(
+                repo + '/commits?sha=' + encodeURIComponent(head) + '&path=study-os&per_page=6',
+              ),
+            ]);
+            if (commit.status === 'fulfilled') {
+              const result = commit.value;
+              write('commit-title', (result.commit?.message || '커밋 메시지 없음').split('\n')[0]);
+              const count = Array.isArray(result.files) ? result.files.length : 0;
+              write('commit-meta', '커밋: ' + short(head) + ' · 변경 파일 ' + count + '개');
+              const holder = byId('files');
+              holder.replaceChildren();
+              if (!count)
+                holder.textContent =
+                  '변경 파일 목록을 제공하지 않았습니다. 커밋 원문을 확인하세요.';
+              for (const file of (result.files || []).slice(0, 14)) {
+                const row = document.createElement('div');
+                row.className = 'file';
+                const path = document.createElement('a');
+                path.className = 'filename mono';
+                path.href = file.blob_url || link + '/commit/' + head;
+                path.target = '_blank';
+                path.rel = 'noopener noreferrer';
+                path.textContent = file.filename || '(경로 확인 불가)';
+                const diff = document.createElement('span');
+                diff.className = 'pill mono';
+                diff.textContent = '+' + (file.additions || 0) + ' / -' + (file.deletions || 0);
+                row.append(path, diff);
+                holder.append(row);
+              }
+              if (count > 14) {
+                const tail = document.createElement('p');
+                tail.textContent = '처음 14개만 표시됨 · 전체 파일은 커밋 링크에서 확인';
+                holder.append(tail);
+              }
+            } else {
+              write('commit-title', '변경 파일 조회 실패', 'value warn');
+              write('commit-meta', '공개 GitHub API를 사용할 수 없습니다.');
+              write('files', '커밋 링크에서 직접 확인하세요.');
+            }
+            if (recent.status === 'fulfilled' && Array.isArray(recent.value)) {
+              const holder = byId('history');
+              holder.replaceChildren();
+              for (const item of recent.value) {
+                const row = document.createElement('div');
+                row.className = 'file';
+                const entry = document.createElement('a');
+                entry.href = item.html_url || link + '/commit/' + item.sha;
+                entry.target = '_blank';
+                entry.rel = 'noopener noreferrer';
+                entry.className = 'filename';
+                entry.textContent =
+                  short(item.sha) + ' · ' + (item.commit?.message || '메시지 없음').split('\n')[0];
+                const time = document.createElement('span');
+                time.className = 'pill';
+                time.textContent = item.commit?.committer?.date
+                  ? new Date(item.commit.committer.date).toLocaleDateString('ko-KR')
+                  : '날짜 미확인';
+                row.append(entry, time);
+                holder.append(row);
+              }
+              if (!recent.value.length)
+                write('history', '이 브랜치에서 커밋 이력을 찾지 못했습니다.');
+            } else {
+              write('history', '최근 커밋 조회 실패 · PR 링크에서 직접 확인하세요.');
+            }
+            if (checks.status === 'fulfilled') {
+              const all = checks.value.workflow_runs || [];
+              const run = all.find(
+                (x) =>
+                  x.head_sha === head && x.name === 'BKIT school notice ZIP regression (isolated)',
+              );
+              write(
+                'ci-result',
+                statusText(run),
+                run?.conclusion === 'success' ? 'value ok' : 'value warn',
+              );
+              write(
+                'ci-meta',
+                run
+                  ? '실행 #' +
+                      run.id +
+                      ' · ' +
+                      (run.event || '이벤트 미확인') +
+                      ' · ' +
+                      (run.conclusion || run.status)
+                  : '다른 SHA의 테스트를 재사용하지 않습니다.',
+              );
+              if (run?.html_url) byId('ci-link').href = run.html_url;
+            } else {
+              write('ci-result', 'GitHub Actions 조회 실패', 'value warn');
+              write('ci-meta', '실패를 통과라고 판단하지 않습니다. 실행 로그 링크를 확인하세요.');
+            }
+          } catch {
+            write(
+              'updated',
+              '일부 조회 실패 · 표시된 출처 링크에서 직접 확인하세요.',
+              'status warn',
+            );
+          } finally {
+            button.disabled = false;
+            if (!byId('updated').textContent.includes('일부 조회 실패')) {
+              write(
+                'updated',
+                '조회 종료 · ' +
+                  new Date().toLocaleString('ko-KR') +
+                  ' · 수동 새로고침으로 재확인할 수 있습니다.',
+              );
+            }
+          }
+        }
+        byId('refresh').addEventListener('click', refresh);
+        refresh();
+      })();
+    </script>
+  </body>
+</html>
